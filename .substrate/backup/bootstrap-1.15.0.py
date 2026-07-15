@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.16.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.15.0 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -15,7 +15,6 @@ from collections.abc import Mapping, Sequence
 from collections.abc import Sequence
 from contextlib import AbstractContextManager, contextmanager
 from dataclasses import asdict, dataclass, field, fields
-from dataclasses import dataclass
 from dataclasses import dataclass, field
 from datetime import date
 from datetime import date as _led_date
@@ -27,8 +26,6 @@ from pathlib import Path
 from typing import Any
 from typing import Any, NamedTuple
 from typing import Callable
-from typing import Callable, Mapping
-from typing import Callable, Sequence
 from typing import NamedTuple
 import argparse
 import ast
@@ -41,9 +38,7 @@ import json
 import os
 import random
 import re
-import shlex
 import string
-import subprocess  # noqa: TID251
 import sys
 import tarfile
 import tempfile
@@ -95,7 +90,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.16.0"
+KIT_VERSION = "1.15.0"
 
 
 def _new_project_id() -> str:
@@ -127,11 +122,9 @@ def _default_orientation() -> dict:
     """Return the orientation-budget knobs (the K0 ≤7,000-word gate).
 
     ``boot_docs`` empty means "fall back to ``readpath_docs``" — the
-    unconditional boot-read set the budget counts. ``headroom_warn_ratio``
-    arms the advisory-only headroom gauge (PR #308): warn at >= this
-    fraction of ``budget_words`` (never exit-affecting); >= 1 disables it.
+    unconditional boot-read set the budget counts.
     """
-    return {"budget_words": 7000, "boot_docs": [], "headroom_warn_ratio": 0.95}
+    return {"budget_words": 7000, "boot_docs": []}
 
 
 def _default_economy() -> dict:
@@ -206,9 +199,6 @@ def _default_automerge() -> dict:
       head); anything else matches exactly. An empty list falls back to the
       default at the consumer (the ``heartbeat_files`` doctrine: a
       misconfiguration must not silently disable — or widen — the arming).
-      Default covers ``claude/*`` (session branches) AND ``claim/*``
-      (control fast-lane claim PRs): a claude/-only list left claim PRs
-      green+clean but unarmed forever (kit PR #293, the live stall class).
     - ``required_context`` — the required status-check context the arming
       message names (default ``substrate-gate``, the planted gate's job).
       Informational only: the workflow's refuse-to-arm guard counts the
@@ -216,28 +206,9 @@ def _default_automerge() -> dict:
       wrong name here mislabels a log line, never the guard.
     """
     return {
-        "branch_patterns": ["claude/*", "claim/*"],
+        "branch_patterns": ["claude/*"],
         "required_context": "substrate-gate",
     }
-
-
-def _default_preflight_scripts() -> list[str]:
-    """Return the repo-local preflight scripts ``check`` runs on the full lane.
-
-    Local-ritual ↔ CI-gate parity (ORDER 018 / idea-engine ASK 002): each
-    entry is a repo-relative command line (``shlex``-split; a leading
-    ``*.py`` token runs under the interpreter already running ``check``)
-    executed by ``cmd_check`` on the full — non ``--status-only`` — lane,
-    with any non-zero exit riding the strict finding loop. Because the
-    generated substrate-gate's full lane itself invokes ``bootstrap.py
-    check --strict``, this ONE list is what both the local ritual and CI
-    run — a checker added to the repo's preflight wrapper is enforced in
-    both venues with zero workflow edits. The default names the
-    conventional wrapper path (idea-engine's ``scripts/preflight.py``
-    convergence pattern) so parity arrives on upgrade without a config
-    edit; an absent script self-skips with a NOTE, never a red.
-    """
-    return ["scripts/preflight.py"]
 
 
 def _default_badge_tokens() -> list[str]:
@@ -316,11 +287,6 @@ class Config:
     claims_dir: str = DEFAULT_CLAIMS_DIR
     # Auto-merge-enabler knobs (EAP §6.10 — see _default_automerge above).
     automerge: dict = field(default_factory=_default_automerge)
-    # Local preflight scripts (ORDER 018 — see _default_preflight_scripts
-    # above): the ONE check list both the local ritual and the CI gate run.
-    preflight_scripts: list[str] = field(
-        default_factory=_default_preflight_scripts,
-    )
 
     def to_json(self) -> str:
         """Serialise the config to indented, key-sorted JSON."""
@@ -668,144 +634,6 @@ def active_practices(
     unlocked = 1 + sessions // interval
     return list(GUIDED_ROLLOUT[:unlocked])
 
-# --- engine/lib/git_truth.py ---
-"""Safe git-ancestry answers for engine code (ORDER 022 push guard).
-
-Engine-shipped port of the repo-tooling helper ``scripts/_git_truth.py``
-(PR #358): that module is deliberately repo-level ("lives in scripts/, never
-ships in dist/bootstrap.py, adopter repos never receive it"), but the ORDER
-022 stop-hook merged-head push guard must ride the dist into every adopter —
-so the primitive lives here too, byte-identical in behavior, with a parity
-test (``tests/test_git_truth.py``) pinning the two copies against drift.
-
-THE FACT THIS MODULE OWNS: **a shallow (grafted) clone severs real ancestry
-paths, so a NEGATIVE git ancestry answer on one proves nothing.** Container
-clones are routinely shallow, and on such a clone ``git merge-base
---is-ancestor A B`` returns a FALSE negative for commits that ARE ancestors
-on origin (live-hit in kit PRs #355 and #357). The rule: **a positive
-ancestry answer is still a proof; a negative one on a shallow clone degrades
-to "unprovable" — callers SKIP honestly, never false-FAIL.**
-
-Seam: every function takes a ``GitCommand`` runner —
-``run(args) -> (returncode, stdout_text, stderr_text)`` — so callers keep
-their own subprocess wrappers / injected test fakes (``make_runner`` is the
-default subprocess-backed one). Verdicts:
-
-- ``YES``        — provable: git answered "is an ancestor" (rc 0).
-- ``NO``         — provable negative: git said no (rc 1) on a NOT-shallow
-                   clone; with ``missing_as_no=True`` an rc-128
-                   unknown-commit answer on a NOT-shallow clone also counts
-                   (full history + absent commit = genuinely not reachable).
-- ``UNPROVABLE`` — a negative on a confirmed-shallow clone, or any git
-                   error/other rc: not evidence of anything; degrade (SKIP),
-                   never FAIL on it.
-"""
-
-
-# §3.2 carve-out #2 (ORDER 022, mirroring cli.py's ORDER 018 carve-out):
-# subprocess is banned in engine code — but the stop-hook merged-head push
-# guard's ONLY evidence source is the local clone's git (is this branch's
-# head already in origin/main?), and hooks run locally at session stop where
-# no CI bash wrapper exists to do the git work. ``make_runner`` is the one
-# subprocess touchpoint; every consumer takes the ``GitCommand`` seam so
-# tests inject fakes and never shell out. Fail-open: rc 127 on any failure.
-
-# run(args) -> (returncode, stdout text, stderr text). rc 127 = git itself
-# could not run (the convention check_idea_index._git established).
-GitCommand = Callable[[Sequence[str]], tuple[int, str, str]]
-
-YES = "yes"
-NO = "no"
-UNPROVABLE = "unprovable"
-
-
-@dataclass(frozen=True)
-class AncestryAnswer:
-    """One safe ancestry answer: the verdict plus the raw evidence behind it.
-
-    ``verdict``    — YES / NO / UNPROVABLE (module constants).
-    ``returncode`` — the raw ``merge-base --is-ancestor`` exit code.
-    ``shallow``    — True/False when shallowness was checked and determinable,
-                     None when not checked (rc 0) or undeterminable.
-    ``detail``     — stderr of the failed git call for UNPROVABLE-on-error,
-                     or a one-line reason for the shallow degradation.
-    """
-
-    verdict: str
-    returncode: int
-    shallow: bool | None = None
-    detail: str = ""
-
-
-def make_runner(root: Path, timeout: int = 30) -> GitCommand:
-    """Default subprocess-backed runner rooted at ``root`` (rc 127 = no git)."""
-
-    def run(args: Sequence[str]) -> tuple[int, str, str]:
-        try:
-            proc = subprocess.run(
-                ["git", "-C", str(root), *args],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                check=False,
-            )
-        except (OSError, subprocess.SubprocessError) as exc:
-            return 127, "", str(exc)
-        return proc.returncode, proc.stdout, proc.stderr
-
-    return run
-
-
-def is_shallow(run: GitCommand) -> bool | None:
-    """True/False per ``rev-parse --is-shallow-repository``; None = unknown.
-
-    None (git errored / unavailable) is deliberately distinct from False:
-    "couldn't even ask" must never be read as "provably a full clone".
-    """
-    rc, out, _err = run(["rev-parse", "--is-shallow-repository"])
-    if rc != 0:
-        return None
-    return out.strip() == "true"
-
-
-def provable_ancestry(
-    run: GitCommand,
-    ancestor: str,
-    descendant: str,
-    *,
-    missing_as_no: bool = False,
-) -> AncestryAnswer:
-    """Answer "is ``ancestor`` an ancestor of ``descendant``?" — safely.
-
-    The one rule this module exists for: a negative answer is only evidence
-    on a NOT-shallow clone. On a confirmed-shallow clone it degrades to
-    UNPROVABLE (the caller SKIPs, never FAILs). ``missing_as_no`` opts in to
-    treating rc 128 (unknown/invalid commit) as a real negative — sound only
-    where the caller has already pinned the ref side to exist (the
-    ``check_idea_index`` merged-reality policy); the default keeps rc 128
-    UNPROVABLE (``verify_release``'s "could not test" policy).
-    """
-    rc, _out, err = run(["merge-base", "--is-ancestor", ancestor, descendant])
-    if rc == 0:
-        return AncestryAnswer(YES, rc)
-    shallow = is_shallow(run)
-    if shallow is True and rc in (1, 128):
-        # Both negative shapes are the graft class on a shallow clone: rc 1
-        # (paths severed — the #357 live hit) and rc 128 (the commit itself
-        # outside the truncated history — the #355 class).
-        return AncestryAnswer(
-            UNPROVABLE,
-            rc,
-            shallow=True,
-            detail=(
-                "negative ancestry answer on a SHALLOW (grafted) clone — "
-                "unreliable; re-check on a full clone"
-            ),
-        )
-    if rc == 1 or (rc == 128 and missing_as_no):
-        return AncestryAnswer(NO, rc, shallow=shallow)
-    return AncestryAnswer(UNPROVABLE, rc, shallow=shallow, detail=err.strip())
-
 # --- engine/grammar.py ---
 """Control-plane grammar — THE single source of truth (EAP §6.8).
 
@@ -900,16 +728,8 @@ def orders_line_example(*, claimed: bool = False) -> str:
 # treats the Project as dark. The value is the line's first token (ISO-8601,
 # minutes or seconds precision, `Z` or offset). Enforced by
 # check_status_current (parse_heartbeat).
-#
-# The prefix match is CASE-INSENSITIVE (the KIT_LINE_RE leniency instinct:
-# accepting an alternate only ever *withholds* a red, never adds one). A live
-# heartbeat written as `Updated:` failed `[status-no-heartbeat]` and had to
-# be hand-fixed in-PR (kit #326, 2026-07-13) — a casing slip is a writer
-# spelling variant, not a dead heartbeat, so the enforcer forgives it. The
-# canonical WRITER form stays lowercase `updated:` (the example below, every
-# planted template, control/README.md's taught block).
 
-UPDATED_LINE_RE = re.compile(r"^updated:\s*(\S+)", re.MULTILINE | re.IGNORECASE)
+UPDATED_LINE_RE = re.compile(r"^updated:\s*(\S+)", re.MULTILINE)
 
 
 def updated_line_example() -> str:
@@ -1174,121 +994,12 @@ def walls_digest_begin_marker(venues: tuple[str, ...]) -> str:
 WORK_CLAIM_BULLET_RE = re.compile(r"^-\s.*`([^`\n]+)`", re.MULTILINE)
 WORK_CLAIM_DATE_RE = re.compile(r"\b(20\d{2}-\d{2}-\d{2})\b")
 
-# The optional ORDER reference on a work-claim bullet (the #362/#363
-# cross-branch collision fix, idea order-claim-cross-branch-collision-
-# 2026-07-14): a claim serving an inbox ORDER carries an ` · order NNN`
-# segment (written by `bootstrap claim --order NNN`), and the SAME regex
-# also recognizes a free-text `ORDER 020` mention in the scope — so
-# hand-written claims that name their order in prose still key the
-# cross-branch overlap scan. One parsing home (EAP §6.8): the writer's
-# round-trip verify, the claim verb's refusal scan, and check_claims'
-# collision advisory all consume :func:`work_claim_order_ids`.
-WORK_CLAIM_ORDER_RE = re.compile(r"\border\s+(\d{1,4})\b", re.IGNORECASE)
-
-
-def work_claim_order_ids(bullet_line: str) -> set[str]:
-    """Return the 3-digit-normalized order ids named on a claim bullet line.
-
-    ``order 20`` / ``ORDER 020`` → ``{"020"}``. Only the bullet LINE is the
-    contract's surface (mirroring the post-#353 date rule — segments beyond
-    the bullet are commentary, not claim grammar).
-    """
-    return {f"{int(m):03d}" for m in WORK_CLAIM_ORDER_RE.findall(bullet_line)}
-
 
 def work_claim_bullet_example(date: str = "2026-07-10") -> str:
     """Canonical work-claim bullet dated ``date``."""
     return (
         f"- `example-branch` · **scope** — one-line detail · "
         f"expected files/area · {date}\n"
-    )
-
-
-# ── .sessions/<card>.md — the 📊 Model run-report line (PL-004 / KL-3) ──────
-#
-# Taught in the planted ``.sessions/README.md`` (``adopt._adopt_sessions_readme``
-# renders the needle byte-form + the ORDER 012 family-level attribution
-# doctrine) and harvested by session-close into ``telemetry/model-usage.jsonl``:
-#   - **📊 Model:** <model> · <effort> · <task-class>
-# The `·` is U+00B7 (the protocol's separator; an optional 4th integer segment
-# fills ``tokens_out``, KF-9). Consumed by ``loop.telemetry`` (the harvest +
-# the write-at-commit reconcile) and ``checks.check_model_line`` (the advisory
-# payload lint) — ONE home for needle/taxonomy/parser so the writer half, the
-# harvest, and the lint cannot drift apart (EAP §6.8; idea
-# model-line-payload-lint-advisory-2026-07-11: 4 of the 5 newest complete
-# cards carried off-taxonomy segment-2/3 payloads and the harvest recorded
-# the drift as ground truth).
-
-MODEL_LINE_NEEDLE = "\N{BAR CHART} Model:"  # 📊 Model:
-# The taught byte-form, verbatim — lint messages quote it so a finding always
-# names the exact expected shape (the run-1 ON-arm false-red lesson: a red
-# that contradicts what the agent can see on the card is the check's bug).
-MODEL_LINE_TAUGHT_FORMAT = (
-    "- **\N{BAR CHART} Model:** <model> \N{MIDDLE DOT} <effort> "
-    "\N{MIDDLE DOT} <task-class>"
-)
-# The 9 PL-004 task classes, verbatim (docs/program/rulings.md): the 8
-# founding Q-0248 classes + `feature build` (the PL-010 amendment).
-MODEL_TASK_CLASSES = (
-    "docs-only",
-    "mechanical refactor",
-    "test writing",
-    "runtime bugfix",
-    "kernel/architecture design",
-    "review/verify",
-    "research",
-    "idea/planning",
-    "feature build",
-)
-# The effort tiers the segment-2 payload files. Declared from the measured
-# dataset (telemetry/model-usage.jsonl: low/medium/high are the only values
-# that recur; everything else is drift — "high effort", lane names) and the
-# harness's own effort levels. Off-list values are an ADVISORY nudge only —
-# the lint never rejects, and the harvest records verbatim either way.
-MODEL_EFFORT_VALUES = ("low", "medium", "high")
-# Exact model-ID token detector for the 📊 model segment (fleet reporting
-# bar, ORDER 012 widened 2026-07-12): repo artifacts carry FAMILY-LEVEL model
-# names only (`fable-5`, `opus-4.8`), never an exact model-ID token — and
-# exact IDs are not always dated, so a dated-suffix test alone is too narrow
-# (the websites #178 cleanup class: cards recording `claude-`-prefixed exact
-# ID tokens passed the old "no full dated model ID" wording). Flags the two
-# exact-ID shapes seen in the wild: a provider-prefixed ID token
-# (`claude-…`, incl. `us.anthropic.…` forms) and a dated `-YYYYMMDD` suffix.
-EXACT_MODEL_ID_RE = re.compile(r"^(?:us\.)?(?:anthropic\.)?claude-|-\d{8}$")
-
-
-def parse_model_payload(payload: str) -> dict | None:
-    """Parse one needle line's payload; None when it under-fills (<3 segments).
-
-    Byte-identical move of ``loop.telemetry._parse_model_payload`` (the
-    harvest keeps consuming it from here — one parser, shared by writer-side
-    docs, the harvest, and the payload lint). Bold markers and the list dash
-    are cosmetic and stripped; an optional 4th integer segment fills
-    ``tokens_out`` (KF-9 — null until a meter exists).
-    """
-    parts = [p.strip(" *`") for p in payload.split("\N{MIDDLE DOT}")]
-    parts = [p for p in parts if p]
-    if len(parts) < 3:
-        return None
-    tokens_out: int | None = None
-    if len(parts) >= 4:
-        try:
-            tokens_out = int(parts[3].replace(",", "").replace("_", ""))
-        except ValueError:
-            tokens_out = None
-    return {
-        "model": parts[0],
-        "effort": parts[1],
-        "task_class": parts[2],
-        "tokens_out": tokens_out,
-    }
-
-
-def model_line_example() -> str:
-    """Canonical 📊 Model run-report line — what a correct card carries."""
-    return (
-        "- **\N{BAR CHART} Model:** fable-5 \N{MIDDLE DOT} high "
-        "\N{MIDDLE DOT} feature build\n"
     )
 
 
@@ -1507,40 +1218,6 @@ QUESTIONS: list[dict] = [
         "priority": "high",
         "critical": False,
         "trigger": "new_area",
-    },
-    # Q-014..Q-016 fill the multi-repo reading path (docs/reading-path.md,
-    # provenance superbot Q-0272). None is critical: a solo repo with no
-    # fleet leaves them unfilled without blocking graduation.
-    {
-        "id": "Q-014",
-        "slot": "fleet_status_command",
-        "audience": "user",
-        "prompt": "One command that orients a session on the whole fleet's status (or 'none yet')?",
-        "routing": "templates/reading-path.md:one_command",
-        "priority": "normal",
-        "critical": False,
-        "objective": True,
-        "min_len": 4,
-    },
-    {
-        "id": "Q-015",
-        "slot": "fleet_siblings",
-        "audience": "self",
-        "prompt": "Which sibling repos may sessions here read, and which files carry each one's truth?",
-        "routing": "templates/reading-path.md:siblings",
-        "priority": "normal",
-        "critical": False,
-        "objective": True,
-        "min_len": 20,
-    },
-    {
-        "id": "Q-016",
-        "slot": "fleet_dark_repos",
-        "audience": "user",
-        "prompt": "Any private/dark sibling repos sessions must never read or guess about?",
-        "routing": "templates/reading-path.md:dark_repos",
-        "priority": "normal",
-        "critical": False,
     },
 ]
 
@@ -2216,17 +1893,13 @@ The session workflow asks every session to end with a
 Each marker is a ``{"label", "needle"}`` pair from ``substrate.config.json``, so a
 host tunes the ritual without touching engine code.
 
-Unlike the host's version this module does **not** shell out to ``git`` to pick
-the "current" log — ``subprocess`` is banned in engine *checker* code (§3.2).
-:func:`latest_session_log` (newest ``*.md`` by mtime under ``sessions_dir``) is
-only the LAST-RESORT guess: the CLI's fallback lane derives the card set from
-the merge-base diff vs ``origin/main`` itself (``engine.cli.
-_derive_diff_session_cards``, a documented §3.2 carve-out — the sim-lab V051
-false-green showed a post-merge sibling card carries the freshest mtime and the
-mtime guess validates the WRONG card), and CI workflows pass ``check
---session-log <file>`` with the card the PR's diff touches (a fresh checkout
-flattens every mtime to checkout time). Pure stdlib; returns the missing
-markers rather than printing.
+Unlike the host's version this port does **not** shell out to ``git`` to pick the
+"current" log — ``subprocess`` is banned in engine code and is host-CI sugar
+anyway. The current log is the newest ``*.md`` by mtime under ``sessions_dir``;
+CI workflows should prefer ``check --session-log <file>`` with the card the
+PR's diff touches, because a fresh checkout flattens every mtime to checkout
+time and silently degrades the newest-by-mtime guess. Pure stdlib; returns the
+missing markers rather than printing.
 """
 
 
@@ -2447,206 +2120,6 @@ def check_log(path: Path, markers: Sequence[Mapping[str, str]]) -> list[str]:
     if status_in_progress(text):
         missing.append("a completed Status (badge still says in-progress)")
     return missing
-
-# --- engine/checks/check_model_line.py ---
-"""📊 Model-line payload lint — the run-report line's VALUES, not just its needle.
-
-Why + provenance: idea ``docs/ideas/model-line-payload-lint-advisory-2026-07-11.md``
-(Night-8 triage #3). The ``- **📊 Model:** <model> · <effort> · <task-class>``
-run-report line is grammar-checked for the needle's presence
-(``session_markers``), but its PAYLOAD drifts silently: the ORDER 013
-self-review measured 4 of the 5 newest complete cards carrying off-PL-004
-segment-2/3 values (W-10a — fixed by hand in a later flip commit), and the
-telemetry harvest then records the drifted values as ground truth. The
-harvest's own payload advisories fire once, at session-close time, on the
-single card being closed; nothing re-checks at ``check`` time, so drift that
-slips past one close-out is invisible until a human sweep.
-
-This lint closes that gap: every ``check`` full-lane run scans the newest
-COMPLETED cards under ``sessions_dir`` (a bounded window — see
-:data:`MODEL_LINE_LINT_WINDOW`; ``window=0`` is the unbounded measurement
-lane) and warns when a card's harvested Model line
-
-- has the needle but no valid three-field ``·`` payload (``model-line-shape``),
-- carries an exact model-ID token in the model segment instead of a
-  family-level name (``model-line-exact-id`` — fleet reporting bar, ORDER 012),
-- files an effort segment outside the taxonomy (``model-line-effort``), or
-- files a task-class segment that does not prefix-match one of the 9 PL-004
-  classes (``model-line-class`` — prefix-match on purpose: a decorated class
-  like ``docs-only — oracle pin edit`` is a valid report, not drift).
-
-Every finding quotes the expected byte-form verbatim
-(:data:`engine.grammar.MODEL_LINE_TAUGHT_FORMAT`) — the run-1 ON-arm
-false-red lesson: a message must name the exact expected form, never
-contradict what the agent can see on the card.
-
-Posture: **advisory-only, never exit-affecting** (PL-008 / the §8 Q2=B
-advisory-first pattern, same contract as ``check_owner_actions`` /
-``check_seat_digest``) — existing adopters carry drifted historical cards
-today, and a gate would pre-redden every one of them on upgrade. Migration
-pressure without a locked door; the fix is editing one line on one card.
-
-Scope discipline (mirrors ``loop.telemetry`` exactly, by shared constants —
-the EAP §6.8 writer/enforcer pattern; the grammar lives in
-``engine.grammar``):
-
-- Only **completed** cards are judged (``status_in_progress`` /
-  ``unresolved_fill_count`` gate, the same machinery ``reconcile_model_usage``
-  uses) — a born-red / drafted card has no finished report to lint.
-- Inline code spans and fenced blocks are stripped first — prose that
-  *mentions* the marker (docs about the mechanism do) never fires.
-- ``[[fill:]]`` stand-in lines are skipped (an auto-draft is not a report).
-- **Last-valid-wins**, exactly like ``parse_model_line``: the payload checks
-  judge the line the harvest would record, so a corrected report later in
-  the card supersedes an earlier one and the lint flags precisely what would
-  pollute (or, for shape, silently miss) ``telemetry/model-usage.jsonl``.
-
-Reliability (PL-008): UNVERIFIED — added 2026-07-14; confirm its findings
-against ground truth a few times across sessions before trusting it, and
-**delete this check if it proves unreliable over multiple sessions.** It is
-advisory-only by contract either way. Stdlib only; unreadable files fail open.
-"""
-
-
-
-
-# The code-span/fence stripping is check_session_log's — imported, not
-# mirrored: the namespace guard (test_check_namespace) rejects duplicate
-# top-level names because the dist concatenation would silently shadow the
-# earlier definition. A card whose prose mentions the needle in backticks or
-# a fenced example is not a report.
-
-# How many of the NEWEST completed cards the check-time scan judges.
-# Measured at build time (2026-07-14, this lint's own session): an unbounded
-# scan over the kit's own tree found 124 of 178 completed cards drifted (174
-# findings) — surfacing all of it on every `check` run would bury the
-# actionable signal in archaeology and burst the guard-fires journal past its
-# dedupe scan window. The lint's job is friction→guard at session velocity
-# (the W-10a evidence was "4 of the 5 NEWEST complete cards"), so the shipped
-# default judges the newest window only; ``window=0`` scans unbounded (the
-# drift-measurement lane). Sorted by filename — cards are date-prefixed by
-# convention, so name order IS date order.
-MODEL_LINE_LINT_WINDOW = 10
-
-# The loud fix-path tail every finding carries — quotes the taught byte-form
-# verbatim so the fix is a copy-edit, never a re-derivation.
-_FIX_PATH = (
-    f"fix the card's line to the taught form `{MODEL_LINE_TAUGHT_FORMAT}` "
-    "(family-level model · effort · PL-004 task class; see .sessions/README.md)"
-)
-
-
-def model_line_findings(text: str) -> list[tuple[str, str]]:
-    """Lint one completed card's text; return ``(kind, message)`` pairs.
-
-    Returns ``[]`` when the card carries no needle at all — marker PRESENCE
-    is the session-log gate's job (``missing_markers``), not this lint's;
-    double-reporting the same miss would be advisory noise.
-    """
-    stripped = _CODE_SPAN_RE.sub("", _FENCE_RE.sub("", text))
-    candidates = [
-        line
-        for line in stripped.splitlines()
-        if MODEL_LINE_NEEDLE in line and DRAFT_FILL_TOKEN not in line
-    ]
-    if not candidates:
-        return []
-    last_valid: dict | None = None
-    first_malformed: str | None = None
-    for line in candidates:
-        parsed = parse_model_payload(line.split(MODEL_LINE_NEEDLE, 1)[1])
-        if parsed is not None:
-            last_valid = parsed
-        elif first_malformed is None:
-            first_malformed = line.strip()
-    if last_valid is None:
-        return [
-            (
-                "model-line-shape",
-                f"the `{MODEL_LINE_NEEDLE}` line {first_malformed!r} has no "
-                "valid three-field payload (needs two `\N{MIDDLE DOT}` "
-                "separators: model \N{MIDDLE DOT} effort \N{MIDDLE DOT} "
-                "task-class) — the telemetry harvest records NOTHING from "
-                f"this card; {_FIX_PATH}",
-            ),
-        ]
-    findings: list[tuple[str, str]] = []
-    model = last_valid["model"]
-    if EXACT_MODEL_ID_RE.search(model):
-        findings.append(
-            (
-                "model-line-exact-id",
-                f"model segment {model!r} looks like an exact model-ID token "
-                "— record the family-level model name only (e.g. `fable-5`, "
-                "`opus-4.8`), never an exact model ID, dated or not (fleet "
-                f"reporting bar, ORDER 012); {_FIX_PATH}",
-            ),
-        )
-    effort = last_valid["effort"]
-    if effort not in MODEL_EFFORT_VALUES:
-        known = " | ".join(MODEL_EFFORT_VALUES)
-        findings.append(
-            (
-                "model-line-effort",
-                f"effort segment {effort!r} is not one of the taxonomy "
-                f"values ({known}) — the PL-004 dataset records it verbatim; "
-                f"{_FIX_PATH}",
-            ),
-        )
-    task_class = last_valid["task_class"]
-    if not any(task_class.startswith(known) for known in MODEL_TASK_CLASSES):
-        known = " | ".join(MODEL_TASK_CLASSES)
-        findings.append(
-            (
-                "model-line-class",
-                f"task-class segment {task_class!r} does not prefix-match "
-                f"any of the {len(MODEL_TASK_CLASSES)} PL-004 classes "
-                f"({known}) — the PL-004 dataset records it verbatim; "
-                f"{_FIX_PATH}",
-            ),
-        )
-    return findings
-
-
-def check_model_line(
-    root: Path,
-    *,
-    sessions_dir: str,
-    window: int = MODEL_LINE_LINT_WINDOW,
-) -> list[Finding]:
-    """Lint the ``window`` newest completed session cards under ``root/sessions_dir``.
-
-    ``window=0`` lints every completed card (the drift-measurement lane; see
-    :data:`MODEL_LINE_LINT_WINDOW` for why the check-time default is bounded).
-    Advisory-only by contract — the caller (``cmd_check``'s full lane) emits
-    these as never-exit-affecting warnings. Input-gated: a missing sessions
-    directory (un-adopted tree) returns nothing; unreadable cards fail open;
-    in-progress / drafted / fill-carrying cards are never judged.
-    """
-    findings: list[Finding] = []
-    directory = root / sessions_dir
-    if not directory.is_dir():
-        return findings
-    completed: list[tuple[Path, str]] = []
-    for card in sorted(directory.glob("*.md")):
-        if card.name == "README.md":
-            continue
-        try:
-            text = card.read_text(encoding="utf-8")
-        except OSError:
-            continue
-        if status_in_progress(text) or unresolved_fill_count(text):
-            continue
-        completed.append((card, text))
-    if window:
-        completed = completed[-window:]
-    for card, text in completed:
-        rel = f"{sessions_dir}/{card.name}"
-        findings.extend(
-            Finding(path=rel, kind=kind, message=message)
-            for kind, message in model_line_findings(text)
-        )
-    return findings
 
 # --- engine/checks/check_namespace.py ---
 """Portable namespace / shadowing guard (Lane B6, the Q-0200 class).
@@ -2942,29 +2415,6 @@ Finding kinds: ``orientation-missing`` (a boot doc is absent),
 ``orientation-budget`` (the total blows the budget), ``orientation-doc-cap``
 (a self-capped doc outgrew its declared cap). Findings reuse the ``Finding``
 record from ``engine.checks.check_docs``.
-
-Headroom advisory (the K0 headroom gauge — seat-baton item, spec of record
-``.sessions/2026-07-10-nightcap-docs-reconcile.md`` § 💡): the budget gate
-used to bite silently — no signal until ``check --strict`` went red, then an
-iterative trim loop, one full check run per guess (the 7,250-word live hit;
-a second live hit sat at 6,992/7,000 with 8 words of headroom and no
-warning). :func:`check_orientation_headroom` turns the cliff into a gauge:
-when the boot-set total reaches ``orientation["headroom_warn_ratio"]``
-(default 0.95) of the budget without exceeding it, it emits ONE
-``orientation-headroom`` advisory naming total/budget, the exact words of
-headroom, and the per-doc word split (largest first) so a docs session sees
-the pressure — and where the weight is — BEFORE committing. The same split
-now rides the over-budget ``orientation-budget`` finding, so the trim loop
-is targeted, not guess-and-recheck.
-
-Added 2026-07-12 (K0 headroom advisory, PR #308). Reliability (PL-008):
-UNVERIFIED — confirm its findings against ground truth a few times across
-sessions before trusting it; **delete the advisory if it proves unreliable
-over multiple sessions.** Posture is **advisory-only, never
-exit-affecting** (§8 Q2=B advisory-first) — the same nudge-never-door
-contract as ``check_claims`` / ``check_skill_grounds`` /
-``check_seat_digest``. The budget gate itself is unchanged and still
-exit-affecting.
 """
 
 
@@ -3019,21 +2469,6 @@ def orientation_word_count(root: Path, boot_docs: list[Path]) -> dict[str, int]:
     return counts
 
 
-def _ob_split(counts: dict[str, int]) -> str:
-    """Return the per-doc word split, largest first, as one message segment.
-
-    ``"docs/current-state.md 3850 · docs/AGENT_ORIENTATION.md 3100"`` — the
-    gauge half of the headroom advisory: which docs carry the weight. The
-    ``_total`` row is excluded; ties break alphabetically for a stable
-    message.
-    """
-    docs = sorted(
-        (item for item in counts.items() if item[0] != _OB_TOTAL_KEY),
-        key=lambda item: (-item[1], item[0]),
-    )
-    return " · ".join(f"{path} {words}" for path, words in docs)
-
-
 def _ob_boot_paths(root: Path, config: Config) -> list[Path]:
     """Resolve the configured boot set to concrete paths.
 
@@ -3076,7 +2511,6 @@ def check_orientation_budget(root: Path, config: Config) -> list[Finding]:
         msg = (
             f"boot-read set totals {total} words, over the "
             f"{budget}-word orientation budget — trim or demote a boot doc"
-            f" (split: {_ob_split(counts)})"
         )
         findings.append(Finding(_OB_TOTAL_KEY, "orientation-budget", msg))
 
@@ -3089,43 +2523,6 @@ def check_orientation_budget(root: Path, config: Config) -> list[Finding]:
             msg = f"doc is {words} words, over its {cap}-word self-cap"
             findings.append(Finding(_ob_rel(doc, root), "orientation-doc-cap", msg))
     return findings
-
-
-def check_orientation_headroom(root: Path, config: Config) -> list[Finding]:
-    """Warn when the boot set nears the budget — the K0 headroom gauge.
-
-    Emits at most ONE ``orientation-headroom`` finding, when the boot-set
-    total is at or above ``orientation["headroom_warn_ratio"]`` (default
-    0.95) of ``budget_words`` but not over it — over-budget is the gate's
-    verdict (:func:`check_orientation_budget`), not this advisory's; firing
-    both would double-report one condition. The message names total/budget,
-    the exact words of headroom, and the per-doc split (largest first).
-
-    **Advisory-only by contract, never exit-affecting** — the caller prints
-    it in a warn-only block and never counts it toward the exit code (see
-    the module docstring's PL-008 header). A ``headroom_warn_ratio`` at or
-    above 1 disables the gauge (the cliff itself is the gate's job); at or
-    below 0 it warns on every run — a host can pin either extreme.
-    """
-    orientation = config.orientation or {}
-    try:
-        ratio = float(orientation.get("headroom_warn_ratio", 0.95))
-    except (TypeError, ValueError):
-        ratio = 0.95
-    budget = int(orientation.get("budget_words", 7000))
-    if ratio >= 1 or budget <= 0:
-        return []
-    boot_paths = _ob_boot_paths(root, config)
-    counts = orientation_word_count(root, boot_paths)
-    total = counts[_OB_TOTAL_KEY]
-    if not (budget * ratio <= total <= budget):
-        return []
-    msg = (
-        f"boot-read set at {total}/{budget} words — {budget - total} words "
-        f"of headroom (>={ratio:.0%} of budget; trim before the cliff) "
-        f"(split: {_ob_split(counts)})"
-    )
-    return [Finding(_OB_TOTAL_KEY, "orientation-headroom", msg)]
 
 # --- engine/checks/check_status_current.py ---
 """Status-freshness checker — the ``control/`` heartbeat(s) must exist and beat.
@@ -3194,9 +2591,7 @@ def parse_heartbeat(text: str) -> datetime | None:
     """Return the ``updated:`` line's timestamp as an aware UTC datetime.
 
     Accepts the contract's ISO-8601 shapes (``2026-07-09T12:07Z``,
-    ``...T12:07:00+00:00``, minutes or seconds precision) behind a
-    case-insensitive ``updated:`` prefix (``Updated:`` is a writer spelling
-    variant, not a dead heartbeat — kit #326). A trailing ``Z``
+    ``...T12:07:00+00:00``, minutes or seconds precision). A trailing ``Z``
     is normalized for ``fromisoformat`` (Python 3.10 floor). A naive
     timestamp is taken as UTC — the contract says ISO8601, sessions write
     UTC, and treating it otherwise would fabricate staleness. None when the
@@ -3271,9 +2666,7 @@ def _check_one_status(
                     "status-no-heartbeat",
                     "no parseable `updated:` ISO-8601 heartbeat — still the "
                     "adopt seed? Overwrite the whole file with your real "
-                    "status as the session's LAST step (control/README.md); "
-                    "mechanical writer: `python3 bootstrap.py heartbeat "
-                    '--full --phase "…"`.',
+                    "status as the session's LAST step (control/README.md).",
                 ),
             ],
             [],
@@ -3289,8 +2682,7 @@ def _check_one_status(
                     "status-stale",
                     f"heartbeat is ~{hours}h old (> {max_age_hours}h) — the "
                     "manager treats a stale status as a DARK Project; "
-                    f"overwrite {rel} this session (mechanical restamp: "
-                    "`python3 bootstrap.py heartbeat`).",
+                    f"overwrite {rel} this session.",
                 ),
             ],
         )
@@ -3559,21 +2951,14 @@ IDENTITY is deliberately NOT enforced: on a single-account program it is not
 enforceable in-repo (issue #36 report 2, stated honestly in the protocol
 doc); this gate enforces the part of the law that lives in the bytes.
 
-Diff access without shelling out: engine *checker* code is pure stdlib —
-``subprocess`` is banned (§3.2). So, exactly like the session-log gate, CI
-does the git work in bash (extract the merge-base blob of
-``control/inbox.md`` to a file) and hands the path in via ``check
---inbox-base <file>``; this checker only reads two files and compares them.
-A base is now findable on BOTH venues (ORDER 018 / idea-engine ASK 002): when
-``--inbox-base`` is absent, ``cmd_check`` derives the merge-base blob from
-``origin/main`` itself via the ONE documented §3.2 subprocess carve-out
-(``engine.cli._derive_inbox_base`` — never this checker), so a plain local
-``check --strict`` reds where CI would red instead of silently no-opping
-(the idea-engine PR #274 local-green→CI-red class). With no base at all (no
-git context to derive from, or the file/base absent) → **no-op**, the same
-fail-open posture as the mtime session-log fallback. It engages only when
-there is a real diff to judge, so ``check`` stays meaningful on a tree with
-no inbox change.
+Diff access without shelling out: engine code is pure stdlib — ``subprocess``
+is banned (§3.2). So, exactly like the session-log gate, CI does the git work
+in bash (extract the merge-base blob of ``control/inbox.md`` to a file) and
+hands the path in via ``check --inbox-base <file>``; this checker only reads
+two files and compares them. No base path (a local ``check`` with no diff
+context, or the file/base absent) → **no-op**, the same fail-open posture as
+the mtime session-log fallback. It engages only when there is a real diff to
+judge, so ``check`` stays meaningful on a tree with no inbox change.
 """
 
 
@@ -3731,14 +3116,6 @@ posture as the staleness + owner-action warnings):
   a claim file whose bullet date is older than the ~72h work horizon —
   claim files are deleted at session close, so an old one is likely an
   orphan the GC convention says to prune on sight.
-- ``claims-order-collision`` — (work) two or more live claim files on
-  DIFFERENT branch tokens name the SAME inbox-order id (the optional
-  ``· order NNN`` segment, or a free-text ``ORDER NNN`` mention on the
-  bullet line). Branch-keyed dedupe is silent by construction when two
-  branches serve one ORDER — the realized #362/#363 twin-build (two full
-  green implementations of ORDER 020, one closed as pure waste). A
-  deliberate split of one order across branches is legitimate, so this is
-  a nudge, never a lock.
 - ``claims-format`` — (work) a claim file without a parseable claim bullet
   (a ``- `` bullet carrying a backticked branch/scope token and a
   ``YYYY-MM-DD`` date). Unparseable claims are invisible to the duplicate
@@ -3876,7 +3253,7 @@ def _claim(orders_value: str) -> tuple[set[str], str, datetime | None] | None:
     return ids, match.group(2), _parse_iso(match.group(3))
 
 
-def claim_scan_dirs(target: Path, claims_dir: str) -> list[tuple[str, bool]]:
+def _claim_dirs(target: Path, claims_dir: str) -> list[tuple[str, bool]]:
     """Return existing claims dirs as ``(relpath, is_legacy)`` pairs.
 
     The configured/canonical dir first, then every §6.4 legacy location that
@@ -3905,12 +3282,7 @@ def _work_claim_findings(
     # token -> [relpath, ...] across every scanned dir (cross-location
     # duplicates are still one collision).
     holders: dict[str, list[str]] = {}
-    # order id -> token -> [relpath, ...] — the cross-branch overlap key
-    # (the #362/#363 collision fix): two live claims on DIFFERENT branch
-    # tokens naming the SAME order are likely duplicate work even though
-    # the branch-keyed duplicate scan is silent by construction.
-    order_holders: dict[str, dict[str, list[str]]] = {}
-    for dir_rel, is_legacy in claim_scan_dirs(target, claims_dir):
+    for dir_rel, is_legacy in _claim_dirs(target, claims_dir):
         dir_path = target / dir_rel
         claim_files = sorted(
             p for p in dir_path.glob("*.md") if p.name != "README.md"
@@ -3935,22 +3307,8 @@ def _work_claim_findings(
             except (OSError, UnicodeDecodeError):
                 continue  # fail open — an unreadable file is not a verdict
             bullet = WORK_CLAIM_BULLET_RE.search(text)
-            # The claim's OWN date is the LAST date on the bullet line — the
-            # taught grammar ends the bullet with `· YYYY-MM-DD`
-            # (work_claim_bullet_example), while scope text legitimately
-            # mentions dated filenames (…-2026-07-09.md). Grepping the FIRST
-            # date anywhere in the file let such a mention shadow a fresh
-            # claim date and fire a false claims-stale (found live on the
-            # 2026-07-14 model-line-lint session; guard recipe in that card).
-            claim_dates: list[str] = []
-            bullet_line = ""
-            if bullet is not None:
-                line_end = text.find("\n", bullet.start())
-                if line_end == -1:
-                    line_end = len(text)
-                bullet_line = text[bullet.start() : line_end]
-                claim_dates = WORK_CLAIM_DATE_RE.findall(bullet_line)
-            if bullet is None or not claim_dates:
+            date_match = WORK_CLAIM_DATE_RE.search(text)
+            if bullet is None or date_match is None:
                 findings.append(
                     Finding(
                         rel,
@@ -3963,14 +3321,8 @@ def _work_claim_findings(
                     ),
                 )
                 continue
-            token = bullet.group(1).strip()
-            holders.setdefault(token, []).append(rel)
-            for oid in work_claim_order_ids(bullet_line):
-                order_holders.setdefault(oid, {}).setdefault(
-                    token, []
-                ).append(rel)
-            claim_date = claim_dates[-1]
-            claimed = _parse_iso(claim_date)
+            holders.setdefault(bullet.group(1).strip(), []).append(rel)
+            claimed = _parse_iso(date_match.group(1))
             if claimed is None:
                 continue
             age_hours = (now - claimed).total_seconds() / 3600
@@ -3979,7 +3331,7 @@ def _work_claim_findings(
                     Finding(
                         rel,
                         "claims-stale",
-                        f"work claim dated {claim_date} is "
+                        f"work claim dated {date_match.group(1)} is "
                         f"{age_hours / 24:.0f} day(s) old (> "
                         f"{WORK_CLAIM_STALE_HOURS}h work-claim horizon) — "
                         "claim files are deleted at session close, so this "
@@ -4003,34 +3355,6 @@ def _work_claim_findings(
                     "loser deletes its file and stands down.",
                 ),
             )
-    # CROSS-BRANCH ORDER COLLISION — live claims on 2+ DISTINCT branch
-    # tokens naming the same order id (the realized #362/#363 twin-build:
-    # branch-keyed dedupe is silent when two branches serve one ORDER).
-    # Advisory like every claims finding — a deliberate one-order-two-branch
-    # split is legitimate, so this is a nudge, never a lock.
-    for oid in sorted(order_holders):
-        by_token = order_holders[oid]
-        if len(by_token) < 2:
-            continue
-        who = ", ".join(
-            f"`{token}` ({', '.join(sorted(by_token[token]))})"
-            for token in sorted(by_token)
-        )
-        for token in sorted(by_token):
-            for rel in sorted(by_token[token]):
-                findings.append(
-                    Finding(
-                        rel,
-                        "claims-order-collision",
-                        f"order {oid} is claimed by {len(by_token)} "
-                        f"different branches ({who}) — likely duplicate "
-                        "work (the #362/#363 twin-build). Confirm one "
-                        "owner before building: the tiebreak is first "
-                        "claim merged to main; the loser deletes its "
-                        "claim and stands down (or keep both ONLY for a "
-                        "deliberate split of one order across branches).",
-                    ),
-                )
     return findings
 
 
@@ -4049,8 +3373,8 @@ def check_claims(
     claim names an order already in some lane's ``done=`` or is older than
     ``CLAIM_STALE_HOURS``. Work half (EAP §6.4): scans the claims
     directory(-ies) — ``claims-format`` / ``claims-stale`` /
-    ``claims-duplicate`` / ``claims-order-collision`` per file plus the
-    ``claims-legacy-location`` migration nudge (see the module docstring). ``claims_dir`` defaults to
+    ``claims-duplicate`` per file plus the ``claims-legacy-location``
+    migration nudge (see the module docstring). ``claims_dir`` defaults to
     :data:`engine.lib.config.DEFAULT_CLAIMS_DIR`. Advisory by contract —
     callers must never count any of these toward an exit code. Empty when
     neither the ``control/`` protocol nor a claims dir is present, and
@@ -4860,430 +4184,6 @@ def check_setup_script(target: Path) -> list[Finding]:
                 ),
             )
     return findings
-
-# --- engine/heartbeat.py ---
-"""Mechanical heartbeat writer — the ``bootstrap heartbeat`` verb's logic.
-
-Why + provenance: the control protocol's LAST step — overwriting
-``control/status.md`` with a fresh heartbeat — was hand-assembled markdown,
-and the hand-written ``updated:`` timestamp is the failure surface the idea
-file names (``docs/ideas/heartbeat-verb-2026-07-09.md``, ORDER 019 item 7):
-a session that writes ``updated: 2026-7-9 13:00`` (unparseable) goes red for
-formatting, not for darkness, and a routine wake has to template the whole
-file by hand in its prompt. The engine already owns atomic writes, UTC time,
-and the contract text — this module closes the gap with two lanes:
-
-- **Restamp lane** (:func:`restamp_status`, the default) — non-destructive
-  preserve-and-restamp: ONLY the ``updated:`` timestamp token (always a
-  parseable UTC now) plus the heartbeat fields the caller explicitly passes
-  are rewritten; ⚑ blocks, ORDER ledger lines, ``claimed-by`` annotations,
-  and every human-authored section survive **byte-identical**. This is the
-  mechanical fix for the fleet-wide heartbeat-staleness class.
-- **Full-write lane** (:func:`full_status`, behind an explicit ``--full``) —
-  the idea file's contract-shape whole-file writer ("overwrite-own semantics
-  preserved — whole-file write, never append") for the first real heartbeat
-  over the adopt seed; missing flags default honestly (``blockers: none``,
-  ``⚑ needs-owner: none``).
-
-Grammar is kit-owned with ONE home — ``engine.grammar`` (EAP §6.8): the
-``updated:`` and ``kit:`` lines are located via the SAME ``UPDATED_LINE_RE``
-/ ``KIT_LINE_RE`` / ``KIT_VERSION_TOKEN_RE`` constants the ``check``
-enforcers consume, and every write is round-tripped through
-``check_status_current.parse_heartbeat`` before it leaves this module (the
-idea file's write → parse → equal recipe), so the writer can never emit a
-heartbeat the enforcer rejects. Stdlib only; sits below ``cli.py`` (which
-owns the file I/O via ``atomic_write_text``) and imports only grammar +
-``check_status_current``'s parser.
-"""
-
-
-
-
-# The heartbeat's field lines, exactly as control/README.md § "status.md
-# format" teaches them (flag name → line label). Order matters: it is the
-# contract shape full_status renders.
-HEARTBEAT_FIELD_LABELS = {
-    "phase": "phase:",
-    "health": "health:",
-    "last_shipped": "last-shipped:",
-    "blockers": "blockers:",
-    "orders": "orders:",
-    "needs_owner": "⚑ needs-owner:",
-    "notes": "notes:",
-}
-
-
-class HeartbeatError(ValueError):
-    """A heartbeat write that cannot proceed non-destructively.
-
-    Raised instead of guessing: a missing field line, an unparseable
-    ``updated:`` stamp (the adopt seed), or a ``kit:`` line without a
-    version token each name their fix in the message — never a silent
-    whole-file clobber.
-    """
-
-
-def utc_stamp(now: datetime | None = None) -> str:
-    """Render the canonical ``updated:`` timestamp (UTC, seconds precision).
-
-    The exact shape ``grammar.updated_line_example`` teaches
-    (``2026-07-10T12:00:00Z``) — always parseable by ``parse_heartbeat``.
-    """
-    moment = now or datetime.now(timezone.utc)
-    return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def _verify_roundtrip(text: str, stamp: str) -> str:
-    """Assert ``text``'s heartbeat parses back to ``stamp``; return ``text``.
-
-    The idea file's write → parse → equal recipe, run on every write (not
-    just in tests): the writer half and the enforcer half
-    (``check_status_current.parse_heartbeat``) can never disagree silently.
-    """
-    parsed = parse_heartbeat(text)
-    expected = datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ").replace(
-        tzinfo=timezone.utc
-    )
-    if parsed != expected:
-        msg = (
-            "internal round-trip failure: the written heartbeat did not "
-            f"parse back to {stamp} — refusing to emit an unparseable file."
-        )
-        raise HeartbeatError(msg)
-    return text
-
-
-def _replace_field_line(text: str, label: str, value: str) -> str:
-    """Replace the first ``<label> …`` line's value; the rest stays put."""
-    pattern = re.compile(rf"^({re.escape(label)}\s*).*$", re.MULTILINE)
-    match = pattern.search(text)
-    if match is None:
-        msg = (
-            f"no `{label}` line found — the restamp lane only rewrites "
-            "existing field lines (non-destructive); add the line by hand "
-            "or write a fresh contract-shape heartbeat with --full."
-        )
-        raise HeartbeatError(msg)
-    return text[: match.start()] + match.group(1) + value + text[match.end() :]
-
-
-def _replace_kit_version(text: str, version: str) -> str:
-    """Rewrite the ``kit:`` line's ``v<X.Y.Z>`` token, decorations intact."""
-    line = KIT_LINE_RE.search(text)
-    if line is None:
-        msg = (
-            "no parseable `kit:` line found (grammar: KIT_LINE_RE — keep "
-            "the token PLAIN, never bold) — add one, or write a fresh "
-            "contract-shape heartbeat with --full."
-        )
-        raise HeartbeatError(msg)
-    token = KIT_VERSION_TOKEN_RE.search(text, line.start(), line.end())
-    if token is None:
-        msg = (
-            "the `kit:` line carries no `v<X.Y.Z>` version token to "
-            "rewrite — fix the line by hand (format: control/README.md "
-            '§ "status.md format").'
-        )
-        raise HeartbeatError(msg)
-    return text[: token.start()] + f"v{version}" + text[token.end() :]
-
-
-def restamp_status(
-    text: str,
-    *,
-    now: datetime | None = None,
-    fields: dict[str, str] | None = None,
-    kit_version: str | None = None,
-) -> str:
-    """Return ``text`` with ONLY the mechanical heartbeat fields rewritten.
-
-    - The ``updated:`` line's timestamp token becomes a fresh UTC now;
-      everything after the token (live heartbeats decorate the line) is
-      preserved byte-for-byte.
-    - Each entry in ``fields`` (flag name → new value, labels per
-      :data:`HEARTBEAT_FIELD_LABELS`) replaces that field line's value.
-    - ``kit_version`` rewrites the ``kit:`` line's version token only.
-
-    Everything not named is preserved **byte-identical** — ⚑ blocks, ORDER
-    ledger lines, ``claimed-by`` annotations, prose sections. Raises
-    :class:`HeartbeatError` (never guesses) when the existing heartbeat
-    doesn't parse — an adopt seed or a hand-mangled stamp is a case for
-    ``--full`` or a hand fix, not for a silent rewrite of unknown content.
-    """
-    match = UPDATED_LINE_RE.search(text)
-    if match is None or parse_heartbeat(text) is None:
-        msg = (
-            "no parseable `updated:` ISO-8601 heartbeat in the existing "
-            "file — still the adopt seed? Write the first real heartbeat "
-            "with --full (whole-file contract shape), which is the seed's "
-            "own documented overwrite path."
-        )
-        raise HeartbeatError(msg)
-    stamp = utc_stamp(now)
-    result = text[: match.start(1)] + stamp + text[match.end(1) :]
-    for name, value in (fields or {}).items():
-        result = _replace_field_line(result, HEARTBEAT_FIELD_LABELS[name], value)
-    if kit_version is not None:
-        result = _replace_kit_version(result, kit_version)
-    return _verify_roundtrip(result, stamp)
-
-
-def full_status(
-    project_name: str,
-    kit_version: str,
-    *,
-    phase: str,
-    now: datetime | None = None,
-    health: str = "green",
-    orders: str = "acked= done=",
-    last_shipped: str = "none",
-    blockers: str = "none",
-    needs_owner: str = "none",
-    notes: str = "none",
-    kit_check: str = "green",
-    kit_engaged: str = "yes",
-) -> str:
-    """Render the exact contract-shape heartbeat (the idea file's lane).
-
-    The taught block from control/README.md § "status.md format", field for
-    field; missing flags default honestly (``blockers: none``,
-    ``⚑ needs-owner: none`` — the idea file's named defaults). ``phase`` has
-    no honest default — what the seat is doing is the one thing only the
-    caller knows — so it is required. The render is round-tripped through
-    the enforcer's parser before it leaves.
-    """
-    stamp = utc_stamp(now)
-    text = (
-        f"# {project_name} · status\n"
-        f"updated: {stamp}\n"
-        f"phase: {phase}\n"
-        f"health: {health}\n"
-        f"kit: v{kit_version} · check: {kit_check} · engaged: {kit_engaged}\n"
-        f"last-shipped: {last_shipped}\n"
-        f"blockers: {blockers}\n"
-        f"orders: {orders}\n"
-        f"⚑ needs-owner: {needs_owner}\n"
-        f"notes: {notes}\n"
-    )
-    return _verify_roundtrip(text, stamp)
-
-# --- engine/claim.py ---
-"""Mechanical work-claim writer — the ``bootstrap claim`` verb's logic.
-
-Why + provenance: the one-file-per-claim work-claim convention (EAP §6.4,
-``control/claims/README.md``) only protects parallel sessions when the claim
-bullet PARSES — an unparseable claim is invisible to ``check_claims``'
-duplicate scan, which silently defeats the claim system during the exact
-window it exists for. That failure is realized, not theoretical: the
-2026-07-14 git-truth session (#358 card, 💡 ender) hand-wrote a bullet
-without the backticked token and fired ``claims-format`` mid-session. This
-module closes the gap the same way ``engine.heartbeat`` closed the
-hand-stamped ``updated:`` line: a mechanical writer that renders from — and
-round-trips through — the SAME ``engine.grammar`` constants the enforcer
-consumes (``WORK_CLAIM_BULLET_RE`` / ``WORK_CLAIM_DATE_RE``, EAP §6.8), so
-the verb can never emit a claim ``check_claims`` cannot parse.
-
-Two lanes, both refuse-and-name (never a silent clobber):
-
-- **Write lane** (:func:`render_claim` + the CLI's default) — renders the
-  one-bullet claim file for branch ``claude/<slug>``: backticked branch
-  token first (the duplicate scan's key), bold scope, optional files/area
-  segment, and the current UTC date as the LAST ``YYYY-MM-DD`` on the line
-  (the post-#353 rule: the claim's own date is the last date on the bullet,
-  so a dated filename mentioned in the scope can never shadow it).
-  Overwriting an existing file is allowed only when :func:`owner_token`
-  proves it is this branch's own claim (a refresh).
-- **Delete lane** (``--delete``) — removes YOUR OWN claim at session close;
-  a foreign claim (different branch token, or a file the grammar cannot
-  parse — ownership unprovable) is refused with the file left intact.
-
-Ownership check shape (decided-and-flagged): the existing file's bullet
-token must equal the branch this invocation derives from the slug — the
-same token the duplicate scan keys on, so "who owns this file" and "who
-holds this claim" can never disagree. Stdlib only; sits below ``cli.py``
-(which owns file I/O via ``atomic_write_text``) and imports only grammar.
-"""
-
-
-
-
-# Work branches are claude/<slug> by fleet convention (the auto-merge-enabler
-# allowlist + every session card in .sessions/); the claim FILE flattens the
-# slash so the filename stays a single path segment: claude-<slug>.md.
-BRANCH_PREFIX = "claude/"
-FILENAME_PREFIX = "claude-"
-
-# Filename-safe slug: starts alphanumeric, then alphanumerics, dot, dash,
-# underscore. Everything else (slashes, spaces, backticks) is refused — the
-# slug names both a git branch and a file.
-_SLUG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
-
-# The `--order` flag's accepted shapes: bare digits (`20` / `020`), with an
-# optional case-insensitive `order ` prefix tolerated (`ORDER 020`) — the
-# rendered segment is always the normalized `order NNN`.
-_ORDER_FLAG_RE = re.compile(r"^(?:order\s+)?(\d{1,4})$", re.IGNORECASE)
-
-
-class ClaimError(ValueError):
-    """A claim write/delete that cannot proceed safely.
-
-    Raised instead of guessing: a malformed slug, scope text that would
-    break the bullet grammar, or a foreign claim at the target path each
-    name their fix in the message — never a silent clobber.
-    """
-
-
-def branch_for(slug: str) -> str:
-    """Return the claim's branch (``claude/<slug>``); refuse a bad slug."""
-    if not _SLUG_RE.match(slug):
-        msg = (
-            f"slug {slug!r} is not filename-safe — use alphanumerics, dots, "
-            "dashes, underscores (the slug names both the claude/<slug> "
-            "branch and the claude-<slug>.md claim file)."
-        )
-        raise ClaimError(msg)
-    return f"{BRANCH_PREFIX}{slug}"
-
-
-def claim_filename(slug: str) -> str:
-    """Return the claim file's name (``claude-<slug>.md``); refuse a bad slug."""
-    branch_for(slug)  # same validation, one home
-    return f"{FILENAME_PREFIX}{slug}.md"
-
-
-def utc_date(now: datetime | None = None) -> str:
-    """Render the claim date (UTC ``YYYY-MM-DD``) — computed at call time.
-
-    Always the CURRENT UTC date, never a cached module-load value: a claim
-    stamped with a stale date starts life closer to the ~72h staleness
-    horizon than it should.
-    """
-    moment = now or datetime.now(timezone.utc)
-    return moment.astimezone(timezone.utc).strftime("%Y-%m-%d")
-
-
-def _refuse_grammar_breakers(label: str, value: str) -> str:
-    """Refuse text that would break the one-line bullet grammar."""
-    if "\n" in value or "\r" in value:
-        msg = f"{label} must be one line — the claim grammar is a single bullet."
-        raise ClaimError(msg)
-    if "`" in value:
-        msg = (
-            f"{label} must not contain backticks — the enforcer's bullet "
-            "regex keys the duplicate scan on the LAST backticked token, so "
-            f"a backtick in the {label} would shadow the branch token."
-        )
-        raise ClaimError(msg)
-    stripped = value.strip()
-    if not stripped:
-        msg = f"{label} must be non-empty."
-        raise ClaimError(msg)
-    return stripped
-
-
-def normalize_order(raw: str) -> str:
-    """Return the 3-digit-normalized order id for an ``--order`` value.
-
-    ``20`` / ``020`` / ``ORDER 020`` → ``020``. Anything else (ranges,
-    comma lists, prose) is refused — a claim serves ONE order; a genuine
-    multi-order session claims the primary one and names the rest in scope.
-    """
-    match = _ORDER_FLAG_RE.match(raw.strip())
-    if not match:
-        msg = (
-            f"order {raw!r} is not a single order id — pass 1-4 digits "
-            "(e.g. --order 020); the rendered segment is `order NNN`."
-        )
-        raise ClaimError(msg)
-    return f"{int(match.group(1)):03d}"
-
-
-def claim_order_ids(text: str) -> set[str]:
-    """Return the order ids a claim FILE names on its bullet line.
-
-    Empty when the file has no parseable bullet or the bullet names no
-    order — order-less claims stay valid (the segment is optional) and are
-    simply invisible to the cross-branch order-overlap scan.
-    """
-    bullet = WORK_CLAIM_BULLET_RE.search(text)
-    if bullet is None:
-        return set()
-    line_end = text.find("\n", bullet.start())
-    if line_end == -1:
-        line_end = len(text)
-    return work_claim_order_ids(text[bullet.start() : line_end])
-
-
-def owner_token(text: str) -> str | None:
-    """Return the claim file's bullet token (its owning branch), or None.
-
-    None means the grammar cannot parse the file — ownership is unprovable,
-    which the write/delete lanes treat as foreign (refuse, leave intact).
-    """
-    match = WORK_CLAIM_BULLET_RE.search(text)
-    return match.group(1).strip() if match else None
-
-
-def _verify_claim_roundtrip(
-    text: str,
-    branch: str,
-    date: str,
-    order: str | None = None,
-) -> str:
-    """Assert ``text`` parses back to ``(branch, date[, order])``; return it.
-
-    The write → parse → equal recipe (same shape as
-    ``engine.heartbeat._verify_roundtrip``), run on every render: the token
-    the duplicate scan will key on must be exactly ``branch``, the LAST
-    ``YYYY-MM-DD`` on the bullet line — the claim's own date under the
-    post-#353 rule — must be exactly ``date``, and when an ``order`` was
-    requested the cross-branch overlap scan must read it back.
-    """
-    parsed = owner_token(text)
-    line = text.splitlines()[0] if text else ""
-    dates = WORK_CLAIM_DATE_RE.findall(line)
-    order_ok = order is None or order in claim_order_ids(text)
-    if parsed != branch or not dates or dates[-1] != date or not order_ok:
-        msg = (
-            "internal round-trip failure: the rendered claim did not parse "
-            f"back to token {branch!r} + date {date}"
-            + (f" + order {order}" if order is not None else "")
-            + " — refusing to emit a claim the enforcer cannot read."
-        )
-        raise ClaimError(msg)
-    return text
-
-
-def render_claim(
-    slug: str,
-    scope: str,
-    *,
-    area: str | None = None,
-    order: str | None = None,
-    now: datetime | None = None,
-) -> str:
-    """Render the one-bullet claim file for ``claude/<slug>``.
-
-    Shape (``grammar.work_claim_bullet_example`` / control/claims/README.md):
-    backticked branch token · bold scope [· files/area] [· order NNN] ·
-    UTC date last. ``order`` is the optional inbox-ORDER reference the
-    cross-branch overlap scan keys on (the #362/#363 collision fix).
-    Raises :class:`ClaimError` on a slug/scope/area/order that would break
-    the grammar; every render is round-trip verified before it leaves.
-    """
-    branch = branch_for(slug)
-    scope = _refuse_grammar_breakers("scope", scope)
-    norm_order = normalize_order(order) if order is not None else None
-    date = utc_date(now)
-    parts = [f"- `{branch}`", f"**{scope}**"]
-    if area is not None:
-        parts.append(_refuse_grammar_breakers("area", area))
-    if norm_order is not None:
-        parts.append(f"order {norm_order}")
-    parts.append(date)
-    return _verify_claim_roundtrip(
-        " · ".join(parts) + "\n", branch, date, norm_order
-    )
 
 # --- engine/ledger.py ---
 """Decision ledger — the ``[D-NNNN]`` provenance-separated rulebook (Lane B6).
@@ -6200,18 +5100,34 @@ GUARD_FIRES_DEDUPE_WINDOW_S = 600
 # a long-lived fires log; a burst larger than this simply dedupes less.
 _GUARD_FIRES_DEDUPE_SCAN = 200
 
-# The model-line grammar — needle, taxonomy, exact-ID detector, payload
-# parser — moved to ``engine.grammar`` (EAP §6.8, the model-line payload lint
-# session): ONE home shared by this harvest, the writer-side docs, and
-# ``checks.check_model_line`` so they cannot drift apart. Body-level aliases
-# (not import-as) keep this module's public/internal names stable — the dist
-# builder drops intra-package import lines, so an aliased import would leave
-# the name undefined in the concatenated bootstrap.
-TASK_CLASSES = MODEL_TASK_CLASSES
-_EXACT_MODEL_ID_RE = EXACT_MODEL_ID_RE
-_parse_model_payload = parse_model_payload
+# The run-report needle. \N escape keeps the engine source ASCII-safe.
+MODEL_LINE_NEEDLE = "\N{BAR CHART} Model:"  # 📊 Model:
+
+# The 9 PL-004 task classes, verbatim (docs/program/rulings.md): the 8
+# founding Q-0248 classes + `feature build` (the PL-010 amendment).
+TASK_CLASSES = (
+    "docs-only",
+    "mechanical refactor",
+    "test writing",
+    "runtime bugfix",
+    "kernel/architecture design",
+    "review/verify",
+    "research",
+    "idea/planning",
+    "feature build",
+)
 
 _DATE_PREFIX_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})")
+
+# Exact model-ID token detector for the 📊 model segment (fleet reporting
+# bar, ORDER 012 widened 2026-07-12): repo artifacts carry FAMILY-LEVEL model
+# names only (`fable-5`, `opus-4.8`), never an exact model-ID token — and
+# exact IDs are not always dated, so a dated-suffix test alone is too narrow
+# (the websites #178 cleanup class: cards recording `claude-`-prefixed exact
+# ID tokens passed the old "no full dated model ID" wording). Flags the two
+# exact-ID shapes seen in the wild: a provider-prefixed ID token
+# (`claude-…`, incl. `us.anthropic.…` forms) and a dated `-YYYYMMDD` suffix.
+_EXACT_MODEL_ID_RE = re.compile(r"^(?:us\.)?(?:anthropic\.)?claude-|-\d{8}$")
 
 
 def guard_fires_path(root: Path, state_dir: str) -> Path:
@@ -6341,6 +5257,26 @@ def record_guard_fires(
         return written
     except Exception:  # noqa: BLE001 — telemetry fails open by contract
         return 0
+
+
+def _parse_model_payload(payload: str) -> dict | None:
+    """Parse one needle line's payload; None when it under-fills (<3 segments)."""
+    parts = [p.strip(" *`") for p in payload.split("\N{MIDDLE DOT}")]
+    parts = [p for p in parts if p]
+    if len(parts) < 3:
+        return None
+    tokens_out: int | None = None
+    if len(parts) >= 4:
+        try:
+            tokens_out = int(parts[3].replace(",", "").replace("_", ""))
+        except ValueError:
+            tokens_out = None
+    return {
+        "model": parts[0],
+        "effort": parts[1],
+        "task_class": parts[2],
+        "tokens_out": tokens_out,
+    }
 
 
 def parse_model_line(text: str) -> dict | None:
@@ -10089,182 +9025,6 @@ QUESTIONS FOR OWNER (structured choices, or `none`).
 
 Declared capabilities: read (the index, the ledger, the profile)."""
 
-_CHASE_REFERENCES_BODY = """\
-Resolve every reference in a ${project_name} ask before acting on it.
-
-> **Owner-directed (Q-0273, 2026-07-12).** Founding incident: the owner opened
-> a session with a comprehensive message containing a direct link to the
-> previous session's brief and multiple sibling repos by name — and the session
-> still oriented on the local repo only, costing ~3 turns of re-discovery. The
-> lesson graduates as an on-demand method (his words: "baked into a method,
-> like a skill, that prevents it from taking up too much storage in the
-> claude.md itself, but is still always loadable on demand"). superbot carries
-> the founding copy; this is the kit's generalized template, inherited by
-> every adopter.
-
-## When this runs
-
-At the start of ANY substantive ask — an opening message, an ORDER, a brief —
-and again whenever a mid-task message introduces new references. Trigger
-especially on: URLs · file paths · doc titles · repo names · PR/issue numbers ·
-question-router IDs · "as discussed in / the plan says / the brief covers"
-phrasings.
-
-## The method
-
-1. **Inventory first.** Before any substantive work, list every reference the
-   ask contains or implies (explicit links, named files, named repos, named
-   plans, "the X doc"). The ask's references ARE its context spec — the author
-   included them because reading them is cheaper than re-deriving them.
-2. **Resolve each one, in this order:**
-   - a local path → read it;
-   - a project doc named fuzzily → find it (glob/grep across the doc roots);
-   - a **sibling repo or its file** → fetch it read-only via the repo's
-     documented reading path / sibling registry, where one exists;
-   - a PR/issue number → pull it from the forge (own repo) or from the
-     sibling's committed heartbeat/pointer files;
-   - a router question ID → grep `docs/question-router.md`.
-3. **An unfound reference is a search task, never a skip.** Guess the
-   most-logical homes and look there before proceeding: the planted doc set
-   under `docs/` (orientation, current-state, plans, reports) → `.sessions/`
-   (recent session records) → `docs/ideas/` → the named sibling's committed
-   status and docs, where a sibling registry exists. If it is genuinely absent
-   after that, SAY so explicitly ("the brief references X; I could not find it
-   in A/B/C") — silent omission is how wrong pictures get built.
-4. **State the assembled picture back** (the understand-and-reflect step —
-   pair with the `intake` skill on owner asks): one short paragraph of what
-   the references collectively establish, before the work starts. A wrong
-   assumption corrected here costs one line; discovered later it costs the
-   session.
-
-## The bar
-
-You are done chasing when every reference is either **read**, **fetched**, or
-**explicitly reported unfindable with the places you looked**. "I'll read it
-if it becomes relevant" fails the bar for anything the owner linked or named
-directly — he already decided it was relevant.
-
-Declared capabilities: read-only."""
-
-_PREP_OWNER_STEPS_BODY = """\
-Hand ${project_name}'s owner finished steps, not directions.
-
-> **Owner-directed (Q-0273, 2026-07-12).** His words: agents give him
-> "directions clearly mapped out — go to github, actions, settings, rule, etc,
-> and paste this file from this github page in this repo — while they could
-> easily lead with the link and the copy/paste ready file in chat as a
-> separate block." The method: before handing the owner any step, ask *"which
-> steps will he face, and are there any text blobs he might need to enter that
-> I can send?"* — then send them. superbot carries the founding copy; this is
-> the kit's generalized template, inherited by every adopter.
-
-## When this runs
-
-Every time work surfaces an **owner-only step** (repo settings, secrets,
-portal clicks, external publish, account actions) or any instruction the
-owner must execute by hand — in chat replies, owner-queue items, ⚑ blocks,
-and run reports. It is the drafting half of the OWNER-ACTION contract
-(`control/README.md`): those fields prove the ask is necessary and verified;
-this method makes it executable in one sitting.
-
-## The method — prepare, don't describe
-
-1. **Lead with the direct link.** Deep-link the exact page (the ruleset
-   editor, the variables tab, the release form) — never a navigation trail
-   when a URL exists. A trail ("Settings → Rules → main") is the *fallback
-   annotation under* the link, for when the deep link 404s.
-2. **Every blob he must enter ships as its own fenced block.** File contents,
-   variable names, one-line replies, commit messages, form fields — each in a
-   separate copy-ready block, labeled with exactly where it goes. Never "paste
-   the file from this page" — fetch it and paste it INTO the chat/queue item
-   yourself.
-3. **Walk his path once yourself, in your head or via probe.** Enumerate
-   every click/field he will actually face (the screen he lands on, the
-   button names, the confirm dialogs) and pre-answer each. If a step's outcome
-   feeds a later step (a minted token → a variable), say what to carry
-   forward and where it lands.
-4. **Batch to one sitting.** If the task needs owner steps at multiple
-   points, restructure so they cluster into ONE block at the start or end —
-   never interleave "now go click X" through a work narrative he has to
-   babysit.
-5. **State the payoff + verification.** One line each: what completing the
-   steps unblocks, and how he (or the next agent) verifies it worked (the
-   exact URL/command that should now succeed).
-
-## The shape (use it in queue items and chat alike)
-
-````
-⚑ OWNER — <what this unblocks, one line>
-1. <deep link>  (fallback: Settings → … → …)
-   paste ↓ into <exact field>:
-   ```<the blob>```
-2. …
-verify: <command/URL that should now succeed>
-````
-
-## The bar
-
-The owner should be able to complete every step with **clicks and pastes
-only** — zero composing, zero fetching, zero deciding-what-you-meant. If he
-has to open another page to *copy something you could have copied for him*,
-the preparation failed.
-
-Declared capabilities: read-only (a drafting method — the invoking session's
-own capabilities do any writing)."""
-
-_RATIONALIZE_BODY = """\
-Turn ${project_name}'s in-flight lessons and shippable actions into permanent
-homes — the rationalization checkpoint, run at natural pause points.
-
-> **Owner-directed (Q-0273, 2026-07-13).** The friction→guard reflex converts
-> INCIDENTS into guards; this generalizes it to OPPORTUNITIES — agents eager
-> to initiate, lessons "baked into a method, like a skill … still always
-> loadable on demand", so "every agent actually self improves in the useful
-> ways". superbot carries the founding doctrine; this is the kit's
-> generalized template, inherited by every adopter.
-
-## When the checkpoint fires
-
-At every natural pause, not only after something breaks:
-
-- a slice/batch of work lands (before picking the next one);
-- ANY workaround, discovery, or lesson surfaces mid-task — a command that
-  behaved unexpectedly, a doc gap, a fact you had to re-derive, a better
-  path found late;
-- the session enders (pair with the `session-close` skill — this checkpoint
-  is the thinking half; that skill's close-out is the recording half).
-
-## The two questions
-
-1. **Should this action also be executed?** The observation or idea just
-   made — is there a concrete action hiding in it, and is that action
-   contained + reversible enough to DO right now instead of noting it?
-2. **Does this lesson deserve a permanent home — and can I ship that home
-   NOW?** A lesson that lives only in a session card is re-paid by every
-   future session; a lesson baked into a skill body, checker, or template
-   is paid once.
-
-## Routing table
-
-| What surfaced | Route it to |
-|---|---|
-| A recurring METHOD (how to do X here) | a skill body — add or extend the registry entry (the registration reflex) |
-| A checkable MISTAKE-CLASS (drift, footgun, false-green) | a checker / CI / test — enforce, don't exhort |
-| Doctrine every future session/repo needs | a template or written rule — binding text routes as a PROPOSAL via `docs/question-router.md`, never self-applied |
-| Real, but no shippable home now | an idea file in the repo's idea index, dated, with a one-line why |
-| An ACTION, contained + reversible | execute it this session, flagged self-initiated on the run report |
-| An ACTION that is irreversible / cross-cutting / gated | idea file or the owner queue, with the exact gate named |
-
-## The bar
-
-A checkpoint pass that finds nothing is a silent no-op — never invent
-filler. But a lesson you noticed and merely NOTED, when its permanent home
-was one contained, reversible edit away, fails the bar: opportunities are
-treated like incidents, and an incident is never left unguarded.
-
-Declared capabilities: read-only (a decision method — the invoking session's
-own capabilities do any shipping)."""
-
 _QUALITY_GATE_BODY = """\
 Prove a change is good before pushing ${project_name}.
 
@@ -10394,33 +9154,6 @@ SKILLS: list[dict] = [
         "questions — before building (understand-and-reflect, executable).",
         "capabilities": [],
         "body": _INTAKE_BODY,
-        "grounds": [],
-    },
-    {
-        "name": "chase-references",
-        "description": "Resolve every reference in the ask before acting — "
-        "inventory, resolve or search each one, report unfindables "
-        "explicitly, state the assembled picture back (Q-0273 seed skill).",
-        "capabilities": [],
-        "body": _CHASE_REFERENCES_BODY,
-        "grounds": [],
-    },
-    {
-        "name": "prep-owner-steps",
-        "description": "Hand the owner finished steps, not directions — deep "
-        "links, paste-ready blobs, his path walked once, one batched sitting, "
-        "payoff + verification stated (Q-0273 seed skill).",
-        "capabilities": [],
-        "body": _PREP_OWNER_STEPS_BODY,
-        "grounds": [],
-    },
-    {
-        "name": "rationalize",
-        "description": "The checkpoint at natural pauses — should this "
-        "action also be executed? does this lesson deserve a permanent home "
-        "shippable NOW? Route via the table (Q-0273).",
-        "capabilities": [],
-        "body": _RATIONALIZE_BODY,
         "grounds": [],
     },
     {
@@ -11134,13 +9867,7 @@ what the session ritual still owes —
   fail-open, when the protocol or the anchor is absent; in a multi-lane
   repo (ORDER 004) ANY lane's fresh heartbeat clears the advisory (a
   session cannot know which lane it belongs to, so it never nags a lane
-  that isn't its own);
-- the current branch's head is already merged to ``origin/main``
-  (``_stop_push_guard``, ORDER 022) — the session's final push would only
-  re-create the branch GitHub just deleted, so the advisory says SKIP it,
-  loudly and honestly. Fail-open by design: unprovable ancestry (shallow
-  clone / failed fetch) lets the push proceed with a NOTE — a wrongly
-  skipped push loses work, a wrongly executed one only re-creates a branch.
+  that isn't its own).
 
 Returns ``[]`` when all clean. Advisory only, and it **fails open**: every
 check runs inside its own guard, so a bad state document or an unreadable log
@@ -11247,81 +9974,12 @@ def _stop_status(root: Path, state: dict[str, Any], config: Config) -> list[str]
     ]
 
 
-# Branches whose final push is normal flow, never the deleted-branch
-# re-creation class the ORDER 022 guard exists for: the default branch
-# (pushing main is ordinary work) and a detached HEAD (no branch ref for a
-# bare `git push` to re-create).
-_PUSH_GUARD_EXEMPT_BRANCHES = frozenset({"", "HEAD", "main", "master"})
-
-
-def _stop_push_guard(root: Path, run: GitCommand | None = None) -> list[str]:
-    """Advise SKIPPING the final push when the branch head is already merged.
-
-    ORDER 022 (curious-research PROPOSAL 003 + same-day ADDENDUM): when a
-    session's PR merges, GitHub deletes the head branch — but the finished
-    session's clone still has it checked out, and one last nudged ``git
-    push`` silently re-creates the ref at the same commit (fleet census
-    2026-07-14: 460/491 surviving ``claude/*`` branches sit at exactly their
-    merged PR's head SHA). The ADDENDUM's revised best-fit makes the primary
-    cause GitHub-side (auto-delete not firing for bot-merged PRs); this
-    guard is retained as defensive hygiene closing the proven secondary
-    re-creation path.
-
-    Decision, after ``git fetch origin main`` (ancestry via the shared
-    ``provable_ancestry`` primitive — shallow-clone semantics included):
-
-    - head provably merged (ancestor of ``origin/main``) → one loud, honest
-      SKIP advisory (defensive hygiene, NOT an error);
-    - provably unmerged on a fresh fetch → silent, push proceeds unchanged;
-    - unprovable (shallow clone / failed fetch / git error) → push proceeds
-      with a NOTE — fail-open, because a wrongly-skipped push loses work
-      while a wrongly-executed one only re-creates a branch.
-
-    Not a git repo / no git / detached HEAD / on the default branch →
-    silent (nothing this guard protects).
-    """
-    if run is None:
-        run = make_runner(root)
-    rc, out, _err = run(["rev-parse", "--abbrev-ref", "HEAD"])
-    if rc != 0:
-        return []  # not a git repo, or no git — nothing to guard (fail open)
-    branch = out.strip()
-    if branch in _PUSH_GUARD_EXEMPT_BRANCHES:
-        return []
-    fetch_rc, _out, fetch_err = run(["fetch", "origin", "main", "--quiet"])
-    answer = provable_ancestry(run, "HEAD", "origin/main")
-    if answer.verdict == YES:
-        # A positive ancestry answer is a proof even against a stale
-        # origin/main (a stale ref only ever lags — containment can only
-        # grow), so the fetch outcome does not gate the SKIP.
-        return [
-            f"branch '{branch}' head already merged to origin/main "
-            "(PR merged); SKIP the final push — do not re-create the "
-            "branch GitHub just deleted (defensive hygiene, not an error; "
-            "divert genuinely new work to a rescue ref instead)",
-        ]
-    if answer.verdict == NO and fetch_rc == 0:
-        return []  # provably unmerged against a fresh origin/main — normal flow
-    if fetch_rc != 0:
-        reason = "fetch of origin/main failed: " + (
-            fetch_err.strip().splitlines()[0] if fetch_err.strip() else f"rc {fetch_rc}"
-        )
-    else:
-        reason = answer.detail or f"git merge-base rc {answer.returncode}"
-    return [
-        f"NOTE: merged-head push guard could not prove ancestry ({reason}) "
-        "— final push proceeds (fail-open: a wrongly-skipped push loses "
-        "work; a wrong push only re-creates a branch)",
-    ]
-
-
 def evaluate_stop(root: Path, config: Config, backend: Any) -> list[str]:
     """Return the session-close advisory lines ([] when all clean).
 
-    Six checks in fixed order: session log, open blocking questions,
+    Five checks in fixed order: session log, open blocking questions,
     compaction cadence, reflection mining, the control-status heartbeat
-    (KL-8), the merged-head final-push guard (ORDER 022). Each runs inside
-    its own guard so
+    (KL-8). Each runs inside its own guard so
     one failing check never suppresses the others — the stop hook is advisory
     and fails open by contract.
     """
@@ -11332,7 +9990,6 @@ def evaluate_stop(root: Path, config: Config, backend: Any) -> list[str]:
         lambda: _stop_compaction(state, config),
         lambda: _stop_reflections(state),
         lambda: _stop_status(root, state, config),
-        lambda: _stop_push_guard(root),
     )
     advisories: list[str] = []
     for check in checks:
@@ -11971,7 +10628,7 @@ silently overflowing. **No third copy** (plan §4.2e): the adopter's
 ``docs/CAPABILITIES.md`` ledger is the seat-local source of truth; this doc
 is a DERIVED RENDER of it (regenerated — by adopt, upgrade, or
 ``bootstrap.py seat-digest`` — never edited, never a copy of record);
-fleet-manager's ``docs/CAPABILITIES.md`` master is the fleet aggregation
+fleet-manager's ``docs/capabilities.md`` master is the fleet aggregation
 point; no third authored copy is ever minted.
 
 Layering: below ``adopt.py`` on purpose (adopt plants the doc, upgrade
@@ -11986,13 +10643,6 @@ module imports only grammar/skills/config). Pure stdlib.
 # ellipsis) — compact enough that ~8 rows + fences + pointer stay inside the
 # block budget, long enough to keep a wall's workaround arrow readable.
 _ROW_LIMIT = 160
-
-# Readability floor for the ADAPTIVE skills-description clip (see
-# ``_adaptive_skill_clip``): below ~40 chars a truncated description reads
-# worse than no description, so rows drop to name-only before any skill NAME
-# is ever dropped — the digest's whole job is "these procedures exist, don't
-# improvise", and the pointer line carries the detail.
-_SKILL_CLIP_FLOOR = 40
 
 _WALLS_HEADING = "## Walls"
 _LEDGER_APPEND_LOG_HEADING = "## Append log"
@@ -12041,72 +10691,26 @@ def _fit_rows(
     return compose([], [f"- …plus {len(rows)} more — {more_pointer}"])
 
 
-def _skill_rows(skills: list[dict], clip: int | None) -> list[str]:
-    """Render one digest row per skill at ``clip`` (``None`` → name-only)."""
-    if clip is None:
-        return [f"- `{skill['name']}`" for skill in skills]
-    return [
-        f"- `{skill['name']}` — {_truncate(skill['description'], clip)}"
-        for skill in skills
-    ]
-
-
-def _adaptive_skill_clip(
-    skills: list[dict],
-    header: list[str],
-    footer: list[str],
-) -> int | None:
-    """Compute the description clip that fits EVERY skill in the budget.
-
-    Replaces the hand-ratcheted constant this module carried through
-    2026-07-13 (120 → 85 → 72, one manual lowering per new skill — every
-    registry addition was a latent test failure until a session paid the
-    ratchet toll again). Instead: scan down from the row ceiling
-    (:data:`_ROW_LIMIT`) for the LARGEST clip where the assembled block —
-    header + all rows + footer — stays within
-    :data:`SEAT_DIGEST_BLOCK_BUDGET`, floored at :data:`_SKILL_CLIP_FLOOR`;
-    if even the floor overflows, return ``None`` → name-only rows (drop
-    descriptions before ever dropping a name). Pure function of its inputs,
-    so the render stays deterministic and byte-reproducible. The descending
-    linear scan is deliberate: ~120 candidate renders is negligible, and it
-    needs no monotonicity assumption about word-boundary truncation.
-    """
-    for clip in range(_ROW_LIMIT, _SKILL_CLIP_FLOOR - 1, -1):
-        block = "\n".join(header + _skill_rows(skills, clip) + footer)
-        if len(block) <= SEAT_DIGEST_BLOCK_BUDGET:
-            return clip
-    return None
-
-
-def skills_digest_block(
-    docs_root: str = "docs",
-    skills: list[dict] | None = None,
-) -> str:
+def skills_digest_block(docs_root: str = "docs") -> str:
     """Render the fenced skills-index digest block from :data:`SKILLS`.
 
     One row per registered skill — name + when-to-reach-for-it one-liner,
     never the grounds column (that detail is the index's job; the digest's
-    job is "these procedures exist, don't improvise"). The description clip
-    is COMPUTED per render (``_adaptive_skill_clip``): every skill name
-    survives within the block budget at the widest clip that fits, degrading
-    to name-only rows below the readability floor — no manual ratchet.
-    Deterministic given the skills list. ``skills`` defaults to the
-    registered :data:`SKILLS` (parameterized for growth-proof tests).
+    job is "these procedures exist, don't improvise"). Deterministic given
+    the SKILLS list.
     """
-    if skills is None:
-        skills = SKILLS
     index_path = f"{docs_root}/SKILLS.md"
     header = [SKILLS_DIGEST_BEGIN, "## Skills digest", ""]
+    rows = [
+        f"- `{skill['name']}` — {_truncate(skill['description'], 120)}"
+        for skill in SKILLS
+    ]
     footer = [
         "",
         f"Full index (grounds + capabilities): `{index_path}` — the source "
         "this block derives from.",
         SKILLS_DIGEST_END,
     ]
-    rows = _skill_rows(skills, _adaptive_skill_clip(skills, header, footer))
-    # _fit_rows stays as the LAST safety net: if even name-only rows overflow
-    # (a registry so large the budget cannot name every skill), the explicit
-    # "+N more" pointer line still beats a silent overflow.
     return _fit_rows(header, rows, footer, f"read `{index_path}`.")
 
 
@@ -12364,7 +10968,7 @@ def seat_digest_document(
             "the kit's",
             "   `SKILLS` list (skills). Regenerated, never edited; never a "
             "copy of record.",
-            "3. **fleet-manager `docs/CAPABILITIES.md`** — the fleet "
+            "3. **fleet-manager `docs/capabilities.md`** — the fleet "
             "aggregation point;",
             "   cross-repo findings are consolidated there by the manager.",
             "",
@@ -12406,363 +11010,6 @@ def seat_digest_text(
         venues,
         config.docs_root,
     )
-
-# --- engine/enabler_preflight.py ---
-"""Auto-merge-enabler INSTALL-time preflight — the online-verifiable half of
-the enabler install preflight (docs/ideas/enabler-install-preflight-
-2026-07-13.md).
-
-Why + provenance: the enabler installs cleanly into repos where it cannot
-function, and the INERT state stays silent until the first parked PR. Three
-seats hit it on the 2026-07-12→13 night run
-(docs/reports/2026-07-13-night-run-adopter-outcomes.md §a). The check-time
-branch-drift half shipped as ``checks/check_automerge_preflight.py`` (kit PR
-#321); this module is the remaining half: at adopt/upgrade time — the moment
-the live enabler is planted or regenerated — verify the two owner-UI
-preconditions the printed repo-settings checklist can only *describe*, and
-report what is actually configured:
-
-- ``"Allow auto-merge"`` (repo setting) — OFF means the enabler cannot arm
-  ANY PR (the trading-strategy class). Read from ``GET /repos/{owner}/{repo}``
-  → ``allow_auto_merge``.
-- Required status-check CONTEXTS on the default branch — zero means the
-  enabler's refuse-to-arm guard keeps it INERT forever (the superbot-idle /
-  gba-homebrew class). Read from ``GET /repos/{owner}/{repo}/rules/branches/
-  {branch}`` — deliberately the SAME rules endpoint the enabler's own guard
-  counts, so the preflight and the workflow can never disagree on semantics.
-  A non-empty set that lacks the configured ``automerge.required_context``
-  additionally flags the name mismatch (the websites class — the checklist
-  and enabler logs would tell the owner to require a context nothing
-  publishes).
-
-The branch-allowlist condition is NOT verified here on purpose: at install
-time the workflow is regenerated from ``automerge.branch_patterns``, so
-workflow == config by construction; later drift is exactly what the #321
-check-time advisory catches. Duplicating it here would double-report every
-finding.
-
-Posture is **advisory-only and fail-open** (the idea file's routing note:
-"the preflight output may need to route to the owner queue rather than
-assert"). The kit installs in varied environments — offline containers,
-tokenless CI, non-GitHub remotes — and a preflight that hard-fails installs
-offline would be worse than none. Every degradation collapses to one honest
-``UNVERIFIED`` report line pointing back at the manual checklist:
-
-- no ``.git`` / no origin remote / origin not a ``github.com`` URL
-- no network, DNS failure, timeout (5 s per request)
-- HTTP errors (404 on a private repo without a token, 403 rate limit, …)
-- tokenless visibility: ``allow_auto_merge`` is only present in the API
-  response for credentials with push scope — absence is reported as
-  unverifiable, never as OFF
-- malformed / unexpected JSON
-
-Pure stdlib (``urllib``, honouring the environment's proxy settings — the
-``currency.py`` transport precedent); no ``subprocess`` (§3.2): the origin
-remote is read from ``.git/config`` directly (worktree ``.git`` files and
-``commondir`` indirection followed best-effort). The HTTP transport is
-injectable (``http_get(url, headers) -> (status, body)``) so tests never
-touch the network; ``GITHUB_TOKEN`` / ``GH_TOKEN`` are honoured when present.
-No ``engine.adopt`` imports (adopt imports *this* module — a reverse import
-would cycle); callers pass the configured required-context name in.
-"""
-
-
-
-# One greppable prefix for every line this preflight emits into the adopt
-# report (and the report file adopt writes), so a session — or the owner —
-# can pull the verdict out of a long adopt/upgrade transcript in one grep.
-PREFLIGHT_PREFIX = "enabler preflight:"
-
-_API_ROOT = "https://api.github.com"
-_TIMEOUT_SECONDS = 5
-
-# The two github.com remote shapes worth recognizing: URL-style
-# (https://github.com/o/r[.git], ssh://git@github.com/o/r[.git]) and
-# scp-style (git@github.com:o/r[.git]). Anything else — local paths, proxy
-# remotes, other hosts — degrades to UNVERIFIED rather than guessing.
-_URL_SLUG_RE = re.compile(
-    r"^(?:https?|ssh|git)://(?:[^/@]+@)?github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$",
-)
-_SCP_SLUG_RE = re.compile(
-    r"^(?:[^@]+@)?github\.com:([^/]+?)/([^/]+?)(?:\.git)?/?$",
-)
-
-
-def _git_config_text(root: Path) -> str | None:
-    """Return the repo's git config text, or ``None`` when unreachable.
-
-    Handles the three checkout shapes best-effort: a normal ``.git/``
-    directory, a worktree/submodule ``.git`` FILE (``gitdir: <path>``), and
-    a worktree gitdir whose ``commondir`` file points at the shared
-    ``.git``. Any read failure fails open (``None`` — not a verdict).
-    """
-    git_path = root / ".git"
-    try:
-        if git_path.is_dir():
-            cfg = git_path / "config"
-            return cfg.read_text(encoding="utf-8") if cfg.is_file() else None
-        if git_path.is_file():
-            match = re.search(
-                r"^gitdir:\s*(.+)\s*$",
-                git_path.read_text(encoding="utf-8"),
-                re.MULTILINE,
-            )
-            if match is None:
-                return None
-            gitdir = Path(match.group(1).strip())
-            if not gitdir.is_absolute():
-                gitdir = (root / gitdir).resolve()
-            common = gitdir / "commondir"
-            if common.is_file():
-                rel = common.read_text(encoding="utf-8").strip()
-                base = Path(rel)
-                if not base.is_absolute():
-                    base = (gitdir / rel).resolve()
-            else:
-                base = gitdir
-            cfg = base / "config"
-            return cfg.read_text(encoding="utf-8") if cfg.is_file() else None
-    except (OSError, UnicodeDecodeError):
-        return None
-    return None
-
-
-def _origin_url(config_text: str) -> str | None:
-    """Return the ``[remote "origin"]`` url from git-config text, or None.
-
-    A deliberately small INI walk (git config is ini-shaped): track the
-    current section header, take the first ``url =`` under the origin
-    remote. No ``git`` subprocess (§3.2).
-    """
-    in_origin = False
-    for raw in config_text.split("\n"):
-        line = raw.strip()
-        if not line or line.startswith(("#", ";")):
-            continue
-        if line.startswith("["):
-            in_origin = re.match(
-                r'^\[remote\s+"origin"\]$',
-                line,
-            ) is not None
-            continue
-        if in_origin:
-            match = re.match(r"url\s*=\s*(.+)$", line)
-            if match is not None:
-                return match.group(1).strip()
-    return None
-
-
-def _github_slug(url: str) -> tuple[str, str] | None:
-    """Return ``(owner, repo)`` for a github.com remote URL, else ``None``."""
-    for pattern in (_URL_SLUG_RE, _SCP_SLUG_RE):
-        match = pattern.match(url.strip())
-        if match is not None:
-            return match.group(1), match.group(2)
-    return None
-
-
-def _preflight_urllib_get(url: str, headers: dict[str, str]) -> tuple[int, bytes]:
-    """Default HTTP transport: stdlib urllib, short timeout, status+body.
-
-    An HTTP error status is a *result* (returned), not an exception —
-    transport-level failures (DNS, refused, timeout) propagate ``OSError``
-    for the caller's fail-open handling.
-    """
-    request = urllib.request.Request(url, headers=headers)  # noqa: S310
-    try:
-        with urllib.request.urlopen(  # noqa: S310
-            request,
-            timeout=_TIMEOUT_SECONDS,
-        ) as response:
-            return response.status, response.read()
-    except urllib.error.HTTPError as exc:
-        body = exc.read() if exc.fp is not None else b""
-        return exc.code, body
-
-
-def _fetch_json(
-    get: Callable[[str, dict[str, str]], tuple[int, bytes]],
-    url: str,
-    headers: dict[str, str],
-) -> tuple[int | None, object]:
-    """Return ``(status, parsed_json)`` — ``(None, None)`` on transport failure.
-
-    ``status`` is ``None`` only when the request never completed (offline /
-    DNS / timeout); a completed request with unparseable JSON keeps its
-    status and parses to ``None``. Fail-open by contract: this helper never
-    raises.
-    """
-    try:
-        status, body = get(url, headers)
-    except (OSError, ValueError):
-        # OSError covers URLError / timeouts / refused sockets; ValueError
-        # covers a malformed URL. Either way: not a verdict.
-        return None, None
-    try:
-        return status, json.loads(body.decode("utf-8"))
-    except (ValueError, UnicodeDecodeError):
-        return status, None
-
-
-def _required_contexts(rules: list) -> list[str]:
-    """Collect required status-check context names from a rules-API response.
-
-    Mirrors the enabler workflow's own jq
-    (``.[] | select(.type == "required_status_checks") |
-    .parameters.required_status_checks // [] | .[].context``) so the
-    preflight counts exactly what the refuse-to-arm guard will count.
-    """
-    contexts: list[str] = []
-    for rule in rules:
-        if not isinstance(rule, dict):
-            continue
-        if rule.get("type") != "required_status_checks":
-            continue
-        parameters = rule.get("parameters")
-        checks = (
-            parameters.get("required_status_checks")
-            if isinstance(parameters, dict)
-            else None
-        )
-        for check in checks or []:
-            if isinstance(check, dict) and check.get("context"):
-                contexts.append(str(check["context"]))
-    return contexts
-
-
-def _unverified(reason: str) -> list[str]:
-    """One honest degradation line — the manual checklist is the fallback."""
-    return [
-        f"{PREFLIGHT_PREFIX} UNVERIFIED ({reason}) — verify the two repo "
-        "settings by hand via the repo-settings checklist above.",
-    ]
-
-
-def enabler_install_preflight(
-    root: Path,
-    required_context: str,
-    *,
-    http_get: Callable[[str, dict[str, str]], tuple[int, bytes]] | None = None,
-    env: Mapping[str, str] | None = None,
-) -> list[str]:
-    """Return advisory report lines verifying the enabler's repo settings.
-
-    Called by ``adopt`` (and therefore ``upgrade``) whenever the live
-    enabler workflow exists — right after the repo-settings checklist, which
-    it deepens with what is *actually* configured. Advisory by contract:
-    lines only, never an exception, never exit-affecting. ``http_get`` /
-    ``env`` are test seams (default: stdlib urllib + ``os.environ``).
-    """
-    get = http_get if http_get is not None else _preflight_urllib_get
-    environ: Mapping[str, str] = os.environ if env is None else env
-
-    config_text = _git_config_text(root)
-    if config_text is None:
-        return _unverified("no readable git checkout at the target")
-    origin = _origin_url(config_text)
-    if origin is None:
-        return _unverified("no origin remote in .git/config")
-    slug = _github_slug(origin)
-    if slug is None:
-        return _unverified(
-            "origin remote is not a github.com URL, so repo settings are "
-            "not reachable from here",
-        )
-    owner, repo = slug
-
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "substrate-kit-enabler-preflight",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    token = environ.get("GITHUB_TOKEN") or environ.get("GH_TOKEN")
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-
-    status, repo_data = _fetch_json(
-        get,
-        f"{_API_ROOT}/repos/{owner}/{repo}",
-        headers,
-    )
-    if status is None:
-        return _unverified(
-            f"could not reach the GitHub API for {owner}/{repo} — offline "
-            "or blocked network",
-        )
-    if status != 200 or not isinstance(repo_data, dict):
-        return _unverified(
-            f"GET /repos/{owner}/{repo} returned HTTP {status} — a private "
-            "repo without a token, a rate limit, or a moved repo",
-        )
-
-    lines: list[str] = []
-    allow = repo_data.get("allow_auto_merge")
-    if allow is True:
-        lines.append(
-            f'{PREFLIGHT_PREFIX} "Allow auto-merge" is ON — checklist '
-            "item 1 verified.",
-        )
-    elif allow is False:
-        lines.append(
-            f'{PREFLIGHT_PREFIX} "Allow auto-merge" is OFF — the installed '
-            "enabler cannot arm ANY PR until the owner flips Settings → "
-            'General → Pull Requests → "Allow auto-merge" = ON (checklist '
-            "item 1).",
-        )
-    else:
-        # The API only includes the merge-settings fields for credentials
-        # with push scope; absence means "cannot see", never "off".
-        lines.append(
-            f'{PREFLIGHT_PREFIX} "Allow auto-merge" UNVERIFIED — the API '
-            "hides merge settings without push-scope credentials (set "
-            "GITHUB_TOKEN/GH_TOKEN to verify); checklist item 1 is the "
-            "manual path.",
-        )
-
-    branch = str(repo_data.get("default_branch") or "main")
-    rules_status, rules = _fetch_json(
-        get,
-        f"{_API_ROOT}/repos/{owner}/{repo}/rules/branches/{branch}",
-        headers,
-    )
-    if rules_status != 200 or not isinstance(rules, list):
-        why = (
-            "offline or blocked network"
-            if rules_status is None
-            else f"HTTP {rules_status}"
-        )
-        lines.append(
-            f"{PREFLIGHT_PREFIX} required status-check contexts on "
-            f"'{branch}' UNVERIFIED ({why}); checklist item 2 is the "
-            "manual path.",
-        )
-        return lines
-
-    contexts = _required_contexts(rules)
-    if not contexts:
-        lines.append(
-            f"{PREFLIGHT_PREFIX} '{branch}' requires ZERO status-check "
-            "contexts — the enabler's refuse-to-arm guard keeps the install "
-            "INERT (arming would merge PRs instantly) until the owner makes "
-            f"'{required_context}' a required check (checklist item 2).",
-        )
-    elif required_context in contexts:
-        lines.append(
-            f"{PREFLIGHT_PREFIX} '{branch}' requires "
-            f"{len(contexts)} status-check context(s) including "
-            f"'{required_context}' — checklist item 2 verified.",
-        )
-    else:
-        listed = ", ".join(f"'{name}'" for name in sorted(set(contexts)))
-        lines.append(
-            f"{PREFLIGHT_PREFIX} '{branch}' requires {listed} but not "
-            f"'{required_context}' — the enabler still arms (its guard "
-            "counts contexts generically), but the config knob names a "
-            "context that is not required: set substrate.config.json -> "
-            'automerge."required_context" to the real gate so the '
-            "checklist + enabler logs name the right check.",
-        )
-    return lines
 
 # --- engine/adopt.py ---
 """One-step adopt flow — plant the workflow docs, stage the packs (Lane B8).
@@ -12839,20 +11086,6 @@ ADOPT_PLAN: list[tuple[str, str]] = [
     # siblings so the plant never orphans an adopter's check --strict
     # (the orphan-doc reachability rule).
     ("routines.md.tmpl", "docs/ROUTINES.md"),
-    # The multi-repo reading path (ORDER 016 seat-item 4 — provenance
-    # superbot Q-0272, docs/fleet-reading-path.md's own kit-graduation
-    # clause): the standing read-authorization, the one-command fleet
-    # orient, the sibling/truth-file map, the tiered depth ladder, and the
-    # truth rules — so no session burns turns re-discovering that its
-    # fleet is readable (the 2026-07-12 incident: ~3 turns lost to
-    # re-derivation). Slot-driven (fleet_dark_repos / fleet_status_command
-    # / fleet_siblings — none critical, so the graduation gate is
-    # unaffected); routed from the AGENT_ORIENTATION template like its
-    # CAPABILITIES/SKILLS/ROUTINES siblings so the plant never orphans an
-    # adopter's check --strict (the orphan-doc reachability rule), and
-    # deliberately NOT in the K0 boot set — Q-0272 doctrine keeps the path
-    # routed, not front-loaded.
-    ("reading-path.md.tmpl", "docs/reading-path.md"),
     ("ideas-README.md.tmpl", "docs/ideas/README.md"),
     ("session-journal.md.tmpl", ".session-journal.md"),
     # The fleet coordination protocol (band KL-8, spec: superbot
@@ -13809,11 +12042,7 @@ AUTOMERGE_ENABLER_RELPATH = ".github/workflows/auto-merge-enabler.yml"
 # rename would silently split the fleet's shared review convention.
 AUTOMERGE_CARVEOUT_LABEL = "do-not-automerge"
 
-# claim/* rides alongside claude/*: control fast-lane claim PRs land on
-# claim/* heads, and a claude/-only default left them green+clean but
-# unarmed forever (kit PR #293, the live stall — ~2 h during the v1.15.0
-# wave-A distribution until re-landed on claude/* as #297).
-DEFAULT_AUTOMERGE_BRANCH_PATTERNS = ("claude/*", "claim/*")
+DEFAULT_AUTOMERGE_BRANCH_PATTERNS = ("claude/*",)
 DEFAULT_AUTOMERGE_REQUIRED_CONTEXT = "substrate-gate"
 
 
@@ -14641,13 +12870,6 @@ def adopt(
         # repo settings exist — say so in the adopt output itself, every
         # pass (the checklist is idempotent guidance, not a nag).
         report.extend(_repo_settings_checklist(enabler_context))
-        # Install-time preflight (the online half of enabler-install-
-        # preflight-2026-07-13; the check-time branch half is #321): verify
-        # the two settings the checklist can only describe — "Allow
-        # auto-merge" + required contexts — against the live GitHub API.
-        # Advisory + fail-open by contract: offline / tokenless / non-GitHub
-        # remotes collapse to one UNVERIFIED line, never a failed adopt.
-        report.extend(enabler_install_preflight(root, enabler_context))
     # required_context sanity (queued kit fix 3, the websites class): after
     # the gate/enabler regens above so a just-installed live gate counts as
     # a matching context. Advisory line only — see the helper's docstring.
@@ -14950,8 +13172,8 @@ not exist costs every session an improvisation.
 What it scans:
 
 - The kit-truth :data:`engine.skills.skills.SKILLS` list — every body's
-  backticked spans, markdown-link targets, and every ``grounds`` entry (the
-  self-check that travels with the kit).
+  backticked spans and every ``grounds`` entry (the self-check that travels
+  with the kit).
 - The target's installed/staged skill documents (``.claude/skills/*/
   SKILL.md`` and ``<state_dir>/skills/*/SKILL.md``) when present — the
   RENDERED bodies, so a host-edited or host-added skill gets the same scan.
@@ -14961,16 +13183,11 @@ Skip rules (fail-open classes, in order): a span carrying an unfilled
 a span carrying non-ASCII characters (``·``/``→``/``✔`` mark report-format
 prose, never commands);
 a first token that is not identifier/path-shaped (prose, ``<placeholders>``,
-``[brackets]``, flags, globs; a leading ``.`` is path-shaped — dot-led
-pointers like ``.claude/skills/x/SKILL.md`` ARE judged); a token ending
-``/`` (directory prose); a state-dir token naming a known kit-written
-artifact class (:data:`_STATE_DIR_ARTIFACTS` / :data:`_STATE_DIR_PREFIXES`
-— runtime artifacts grounded by construction; any OTHER state-dir path is
-judged by existence like every pointer); a markdown-link target carrying a
-URL scheme, a bare ``#anchor``, or whitespace; a single bare word with no
-path shape (``complete``, ``in-progress`` — status tokens, not commands).
-Pure stdlib; no ``subprocess`` (§3.2) — resolution is existence checks,
-never execution.
+``[brackets]``, flags, globs); a token ending ``/`` (directory prose); a
+token under the state dir (runtime artifacts, not committed files); a single
+bare word with no path shape (``complete``, ``in-progress`` — status tokens,
+not commands). Pure stdlib; no ``subprocess`` (§3.2) — resolution is
+existence checks, never execution.
 """
 
 
@@ -14980,18 +13197,9 @@ never execution.
 # a grounds-matching invariant the skills tests pin).
 _SPAN_RE = re.compile(r"`([^`\n]+)`")
 
-# A judgeable first token: identifier/path-shaped, optionally dot-led
-# (``.substrate/upgrade-report.md``, ``.claude/skills/x/SKILL.md``, ``.env``).
-# The optional leading ``.`` must be followed by an identifier character so
-# pure-punctuation prose (``..``, ``...``, ``./``) stays unjudged. Anything
-# else (``>``, ``[Unreleased]``, ``<repo>:``, ``<!--``, unicode prose) is
-# skipped as prose.
-_FIRST_TOKEN_RE = re.compile(r"^\.?[A-Za-z0-9_][A-Za-z0-9_.\-/]*$")
-
-# One markdown link target: ``[text](target)``. Same extraction precedent as
-# the kit-side template pointer guard (tests/test_template_pointer_guard.py
-# ``_MD_LINK_TARGET_RE``); targets feed the SAME skip ladder as backtick spans.
-_MD_LINK_TARGET_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+# A judgeable first token: identifier/path-shaped. Anything else (``>``,
+# ``[Unreleased]``, ``<repo>:``, ``<!--``, unicode prose) is skipped as prose.
+_FIRST_TOKEN_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.\-/]*$")
 
 # A real file extension (lowercase — ``vX.Y.Z`` version placeholders end in
 # uppercase pseudo-extensions and must stay prose).
@@ -15050,21 +13258,18 @@ _EXECUTABLES = frozenset(
     }
 )
 
-# Paths grounded by construction even when absent from the target tree,
-# split into explicit classes so each entry states WHY it resolves and the
-# kit-side guard (tests/test_skill_pointer_guard.py
-# ``test_skill_grounds_kit_path_whitelist_cannot_rot``) can pin each class
-# against rot. A raw "must exist in the adopter tree" pin is deliberately
-# NOT used: a 4-adopter survey (2026-07-13, kit 1.15.0) measured it at 14–15
-# FALSE findings per adopter — these paths never live in adopter trees by
-# design. Classes must stay disjoint; the guard test asserts it.
-
-# Kit-repo source/runbook files the ``release`` / ``upgrade-distribution``
-# skills name ("the commands below run in the kit repo"). They resolve by
-# class in ANY target; the guard test pins each to exist in the KIT tree so
-# a kit-side rename cannot leave the whitelist resolving dead pointers.
-_KIT_REPO_PATHS = frozenset(
+# Paths that are grounded by construction even when absent from the target
+# tree: the kit's own release/distribution artifacts (the ``release`` and
+# ``upgrade-distribution`` runbooks name kit-repo files and transient wave
+# files that no adopter tree carries) plus the vendored-dist names the
+# consumer flow uses. ADOPT_PLAN destinations join this set below — a path
+# the kit plants is grounded wherever the kit is adopted.
+_KIT_SHIPPED_PATHS = frozenset(
     {
+        "bootstrap.py",
+        "bootstrap.py.new",
+        "bootstrap.py.sha256",
+        "release.json",
         "dist/bootstrap.py",
         "src/build_bootstrap.py",
         "src/build_release_json.py",
@@ -15074,43 +13279,11 @@ _KIT_REPO_PATHS = frozenset(
         ".github/workflows/release.yml",
         "docs/adopters.md",
         "docs/operations/release-runbook.md",
+        "docs/SKILLS.md",
     }
 )
-
-# Release-wave transients: files that exist only mid-wave or as published
-# release assets (release.yml / the consumer flow in release.json) — never
-# in any committed tree, kit or adopter. Resolve by class.
-_WAVE_TRANSIENT_PATHS = frozenset(
-    {
-        "bootstrap.py.new",
-        "bootstrap.py.sha256",
-        "release.json",
-    }
-)
-
-# Files the kit plants in ADOPTER trees outside ADOPT_PLAN (which joins
-# _KNOWN_PATHS below on its own): the vendored single-file dist copied to
-# the repo root by adopt (_vendor_bootstrap, skip-if-exists). Class-resolved
-# because a not-yet-adopted / empty target legitimately lacks it while the
-# shipped skill bodies already name it.
-_ADOPTER_PLANTED_PATHS = frozenset({"bootstrap.py"})
-
-# The full grounded-by-construction set — kept as the single derived union
-# so resolution behavior is exactly the historical whitelist's.
-_KIT_SHIPPED_PATHS = _KIT_REPO_PATHS | _WAVE_TRANSIENT_PATHS | _ADOPTER_PLANTED_PATHS
 
 _KNOWN_PATHS = _KIT_SHIPPED_PATHS | {dest for _tmpl, dest in ADOPT_PLAN}
-
-# State-dir artifacts the kit itself writes/stages, grounded by construction
-# even when absent (they appear only after an upgrade / ``skills --build`` /
-# a backup): the upgrade report (engine.upgrade.UPGRADE_REPORT_FILENAME),
-# the pre-upgrade byte backup dir, and the staged-skills tree. Derived from
-# what kit SKILLS bodies + staged skill docs actually reference under the
-# state dir. Any OTHER state-dir path is judged by existence like every
-# pointer — the pre-2026-07-13 blanket state-dir skip failed dead dot-led
-# pointers open.
-_STATE_DIR_ARTIFACTS = frozenset({"upgrade-report.md"})
-_STATE_DIR_PREFIXES = ("backup/", "skills/")
 
 
 def _unresolved(span: str, target: Path, state_dir: str) -> bool:
@@ -15129,13 +13302,8 @@ def _unresolved(span: str, target: Path, state_dir: str) -> bool:
     first = tokens[0]
     if not _FIRST_TOKEN_RE.match(first):
         return False  # prose / placeholder / flag / bracket shapes
-    if first.endswith("/"):
-        return False  # directory prose
-    if first.startswith(f"{state_dir}/"):
-        rest = first[len(state_dir) + 1 :]
-        if rest in _STATE_DIR_ARTIFACTS or rest.startswith(_STATE_DIR_PREFIXES):
-            return False  # kit-written runtime artifacts — grounded by class
-        # any other state-dir path falls through to the existence lanes
+    if first.endswith("/") or first.startswith(f"{state_dir}/"):
+        return False  # directory prose; runtime state artifacts
     if first in _EXECUTABLES or first in _KNOWN_PATHS:
         return False
     if (target / first).exists():
@@ -15149,24 +13317,8 @@ def _unresolved(span: str, target: Path, state_dir: str) -> bool:
 
 
 def _spans(body: str) -> list[str]:
-    """Return the judgeable spans of ``body``, in order.
-
-    Backticked inline spans first, then markdown-link targets fed through
-    the same downstream skip ladder. Link targets carrying a URL scheme, a
-    bare ``#anchor``, or whitespace (titles, prose parentheticals) are
-    skipped here; fragments are stripped (``docs/x.md#section`` judges
-    ``docs/x.md``).
-    """
-    spans = _SPAN_RE.findall(body)
-    for raw in _MD_LINK_TARGET_RE.findall(body):
-        candidate = raw.strip()
-        if candidate.startswith(("http://", "https://", "mailto:", "#")):
-            continue
-        candidate = candidate.split("#", 1)[0].strip()
-        if not candidate or any(ch.isspace() for ch in candidate):
-            continue  # empty after fragment-strip, or title/prose-bearing
-        spans.append(candidate)
-    return spans
+    """Return the backticked inline spans of ``body``, in order."""
+    return _SPAN_RE.findall(body)
 
 
 def _skill_doc_paths(target: Path, state_dir: str) -> list[Path]:
@@ -15239,121 +13391,6 @@ def check_skill_grounds(
                         "session inherits it.",
                     ),
                 )
-    return findings
-
-# --- engine/checks/check_staged_regen.py ---
-"""check_staged_regen — staged-artifact regeneration-lag advisory.
-
-Why + provenance: staged ``.substrate/`` artifacts (the staged CLAUDE.md,
-skills, agents) can carry unfilled ``${...}`` slots even though ``state.json``
-``slot_values`` are ALL filled — they were staged pre-slot-fill and nothing
-re-renders them outside an ``upgrade``. The engagement gate never sees it:
-``_unrendered_findings`` scans **planted docs** (``scan_relpaths``), not the
-staged tree. A "looks staged, isn't rendered" class — proven live on websites
-at main ``992c045`` (``.substrate/agents/architect.md``, ``reviewer.md``,
-``claude/CLAUDE.md``, two skills templated while every slot was answered),
-and re-proven on the kit's own staged tree at build time. Design authority:
-``docs/ideas/staged-artifact-regen-lag-checker-2026-07-12.md`` (origin:
-consumer friction issue #39). Added 2026-07-13 (ORDER 019 item 6).
-Reliability (PL-008): UNVERIFIED — confirm its findings against ground truth
-a few times across sessions before trusting it; **delete this if it proves
-unreliable over multiple sessions.**
-
-Posture is **advisory-only, never exit-affecting** (idea file: "advisory-first
-per the adopt-freely posture") — the same nudge-never-door contract as
-``check_claims`` / ``check_skill_grounds``: a lagging staged artifact costs
-the host one regen command, and a required-check red here would bomb every
-currently-green adopter whose staged tree predates its answers the moment it
-upgrades. Graduation to strict is a later, deliberate step.
-
-What fires: for each staged artifact under the staged subtrees of
-``<state_dir>/`` (:data:`STAGED_SUBDIRS` — exactly the directories
-``adopt``'s staging pass writes; never ``backup/`` or the state files at the
-state-dir root), a live ``${slot}`` placeholder **outside code spans**
-(:func:`engine.render.find_placeholders_outside_code` — the code-span-aware
-scan the engagement gate already uses, so backticked mentions never
-false-positive) whose slot name **is filled** in ``state.json``
-``slot_values`` yields one finding. The filled-slot intersection is the
-regen-lag definition — the answer exists, the staged copy predates it — and
-is also the false-positive firewall: shell ``${VAR}`` in staged hook/CI
-material and GitHub's ``${{ ... }}`` syntax are not filled slot names and
-can never fire. A genuinely-unfilled slot is not lag (there is nothing to
-render yet) and stays the interview's business.
-
-The message names the recovering commands: ``upgrade`` regenerates the whole
-staged tree; ``skills --build`` / ``agents --build`` regenerate one pack.
-"""
-
-
-
-
-# The staged subtrees adopt's staging pass writes under <state_dir>/ — the
-# scan surface. Deliberately NOT a recursive walk of the whole state dir:
-# files at the state-dir root (state.json, guard-fires.jsonl, upgrade
-# reports, reflection/episodic indexes) are kit state, not staged artifacts
-# — free-text state (a reflection *about* a slot) must never fire — and
-# backup/ holds banked previous dists that are legitimately old.
-STAGED_SUBDIRS = ("agents", "claude", "ci", "hooks", "skills")
-
-
-def _filled_slots(target: Path, config: Any) -> set[str]:
-    """Return the slot names with a non-empty recorded value in state.json."""
-    path = target / config.state_dir / "state.json"
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return set()
-    values = data.get("slot_values") if isinstance(data, dict) else None
-    if not isinstance(values, dict):
-        return set()
-    return {
-        slot
-        for slot, entry in values.items()
-        if isinstance(entry, dict) and str(entry.get("value", "")).strip()
-    }
-
-
-def check_staged_regen(target: Path, config: Any) -> list[Finding]:
-    """Return regen-lag findings for ``target``'s staged tree (empty = current).
-
-    Self-gating like every input-gated checker: no filled slots (bare tree,
-    pre-interview install) or no staged tree means nothing can lag — the
-    scan adds nothing before onboarding.
-    """
-    filled = _filled_slots(target, config)
-    if not filled:
-        return []
-    state_base = target / config.state_dir
-    findings: list[Finding] = []
-    for subdir in STAGED_SUBDIRS:
-        base = state_base / subdir
-        if not base.is_dir():
-            continue
-        for path in sorted(base.rglob("*")):
-            if not path.is_file():
-                continue
-            try:
-                text = path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                continue
-            lagging = sorted(
-                find_placeholders_outside_code(text) & filled,
-            )
-            if not lagging:
-                continue
-            rel = f"{config.state_dir}/{path.relative_to(state_base).as_posix()}"
-            listed = ", ".join(lagging[:5]) + (" …" if len(lagging) > 5 else "")
-            findings.append(
-                Finding(
-                    rel,
-                    "staged-regen-lag",
-                    f"{len(lagging)} filled slot(s) still unrendered in this "
-                    f"staged artifact: {listed} — the answers already exist "
-                    "in state; regenerate the staged tree "
-                    "(`python3 bootstrap.py upgrade`, or the pack verb: "
-                    "`bootstrap.py skills --build` / `agents --build`).",
-                ),
-            )
     return findings
 
 # --- engine/checks/check_seat_digest.py ---
@@ -15479,130 +13516,6 @@ def check_seat_digest(
                 ),
             )
     return findings
-
-# --- engine/checks/check_automerge_preflight.py ---
-"""Auto-merge-enabler branch-allowlist preflight — the offline-verifiable half
-of the enabler install-time preflight (docs/ideas/enabler-install-preflight-
-2026-07-13.md).
-
-Why + provenance: the auto-merge enabler installs cleanly into repos where it
-cannot function, and the INERT state stays silent until the first parked PR.
-Three seats hit it on the 2026-07-12→13 night run
-(docs/reports/2026-07-13-night-run-adopter-outcomes.md §a): idle's enabler sat
-INERT on zero required contexts, gba-homebrew #76 merged with the enabler
-inert, and idea-engine had to hand-patch the workflow to add `claude/` to its
-branch allowlist (PR #272) — its outbox flagging that a kit upgrade would
-clobber the local fix.
-
-What it flags (**advisory** — a nudge, never a locked door, the same posture
-as the setup-script / seat-digest / adopters-staleness warnings):
-
-- ``automerge-branch-drift`` — the installed
-  ``.github/workflows/auto-merge-enabler.yml``'s parsed branch terms differ
-  from what ``substrate.config.json`` → ``automerge.branch_patterns`` would
-  regenerate. This is the idea-engine class: a hand-edited workflow (clobbered
-  on the next upgrade) or a stale pre-``claim/*`` copy whose allowlist no
-  longer covers the branches sessions push, so the enabler never arms those
-  PRs. The fix is to put the branch list in config (where regeneration
-  preserves it) and regenerate — hand edits to the kit-owned workflow are
-  overwritten on ``upgrade``.
-
-Scope — **branch half only**. The other install-time precondition (the base
-branch actually REQUIRING a status-check context) cannot be verified here: the
-engine is stdlib-only and offline (no rules API). That half stays owner-UI —
-it is surfaced by the enabler's own PR-time ``::warning::`` (the refuse-to-arm
-guard counts required contexts and refuses on zero) and by the adopt
-repo-settings checklist. Naming the split here keeps the omission explicit.
-
-Posture is **advisory-only, never exit-affecting**, and input-gated on the
-enabler workflow existing (adopt plants it; a repo without it gets no nag).
-The comparison is on the BRANCH EXPRESSION only, not the whole file: the
-branch expr is derived purely from config, so it is stable across kit-version
-bumps — a whole-file byte-compare would nag the whole fleet during version
-skew (and that scan already lives in the adopt/upgrade carve-out report). Pure
-stdlib, no ``subprocess`` (§3.2); unreadable files fail open (no verdict).
-"""
-
-
-
-
-# The two head_ref-keyed term shapes the enabler's branch expr is built from
-# (adopt._automerge_branch_expr): a trailing-`*` config pattern renders as a
-# prefix `startsWith`, anything else as an exact `==`. Scanning for these two
-# forms yields exactly the branch terms — the repo guard keys off
-# `head.repo.full_name`, the draft guard off `.draft`, the label guard off
-# `labels.*.name`, none of which mention `head_ref`.
-_STARTSWITH_RE = re.compile(r"startsWith\(\s*github\.head_ref\s*,\s*'([^']*)'\s*\)")
-_EXACT_RE = re.compile(r"github\.head_ref\s*==\s*'([^']*)'")
-
-
-def _branch_terms(expr: str) -> set[tuple[str, str]]:
-    """Return the normalized set of branch terms in a workflow expression.
-
-    Each term is ``("prefix", value)`` (a ``startsWith`` prefix match) or
-    ``("exact", value)`` (a ``==`` head-ref match). A set on purpose — the
-    enabler arms on the OR of its terms, so ordering and duplication carry no
-    meaning; two expressions with the same term set arm identically.
-    """
-    terms: set[tuple[str, str]] = set()
-    for value in _STARTSWITH_RE.findall(expr):
-        terms.add(("prefix", value))
-    for value in _EXACT_RE.findall(expr):
-        terms.add(("exact", value))
-    return terms
-
-
-def check_automerge_preflight(target: Path, config: Config) -> list[Finding]:
-    """Return advisory findings for auto-merge-enabler branch-allowlist drift.
-
-    Engages only when the enabler workflow exists (adopt plants it; absence is
-    not a finding). Advisory by contract — callers must never count these
-    toward an exit code. Fail-open on unreadable files.
-    """
-    path = target / AUTOMERGE_ENABLER_RELPATH
-    if not path.is_file():
-        return []
-    try:
-        live_text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return []  # fail open — an unreadable file is not a verdict
-
-    live_terms = _branch_terms(live_text)
-    # No head_ref terms at all → not a shape this checker understands (a host
-    # rewrote the arming condition wholesale); stay silent rather than nag on
-    # a workflow that is intentionally off the kit's own generated shape.
-    if not live_terms:
-        return []
-
-    patterns, _context = _automerge_params(config)
-    expected_terms = _branch_terms(_automerge_branch_expr(patterns))
-    if live_terms == expected_terms:
-        return []
-
-    live_desc = _describe(live_terms)
-    expected_desc = _describe(expected_terms)
-    return [
-        Finding(
-            AUTOMERGE_ENABLER_RELPATH,
-            "automerge-branch-drift",
-            f"the installed enabler arms on {live_desc}, but "
-            f"`automerge.branch_patterns` would regenerate {expected_desc} — "
-            "they differ, so either the workflow was hand-edited (kit-owned: "
-            "`upgrade` overwrites it) or its allowlist is stale and will not "
-            "arm the branches sessions push. Put the branch list in "
-            "`substrate.config.json` `automerge.branch_patterns` and "
-            "regenerate (`bootstrap.py upgrade` / `adopt --wire-enforcement`) "
-            "so config and workflow match.",
-        ),
-    ]
-
-
-def _describe(terms: set[tuple[str, str]]) -> str:
-    """Render a branch-term set as a stable, human-readable allowlist string."""
-    parts = sorted(
-        f"{value}*" if kind == "prefix" else value for kind, value in terms
-    )
-    return "{" + ", ".join(parts) + "}" if parts else "{no agent branches}"
 
 # --- engine/currency.py ---
 """Fleet kit-currency scanner — tree truth vs self-report, per adopter repo.
@@ -17488,16 +15401,6 @@ rather than ``print`` to keep the engine lint-clean.
 
 
 
-# THE §3.2 carve-out (ORDER 018 / idea-engine ASK 002): subprocess is banned
-# in engine code — checkers never shell out; CI does the git work in bash.
-# The ONE exception is `check`'s LOCAL-RITUAL parity legs below
-# (_derive_inbox_base + _derive_diff_session_cards + _run_preflight_scripts):
-# local `check --strict` must run the SAME legs as the CI substrate-gate, and
-# locally there is no bash wrapper to extract the merge-base blob, derive the
-# PR-diff card set, or launch the repo's preflight scripts. All helpers
-# self-skip (fail open, NOTE line) on any failure and are never on the CI
-# gate path, which still hands in --inbox-base / --session-log explicitly.
-
 
 
 def _emit(line: str = "") -> None:
@@ -17990,303 +15893,6 @@ def _extra_check_findings(target: Path, config: Config) -> list:
     return findings
 
 
-# Recursion guard for the preflight-scripts leg (ORDER 018): a repo's
-# preflight wrapper conventionally invokes `bootstrap.py check` itself
-# (idea-engine's runs `check --strict --status-only`), so the leg marks its
-# children with this env var and skips itself inside one — otherwise a
-# wrapper entry that runs plain `check --strict` would recurse forever.
-_PREFLIGHT_NESTED_ENV = "SUBSTRATE_KIT_PREFLIGHT"
-
-# Git subprocess budget for the inbox merge-base derivation: local plumbing
-# reads are milliseconds; a hung git (dead network FS) must not wedge check.
-_GIT_TIMEOUT_SECONDS = 30
-
-
-def _derive_inbox_base(target: Path) -> tuple[bytes | None, str | None]:
-    """Derive the merge-base blob of ``control/inbox.md`` from ``origin/main``.
-
-    The LOCAL-RITUAL half of the inbox append-only gate (ORDER 018 /
-    idea-engine ASK 002): CI extracts the merge-base blob in bash and hands
-    it in via ``--inbox-base``, but a plain local ``check --strict`` had no
-    base to diff against, so the gate silently no-opped and the tree learned
-    about an inbox violation only from red CI (idea-engine PR #274). This
-    helper is the documented §3.2 subprocess carve-out (see the import-site
-    note): it runs only when ``--inbox-base`` was NOT given, and mirrors the
-    generated gate's bash exactly — ``git merge-base HEAD origin/main`` then
-    ``git show <base>:control/inbox.md`` (absent-at-base → empty blob, the
-    gate's ``|| : > basefile`` posture).
-
-    Returns ``(blob_bytes, note)``. ``blob_bytes`` is None when there is
-    nothing to judge or derivation failed; ``note`` carries the one-line
-    self-skip reason worth surfacing (None for the silent skips: no inbox
-    file, or not a git checkout at all — a bare tree must stay quiet).
-    """
-    if not (target / INBOX_RELPATH).is_file():
-        return None, None  # no inbox — nothing to judge, silently
-    if not (target / ".git").exists():  # dir, or file for worktrees
-        return None, None  # not a git checkout — a bare tree stays quiet
-    git = ["git", "-C", str(target)]
-    try:
-        merge_base = subprocess.run(  # noqa: TID251 — §3.2 carve-out (import-site note)
-            [*git, "merge-base", "HEAD", "origin/main"],
-            capture_output=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        return None, (
-            f"inbox merge-base leg skipped — could not run git "
-            f"({exc.__class__.__name__}); CI still gates with --inbox-base."
-        )
-    if merge_base.returncode != 0:
-        return None, (
-            "inbox merge-base leg skipped — origin/main not resolvable "
-            "(no remote-tracking ref / unborn HEAD); CI still gates with "
-            "--inbox-base."
-        )
-    base = merge_base.stdout.decode("utf-8", "replace").strip()
-    try:
-        show = subprocess.run(  # noqa: TID251 — §3.2 carve-out (import-site note)
-            [*git, "show", f"{base}:{INBOX_RELPATH}"],
-            capture_output=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        return None, (
-            f"inbox merge-base leg skipped — could not run git "
-            f"({exc.__class__.__name__}); CI still gates with --inbox-base."
-        )
-    # Path absent at the base (a fresh inbox) → empty base blob, exactly the
-    # generated gate's `git show ... || : > "$basefile"` behavior.
-    return (show.stdout if show.returncode == 0 else b""), None
-
-
-_MTIME_FALLBACK_NOTE = "falling back to newest-by-mtime; CI still gates diff-derived."
-
-
-def _derive_diff_session_cards(
-    target: Path,
-    sessions_dir: str,
-) -> tuple[list[Path] | None, str | None]:
-    """Derive the session cards this branch touches from the merge-base diff.
-
-    The session-gate half of the ORDER 018 local↔CI parity posture
-    (idea-engine ASK 003): ``cmd_check``'s fallback lane used to pick the
-    card to gate on by newest mtime, and after merging ``origin/main`` into
-    a working branch a sibling's COMPLETED card carries the freshest mtime —
-    so a plain local ``check --strict`` validated the WRONG card and went
-    green while the session's own card was still in-progress (reproduced
-    live, sim-lab V051). The CI substrate-gate never had this hole because
-    it derives the card set from the PR diff in bash; this helper — a
-    documented §3.2 subprocess carve-out like :func:`_derive_inbox_base`,
-    same mechanism, same self-skip posture — brings the local ritual onto
-    the same selection: ``git merge-base HEAD origin/main``, then the
-    base-vs-worktree diff under ``sessions_dir`` (``--diff-filter=d``,
-    deletions excluded, exactly the CI pathspec) plus untracked cards
-    (``git ls-files --others``) so a mid-session run still sees its own
-    card before the first commit.
-
-    Returns ``(cards, note)``:
-
-    - ``(None, note-or-None)`` — no git context to derive from (bare tree,
-      no ``origin/main``, git unavailable, or HEAD *is* origin/main with no
-      card changes — a clean post-merge checkout, not a PR context): the
-      caller keeps the historical newest-by-mtime fallback, so non-git
-      adopters are unchanged.
-    - ``(cards, None)`` — derivation succeeded; the list may be EMPTY
-      (branch ahead of origin/main but no card in the diff), which the
-      caller treats as an absent card rather than silently mtime-greening —
-      the fail-closed-on-ambiguity direction.
-    """
-    if not (target / ".git").exists():  # dir, or file for worktrees
-        return None, None  # not a git checkout — a bare tree stays quiet
-    git = ["git", "-C", str(target)]
-    pathspecs = [f"{sessions_dir}/*.md", f":!{sessions_dir}/README.md"]
-    try:
-        merge_base = subprocess.run(  # noqa: TID251 — §3.2 carve-out (import-site note)
-            [*git, "merge-base", "HEAD", "origin/main"],
-            capture_output=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
-        head = subprocess.run(  # noqa: TID251 — §3.2 carve-out (import-site note)
-            [*git, "rev-parse", "HEAD"],
-            capture_output=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        return None, (
-            f"session-card diff selection skipped — could not run git "
-            f"({exc.__class__.__name__}); {_MTIME_FALLBACK_NOTE}"
-        )
-    if merge_base.returncode != 0 or head.returncode != 0:
-        return None, (
-            "session-card diff selection skipped — origin/main not "
-            f"resolvable (no remote-tracking ref / unborn HEAD); "
-            f"{_MTIME_FALLBACK_NOTE}"
-        )
-    base = merge_base.stdout.decode("utf-8", "replace").strip()
-    try:
-        diff = subprocess.run(  # noqa: TID251 — §3.2 carve-out (import-site note)
-            [*git, "diff", "--name-only", "--diff-filter=d", base, "--", *pathspecs],
-            capture_output=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
-        untracked = subprocess.run(  # noqa: TID251 — §3.2 carve-out (import-site note)
-            [*git, "ls-files", "--others", "--exclude-standard", "--", *pathspecs],
-            capture_output=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        return None, (
-            f"session-card diff selection skipped — could not run git "
-            f"({exc.__class__.__name__}); {_MTIME_FALLBACK_NOTE}"
-        )
-    if diff.returncode != 0 or untracked.returncode != 0:
-        return None, (
-            f"session-card diff selection skipped — git diff failed; "
-            f"{_MTIME_FALLBACK_NOTE}"
-        )
-    names: set[str] = set()
-    for stream in (diff.stdout, untracked.stdout):
-        for line in stream.decode("utf-8", "replace").splitlines():
-            name = line.strip()
-            if not name or not name.endswith(".md"):
-                continue
-            if Path(name).name == "README.md":
-                continue
-            if (target / name).is_file():
-                names.add(name)
-    cards = sorted(target / name for name in names)
-    if not cards and base == head.stdout.decode("utf-8", "replace").strip():
-        # Sitting exactly on origin/main with no card changes: there is no
-        # PR context to be ambiguous about — keep the historical fallback
-        # (every merged card is complete on a healthy main) with a NOTE.
-        return None, (
-            "session-card diff selection — HEAD is origin/main and no card "
-            "differs (not a PR context); using newest-by-mtime."
-        )
-    return cards, None
-
-
-def _select_gate_card(
-    cards: list[Path],
-    markers: list[dict[str, str]],
-) -> Path:
-    """Pick the card to gate on from the diff-derived set — fail-closed.
-
-    Every card in the set is graded and a red card outranks a green one, so
-    downstream's single-log machinery reds iff ANY card in the diff is red —
-    the same every-card-never-one-picked posture as the CI gate (the
-    venture-lab #33 tail-1 shadowing lesson). Among red cards a
-    session-owned one outranks an unadopted engine draft (the B1 run-8
-    advisory lane must never mask a genuinely red sibling), and an
-    in-progress card outranks other reds (the born-red hold is the gate's
-    subject); name order breaks the remaining ties deterministically.
-    """
-
-    def _rank(card: Path) -> tuple[bool, bool, bool, str]:
-        try:
-            text = card.read_text(encoding="utf-8")
-        except OSError:
-            text = ""
-        return (
-            not check_log(card, markers),  # red cards first
-            is_unadopted_draft(text),  # session-owned reds before drafts
-            not status_in_progress(text),  # in-progress holds first
-            str(card),
-        )
-
-    return min(cards, key=_rank)
-
-
-def _run_preflight_scripts(
-    target: Path,
-    config: Config,
-) -> tuple[list, list[str]]:
-    """Run the config-declared repo-local preflight scripts; return findings.
-
-    The other LOCAL-RITUAL parity leg (ORDER 018 / idea-engine ASK 002):
-    ``substrate.config.json::preflight_scripts`` is the ONE check list —
-    ``check``'s full lane runs it here, and the CI substrate-gate's full lane
-    runs it too *through this very code* (its gate step invokes
-    ``bootstrap.py check --strict``), so a checker added to the repo's
-    preflight wrapper red-flags in both venues (idea-engine PR #299's
-    local-green→CI-red class). Returns ``(findings, notes)``: a non-zero
-    exit is an exit-affecting ``preflight-script`` finding riding the strict
-    loop; an absent script is a NOTE (self-skip — the default entry names a
-    conventional path many adopters won't have); a nested run (see
-    ``_PREFLIGHT_NESTED_ENV``) skips the whole leg.
-    """
-    scripts = [s for s in (config.preflight_scripts or []) if str(s).strip()]
-    if not scripts:
-        return [], []
-    if os.environ.get(_PREFLIGHT_NESTED_ENV):
-        return [], [
-            "preflight scripts skipped — nested check run "
-            f"({_PREFLIGHT_NESTED_ENV} set; the outer run owns the leg).",
-        ]
-    findings: list = []
-    notes: list[str] = []
-    child_env = dict(os.environ)
-    child_env[_PREFLIGHT_NESTED_ENV] = "1"
-    for entry in scripts:
-        tokens = shlex.split(str(entry))
-        if not tokens:
-            continue
-        script_rel = tokens[0]
-        script = target / script_rel
-        if not script.is_file():
-            notes.append(
-                f"preflight script {script_rel} not found — skipped "
-                "(config preflight_scripts; plant one to converge the local "
-                "ritual and the CI gate on one check list).",
-            )
-            continue
-        if script_rel.endswith(".py"):
-            # The interpreter already running check exists in BOTH venues by
-            # construction (the recorded config interpreter may not exist in
-            # CI) — the same choice the conventional wrapper itself makes.
-            argv = [sys.executable or "python3", str(script), *tokens[1:]]
-        else:
-            argv = [str(script), *tokens[1:]]
-        try:
-            proc = subprocess.run(  # noqa: TID251 — §3.2 carve-out (import-site note)
-                argv,
-                cwd=target,
-                env=child_env,
-                capture_output=True,
-                timeout=900,
-            )
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            findings.append(
-                Finding(
-                    script_rel,
-                    "preflight-script",
-                    f"could not run ({exc.__class__.__name__}) — the CI gate "
-                    "runs this same preflight, so a local crash is a red.",
-                ),
-            )
-            continue
-        if proc.returncode != 0:
-            tail = ""
-            for stream in (proc.stderr, proc.stdout):
-                text = stream.decode("utf-8", "replace")
-                lines = [ln for ln in text.splitlines() if ln.strip()]
-                if lines:
-                    tail = lines[-1][:200]
-                    break
-            findings.append(
-                Finding(
-                    script_rel,
-                    "preflight-script",
-                    f"exit {proc.returncode}"
-                    + (f": {tail}" if tail else "")
-                    + " — the CI substrate-gate runs this same preflight; "
-                    "fix it before pushing.",
-                ),
-            )
-    return findings, notes
-
-
 def cmd_check(
     target: Path,
     strict: bool,
@@ -18322,17 +15928,12 @@ def cmd_check(
     work needs an in-run way to verify the lane's grading.
 
     ``inbox_base`` (CLI ``--inbox-base``) names the merge-base version of
-    ``control/inbox.md`` — extracted by CI in bash, because engine *checker*
-    code never shells out to git (§3.2). When given, the append-only gate
-    runs on both lanes: the change to ``control/inbox.md`` must be
-    pure-append vs that base and its appended text must be well-formed ORDER
-    blocks (issue #36 report 2). It rides the fast lane exactly like the
-    status gate — an inbox append is control-lane traffic — and self-skips
-    when there is nothing to judge. When ``inbox_base`` is ABSENT (the local
-    ritual), the gate no longer no-ops: :func:`_derive_inbox_base` — the
-    documented §3.2 carve-out — derives the base blob from ``origin/main``
-    so plain local ``check --strict`` reds where CI would red (ORDER 018),
-    and self-skips with a NOTE when no git context is derivable.
+    ``control/inbox.md`` — extracted by CI in bash, because engine code never
+    shells out to git (§3.2). When given, the append-only gate runs on both
+    lanes: the change to ``control/inbox.md`` must be pure-append vs that base
+    and its appended text must be well-formed ORDER blocks (issue #36 report
+    2). It rides the fast lane exactly like the status gate — an inbox append
+    is control-lane traffic — and self-skips when there is nothing to judge.
 
     ``status_only`` (CLI ``--status-only``) scopes the run to the control/
     status heartbeat checker alone — the CI control fast lane's gate. A
@@ -18366,18 +15967,12 @@ def cmd_check(
     ``session_log`` (CLI ``--session-log``) names the card to gate on
     *explicitly* — the diff-aware selection a CI workflow derives from which
     ``<sessions_dir>/*.md`` file the PR adds/changes. Without it the gate
-    derives the card set itself from the merge-base diff vs ``origin/main``
-    (:func:`_derive_diff_session_cards`, idea-engine ASK 003 — the sim-lab
-    V051 false-green: after merging origin/main a sibling's COMPLETED card
-    carries the freshest mtime, so the old newest-by-mtime guess validated
-    the WRONG card), grading fail-closed via :func:`_select_gate_card`.
-    Only when no git context is derivable (bare tree, no origin/main) does
-    it fall back to newest-by-mtime with a NOTE — the non-git-adopter
-    posture; with git context but no card in the diff, the gate treats the
-    card as absent rather than silently mtime-greening. A named file that
-    does not exist is treated exactly like an absent log (advisory by
-    default, a hard failure under ``require_session_log``) — an explicit
-    selection never silently falls back to a different card.
+    falls back to newest-by-mtime, which a fresh CI checkout silently degrades
+    (every mtime flattens to checkout time), the trap that used to require a
+    git-mtime-restore shim before this step. A named file that does not exist
+    is treated exactly like an absent log (advisory by default, a hard failure
+    under ``require_session_log``) — an explicit selection never silently
+    falls back to a different card.
 
     Two KL-3 mechanisms ride the finding loop (plan §5.3):
 
@@ -18453,15 +16048,6 @@ def cmd_check(
     # (UNVERIFIED per its provenance header; graduation is a later,
     # deliberate step). Full lane only: skills are not control-lane traffic.
     grounds_advisories = check_skill_grounds(target, state_dir=config.state_dir)
-    # Staged-artifact regen-lag scan (ORDER 019 item 6, idea
-    # staged-artifact-regen-lag-checker-2026-07-12): advisory-only by
-    # contract, like every nudge above — a staged artifact still carrying a
-    # ``${slot}`` whose answer is ALREADY filled in state is a one-command
-    # regen nudge (`upgrade` / pack `--build`), never a required-check red
-    # (UNVERIFIED per its PL-008 provenance header; a strict red would bomb
-    # every green adopter whose staged tree predates its answers). Full lane
-    # only: the staged tree is not control-lane traffic.
-    staged_regen_advisories = check_staged_regen(target, config)
     # Seat-digest drift guard (grounded-skills slice 6, §8 Q2=B):
     # advisory-only by contract, like every nudge above — a planted
     # docs/seat-digest.md whose bytes differ from a fresh render of its
@@ -18477,93 +16063,13 @@ def cmd_check(
         config,
         context=build_context(digest_backend.data) if digest_backend.data else {},
     )
-    # K0 headroom gauge (PR #308, the nightcap-card 💡 spec): advisory-only
-    # by contract, like every nudge above — the boot set nearing (but not
-    # over) the orientation budget warns with the exact headroom + per-doc
-    # split, so a docs session sees the pressure BEFORE the cliff reds
-    # `check --strict` (UNVERIFIED per its PL-008 provenance header;
-    # graduation is a later, deliberate step). Full lane only: boot docs are
-    # not control-lane traffic. Over-budget stays the gate's verdict — the
-    # advisory self-silences there (see the checker docstring).
-    headroom_advisories = check_orientation_headroom(target, config)
-    # Auto-merge-enabler branch-allowlist preflight (enabler-install-preflight
-    # idea, 2026-07-13 night-run finding): advisory-only by contract, like
-    # every nudge above — a planted auto-merge-enabler.yml whose branch
-    # allowlist drifts from `automerge.branch_patterns` (a hand-edit that
-    # `upgrade` clobbers, or a stale allowlist that never arms the branches
-    # sessions push) is a regenerate/config nudge, never a required-check red
-    # (the offline engine cannot verify the required-context half — that stays
-    # owner-UI, surfaced by the enabler's own PR-time ::warning::). Full lane
-    # only: workflows are not control-lane traffic; self-silences when the
-    # live branch expr matches config.
-    automerge_advisories = check_automerge_preflight(target, config)
-    # 📊 Model-line payload lint (idea model-line-payload-lint-advisory-
-    # 2026-07-11, Night-8 triage #3): advisory-only by contract, like every
-    # nudge above — a completed card whose Model line breaks the three-field
-    # `·` shape, carries an exact model-ID token instead of a family-level
-    # name, or files off-taxonomy effort/task-class segments is a copy-edit
-    # nudge quoting the taught form verbatim, never a required-check red
-    # (UNVERIFIED per its PL-008 provenance header; adopters carry drifted
-    # historical cards today, so a gate would pre-redden them all on
-    # upgrade). Scans the newest completed cards only (the checker's bounded
-    # window — historical drift is measured, not nagged). Full lane only:
-    # session cards are not control-lane traffic.
-    model_line_advisories = check_model_line(
-        target,
-        sessions_dir=config.sessions_dir,
-    )
-    # Friction-outbox pending-count advisory (ORDER 020 item d, fm plan A10):
-    # advisory-only by contract, like every nudge above — pending friction
-    # envelopes previously surfaced only at session-close (the
-    # cmd_session_close list_outbox advisory), so a session that never ran
-    # the ritual sat on undrained reports through every `check --strict`.
-    # Surfaced + telemetry-recorded, never counted toward the exit code —
-    # the engine cannot file the issue itself (stdlib-only, no credentials);
-    # the nudge is the mechanism. Full lane only: friction envelopes are not
-    # control-lane traffic.
-    outbox_pending = (
-        [] if status_only else list_outbox(target, config.state_dir)
-    )
-    outbox_advisories = (
-        [
-            Finding(
-                f"{config.state_dir}/friction-outbox/",
-                "friction-outbox-pending",
-                f"{len(outbox_pending)} friction report(s) pending — file "
-                f"each as a `{FRICTION_LABEL}`-labeled issue on the kit "
-                "repo (`friction show <name>` prints the issue title+body), "
-                "then delete the drained file.",
-            )
-        ]
-        if outbox_pending
-        else []
-    )
     # The inbox append-only gate (issue #36 report 2): a control/inbox.md
     # change must be pure-append vs the merge-base + ORDER-grammar shaped.
-    # Rides the finding loop like every checker. CI hands in the base blob
-    # via --inbox-base; a LOCAL run without one derives it from origin/main
-    # itself (ORDER 018 — local `check --strict` must red where CI reds) and
-    # self-skips, NOTE'd, when there is no git context to derive from.
-    inbox_note: str | None = None
-    if inbox_base is not None:
-        inbox_findings = check_inbox_append(target, inbox_base)
-    else:
-        derived_blob, inbox_note = _derive_inbox_base(target)
-        if derived_blob is None:
-            inbox_findings = []
-        else:
-            base_fd, base_name = tempfile.mkstemp(prefix="inbox-base-")
-            try:
-                with os.fdopen(base_fd, "wb") as handle:
-                    handle.write(derived_blob)
-                inbox_findings = check_inbox_append(target, Path(base_name))
-            finally:
-                try:
-                    os.unlink(base_name)
-                except OSError:
-                    pass
-    if inbox_note:
-        _emit(f"check: NOTE — {inbox_note}")
+    # Rides the finding loop like every checker; engages only when CI handed
+    # in a base blob to diff against (no base → no-op, see the checker).
+    inbox_findings = (
+        check_inbox_append(target, inbox_base) if inbox_base is not None else []
+    )
     # The adopter-registry format gate (EAP §6.3): docs/adopters.md is
     # generated output (`bootstrap currency`, agent-side because CI cannot
     # auth to sibling repos); CI validates only the committed file's shape.
@@ -18597,21 +16103,6 @@ def cmd_check(
         doc_findings += _extra_check_findings(target, config) + status_gate
         doc_findings += inbox_findings
         doc_findings += adopters_gate
-        # Local preflight scripts (ORDER 018): the config-declared check
-        # list both venues run — locally right here, and in CI because the
-        # substrate-gate's full lane invokes `check --strict` (this code).
-        # Full lane only: preflights are not control-lane traffic, and the
-        # conventional wrapper itself calls `check --status-only` (the
-        # nested-run guard in _run_preflight_scripts breaks any deeper
-        # recursion). Findings ride the strict loop like every checker;
-        # an absent script is a NOTE'd self-skip, never a red.
-        preflight_findings, preflight_notes = _run_preflight_scripts(
-            target,
-            config,
-        )
-        for note in preflight_notes:
-            _emit(f"check: NOTE — {note}")
-        doc_findings += preflight_findings
     entries, allow_findings = load_allowlist(target, config.state_dir)
     doc_findings, suppressed = apply_allowlist(doc_findings, entries)
     doc_findings += allow_findings
@@ -18691,28 +16182,13 @@ def cmd_check(
                 "check: simulation is advisory-only — it never affects this "
                 "run's exit code.",
             )
-    # Guard-fire write announcement (PR #328 card's ⟲ finding): the ledger is
-    # a TRACKED file by design (founding plan KF-11 — committed, never
-    # gitignored), so a silent append leaves a "mystery" dirty tree that
-    # sessions were reverting. Aggregate every call site's written count and
-    # say so once, at the end of the run, on every return path.
-    fires_written = 0
-
-    def _announce_fires() -> None:
-        if fires_written:
-            _emit(
-                f"check: {fires_written} guard-fire record(s) appended to "
-                f"{config.state_dir}/{GUARD_FIRES_FILENAME} — telemetry "
-                "ledger; commit the delta with your session (do not revert).",
-            )
-
     if suppressed:
         _emit(
             f"check: {len(suppressed)} finding(s) suppressed by allowlist "
             "(reason-carrying entries; fires recorded with their verdicts).",
         )
         for finding, entry in suppressed:
-            fires_written += record_guard_fires(
+            record_guard_fires(
                 target,
                 config.state_dir,
                 cmd="check",
@@ -18726,7 +16202,7 @@ def cmd_check(
         _emit(f"check: {len(doc_findings)} finding(s):")
         for finding in doc_findings:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -18745,7 +16221,7 @@ def cmd_check(
         )
         for finding in status_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -18763,7 +16239,7 @@ def cmd_check(
         )
         for finding in owner_ask_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -18783,7 +16259,7 @@ def cmd_check(
         )
         for finding in claim_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -18802,7 +16278,7 @@ def cmd_check(
         )
         for finding in xref_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -18822,7 +16298,7 @@ def cmd_check(
         )
         for finding in setup_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -18842,33 +16318,13 @@ def cmd_check(
         )
         for finding in grounds_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
             surface="check",
             posture="advisory",
             findings=grounds_advisories,
-        )
-    if staged_regen_advisories and not status_only:
-        # Same warn-only contract as the advisories above (ORDER 019 item 6,
-        # advisory-first per the idea file's adopt-freely posture): a staged
-        # artifact lagging its own filled answers is surfaced + telemetry-
-        # recorded, never counted toward the exit code — the fix is one
-        # regen command, not a locked door.
-        _emit(
-            f"check: {len(staged_regen_advisories)} staged regen-lag advisory "
-            "warning(s) (never exit-affecting):",
-        )
-        for finding in staged_regen_advisories:
-            _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
-            target,
-            config.state_dir,
-            cmd="check",
-            surface="check",
-            posture="advisory",
-            findings=staged_regen_advisories,
         )
     if digest_advisories and not status_only:
         # Same warn-only contract as the advisories above (grounded-skills
@@ -18882,95 +16338,13 @@ def cmd_check(
         )
         for finding in digest_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
             surface="check",
             posture="advisory",
             findings=digest_advisories,
-        )
-    if headroom_advisories and not status_only:
-        # Same warn-only contract as the advisories above (PR #308): the
-        # near-budget boot set is a trim-early nudge — surfaced + telemetry-
-        # recorded, never counted toward the exit code; the cliff itself
-        # (over budget) stays the exit-affecting orientation-budget gate.
-        _emit(
-            f"check: {len(headroom_advisories)} orientation-headroom advisory "
-            "warning(s) (never exit-affecting):",
-        )
-        for finding in headroom_advisories:
-            _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
-            target,
-            config.state_dir,
-            cmd="check",
-            surface="check",
-            posture="advisory",
-            findings=headroom_advisories,
-        )
-    if automerge_advisories and not status_only:
-        # Same warn-only contract as the advisories above
-        # (enabler-install-preflight): a drifted enabler branch allowlist is a
-        # regenerate/config nudge — surfaced + telemetry-recorded, never
-        # counted toward the exit code. The offline engine cannot see whether
-        # the base branch requires a status context (the INERT-on-zero half),
-        # so a required-check red here would be a fleet bomb during version
-        # skew; that half stays owner-UI.
-        _emit(
-            f"check: {len(automerge_advisories)} auto-merge-enabler advisory "
-            "warning(s) (never exit-affecting):",
-        )
-        for finding in automerge_advisories:
-            _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
-            target,
-            config.state_dir,
-            cmd="check",
-            surface="check",
-            posture="advisory",
-            findings=automerge_advisories,
-        )
-    if model_line_advisories and not status_only:
-        # Same warn-only contract as the advisories above (the model-line
-        # payload lint, idea 2026-07-11): a drifted 📊 Model payload on a
-        # completed card is a one-line copy-edit nudge — surfaced +
-        # telemetry-recorded, never counted toward the exit code; the PL-004
-        # dataset records drift verbatim either way, the lint just makes it
-        # visible at check time instead of a later hand sweep.
-        _emit(
-            f"check: {len(model_line_advisories)} model-line payload advisory "
-            "warning(s) (never exit-affecting):",
-        )
-        for finding in model_line_advisories:
-            _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
-            target,
-            config.state_dir,
-            cmd="check",
-            surface="check",
-            posture="advisory",
-            findings=model_line_advisories,
-        )
-    if outbox_advisories and not status_only:
-        # Same warn-only contract as the advisories above (ORDER 020 item d,
-        # fm plan A10): a pending friction envelope is a drain-me nudge —
-        # surfaced + telemetry-recorded, never counted toward the exit code;
-        # the session-close ritual keeps its own copy of this advisory, this
-        # one just makes the backlog visible at check time too.
-        _emit(
-            f"check: {len(outbox_advisories)} friction-outbox advisory "
-            "warning(s) (never exit-affecting):",
-        )
-        for finding in outbox_advisories:
-            _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
-            target,
-            config.state_dir,
-            cmd="check",
-            surface="check",
-            posture="advisory",
-            findings=outbox_advisories,
         )
     if adopters_advisories and not status_only:
         # Same warn-only contract as the advisories above (EAP §6.3): a
@@ -18983,7 +16357,7 @@ def cmd_check(
         )
         for finding in adopters_advisories:
             _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -19000,54 +16374,13 @@ def cmd_check(
         # whole point), so gating on one here would deadlock every heartbeat.
         if not doc_findings:
             _emit("check: control-status check passed (--status-only).")
-            _announce_fires()
             return 0
-        _announce_fires()
         return 1 if strict else 0
-    diff_no_card = False
     if session_log is not None:
         explicit = session_log if session_log.is_absolute() else target / session_log
         log = explicit if explicit.is_file() else None
     else:
-        # Diff-derived selection (idea-engine ASK 003, the sim-lab V051
-        # false-green): with git context the card set comes from the
-        # merge-base diff vs origin/main — the CI gate's selection — never
-        # from mtime (a post-merge sibling card carries the freshest mtime
-        # and the mtime guess validated the WRONG card, green while the
-        # session's own card was still in-progress). No git context →
-        # the historical newest-by-mtime fallback (non-git adopters are
-        # unchanged); git context but no card in the diff → absent-card
-        # semantics, never a silent mtime-green (fail-closed on ambiguity).
-        diff_cards, diff_note = _derive_diff_session_cards(
-            target,
-            config.sessions_dir,
-        )
-        if diff_note:
-            _emit(f"check: NOTE — {diff_note}")
-        if diff_cards is None:
-            log = latest_session_log(target / config.sessions_dir)
-        elif diff_cards:
-            log = _select_gate_card(diff_cards, config.session_markers)
-            gate_rel = (
-                log.relative_to(target) if log.is_relative_to(target) else log
-            )
-            _emit(
-                f"check: session-card selection — {len(diff_cards)} card(s) "
-                f"in the merge-base diff vs origin/main; gating on {gate_rel}.",
-            )
-        else:
-            log = None
-            diff_no_card = True
-    if session_log is not None:
-        absent = f"--session-log {session_log} does not exist"
-    elif diff_no_card:
-        absent = (
-            f"no session card in the merge-base diff vs origin/main (under "
-            f"{config.sessions_dir}/; diff-derived selection never falls "
-            "back to the mtime guess when git context exists)"
-        )
-    else:
-        absent = f"no session log under {config.sessions_dir}/"
+        log = latest_session_log(target / config.sessions_dir)
     log_missing = check_log(log, config.session_markers) if log else []
     # In gate mode an absent log is itself a failing condition, so it must feed
     # the exit code exactly like an incomplete one.
@@ -19057,11 +16390,9 @@ def cmd_check(
     # red for the NEXT session's bare `check --strict` — run-8's ON arm ended
     # exit=1 solely on its own untouched skeleton, and the next cold session
     # would inherit that red without owning the judgment slots. Applies ONLY
-    # to the local fallback lane (no explicit --session-log — whether the
-    # card came from the diff derivation or the mtime guess): an explicit
-    # --session-log selection or --require-session-log gate mode keeps the
-    # locked door (a PR shipping a drafted card is the born-red discipline,
-    # not this class).
+    # to the mtime-fallback lane: an explicit --session-log selection or
+    # --require-session-log gate mode keeps the locked door (a PR shipping a
+    # drafted card is the born-red discipline, not this class).
     draft_advisory = False
     if (
         log is not None
@@ -19074,6 +16405,10 @@ def cmd_check(
         except OSError:
             draft_advisory = False
     if log is None:
+        if session_log is not None:
+            absent = f"--session-log {session_log} does not exist"
+        else:
+            absent = f"no session log under {config.sessions_dir}/"
         if require_session_log:
             _emit(
                 f"check: MERGE HELD — {absent} "
@@ -19092,7 +16427,7 @@ def cmd_check(
                 "holds the merge in gate mode (--require-session-log / "
                 "--session-log / --added-card).",
             )
-            fires_written += record_guard_fires(
+            record_guard_fires(
                 target,
                 config.state_dir,
                 cmd="check",
@@ -19115,6 +16450,10 @@ def cmd_check(
         # The session gate is a guard too (the kit's flagship one) — its
         # fires feed B3 like any checker's. Never allowlistable, though.
         if log_absent_fails:
+            if session_log is not None:
+                absent = f"--session-log {session_log} does not exist"
+            else:
+                absent = f"no session log under {config.sessions_dir}/"
             gate_finding = Finding(
                 "",
                 "session-log",
@@ -19127,7 +16466,7 @@ def cmd_check(
                 "session-log",
                 f"missing: {', '.join(log_missing)}",
             )
-        fires_written += record_guard_fires(
+        record_guard_fires(
             target,
             config.state_dir,
             cmd="check",
@@ -19189,9 +16528,7 @@ def cmd_check(
             )
     if not doc_findings and not log_missing and not log_absent_fails:
         _emit("check: all checks passed.")
-        _announce_fires()
         return 0
-    _announce_fires()
     return 1 if strict else 0
 
 
@@ -20050,260 +17387,6 @@ def cmd_seat_digest(target: Path, *, venues: list[str] | None = None) -> int:
     return 0
 
 
-def cmd_heartbeat(
-    target: Path,
-    *,
-    full: bool = False,
-    dry_run: bool = False,
-    status_file: str | None = None,
-    fields: dict[str, str] | None = None,
-    kit_version: str | None = None,
-    kit_check: str | None = None,
-    kit_engaged: str | None = None,
-) -> int:
-    """Write/refresh the control heartbeat mechanically (ORDER 019 item 7).
-
-    The ``bootstrap heartbeat`` verb — the idea file's mechanical LAST step
-    (``docs/ideas/heartbeat-verb-2026-07-09.md``). Default lane: a
-    non-destructive **restamp** of the existing heartbeat file — a fresh,
-    always-parseable UTC ``updated:`` stamp plus only the field lines the
-    caller passed; everything else survives byte-identical
-    (:func:`engine.heartbeat.restamp_status`). ``--full``: the whole-file
-    contract-shape write for the first real heartbeat over the adopt seed.
-    ``--dry-run`` prints the would-be diff (or full text for a new file)
-    and writes nothing. Refuses outside a control-carrying host, and on a
-    missing/unparseable heartbeat names the fix instead of guessing.
-    """
-    config = load_config(target)
-    relpaths = heartbeat_relpaths(config.heartbeat_files)
-    bus_files = [INBOX_RELPATH, CONTROL_README_RELPATH, *relpaths]
-    if not any((target / rel).is_file() for rel in bus_files):
-        _emit(
-            "heartbeat: refused — no control/ bus here (no inbox, README, "
-            "or heartbeat file); this verb writes a control-protocol "
-            "heartbeat only."
-        )
-        return 2
-    rel = status_file or relpaths[0]
-    path = target / rel
-    fields = dict(fields or {})
-    old_text: str | None = None
-    if path.is_file():
-        try:
-            old_text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
-            _emit(f"heartbeat: cannot read {rel} ({exc}) — fix the file first.")
-            return 2
-    if full:
-        phase = fields.pop("phase", None)
-        if not phase:
-            _emit(
-                "heartbeat: --full needs --phase — what the seat is doing "
-                "is the one field with no honest default."
-            )
-            return 2
-        backend = JsonStateBackend(_state_path(target, config))
-        context = build_context(backend.data) if backend.data else {}
-        project_name = context.get("project_name") or target.resolve().name
-        new_text = full_status(
-            project_name,
-            kit_version or KIT_VERSION,
-            phase=phase,
-            kit_check=kit_check or "green",
-            kit_engaged=kit_engaged or "yes",
-            **fields,
-        )
-        touched = "whole contract shape (--full)"
-    else:
-        if kit_check is not None or kit_engaged is not None:
-            _emit(
-                "heartbeat: --kit-check/--kit-engaged shape the --full "
-                "contract render only — the restamp lane preserves the "
-                "existing kit: line (version token via --kit-version)."
-            )
-            return 2
-        if old_text is None:
-            _emit(
-                f"heartbeat: {rel} not found — write the first heartbeat "
-                "with --full (or point --status-file at your lane's file)."
-            )
-            return 2
-        try:
-            new_text = restamp_status(
-                old_text,
-                fields=fields,
-                kit_version=kit_version,
-            )
-        except HeartbeatError as exc:
-            _emit(f"heartbeat: refused — {exc}")
-            return 2
-        parts = ["updated:", *sorted(fields)]
-        if kit_version is not None:
-            parts.append(f"kit: v{kit_version}")
-        touched = ", ".join(parts)
-    if dry_run:
-        if old_text is not None:
-            diff = difflib.unified_diff(
-                old_text.splitlines(keepends=True),
-                new_text.splitlines(keepends=True),
-                fromfile=f"a/{rel}",
-                tofile=f"b/{rel}",
-            )
-            _emit("".join(diff).rstrip("\n"))
-        else:
-            _emit(new_text.rstrip("\n"))
-        _emit(f"heartbeat: DRY RUN — {rel} not written.")
-        return 0
-    atomic_write_text(path, new_text)
-    _emit(
-        f"heartbeat: wrote {rel} ({touched}) — stamp parseable by "
-        "check_status_current (round-trip verified)."
-    )
-    return 0
-
-
-def cmd_claim(
-    target: Path,
-    slug: str,
-    *,
-    scope: str | None = None,
-    area: str | None = None,
-    order: str | None = None,
-    force: bool = False,
-    delete: bool = False,
-    dry_run: bool = False,
-) -> int:
-    """Write/delete a grammar-valid work claim mechanically (#358 💡 ender).
-
-    The ``bootstrap claim`` verb — the one-file-per-claim convention's
-    mechanical writer (``control/claims/README.md``, EAP §6.4). Default
-    lane: render + write ``<claims_dir>/claude-<slug>.md`` with ONE bullet
-    the ``check_claims`` enforcer is guaranteed to parse
-    (:func:`engine.claim.render_claim` — same grammar constants, round-trip
-    verified, current UTC date last on the line). ``--order NNN`` renders
-    the structured inbox-ORDER segment AND refuses to write when another
-    live claim on a DIFFERENT branch already names that order — the
-    #362/#363 twin-build guard; ``--force`` overrides for a deliberate
-    one-order-two-branch split. ``--delete`` removes YOUR OWN claim at
-    session close. Both lanes refuse a FOREIGN claim at the target path —
-    an existing file whose bullet token is not this slug's
-    ``claude/<slug>`` branch (or that the grammar cannot parse, so ownership
-    is unprovable) — leaving the file intact. ``--dry-run`` prints the
-    would-be content (or the would-be deletion) and touches nothing.
-    Refuses outside a control-carrying host, like the heartbeat verb.
-    """
-    config = load_config(target)
-    relpaths = heartbeat_relpaths(config.heartbeat_files)
-    bus_files = [INBOX_RELPATH, CONTROL_README_RELPATH, *relpaths]
-    has_bus = any((target / rel).is_file() for rel in bus_files)
-    if not has_bus and not (target / config.claims_dir).is_dir():
-        _emit(
-            "claim: refused — no control/ bus here (no inbox, README, "
-            "heartbeat file, or claims dir); this verb writes the control "
-            "protocol's work claims only."
-        )
-        return 2
-    try:
-        branch = branch_for(slug)
-        rel = f"{config.claims_dir}/{claim_filename(slug)}"
-    except ClaimError as exc:
-        _emit(f"claim: refused — {exc}")
-        return 2
-    path = target / rel
-    old_text: str | None = None
-    if path.is_file():
-        try:
-            old_text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
-            _emit(f"claim: cannot read {rel} ({exc}) — fix the file first.")
-            return 2
-    if old_text is not None:
-        token = owner_token(old_text)
-        if token != branch:
-            whose = f"`{token}`" if token else "an unparseable bullet (ownership unprovable)"
-            _emit(
-                f"claim: refused — {rel} exists and belongs to {whose}, not "
-                f"`{branch}`; a session only "
-                f"{'deletes' if delete else 'overwrites'} its OWN claim "
-                "(control/claims/README.md — the loser of a collision "
-                "stands down; reconcile by hand). File left intact."
-            )
-            return 2
-    if delete:
-        if old_text is None:
-            _emit(f"claim: {rel} not found — nothing to delete.")
-            return 2
-        if dry_run:
-            _emit(f"claim: DRY RUN — would delete {rel} (own claim, `{branch}`).")
-            return 0
-        path.unlink()
-        _emit(f"claim: deleted {rel} (own claim, `{branch}` — session close).")
-        return 0
-    if scope is None:
-        _emit(
-            "claim: --scope is required to write a claim (one line: what "
-            "this session is building) — or use --delete at session close."
-        )
-        return 2
-    try:
-        new_text = render_claim(slug, scope, area=area, order=order)
-        norm_order = normalize_order(order) if order is not None else None
-    except ClaimError as exc:
-        _emit(f"claim: refused — {exc}")
-        return 2
-    if norm_order is not None:
-        # The cross-branch ORDER-collision guard (the #362/#363 twin-build):
-        # scan every dir check_claims scans for a LIVE claim on a DIFFERENT
-        # branch naming this order. Same parsing home (engine.claim /
-        # engine.grammar) as the enforcer, so verb and checker cannot
-        # disagree about what "names this order" means.
-        holders: list[str] = []
-        for dir_rel, _is_legacy in claim_scan_dirs(target, config.claims_dir):
-            for other in sorted((target / dir_rel).glob("*.md")):
-                other_rel = f"{dir_rel}/{other.name}"
-                if other.name == "README.md" or other_rel == rel:
-                    continue
-                try:
-                    other_text = other.read_text(encoding="utf-8")
-                except (OSError, UnicodeDecodeError):
-                    continue  # fail open — unreadable is not a verdict
-                other_token = owner_token(other_text)
-                if other_token is None or other_token == branch:
-                    continue
-                if norm_order in claim_order_ids(other_text):
-                    holders.append(f"{other_rel} (`{other_token}`)")
-        if holders and not force:
-            _emit(
-                f"claim: refused — order {norm_order} already has a live "
-                f"claim on a different branch: {', '.join(holders)}. Two "
-                "branches serving one ORDER is the #362/#363 twin-build; "
-                "coordinate with the claim holder (or pass --force for a "
-                "deliberate split of the order across branches). "
-                "Nothing written."
-            )
-            return 2
-        if holders:
-            _emit(
-                f"claim: --force override — order {norm_order} is also "
-                f"claimed by {', '.join(holders)}; proceeding as a "
-                "deliberate cross-branch split (check_claims will keep "
-                "flagging the overlap as claims-order-collision)."
-            )
-    if dry_run:
-        _emit(new_text.rstrip("\n"))
-        _emit(f"claim: DRY RUN — {rel} not written.")
-        return 0
-    path.parent.mkdir(parents=True, exist_ok=True)
-    atomic_write_text(path, new_text)
-    refreshed = " (refreshed own claim)" if old_text is not None else ""
-    _emit(
-        f"claim: wrote {rel}{refreshed} — bullet parseable by check_claims "
-        "(round-trip verified). Delete it at session close: "
-        f"bootstrap claim {slug} --delete."
-    )
-    return 0
-
-
 def build_parser() -> argparse.ArgumentParser:
     """Construct the bootstrap argument parser."""
     parser = argparse.ArgumentParser(prog="bootstrap", description="substrate-kit")
@@ -20546,150 +17629,6 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
-    heartbeat_p = sub.add_parser(
-        "heartbeat",
-        help=(
-            "restamp the control/ status heartbeat mechanically — a fresh "
-            "parseable UTC updated: stamp plus only the fields you pass "
-            "(everything else preserved byte-identical); --full writes the "
-            "whole contract shape (the first real heartbeat)"
-        ),
-    )
-    heartbeat_p.add_argument("--target", type=Path, default=Path.cwd())
-    heartbeat_p.add_argument(
-        "--status-file",
-        default=None,
-        help=(
-            "heartbeat file to write (default: the first configured "
-            "heartbeat_files entry — control/status.md unless a lane "
-            "configured otherwise)"
-        ),
-    )
-    heartbeat_p.add_argument(
-        "--full",
-        action="store_true",
-        help=(
-            "write the whole contract-shape heartbeat (the adopt seed's "
-            "documented overwrite path); requires --phase, other fields "
-            "default honestly (blockers/⚑ needs-owner: none)"
-        ),
-    )
-    heartbeat_p.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="print the would-be diff (or full text for a new file) without writing",
-    )
-    heartbeat_p.add_argument("--phase", default=None, help="phase: line value")
-    heartbeat_p.add_argument("--health", default=None, help="health: line value")
-    heartbeat_p.add_argument(
-        "--orders",
-        default=None,
-        help='orders: line value (e.g. "acked=001-003 done=001,002")',
-    )
-    heartbeat_p.add_argument(
-        "--last-shipped",
-        dest="last_shipped",
-        default=None,
-        help="last-shipped: line value",
-    )
-    heartbeat_p.add_argument("--blockers", default=None, help="blockers: line value")
-    heartbeat_p.add_argument(
-        "--needs-owner",
-        dest="needs_owner",
-        default=None,
-        help="⚑ needs-owner: line value",
-    )
-    heartbeat_p.add_argument("--notes", default=None, help="notes: line value")
-    heartbeat_p.add_argument(
-        "--kit-version",
-        dest="kit_version",
-        default=None,
-        help=(
-            "rewrite the kit: line's v<X.Y.Z> token (restamp lane keeps "
-            "the line's decorations; --full default: this dist's version)"
-        ),
-    )
-    heartbeat_p.add_argument(
-        "--kit-check",
-        dest="kit_check",
-        choices=("green", "red"),
-        default=None,
-        help="kit: line check: field (--full lane only)",
-    )
-    heartbeat_p.add_argument(
-        "--kit-engaged",
-        dest="kit_engaged",
-        choices=("yes", "no"),
-        default=None,
-        help="kit: line engaged: field (--full lane only)",
-    )
-
-    claim_p = sub.add_parser(
-        "claim",
-        help=(
-            "write a grammar-valid work claim file (control/claims/"
-            "claude-<slug>.md, one bullet check_claims is guaranteed to "
-            "parse — branch token · scope · UTC date); --delete removes "
-            "your OWN claim at session close, refusing foreign claims"
-        ),
-    )
-    claim_p.add_argument(
-        "slug",
-        help=(
-            "branch slug — the claim's branch is claude/<slug>, its file "
-            "claude-<slug>.md under the configured claims_dir"
-        ),
-    )
-    claim_p.add_argument("--target", type=Path, default=Path.cwd())
-    claim_p.add_argument(
-        "--scope",
-        default=None,
-        help=(
-            "one-line scope (rendered bold) — required to write; dated "
-            "filenames in it are safe (the claim's own date is appended "
-            "LAST on the bullet, the post-#353 rule)"
-        ),
-    )
-    claim_p.add_argument(
-        "--area",
-        default=None,
-        help='optional expected files/area segment (e.g. "src/ + tests/")',
-    )
-    claim_p.add_argument(
-        "--order",
-        default=None,
-        metavar="NNN",
-        help=(
-            "the inbox ORDER this claim serves (e.g. 020) — renders the "
-            "structured `order NNN` segment the cross-branch overlap scan "
-            "keys on, and refuses to write when another live claim on a "
-            "different branch already names that order (the #362/#363 "
-            "twin-build guard)"
-        ),
-    )
-    claim_p.add_argument(
-        "--force",
-        action="store_true",
-        help=(
-            "override the --order collision refusal for a deliberate split "
-            "of one order across branches (check_claims keeps flagging the "
-            "overlap as claims-order-collision)"
-        ),
-    )
-    claim_p.add_argument(
-        "--delete",
-        action="store_true",
-        help=(
-            "delete your OWN claim file (session close); a foreign claim — "
-            "different branch token, or unparseable — is refused intact"
-        ),
-    )
-    claim_p.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="print the would-be claim content (or deletion) without touching disk",
-    )
-
     check = sub.add_parser("check", help="run the doc + session-log hygiene checks")
     check.add_argument("--target", type=Path, default=Path.cwd())
     check.add_argument("--strict", action="store_true", help="exit 1 if any violation")
@@ -20749,11 +17688,9 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "gate control/inbox.md against this merge-base copy of the file "
-            "(CI extracts the base blob with git): the change must be "
-            "pure-append and its appended text well-formed ORDER blocks; "
-            "when omitted, a local run derives the base from origin/main "
-            "itself (ORDER 018 local↔CI parity) and self-skips with a NOTE "
-            "when no git context is derivable"
+            "(CI extracts the base blob with git, since engine code never "
+            "shells out): the change must be pure-append and its appended "
+            "text well-formed ORDER blocks; omit when there is no inbox diff"
         ),
     )
     return parser
@@ -20794,41 +17731,6 @@ def main(argv: list[str] | None = None) -> int:
             )
         if args.command == "seat-digest":
             return cmd_seat_digest(args.target, venues=args.venue)
-        if args.command == "heartbeat":
-            fields = {
-                name: value
-                for name, value in (
-                    ("phase", args.phase),
-                    ("health", args.health),
-                    ("orders", args.orders),
-                    ("last_shipped", args.last_shipped),
-                    ("blockers", args.blockers),
-                    ("needs_owner", args.needs_owner),
-                    ("notes", args.notes),
-                )
-                if value is not None
-            }
-            return cmd_heartbeat(
-                args.target,
-                full=args.full,
-                dry_run=args.dry_run,
-                status_file=args.status_file,
-                fields=fields,
-                kit_version=args.kit_version,
-                kit_check=args.kit_check,
-                kit_engaged=args.kit_engaged,
-            )
-        if args.command == "claim":
-            return cmd_claim(
-                args.target,
-                args.slug,
-                scope=args.scope,
-                area=args.area,
-                order=args.order,
-                force=args.force,
-                delete=args.delete,
-                dry_run=args.dry_run,
-            )
         if args.command == "check":
             return cmd_check(
                 args.target,
@@ -20923,16 +17825,16 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 _TEMPLATES = {
-    'AGENT_ORIENTATION.md.tmpl': "# ${project_name} — agent orientation & reading order\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The task reading-router: start here to find which\n> docs a given task needs. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Start every session\n\n**Preflight first — land on origin's HEAD before reading anything else:**\n\n```\ngit fetch origin main && git reset --hard origin/main\n```\n\n(or `git checkout -B main origin/main`; substitute your default branch).\nThen verify: local HEAD (`git rev-parse HEAD`) must equal\n`git ls-remote origin main`. A warm container clone can lag origin by\ndozens of commits, and a stale clone reads stale orders and stale state —\nevery orientation read below assumes this step already ran. The hard reset\ndiscards uncommitted local changes by design: at session START there should\nbe none; if `git status` shows work you did not author, stop and report it\ninstead of resetting over it.\n\nThe boot set lives in the working agreement — `${agreement_home}` — and its\norientation guidance (one list, one home). This file is not boot reading —\nopen it when a task needs a route into the deeper docs.\n\n## Binding contracts\n\n- **Architecture / layering:** ${architecture_layers}\n- **Ownership** (who owns each write path): ${ownership_model}\n- **Mutation seam** (how writes are gated): ${mutation_seam}\n\n## Where things live\n\nDocumentation root(s): ${doc_roots}\n\nThe planted doc set (this router reaches every live doc — keep it that way):\n`docs/architecture.md` · `docs/ownership.md` · `docs/runtime_contracts.md` ·\n`docs/collaboration-model.md` · `docs/helper-policy.md` ·\n`docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·\n`docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·\n`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/SKILLS.md` ·\n`docs/ROUTINES.md` · `docs/reading-path.md` · `docs/ideas/README.md` —\nplus the root `CONSTITUTION.md` (the working agreement) and\n`.session-journal.md`.\n\nRecurring action? **`docs/SKILLS.md`** — the skill index — names every\nkit-shipped skill and when to reach for it; check it before improvising a\nprocedure.\n\nArming, deleting, or auditing a scheduled trigger/routine/wake chain?\n**`docs/ROUTINES.md`** — binding choice, delivery verification,\nprobe-not-record, scheduler-health signatures, pacing — read it before\ntouching the trigger registry.\n\nReading or acting across sibling repos in a fleet? **`docs/reading-path.md`**\n— the standing read authorization, the one-command fleet orient, the\nsibling/truth-file map, tiered depth, truth rules — read it before burning\nturns re-discovering what you may read.\n\n## Verifying any change\n\nSee the working agreement (`${agreement_home}`) and its verify guidance\n(one home, never two copies).\n",
-    'CAPABILITIES.md.tmpl': '# ${project_name} — session capabilities & walls\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. What agent sessions in THIS environment can and\n> cannot do — **verified findings, never assumptions**. Read at session start\n> (it is in the orientation reading order); append at session close. Fleet\n> master copy: `menno420/fleet-manager` → `docs/CAPABILITIES.md` — sync new\n> fleet-wide findings there via the manager when cross-repo access allows.\n\n## Why this file exists\n\nSessions repeatedly fail to discover what they CAN do (claiming `.mp4`s\nunviewable though ffmpeg frame-extraction is standard; forgetting provisioned\nenv tokens exist) and stall on imagined walls — burning owner attention as\nhand reminders. This ledger makes capability knowledge durable across\nsessions: one session\'s discovery is every later session\'s starting fact.\n\n<!-- substrate-kit:capability-seed BEGIN — kit-owned, refreshed at upgrade. Append your findings BELOW the fence (## Append log), never inside it. -->\n\n## Posture decision rule — establish your venue first\n\n- **Owner-live session:** assume NO special limitations apply — act and merge\n  directly (superbot Q-0269).\n- **Autonomous / routine-fired seat:** pre-route around every known stall\n  class recorded below; park only on a REAL denial, never preemptively\n  (superbot Q-0270 boot triad: model · venue · ability envelope).\n\nVenue tokens (every entry names where it was verified): `owner-live` ·\n`autonomous-project` · `routine-fired` · `subagent` · `any`. Capabilities are\n**venue-scoped, not global** — the same operation can work owner-live, be\norg-refused on a cross-session binding, and prompt-stall in a plain-started\nseat while never prompting in a Routine-spawned one (fleet night review,\n2026-07-12). A flat CAN/CANNOT ledger is wrong somewhere by construction.\n\n## THE DISCOVERY RULE\n\nBefore declaring anything impossible, and before assuming a tool or\ncredential is missing:\n\n1. **Check this file** — the capability or wall may already be recorded for\n   your venue.\n2. **Check the environment** — `printenv` / list the available tools BEFORE\n   assuming no credentials exist (provisioned env tokens are routinely\n   forgotten, not absent).\n3. **Attempt once** — try the operation and capture the **exact** error text;\n   a guessed wall and a verified wall are different facts.\n4. **Append the finding same session** — capability or wall, dated, with the\n   venue token, the evidence (exact error, or proof it worked) and the\n   workaround if one was found. An unrecorded discovery is re-paid by every\n   future session.\n5. **Staleness — re-verify what you build on**: an entry older than the\n   staleness window (config `cadence.staleness_days`, default 14) that your\n   work depends on is a **claim, not a fact** — re-verify it with one cheap\n   attempt and append the result. Re-verifications APPEND, never edit: a\n   refuted wall can self-resolve platform-side, and a ledger with no\n   freshness data is confidently stale — worse than ignorant.\n\n## Capabilities — verified working\n\n- `any` · **Media is readable**: a video is never "unviewable" — extract\n  frames (`ffmpeg -i in.mp4 -vf fps=1 frame_%04d.png`) and read the images;\n  same idea for audio (transcribe) and PDFs (render pages). Try the recipe\n  before reporting a format wall. — LAST-VERIFIED: 2026-07-10\n- `any` · **Provisioned credentials**: the environment often carries\n  tokens/keys as env vars — `printenv` first; a missing-looking credential is\n  usually a missing *look*. — LAST-VERIFIED: 2026-07-10\n- `any` · **Release cutting despite the tag wall**: `workflow_dispatch` on\n  the release workflow (with a version input) creates the tag in-Actions —\n  proven repeatedly fleet-wide after direct tag pushes 403\'d.\n  — LAST-VERIFIED: 2026-07-12\n\n## Walls — verified blocked (use the workaround; don\'t rediscover)\n\n- `any` · **Tag push / release create via git**: HTTP 403 from the\n  environment\'s git proxy → use the workflow_dispatch release path.\n  — LAST-VERIFIED: 2026-07-12\n- `any` · **Branch deletion**: 403 on every path (git push `:branch` and\n  API) → owner deletes by hand / enables "Automatically delete head\n  branches". — LAST-VERIFIED: 2026-07-10\n- `any` · **`api.github.com` direct HTTP**: blocked → GitHub access is\n  MCP-tools-only. — LAST-VERIFIED: 2026-07-10\n- `any` · **Environment / Project creation**: owner-click actions in the\n  console — queue them as structured owner asks, never wait silently.\n  Routine/schedule creation is NO LONGER a blanket wall: `create_trigger`\n  arms routines agent-side (proven 2026-07-11); the console-only knobs\n  (model class, branch-push, auto-fix PRs) remain owner-only.\n  — LAST-VERIFIED: 2026-07-11\n- `subagent` · **Self-merge classifier**: sessions can be refused merging\n  owner-gated PRs while their other capabilities work — and the boundary\n  differs by venue (a child session was refused where a coordinator was\n  not). Record which venue hit which boundary. — LAST-VERIFIED: 2026-07-10\n- `any` · **GraphQL API quota**: tight — batch queries and prefer the\n  REST-backed MCP tools for bulk reads. — LAST-VERIFIED: 2026-07-10\n- `routine-fired` · **Silent prompt-stalls**: a permission prompt in an\n  unattended seat is a silent stall, and grant boundaries differ by venue —\n  the same tool call can be pre-granted in a Routine-spawned seat and prompt\n  in a plain-started one. Pre-route around recorded stall classes; verify\n  grants per venue, never globally. — LAST-VERIFIED: 2026-07-12\n\n<!-- substrate-kit:capability-seed END -->\n\n## Append log — newest first\n\nFormat: `- YYYY-MM-DD · capability|wall · <venue> · finding · evidence · workaround`\n(venue ∈ `owner-live` · `autonomous-project` · `routine-fired` · `subagent` ·\n`any`; older five-field lines without a venue token stay valid — read them\nas venue `any`.)\n\n(Hand-filled by sessions, per the discovery rule. Seed rows above are\nkit-owned — they refresh at upgrade between the fence markers; local\nfindings go here, below the fence.)\n',
+    'AGENT_ORIENTATION.md.tmpl': "# ${project_name} — agent orientation & reading order\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The task reading-router: start here to find which\n> docs a given task needs. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Start every session\n\n**Preflight first — land on origin's HEAD before reading anything else:**\n\n```\ngit fetch origin main && git reset --hard origin/main\n```\n\n(or `git checkout -B main origin/main`; substitute your default branch).\nThen verify: local HEAD (`git rev-parse HEAD`) must equal\n`git ls-remote origin main`. A warm container clone can lag origin by\ndozens of commits, and a stale clone reads stale orders and stale state —\nevery orientation read below assumes this step already ran. The hard reset\ndiscards uncommitted local changes by design: at session START there should\nbe none; if `git status` shows work you did not author, stop and report it\ninstead of resetting over it.\n\nThe boot set lives in the working agreement — `${agreement_home}` — and its\norientation guidance (one list, one home). This file is not boot reading —\nopen it when a task needs a route into the deeper docs.\n\n## Binding contracts\n\n- **Architecture / layering:** ${architecture_layers}\n- **Ownership** (who owns each write path): ${ownership_model}\n- **Mutation seam** (how writes are gated): ${mutation_seam}\n\n## Where things live\n\nDocumentation root(s): ${doc_roots}\n\nThe planted doc set (this router reaches every live doc — keep it that way):\n`docs/architecture.md` · `docs/ownership.md` · `docs/runtime_contracts.md` ·\n`docs/collaboration-model.md` · `docs/helper-policy.md` ·\n`docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·\n`docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·\n`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/SKILLS.md` ·\n`docs/ROUTINES.md` · `docs/ideas/README.md` — plus the root\n`CONSTITUTION.md` (the working agreement) and `.session-journal.md`.\n\nRecurring action? **`docs/SKILLS.md`** — the skill index — names every\nkit-shipped skill and when to reach for it; check it before improvising a\nprocedure.\n\nArming, deleting, or auditing a scheduled trigger/routine/wake chain?\n**`docs/ROUTINES.md`** — binding choice, delivery verification,\nprobe-not-record, scheduler-health signatures, pacing — read it before\ntouching the trigger registry.\n\n## Verifying any change\n\nSee the working agreement (`${agreement_home}`) and its verify guidance\n(one home, never two copies).\n",
+    'CAPABILITIES.md.tmpl': '# ${project_name} — session capabilities & walls\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. What agent sessions in THIS environment can and\n> cannot do — **verified findings, never assumptions**. Read at session start\n> (it is in the orientation reading order); append at session close. Fleet\n> master copy: `menno420/fleet-manager` → `docs/capabilities.md` — sync new\n> fleet-wide findings there via the manager when cross-repo access allows.\n\n## Why this file exists\n\nSessions repeatedly fail to discover what they CAN do (claiming `.mp4`s\nunviewable though ffmpeg frame-extraction is standard; forgetting provisioned\nenv tokens exist) and stall on imagined walls — burning owner attention as\nhand reminders. This ledger makes capability knowledge durable across\nsessions: one session\'s discovery is every later session\'s starting fact.\n\n<!-- substrate-kit:capability-seed BEGIN — kit-owned, refreshed at upgrade. Append your findings BELOW the fence (## Append log), never inside it. -->\n\n## Posture decision rule — establish your venue first\n\n- **Owner-live session:** assume NO special limitations apply — act and merge\n  directly (superbot Q-0269).\n- **Autonomous / routine-fired seat:** pre-route around every known stall\n  class recorded below; park only on a REAL denial, never preemptively\n  (superbot Q-0270 boot triad: model · venue · ability envelope).\n\nVenue tokens (every entry names where it was verified): `owner-live` ·\n`autonomous-project` · `routine-fired` · `subagent` · `any`. Capabilities are\n**venue-scoped, not global** — the same operation can work owner-live, be\norg-refused on a cross-session binding, and prompt-stall in a plain-started\nseat while never prompting in a Routine-spawned one (fleet night review,\n2026-07-12). A flat CAN/CANNOT ledger is wrong somewhere by construction.\n\n## THE DISCOVERY RULE\n\nBefore declaring anything impossible, and before assuming a tool or\ncredential is missing:\n\n1. **Check this file** — the capability or wall may already be recorded for\n   your venue.\n2. **Check the environment** — `printenv` / list the available tools BEFORE\n   assuming no credentials exist (provisioned env tokens are routinely\n   forgotten, not absent).\n3. **Attempt once** — try the operation and capture the **exact** error text;\n   a guessed wall and a verified wall are different facts.\n4. **Append the finding same session** — capability or wall, dated, with the\n   venue token, the evidence (exact error, or proof it worked) and the\n   workaround if one was found. An unrecorded discovery is re-paid by every\n   future session.\n5. **Staleness — re-verify what you build on**: an entry older than the\n   staleness window (config `cadence.staleness_days`, default 14) that your\n   work depends on is a **claim, not a fact** — re-verify it with one cheap\n   attempt and append the result. Re-verifications APPEND, never edit: a\n   refuted wall can self-resolve platform-side, and a ledger with no\n   freshness data is confidently stale — worse than ignorant.\n\n## Capabilities — verified working\n\n- `any` · **Media is readable**: a video is never "unviewable" — extract\n  frames (`ffmpeg -i in.mp4 -vf fps=1 frame_%04d.png`) and read the images;\n  same idea for audio (transcribe) and PDFs (render pages). Try the recipe\n  before reporting a format wall. — LAST-VERIFIED: 2026-07-10\n- `any` · **Provisioned credentials**: the environment often carries\n  tokens/keys as env vars — `printenv` first; a missing-looking credential is\n  usually a missing *look*. — LAST-VERIFIED: 2026-07-10\n- `any` · **Release cutting despite the tag wall**: `workflow_dispatch` on\n  the release workflow (with a version input) creates the tag in-Actions —\n  proven repeatedly fleet-wide after direct tag pushes 403\'d.\n  — LAST-VERIFIED: 2026-07-12\n\n## Walls — verified blocked (use the workaround; don\'t rediscover)\n\n- `any` · **Tag push / release create via git**: HTTP 403 from the\n  environment\'s git proxy → use the workflow_dispatch release path.\n  — LAST-VERIFIED: 2026-07-12\n- `any` · **Branch deletion**: 403 on every path (git push `:branch` and\n  API) → owner deletes by hand / enables "Automatically delete head\n  branches". — LAST-VERIFIED: 2026-07-10\n- `any` · **`api.github.com` direct HTTP**: blocked → GitHub access is\n  MCP-tools-only. — LAST-VERIFIED: 2026-07-10\n- `any` · **Environment / Project creation**: owner-click actions in the\n  console — queue them as structured owner asks, never wait silently.\n  Routine/schedule creation is NO LONGER a blanket wall: `create_trigger`\n  arms routines agent-side (proven 2026-07-11); the console-only knobs\n  (model class, branch-push, auto-fix PRs) remain owner-only.\n  — LAST-VERIFIED: 2026-07-11\n- `subagent` · **Self-merge classifier**: sessions can be refused merging\n  owner-gated PRs while their other capabilities work — and the boundary\n  differs by venue (a child session was refused where a coordinator was\n  not). Record which venue hit which boundary. — LAST-VERIFIED: 2026-07-10\n- `any` · **GraphQL API quota**: tight — batch queries and prefer the\n  REST-backed MCP tools for bulk reads. — LAST-VERIFIED: 2026-07-10\n- `routine-fired` · **Silent prompt-stalls**: a permission prompt in an\n  unattended seat is a silent stall, and grant boundaries differ by venue —\n  the same tool call can be pre-granted in a Routine-spawned seat and prompt\n  in a plain-started one. Pre-route around recorded stall classes; verify\n  grants per venue, never globally. — LAST-VERIFIED: 2026-07-12\n\n<!-- substrate-kit:capability-seed END -->\n\n## Append log — newest first\n\nFormat: `- YYYY-MM-DD · capability|wall · <venue> · finding · evidence · workaround`\n(venue ∈ `owner-live` · `autonomous-project` · `routine-fired` · `subagent` ·\n`any`; older five-field lines without a venue token stay valid — read them\nas venue `any`.)\n\n(Hand-filled by sessions, per the discovery rule. Seed rows above are\nkit-owned — they refresh at upgrade between the fence markers; local\nfindings go here, below the fence.)\n',
     'CLAUDE.md.tmpl': '# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n0. **Preflight — land on origin\'s HEAD before reading anything else:**\n   `git fetch origin main && git reset --hard origin/main` (or\n   `git checkout -B main origin/main`). A warm container clone can lag\n   origin by dozens of commits, and a stale clone reads stale orders.\n   Mechanics + safety notes: `docs/AGENT_ORIENTATION.md` § "Start every\n   session".\n1. This file — the working agreement.\n2. `HANDOFF.md` at repo root (when present) — the previous session\'s trail:\n   newest session card + where to pick up. Regenerated at every session\n   boot, untracked by design — read it before re-deriving history from\n   `git log`/`git show`; never commit or edit it.\n3. `docs/current-state.md` — what is true right now.\n\nThat is the whole boot set. Everything else is routed, **not front-loaded**\n(reading every planted doc up front buys ceremony, not context — measured):\nopen `docs/AGENT_ORIENTATION.md` when a task needs its reading route,\n`docs/SKILLS.md` (the skill index) **before improvising a procedure for a\nrecurring action**, and\n`docs/CAPABILITIES.md` (the verified can/cannot ledger) **before declaring\nany wall or missing credential** — its discovery rule: check the file →\ncheck the env → attempt once + capture the exact error → append the finding\nsame session — and `docs/ROUTINES.md` (the wake-chain/trigger doctrine)\n**before arming, deleting, or auditing any scheduled trigger/routine**.\n\n## Kit machinery — search hygiene\n\n`bootstrap.py` (~12k generated lines) and `.substrate/` (kit state + a byte\nbackup of the previous dist) are substrate-kit machinery, not project code.\nExclude them from repo-wide searches: `grep -r --exclude=bootstrap.py\n--exclude-dir=.substrate …`, or ripgrep `rg -g \'!bootstrap.py\' -g\n\'!.substrate\' …`.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n',
-    'CONSTITUTION.md.tmpl': '# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session\'s goal end-to-end; don\'t ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner hands over fragments, not full\n  specs. Before substantive work, restate the fuller picture built from the\n  ask — the implied specs, and the possibility space when feasibility is\n  uncertain — inline in the first substantive response, never as a blocking\n  question. It catches a misread early, and the filled-in picture is itself\n  new material the owner redirects.\n- **Capabilities are discovered, never assumed.** Before declaring a wall or\n  a missing credential: check `docs/CAPABILITIES.md` (the verified ledger) →\n  check the environment → attempt once and capture the exact error → append\n  the finding same session.\n- **Recurring actions run through the skill index.** `docs/SKILLS.md` names\n  every kit-shipped skill and when to reach for it — check it before\n  improvising a procedure or repo-searching "how do we do X here".\n- **Skills self-propagate — the registration reflex.** A recurring action\n  with no skill — or a skill whose body doesn\'t actually cover it — is a\n  gap to register, not to route around: the standard move is to **add or\n  extend the skill** — a registry entry, not ad-hoc prose — via the growth\n  loop prose workflow → index row → promoted skill (`docs/SKILLS.md`\n  § "Growing the set"). The boundary: skill bodies, grounds, and index rows\n  are free to ship directly, flagged self-initiated on the run report;\n  **binding working-agreement text and executable config** (this file,\n  `CLAUDE.md`-level rules, hooks, settings) route through\n  `docs/question-router.md` as a proposal — never self-applied — unless the\n  owner directs the change live in-session, recorded with its provenance id\n  ("Changing the rules" below; superbot Q-0194 · Q-0106 · Q-0172).\n  The reflex generalizes beyond incidents to **opportunities** — the\n  rationalization checkpoint: at natural pauses (a slice lands · a\n  lesson/workaround surfaces · session enders) ask *"should this action\n  also be executed?"* and *"does this lesson deserve a permanent home —\n  skill / checker / template / idea — I can ship NOW?"* Method + routing\n  table: the `rationalize` skill (Q-0273).\n- **Evidence — verify, don\'t trust.** A record is a claim; the live surface\n  is the proof — probe the registry/API/tree before acting on any recorded\n  state (probe-not-record). The committed **tree wins over a self-report**:\n  heartbeat/registry `kit:` lines chronically lag the target repo\'s tree by\n  1–3 releases — verify against the tree. A red or green **check is judged\n  by its job log, never its name** (alias/mirror jobs red without measuring\n  anything; a designed hold is not a failure). Staleness-sensitive reads are\n  **cross-checked before acting** (MCP PR-state reads observed ~25 min\n  stale — confirm merge/CI state via git fetch or the Actions runs). A green\n  check that contradicts visible evidence is **a bug in the CHECK, not a\n  clearance** (PL-006). Every load-bearing claim cites a commit / PR / tag /\n  run.\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\nThe full twelve-item autonomy rider is PL-012 (cite it, don\'t copy it);\nthese rails are its adopter-side operating form:\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task. Every reversible design / technical\n  / planning call — architectural included — is **decided-and-flagged**:\n  decide it, one-line rationale, flag it on the run report; route to the\n  owner only genuine product-intent forks (PL-001 · PL-012).\n- **Owner absent = normal; silence = consent.** Unattended execution is\n  the design: "wait for the owner to review / approve / confirm" is a\n  hallucinated gate unless it names an owner-only class below — proceed.\n  Ship on green CI; unremarked work is accepted — owner control is\n  reaction after visibility, never pre-approval (PL-012).\n- **An open PR is never a reason to stop.** Open READY (never draft) →\n  arm auto-merge while checks pend → it lands itself; blocked branch →\n  update it (merge, never force) and re-arm; a real, verbatim\n  arming/merge denial → park the PR ready, queue ONE owner item for the\n  systemic cause, take the next slice the same turn (PL-012).\n- **Ask first only for the owner-only classes:** repo settings / rulesets\n  / required checks · secrets / env vars / host provisioning · external\n  publish + spending money · destructive prod-data ops · account/portal\n  steps — or a goal that is genuinely product-ambiguous.\n  **Queue-and-continue:** the ask goes to the owner queue your program\n  uses (no live owner? record it in `docs/question-router.md`) and you\n  keep working — never end a turn "waiting". A wall is declared only per\n  the capabilities discovery rule above — attempt once, verbatim error;\n  one refusal ≠ a permanent wall (PL-012).\n- **Never idle on a drained queue.** Work ladder: standing orders → the\n  session\'s stated targets → the backlog / roadmap docs → the generative\n  rung (orientation, guards, ideas — substrate work is first-class).\n  Uncertainty unsettleable from source in ~15 minutes is **routed, not\n  blocking**: post it where your program routes questions and keep\n  building (PL-012).\n- **Volatile facts expire.** Any PR# / SHA / "X is blocked / missing" in\n  a prompt or brief was true when written — re-verify at HEAD before\n  acting; the committed tree wins, and a stale "blocked" is not a reason\n  to skip (PL-006 · PL-012).\n- **The quality floor is unchanged.** Never-wait ≠ bypass CI: merging\n  requires green. Honest nulls and honest failures are deliverables; a\n  faked green or a papered-over stall is the only true failure (PL-012).\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall — assumption-based\n  asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE\n  / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act directly.\n  Expire stale asks; fewer, clearer asks beat complete lists. Owner-facing\n  output follows the owner-assist standard — paste-ready finished values, a\n  risk class (✅ / ↩️ / ⚠️) on every manual step, decisions as structured\n  choices with a **bolded recommendation**, answerable with one letter\n  (standard: `control/README.md`).\n\n## Changing the rules — propose, don\'t apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md),\ne.g. PL-001 decide-and-flag · PL-006 source-wins / false-green ·\nPL-012 the autonomy rider.\n**Cite PL-IDs — never copy ruling bodies into this repo** (the register is\nthe one home; a local copy is drift by construction). Repo-local rulings\nstay in `docs/decisions.md` / `docs/question-router.md`.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project\'s own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n',
+    'CONSTITUTION.md.tmpl': '# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session\'s goal end-to-end; don\'t ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner hands over fragments, not full\n  specs. Before substantive work, restate the fuller picture built from the\n  ask — the implied specs, and the possibility space when feasibility is\n  uncertain — inline in the first substantive response, never as a blocking\n  question. It catches a misread early, and the filled-in picture is itself\n  new material the owner redirects.\n- **Capabilities are discovered, never assumed.** Before declaring a wall or\n  a missing credential: check `docs/CAPABILITIES.md` (the verified ledger) →\n  check the environment → attempt once and capture the exact error → append\n  the finding same session.\n- **Recurring actions run through the skill index.** `docs/SKILLS.md` names\n  every kit-shipped skill and when to reach for it — check it before\n  improvising a procedure or repo-searching "how do we do X here".\n- **Skills self-propagate — the registration reflex.** A recurring action\n  with no skill — or a skill whose body doesn\'t actually cover it — is a\n  gap to register, not to route around: the standard move is to **add or\n  extend the skill** — a registry entry, not ad-hoc prose — via the growth\n  loop prose workflow → index row → promoted skill (`docs/SKILLS.md`\n  § "Growing the set"). The boundary: skill bodies, grounds, and index rows\n  are free to ship directly, flagged self-initiated on the run report;\n  **binding working-agreement text and executable config** (this file,\n  `CLAUDE.md`-level rules, hooks, settings) route through\n  `docs/question-router.md` as a proposal — never self-applied — unless the\n  owner directs the change live in-session, recorded with its provenance id\n  ("Changing the rules" below; superbot Q-0194 · Q-0106 · Q-0172).\n- **Evidence — verify, don\'t trust.** A record is a claim; the live surface\n  is the proof — probe the registry/API/tree before acting on any recorded\n  state (probe-not-record). The committed **tree wins over a self-report**:\n  heartbeat/registry `kit:` lines chronically lag the target repo\'s tree by\n  1–3 releases — verify against the tree. A red or green **check is judged\n  by its job log, never its name** (alias/mirror jobs red without measuring\n  anything; a designed hold is not a failure). Staleness-sensitive reads are\n  **cross-checked before acting** (MCP PR-state reads observed ~25 min\n  stale — confirm merge/CI state via git fetch or the Actions runs). A green\n  check that contradicts visible evidence is **a bug in the CHECK, not a\n  clearance** (PL-006). Every load-bearing claim cites a commit / PR / tag /\n  run.\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task.\n- **Ask** before anything irreversible (data loss, external publish),\n  large / cross-cutting (architectural), or when the goal itself is\n  genuinely ambiguous. No live owner to ask? Record the question in\n  `docs/question-router.md` instead of skipping it or guessing.\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall — assumption-based\n  asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE\n  / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act directly.\n  Expire stale asks; fewer, clearer asks beat complete lists. Owner-facing\n  output follows the owner-assist standard — paste-ready finished values, a\n  risk class (✅ / ↩️ / ⚠️) on every manual step, decisions as structured\n  choices with a **bolded recommendation**, answerable with one letter\n  (standard: `control/README.md`).\n\n## Changing the rules — propose, don\'t apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md),\ne.g. PL-001 decide-and-flag · PL-006 source-wins / false-green.\n**Cite PL-IDs — never copy ruling bodies into this repo** (the register is\nthe one home; a local copy is drift by construction). Repo-local rulings\nstay in `docs/decisions.md` / `docs/question-router.md`.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project\'s own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n',
     'SKILLS-index.md.tmpl': '# ${project_name} — skill index\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The table below renders FROM the kit\'s\n> `SKILLS` list — the same source that emits the skills — and regenerates\n> at adopt/upgrade, so it cannot hand-drift. **NOT SOURCE OF TRUTH** for\n> skill bodies: the installed `.claude/skills/<name>/SKILL.md` wins.\n\n## What this is\n\nThe registered skill set for ${project_name}: every recurring action that\nhas a defined, kit-shipped procedure. **Check this index before improvising\na workflow or repo-searching "how do we do X here"** — when a row covers\nthe action, invoke the skill (or read its installed body) instead of\nderiving the procedure from scratch.\n\n## The skills\n\n${skills_index}\n\n## Where the bodies live\n\n- **Installed (live):** `.claude/skills/<name>/SKILL.md` — invoke as\n  `/<name>`.\n- **Staged (regenerated at every adopt/upgrade):** the kit state dir\'s\n  `skills/` tree (default `.substrate/skills/`); install with\n  `python3 bootstrap.py skills --build`.\n- **Precedence:** a skill\'s declared capability **wins over the ambient\n  stance** (an invoked `session-close` may write the session log even under\n  a `review` stance); stances stay advisory for anything a skill has not\n  declared.\n\n## Machine consumption — the seat digest\n\n`docs/seat-digest.md` is the machine-extractable DERIVED RENDER of this\nindex plus the capability ledger\'s venue-relevant walls — two fence-marked\nblocks sized for seat-prompt budgets, consumed by fleet-manager\'s\nseat-prompt regen via fence-prefix extraction + byte match. Never edit it;\nregenerate with `python3 bootstrap.py seat-digest` (adopt/upgrade refresh\nit too). The extraction contract and the no-third-copy deferral chain are\ndocumented in that file itself.\n\n## Growing the set\n\nThe skill set is kit-owned (the `SKILLS` list in the kit\'s\n`src/engine/skills/skills.py`) and this index regenerates from it — never\nhand-edit the table. A recurring action without a row here — or a row\nwhose body doesn\'t actually cover it — is the registration reflex firing:\nthe standard move is to **add or extend the skill**, as a registry entry,\nnot ad-hoc prose. The growth loop is prose workflow → index row → promoted\nskill: capture the procedure as an idea (`docs/ideas/README.md`) or\npropose it upstream to the kit, and it reaches every adopter at the next\nrelease. Skill bodies, grounds, and index rows are free to ship directly —\nflag them self-initiated on the run report; binding working-agreement text\nis proposed through `docs/question-router.md`, never self-applied — the\nfull clause and its provenance live in the working agreement\n(`${agreement_home}`, superbot Q-0194 · Q-0106 · Q-0172).\n',
     'ai-project-workflow.md.tmpl': "# ${project_name} — AI project workflow\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The multi-agent pipeline: how ideas become work\n> and how sessions run. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Idea lifecycle\n\n```\ncaptured -> classified -> planned -> built -> verified\n```\n\nEvery idea ends implemented, planned, in discussion, or explicitly rejected —\nnever orphaned. Backlog + routing: `docs/ideas/README.md`.\n\n## Session workflow\n\n```\norient -> claim -> born-red card -> build -> verify -> close\n```\n\n1. **Orient** — working agreement, current state, task-specific reading route.\n2. **Claim** — declare your lane so parallel sessions don't collide.\n3. **Born-red card** — open the session record first, marked in-progress, so\n   the work is visible while it is still incomplete.\n4. **Build** — the goal, end-to-end.\n5. **Verify** — run `${verify_command}` before shipping.\n6. **Close** — flip the card complete; log the session, groom one idea, hand\n   off.\n\n## Handoff template\n\n(What the next session needs, four lines: state of the work · what is\nverified · what is still open · the first next step.)\n\n## Adoption pace\n\nCurrent substrate-workflow adoption: **${integration_mode}**.\n",
     'architecture.md.tmpl': '# ${project_name} — architecture\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Layering, invariants, and decomposition rules.\n> **NOT SOURCE OF TRUTH** for code — source files always win.\n\n## Layers & import rules\n\n${architecture_layers}\n\n| Layer | May import | Must NOT import |\n|---|---|---|\n| (one row per layer, expanded from the summary above) | | |\n\n## Invariants\n\n(The rules that must survive every refactor — write each one as a testable\nstatement, and name the check that enforces it where one exists.)\n\n## Namespace protection — two mechanisms, both required\n\nTwo separate mechanisms guard the namespace, and they catch different\nfailure classes:\n\n1. **A registry for runtime string identities** — event names, command\n   names, settings keys, and any other string that selects behavior at\n   runtime. Collisions here are invisible to static analysis.\n2. **A static AST pass for Python symbol shadowing** — a later top-level\n   `def` / `class` with the same name silently shadows the earlier one, and\n   no import fails.\n\nNeither mechanism subsumes the other. The registry cannot see symbol\nshadowing; the AST pass cannot see string-keyed dispatch. Do not delete one\nbelieving the other covers it.\n\n## Verifying a change\n\n```\n${verify_command}\n```\n',
-    'collaboration-model.md.tmpl': '# ${project_name} — collaboration model\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How the owner and agents work together. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## The model\n\n- **Goal first.** The owner designs and directs; agents build. Each session\n  achieves its goal end-to-end — not the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting; a\n  prompt is one input, never a command list.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — code, verify, ship —\n  without re-confirming.\n\n## Act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task (that is expected, not scope creep).\n- **Ask** when the change is irreversible (data loss / external publish),\n  large and cross-cutting (architectural), or the goal itself is genuinely\n  ambiguous.\n\n## Routing work to the owner\n\nThe owner is the scarcest resource in the program. An ask reaches the owner\nonly when the agent has **attempted the action itself** or can name the\n**exact wall** (error text, permission denial) proving only the owner can do\nit — assumption-based asks are banned. Every ask uses the OWNER-ACTION\nformat — WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED\n(canonical: `control/README.md`) — phrased so a non-technical owner can act\ndirectly: one plain sentence, an exact click path, paste-ready text.\nWithdraw asks that have gone stale; fewer, clearer asks beat complete lists.\n\nEvery owner-facing OUTPUT — not just asks — follows the owner-assist output\nstandard (canonical: `control/README.md` § "Owner-assist output standard"):\nvalues arrive finished and paste-ready, with the exact link to where each\none goes (a full file in one copyable block — never a recipe the owner must\nderive); every manual step carries a risk class (✅ safe / ↩️ reversible /\n⚠️ irreversible); a decision put to the owner is a structured choice —\noptions A/B(/C) with a **bolded recommendation** and a one-line rationale,\nanswerable with one letter — never an ask that requires the owner to\nparse, derive, or transform anything; a large output ships as a control-plane\nrendered link plus a 3-line digest in chat, with full text in one copyable\nblock in chat as the fallback where the plane cannot render the repo yet.\n\n## Friction → guard\n\nAnything that interrupts a session\'s workflow — a stale file, a checker that\nlied, a footgun — is converted into the **cheapest enforcing prevention**\nbefore the session ends: checker / CI / test first, then hook, then written\nrule. Enforce, don\'t exhort. The same reflex runs on opportunities, not only\ninterruptions — the rationalization checkpoint (`rationalize` skill, Q-0273).\n\n## Guiding questions\n\nDuring exploratory / brainstorming work, surface the single most useful\nquestion about the owner\'s idea that the agent genuinely cannot derive\nitself — rare and selective, never during routine execution, and only when\nthe answer would actually matter and be actionable. A big or vague idea\nearns a dedicated research pass or its own session before being answered\nfrom memory alone.\n\n## Program law\n\nThis model\'s program-wide form, and the rulings that bind every repo in the\nprogram, live canonically in the substrate-kit repo at\n`docs/program/rulings.md` (the [PL-NNN] register — e.g. PL-001\ndecide-and-flag, PL-007 enforce-don\'t-exhort, PL-012 the autonomy rider) and\n`docs/program/collaboration-model.md`\n(https://github.com/menno420/substrate-kit/tree/main/docs/program).\n**Cite PL-IDs — never copy ruling bodies into this repo.**\n\n## Drift & staleness\n\n- When a doc and a source file disagree: ${drift_resolution}\n- Staleness review cadence: ${staleness_review}\n',
+    'collaboration-model.md.tmpl': '# ${project_name} — collaboration model\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How the owner and agents work together. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## The model\n\n- **Goal first.** The owner designs and directs; agents build. Each session\n  achieves its goal end-to-end — not the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting; a\n  prompt is one input, never a command list.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — code, verify, ship —\n  without re-confirming.\n\n## Act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task (that is expected, not scope creep).\n- **Ask** when the change is irreversible (data loss / external publish),\n  large and cross-cutting (architectural), or the goal itself is genuinely\n  ambiguous.\n\n## Routing work to the owner\n\nThe owner is the scarcest resource in the program. An ask reaches the owner\nonly when the agent has **attempted the action itself** or can name the\n**exact wall** (error text, permission denial) proving only the owner can do\nit — assumption-based asks are banned. Every ask uses the OWNER-ACTION\nformat — WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED\n(canonical: `control/README.md`) — phrased so a non-technical owner can act\ndirectly: one plain sentence, an exact click path, paste-ready text.\nWithdraw asks that have gone stale; fewer, clearer asks beat complete lists.\n\nEvery owner-facing OUTPUT — not just asks — follows the owner-assist output\nstandard (canonical: `control/README.md` § "Owner-assist output standard"):\nvalues arrive finished and paste-ready, with the exact link to where each\none goes (a full file in one copyable block — never a recipe the owner must\nderive); every manual step carries a risk class (✅ safe / ↩️ reversible /\n⚠️ irreversible); a decision put to the owner is a structured choice —\noptions A/B(/C) with a **bolded recommendation** and a one-line rationale,\nanswerable with one letter — never an ask that requires the owner to\nparse, derive, or transform anything; a large output ships as a control-plane\nrendered link plus a 3-line digest in chat, with full text in one copyable\nblock in chat as the fallback where the plane cannot render the repo yet.\n\n## Friction → guard\n\nAnything that interrupts a session\'s workflow — a stale file, a checker that\nlied, a footgun — is converted into the **cheapest enforcing prevention**\nbefore the session ends: checker / CI / test first, then hook, then written\nrule. Enforce, don\'t exhort.\n\n## Guiding questions\n\nDuring exploratory / brainstorming work, surface the single most useful\nquestion about the owner\'s idea that the agent genuinely cannot derive\nitself — rare and selective, never during routine execution, and only when\nthe answer would actually matter and be actionable. A big or vague idea\nearns a dedicated research pass or its own session before being answered\nfrom memory alone.\n\n## Program law\n\nThis model\'s program-wide form, and the rulings that bind every repo in the\nprogram, live canonically in the substrate-kit repo at\n`docs/program/rulings.md` (the [PL-NNN] register — e.g. PL-001\ndecide-and-flag, PL-002 never-wait, PL-007 enforce-don\'t-exhort) and\n`docs/program/collaboration-model.md`\n(https://github.com/menno420/substrate-kit/tree/main/docs/program).\n**Cite PL-IDs — never copy ruling bodies into this repo.**\n\n## Drift & staleness\n\n- When a doc and a source file disagree: ${drift_resolution}\n- Staleness review cadence: ${staleness_review}\n',
     'control-README.md.tmpl': '# Fleet coordination protocol — `control/`\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. Canonical spec: `menno420/superbot` →\n> `docs/planning/fleet-coordination-protocol-2026-07-09.md` (§1). Projects cannot talk to each\n> other directly — committed git files are the only shared medium; this directory is the bus.\n\n## The two files\n\n- `control/inbox.md` — ORDERS to this Project. **One writer: the manager** (appends via the\n  GitHub Contents API). Never edit this file.\n- `control/status.md` — STATE from this Project. **One writer: this Project** (overwrite it each\n  session).\n\n## The one rule that keeps it conflict-free\n\n**One writer per file.** The manager is the sole writer of `inbox.md`; this Project is the sole\nwriter of its own `status.md`. Two writers never touch the same file, so there are no merge\nconflicts. Everything is append-only / overwrite-own — forward-only git.\n\n## Multi-Project repos — per-lane heartbeats (optional extension)\n\nA SHARED repo can host several Projects ("lanes" — e.g. a mining lane and an exploration lane\ncohabiting one game repo). The one-writer rule scales by **splitting the heartbeat, never by\nsharing it**:\n\n- **One status file per lane** — `control/status-<lane>.md` (e.g. `control/status-mining.md` +\n  `control/status-exploration.md`). Each lane is the sole writer of its own file and overwrites\n  it as its session\'s deliberate LAST step; no lane ever edits another lane\'s heartbeat.\n- **`control/inbox.md` stays single** — the manager remains its one writer; a lane-specific\n  order names its lane in `do:`.\n- **Declare every lane heartbeat to the kit** — `substrate.config.json` →\n  `"heartbeat_files": ["control/status-mining.md", "control/status-exploration.md"]` (default\n  when unset: `["control/status.md"]`). The status checker then gates each listed file\n  independently (missing / heartbeat-less lane = strict RED; per-lane staleness warns), and the\n  Stop hook\'s overwrite reminder clears when any lane\'s heartbeat is fresh (it cannot know which\n  lane a session belongs to). An empty list falls back to the default — misconfiguration never\n  silently disables the gate.\n- **One command, not hand-edits** — a Project joining a SHARED repo runs\n  `bootstrap adopt --lane <name>`: it plants `control/status-<name>.md` (skip-if-exists),\n  declares it in `heartbeat_files`, and leaves `inbox.md`/`README.md` single — a second lane\n  never re-plants the first Project\'s files (the double-adoption fix).\n\n## Per-session ritual (every session, and every routine wake)\n\n- **FIRST:** git pull (a stale clone reads stale orders); read `control/inbox.md`; execute any\n  order whose status is `new`, in priority order (P0 before P1) — **claim it first** (see\n  "Claiming an order" below). An order\'s `do:` is a pointer to\n  a committed doc — read it. If an order is ambiguous or you disagree, do NOT guess: write it in\n  your status under `⚑ needs-owner` and proceed with the rest.\n- **LAST (deliberate final step):** overwrite `control/status.md` — updated timestamp, current\n  phase, health (green / red-by-design+why / broken+what), last-shipped PR, blockers, orders\n  acked/done, `⚑ needs-owner`. You report order progress ONLY here; never edit `inbox.md`\n  (the manager owns it — one writer per file).\n\nThe kit enforces this loop: `check` flags a missing or heartbeat-less `status.md`\n(strict = red), warns when the heartbeat goes stale, and the Stop hook reminds you when\n`status.md` was not overwritten this session.\n\n## Claiming an order — one executor per order (claim FIRST, build second)\n\nAn order\'s `status: new` is visible to every session that wakes, so two readers can both\nbelieve they are its executor — a realized failure, not a theoretical one (substrate-kit\nPRs #50/#51: two lanes independently executed the same ORDER 005 the same day, and a whole\nsession\'s work had to be reconciled as twins). The manager only flips `new→done` after\nseeing the status report; the claim covers the gap in between.\n\nBefore executing any `new` order:\n\n1. **Re-read the bus at origin/main HEAD** — `control/inbox.md` AND every sibling status\n   file (`control/status*.md`). If another lane\'s status already claims the order\n   (`claimed-by:` naming its id) or reports it in `done=`, stand down and pick other work.\n2. **Claim FIRST, on your own status file\'s orders line** — append\n   `claimed-by: <order-ids> <lane-or-session> <ISO8601>` — and land it on **main** BEFORE\n   any build work (a control-only fast-lane PR, or a direct commit where your rules allow\n   one). A claim that exists only on a branch is invisible; only main counts.\n3. **Re-read once more after the claim merges** — two claims can race in flight; the\n   tiebreak is the earliest claim merged to main. The loser withdraws its claim line in\n   its next status overwrite and stands down.\n4. **Claims expire** — a claim with no visible build activity (no open PR, no fresh\n   heartbeat referencing the order) after ~24h may be treated as abandoned and re-claimed;\n   note the takeover in your status `notes:`. A dead lane must never deadlock an order.\n\nWith an active claim the `orders:` line reads e.g.:\n`orders: acked=001-008 done=001-006 claimed-by: 007+008 coordinator-lane 2026-07-09T18:38Z`\n— the executor drops the `claimed-by:` annotation in the overwrite that moves those ids\ninto `done=`. One writer per file is preserved: you only ever claim on your OWN status.\n(Shipped by inbox ORDER 007 — the root-cause fix for the twin-execution failure; the\nritual was live-proven manually on this repo\'s own orders before graduating here.)\n\n## Claiming work (not an ORDER) — one file per claim under `control/claims/`\n\nOrder claims cover the inbox; **work claims** cover everything else two\nparallel sessions could both pick up — a coordinator-assigned slice, a\nself-initiated build, a shared-surface change. Before starting such work,\ncreate **one file per claim** — `control/claims/<branch-or-scope>.md`, a\nsingle bullet `` - `branch-or-scope` · **scope** — detail · YYYY-MM-DD `` —\nland it on main FAST (claims are `control/**` traffic and ride the CI fast\nlane), re-read the directory at HEAD, build, then **delete the file at\nsession close**. Per-file is the measured winner over any shared list (~98%\nmerge-conflict rate for shared-append vs 0% per-file — superbot\n`tools/sim/claim_layout_sim.py`); first claim merged to main wins a\ncollision; ~72h with no activity = abandoned, prune on sight. Full\nconvention + checker contract: `control/claims/README.md`. (`check` nags —\nadvisory-only — on unparseable, stale, duplicate, or legacy-located claims;\nlegacy homes `docs/owner/claims/` and root `claims/` are auto-detected\nduring the migration window, and a deliberate different home is pinned via\n`substrate.config.json` → `claims_dir`.)\n\n## `status.md` format (what you write every session — your heartbeat)\n\n```markdown\n# <project> · status\nupdated: <ISO8601>            # heartbeat — stale = the manager treats the Project as dark\nphase: <what I\'m doing right now, one line>\nhealth: green | red-by-design (<why>) | broken (<what>)\nkit: v<X.Y.Z> · check: green|red · engaged: yes|no   # kit self-report — see below\nlast-shipped: #<PR> — <one line>\nblockers: <what\'s stopping me, or `none`>\norders: acked=<ids> done=<ids> [claimed-by: <ids> <lane-or-session> <ISO8601>]\n⚑ needs-owner: <a decision/action only the owner can give, or `none`>\nnotes: <anything the manager should know>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\nThe `kit:` line is the **substrate-coordinator visibility** channel (kit-lab reads it via the\nmanager relay — zero write access to this repo): `v<X.Y.Z>` = the vendored kit version this\nrepo actually runs (update it in the same session as every `bootstrap upgrade`); `check:` =\nthe latest `check --strict` verdict on this tree; `engaged:` = the post-adopt engagement gate\n(`yes` once no UNRENDERED banner/slot remains, live CI runs the gate, and the session loop\nhas engaged).\n\n**Exact grammar or invisible — keep the `kit:` token PLAIN.** The parser accepts a bold label\n*before* a plain token (`- **kit heartbeat:** kit: v1.2.3 · check: green · engaged: yes` is a\nlive valid shape), but bolding the token itself does NOT parse — the fleet registry then reads\nthe row as "no `kit:` line" and the lane\'s engaged signal silently vanishes (a live adopter\nincident, not a hypothetical). The taught negative example:\n\n```markdown\n- **kit:** v1.2.3 · check: green · engaged: yes\n```\n\n← does NOT parse (`KIT_LINE_RE`, kit `src/engine/grammar.py` — the optional bold group cannot\ncontain the `kit:` token). If your heartbeat wants a bold label, put it *before* a plain\n`kit:` token.\n\n**Version truth defers to the generated registry, never to this line.** Heartbeat `kit:`\nlines are self-reports and chronically lag 1–3 releases behind the tree (the fleet\'s\nrecurring self-report DRIFT class); the kit repo\'s generated `docs/adopters.md` —\nregenerated from each adopter\'s committed tree — is the fleet\'s version truth, and your own\ncommitted tree (the vendored dist) is yours. Never hand-assert a fleet version spread from\nheartbeat lines; keep this line in sync as a courtesy signal, not as proof.\n\n## ⚑ needs-owner — the OWNER-ACTION item format (quality contract)\n\nThe owner is the scarcest resource in the program: every ask routed to the owner costs\nattention, and an unclear or unnecessary ask stalls your own lane on top of burning his.\n**Before routing ANYTHING to the owner, try it yourself or cite the exact wall** — an\nassumption-based ask ("agents probably can\'t do X") is banned; the bar is the capability\nledger (`docs/CAPABILITIES.md`) plus one real attempt with the captured error.\n\nEvery ⚑ needs-owner item carries ALL of these REQUIRED fields — inline on the item, or as a\nstructured block the item links to:\n\n```markdown\n⚑ OWNER-ACTION\nWHAT: <one plain sentence, zero jargon — the thing the owner does>\nWHERE: <exact click path or URL>\nHOW: <paste-ready text/values where applicable, or "click only">\nRISK: <one class per manual step — ✅ safe / read-only · ↩️ reversible (say how to undo) · ⚠️ irreversible / destructive>\nWHY-IT-MATTERS: <one sentence, in product terms>\nUNBLOCKS: <what starts moving the moment it\'s done>\nVERIFIED-NEEDED: <the attempt you made + the exact error/wall proving only the owner can do\nthis — never an assumption>\n```\n\nHygiene: **expire or withdraw stale asks every session** (an answered or obsolete ask left in\nthe list is drift), and **fewer, clearer asks beat complete lists**. `check` warns — advisory,\nnever exit-affecting — when a non-`none` ⚑ needs-owner list lacks these fields.\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## Owner-assist output standard — every owner-facing output, not just asks\n\nThe OWNER-ACTION block above covers the *needs-owner ask*; this standard\ncovers ALL output routed to the owner — reports, questions, values to paste,\nlinks. The contract in one line: **the owner never derives anything** — an\noutput that requires the owner to parse, derive, or transform anything is a\ndrafting defect, not an owner task.\n\n1. **Paste-ready, finished values.** Every value the owner must enter is\n   computed and printed final — `NAME=value`, the full command, the full\n   file body — never a recipe for deriving it. When the owner must paste\n   something, give the exact link to where it goes; a full file goes in ONE\n   copyable fenced block, directly in chat.\n2. **Exact destination, always.** Every action names its exact destination:\n   a deep URL, a console path to the exact field (surface → section →\n   field, e.g. `Railway → project → service → Variables`), or a repo path +\n   line. Never a bare "go to settings" — `check` nags that class (advisory).\n3. **Risk class on every manual step:** ✅ safe / read-only · ↩️ reversible\n   (say how to undo) · ⚠️ irreversible / destructive. One class per step,\n   stated on the step (the `RISK:` line in an OWNER-ACTION block).\n4. **Structured choices, recommendation first.** A decision put to the\n   owner is options A/B(/C) with a **bolded recommendation** and a one-line\n   rationale, answerable with one letter — never an ask that requires the\n   owner to parse, derive, or transform anything.\n5. **Large outputs: digest + rendered link, never a wall of text.** Default\n   delivery is a control-plane rendered link plus a 3-line digest in chat;\n   the fallback — full text in one copyable block directly in chat — applies\n   where the control plane cannot render the repo yet. Link rules: deep-link\n   the exact file, never the repo root; the rendered view for things the\n   owner should *read*, the GitHub blob URL for things the owner should\n   *edit*; post-merge, link `ref=main`; the control-plane render cache is\n   180 s — append `&refresh=1` when the owner must see a just-pushed change.\n\nWorked example — digest + rendered deep link + a six-field ask carrying its\nrisk class (every rule above in one output):\n\n```\n📄 Adopter-outcomes report — shipped (PR #247, merged b862e9a)\n\nDigest: before/after adoption is unmeasurable (9/10 adopters born <20h\nbefore their kit-install PR); false-claim audit near-clean (1 confirmed,\nself-corrected in 6 min); post-adoption time-to-ship baselines recorded.\n\nFull report (rendered, phone-readable):\nhttps://control-plane-production-abb0.up.railway.app/journal/substrate-kit/file?path=docs/reports/2026-07-11-adopter-outcomes-measurement.md\n\n⚑ OWNER-ACTION — set GITHUB_TOKEN on the control-plane service\nWHAT: paste one variable into Railway so private-repo pages stop degrading.\nWHERE: railway.app → project `websites` → service `control-plane` →\n       Variables → New Variable.\nHOW (paste-ready): name `GITHUB_TOKEN`, value = the fine-grained PAT you\n       created for the fleet\'s repos (contents: read). One paste, Save.\nRISK: ↩️ reversible — delete the variable to undo.\nWHY-IT-MATTERS: private-repo renders show "not-configured" banners until\n       this is set.\nUNBLOCKS: rendered file links + queue items for private repos.\nVERIFIED-NEEDED: attempted 2026-07-11 — raw fetch of a private path\n       returns 404 without a token (token-on-raw also verified NOT to\n       work, so the API fallback is the only private path).\n```\n\nGrammar source of truth: the risk-class tokens, the structured-choice phrases, and the vague-destination scan of this standard are kit-owned constants in the kit\'s `src/engine/grammar.py` — the SAME module the `check` enforcers AND the `/intake` skill pins consume, so writer, skill, and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_owner_assist.py`.\n\n## `inbox.md` order format (manager-written, append-only)\n\n```markdown\n## ORDER <nnn> · <ISO8601> · status: new     # manager flips new→done after seeing status done=\npriority: P0 | P1 | P2\ndo: <pointer to a committed doc/section + the ask, kept short>\nwhy: <one line>\ndone-when: <acceptance test>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## CI + auto-merge notes (learned live, 2026-07-09)\n\n- **Heartbeat commits ride a fast lane, not a `paths-ignore`.** A control-only diff (only\n  `control/**` files changed) must still *report* every required status check, or GitHub treats\n  the missing contexts as pending and auto-merge jams forever. The kit\'s planted\n  `substrate-gate.yml` therefore short-circuits GREEN inside the job on control-only diffs\n  instead of skipping the workflow — copy that pattern (an in-job early exit) into any other\n  heavy suite rather than adding `paths-ignore: [control/**]` to a workflow whose check is\n  required.\n- **API-authored PRs may not trigger CI.** A PR created purely through an app/integration token\n  (e.g. the GitHub Contents API + a REST PR create) can sit with **zero check runs** — required\n  checks then never report and the PR cannot auto-merge. The manager\'s canonical write path is\n  therefore a **direct Contents-API commit to the default branch of `inbox.md`** (it is the sole\n  writer, so no PR is needed). When this Project ships control changes by PR, push the branch\n  over git (a real `git push` triggers `pull_request`/`push` events) before or after creating\n  the PR, and verify the PR shows check runs before relying on auto-merge.\n',
-    'control-claims-README.md.tmpl': '# `control/claims/` — claim before build, one file per claim\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. The kit-owned work-claim convention\n> (EAP program review 2026-07-10 §6.4 — the fleet\'s forked claim mechanisms\n> unified on the measured winner). Order claims are different and stay on\n> your heartbeat — see `control/README.md` § "Claiming an order".\n\n## What this is\n\nA lightweight **claim ledger** so parallel agent sessions don\'t duplicate each\nother\'s work. Several sessions can run at once; two of them picking up the\nsame task is pure waste. This directory makes "is someone already on this?"\nanswerable **before a PR exists** — the claim is the early in-flight signal,\nthe PR is the late one.\n\n## Why one file per claim (measured, not vibes)\n\nA shared "active work" list that every session appends to and prunes is a\nmerge-conflict machine: a real-`git merge` simulation\n(menno420/superbot `tools/sim/claim_layout_sim.py`) measured the shared-append\npattern at a **~98% conflict rate** under concurrent sessions; splitting by\nsector only halved it. **One file per claim is structurally conflict-free —\n0% at every concurrency level** — because two sessions never touch the same\nfile. The rule that preserves that 0%: **no hand-edited shared index**.\nDiscover claims with `ls control/claims/` — this README never lists them.\n\n## How to use it\n\n1. **Before starting work**, scan this directory AND the open PRs. If your\n   task is already claimed or in flight, coordinate or pick something else.\n2. **Create one claim file** — `control/claims/<branch-or-scope>.md` — with a\n   single bullet:\n   `` - `branch-or-scope` · **scope** — one-line detail · expected files/area · YYYY-MM-DD ``\n   (Keep the backticks around the branch/scope token and the ISO date — the\n   `check_claims` checker parses both; an unparseable claim is invisible to\n   its duplicate scan.)\n   Grammar source of truth: the bullet\'s regexes (backticked token + ISO date) are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module `check_claims` consumes; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n   **Don\'t hand-write it** — `bootstrap claim <slug> --scope "<scope>"\n   [--area "<files/area>"] [--order NNN]` renders the bullet from those same\n   constants (round-trip verified, current UTC date last; `--dry-run`\n   previews), so the claim can never be invisible to the duplicate scan.\n   **Serving an inbox ORDER? Pass `--order NNN`** — it renders the\n   structured ` · order NNN` segment the cross-branch overlap scan keys on,\n   and the verb REFUSES to write when another live claim on a different\n   branch already names that order (two branches building one ORDER is the\n   twin-execution waste this guard exists for; `--force` overrides for a\n   deliberate split of one order across branches).\n3. **Land the claim on main FAST** (claims are `control/**` traffic — they\n   ride the CI control fast lane), then re-read this directory at HEAD before\n   you build: if both lanes do this, the second claimer always sees the first.\n4. **Delete your own claim file at session close** — `bootstrap claim\n   <slug> --delete` (it refuses to touch a foreign claim). The durable\n   record is the PR and the living ledger — a claim is a whiteboard note,\n   not an audit trail.\n\n## Arbitration + expiry\n\n- **First claim merged to main wins** a collision — a deterministic tiebreak\n  beats re-litigating every race; the loser deletes its file and stands down.\n- **Claims expire**: a claim file older than ~72h with no visible build\n  activity may be treated as abandoned — prune it on sight (the checker nags\n  with `claims-stale`).\n\n## What the checker enforces (all advisory, never exit-affecting)\n\n`check` warns on: `claims-format` (no parseable bullet), `claims-stale`\n(older than the ~72h horizon), `claims-duplicate` (two files, one\nbranch/scope token), `claims-order-collision` (two live claims on DIFFERENT\nbranches naming the same `order NNN` / free-text `ORDER NNN` on the bullet\n— likely duplicate work; confirm one owner), and `claims-legacy-location`\n(claims living in a\npre-unification home — `docs/owner/claims/` or root `claims/`; move them\nhere, or pin your deliberate location via `substrate.config.json` →\n`claims_dir`).\n\n## Not for inbox ORDERS\n\nAn inbox ORDER is claimed on your OWN heartbeat\'s `orders:` line\n(`claimed-by: <ids> <lane> <ISO8601>` — `control/README.md` § "Claiming an\norder"), never here: the heartbeat annotation preserves one-writer-per-file\nfor the order lifecycle the manager reconciles. This directory is for\n**work** — coordinator-assigned slices, self-initiated builds, anything that\nisn\'t an ORDER id.\n',
+    'control-claims-README.md.tmpl': '# `control/claims/` — claim before build, one file per claim\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. The kit-owned work-claim convention\n> (EAP program review 2026-07-10 §6.4 — the fleet\'s forked claim mechanisms\n> unified on the measured winner). Order claims are different and stay on\n> your heartbeat — see `control/README.md` § "Claiming an order".\n\n## What this is\n\nA lightweight **claim ledger** so parallel agent sessions don\'t duplicate each\nother\'s work. Several sessions can run at once; two of them picking up the\nsame task is pure waste. This directory makes "is someone already on this?"\nanswerable **before a PR exists** — the claim is the early in-flight signal,\nthe PR is the late one.\n\n## Why one file per claim (measured, not vibes)\n\nA shared "active work" list that every session appends to and prunes is a\nmerge-conflict machine: a real-`git merge` simulation\n(menno420/superbot `tools/sim/claim_layout_sim.py`) measured the shared-append\npattern at a **~98% conflict rate** under concurrent sessions; splitting by\nsector only halved it. **One file per claim is structurally conflict-free —\n0% at every concurrency level** — because two sessions never touch the same\nfile. The rule that preserves that 0%: **no hand-edited shared index**.\nDiscover claims with `ls control/claims/` — this README never lists them.\n\n## How to use it\n\n1. **Before starting work**, scan this directory AND the open PRs. If your\n   task is already claimed or in flight, coordinate or pick something else.\n2. **Create one claim file** — `control/claims/<branch-or-scope>.md` — with a\n   single bullet:\n   `` - `branch-or-scope` · **scope** — one-line detail · expected files/area · YYYY-MM-DD ``\n   (Keep the backticks around the branch/scope token and the ISO date — the\n   `check_claims` checker parses both; an unparseable claim is invisible to\n   its duplicate scan.)\n   Grammar source of truth: the bullet\'s regexes (backticked token + ISO date) are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module `check_claims` consumes; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n3. **Land the claim on main FAST** (claims are `control/**` traffic — they\n   ride the CI control fast lane), then re-read this directory at HEAD before\n   you build: if both lanes do this, the second claimer always sees the first.\n4. **Delete your own claim file at session close.** The durable record is the\n   PR and the living ledger — a claim is a whiteboard note, not an audit\n   trail.\n\n## Arbitration + expiry\n\n- **First claim merged to main wins** a collision — a deterministic tiebreak\n  beats re-litigating every race; the loser deletes its file and stands down.\n- **Claims expire**: a claim file older than ~72h with no visible build\n  activity may be treated as abandoned — prune it on sight (the checker nags\n  with `claims-stale`).\n\n## What the checker enforces (all advisory, never exit-affecting)\n\n`check` warns on: `claims-format` (no parseable bullet), `claims-stale`\n(older than the ~72h horizon), `claims-duplicate` (two files, one\nbranch/scope token), and `claims-legacy-location` (claims living in a\npre-unification home — `docs/owner/claims/` or root `claims/`; move them\nhere, or pin your deliberate location via `substrate.config.json` →\n`claims_dir`).\n\n## Not for inbox ORDERS\n\nAn inbox ORDER is claimed on your OWN heartbeat\'s `orders:` line\n(`claimed-by: <ids> <lane> <ISO8601>` — `control/README.md` § "Claiming an\norder"), never here: the heartbeat annotation preserves one-writer-per-file\nfor the order lifecycle the manager reconciles. This directory is for\n**work** — coordinator-assigned slices, self-initiated builds, anything that\nisn\'t an ORDER id.\n',
     'control-inbox.md.tmpl': '# ${project_name} · inbox\n\n> ORDERS to this Project. **ONE writer: the manager** — never edit this file. Report order\n> progress in `control/status.md` (`orders: acked=… done=…`). Protocol: `control/README.md`.\n\n*(no orders yet — the manager appends `## ORDER 001 · <ISO8601> · status: new` blocks here)*\n',
     'control-status.md.tmpl': '# ${project_name} · status\nupdated: (seeded at adopt — no real heartbeat yet: overwrite this whole file at your first session close)\nphase: adopted — first session not yet run\nhealth: green\nkit: v${kit_version} · check: red · engaged: no\nlast-shipped: none\nblockers: none\norders: acked= done=\n⚑ needs-owner: none\nnotes: seeded skeleton planted by substrate-kit adopt. This Project is the SOLE writer of this\nfile — overwrite it (never append) as the deliberate LAST step of every session, per\n`control/README.md`. `check` holds strict RED until the first real heartbeat replaces this seed.\nThe `kit:` line is your kit self-report (substrate-coordinator visibility): keep the version in\nsync with your vendored kit on every upgrade, `check:` = your last `check --strict` verdict,\n`engaged:` = the post-adopt engagement gate (yes once `check` reports ENGAGED/green live CI).\nKeep the `kit:` token PLAIN — the bold-label form `- **kit:** v1.2.3 · check: green · engaged: yes`\ndoes NOT parse and the fleet registry reads it as no `kit:` line at all (grammar + the valid\nbold-label-before-plain-token shape: `control/README.md` § "status.md format"). And this line is\na self-report, not version truth — self-reports chronically lag; the kit repo\'s generated\n`docs/adopters.md` and your committed tree are the version truth to defer to.\n',
     'current-state.md.tmpl': '# ${project_name} — Current State\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. **Living status ledger.** Source code and merged\n> work always win over this file. Read it second (right after the working\n> agreement) and keep it current as the project moves.\n\n## Stability baseline\n\n(Describe the accepted-stable baseline once established — what is known-good and\nshould not be re-audited without a reported regression.)\n\n## In flight\n\n(Verify against live source control — this section is a dated snapshot.)\n\n## Recently shipped (newest first)\n\n(Merged work only, newest first.)\n\n## Review rhythm\n\n${review_ritual}\n',
@@ -20943,9 +17845,8 @@ _TEMPLATES = {
     'owner-profile.md.tmpl': "# ${project_name} — owner working profile\n\n> **Status:** `owner-guidance`\n>\n> Generated by substrate-kit. Captures the owner's **working style** so\n> agents collaborate well — never personal data. The person is not shipped\n> with the kit.\n\n## How the owner works\n\n${owner_profile}\n\n## Review ritual\n\n${review_ritual}\n\n## Privacy note\n\nThis doc records working style only: communication preferences, review\ncadence, decision boundaries, autonomy expectations. No contact details, no\npersonal history, nothing that identifies the person beyond their role on\n${project_name}. When in doubt, leave it out.\n",
     'ownership.md.tmpl': "# ${project_name} — ownership\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Which area / service / pipeline owns each\n> table, event, and write path. **NOT SOURCE OF TRUTH** for code — source\n> files always win.\n\n> **Steady state:** this doc's table is **generated** from store / manifest\n> specs where those exist — a projection, not hand-prose. This skeleton is\n> the interim hand-maintained form until that projection lands.\n\n## Ownership model\n\n${ownership_model}\n\n## Ownership table\n\n| Area | Owner (module / service) | Writes it owns | Notes |\n|---|---|---|---|\n| (one row per owned area) | | | |\n\n## New areas\n\n${new_area_ownership}\n",
     'question-router.md.tmpl': '# ${project_name} — maintainer question router\n\n> **Status:** `owner-guidance`\n>\n> Generated by substrate-kit. Append-only `## Q-NNNN` blocks capture owner-intent\n> decisions and open questions. The interview writes here; confirmed answers route\n> into the durable docs. **Append only** (next free Q-number) — never rewrite history.\n> Any session may append a block, not only the interview — including an unattended\n> run that hits a genuinely useful, non-derivable question with no live owner to ask.\n\n## Block format\n\n```\n## Q-0001\n- **Area / Type / Priority / Status:** ...\n- **Question:** ...\n- **Why agents need this:** ...\n- **Options:** ...\n- **Safe default:** ...\n- **Maintainer answer:** (verbatim)\n- **Routing result:** (which doc / slot the answer landed in)\n```\n\nOptions are structured choices — A/B(/C) with a **bolded recommendation**\nand a one-line rationale, answerable with one letter; never a question that\nrequires the owner to parse, derive, or transform anything (the owner-assist\noutput standard, `control/README.md`).\n\n## Open questions\n\n(Unanswered Q-blocks live here until the maintainer decides; a blocking one gates\ngraduation.)\n',
-    'reading-path.md.tmpl': '# ${project_name} — fleet reading path (multi-repo orientation)\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The cross-repo reading route for new\n> sessions: which sibling repos this repo\'s sessions may read, how, and in\n> what order — so no session burns turns re-discovering that the fleet is\n> readable. **NOT SOURCE OF TRUTH** — sibling trees win over anything\n> recorded here.\n\n## 0 · The standing authorization\n\nRead-only cross-repo access is standing-authorized for every session in\nthis repo — do not burn turns re-deriving whether you may look.\n\n- Readable siblings, and the private/dark exceptions (never read, never\n  guess about a dark repo): ${fleet_dark_repos}\n- Sanctioned read mechanics for a public sibling (no attach step needed):\n  raw-content fetch\n  (`https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>`) ·\n  `git clone` · `git ls-remote` (HEAD pins). Set a real User-Agent on\n  scripted fetches — some hosts 403 a bare library default.\n- **Boundaries that stand:** repo-API (MCP) calls stay scoped to the\n  session\'s attached repo(s); **writes stay in this repo** — cross-repo\n  work routes through the coordination bus (`control/README.md`), never\n  direct pushes to a sibling; attach + clone remains the path for\n  deep/audit work in a sibling.\n\n## 1 · The one command\n\nOrient on the whole fleet in one step before asking "what is the fleet\ndoing?" — it covers Tiers 1–2 below:\n\n${fleet_status_command}\n\n## 2 · The sibling map (who is who)\n\nOne row per sibling: repo · seat/role · the truth files that carry its\ncurrent state.\n\n${fleet_siblings}\n\n## 3 · Tiered depth (spend turns by task depth)\n\n- **Tier 0 — this-repo-only task:** the boot set in the working agreement.\n  No cross-repo reads needed.\n- **Tier 1 — "what\'s the fleet doing?":** the one command above (plus the\n  owner queue, if your fleet keeps one).\n- **Tier 2 — acting on or with a sibling:** that sibling\'s heartbeat\n  (`control/status.md`) in full, its ⚑ owner-ask blocks, its\n  `docs/CAPABILITIES.md` / walls file, its open PRs.\n- **Tier 3 — deep dive:** exactly the files a heartbeat points at (specs,\n  plans, blueprints) — fetch those, not the tree. Write/audit depth:\n  attach + clone.\n\n## 4 · Truth rules (carry into every cross-repo read)\n\n1. **Heartbeats are dated snapshots** — the `updated:` line tells you how\n   stale; verify load-bearing claims at HEAD (`git ls-remote`, a fresh raw\n   fetch) before acting (PL-006).\n2. **Frozen archives mislead** — a parked/archived sibling\'s status file\n   is history, not state; the sibling map above names where its truth\n   moved.\n3. **One writer per file** — never edit a sibling\'s control-bus files from\n   here: its inbox is manager-written, its status is that seat\'s\n   coordinator-only. Route cross-repo work as an ORDER through the bus.\n4. **⚑ blocks are the owner interface** — read them before inventing an\n   owner-ask.\n\nEvery reference this path hands you (a repo name, a heartbeat pointer, a\ntruth file) is resolved before you act on it — method: the\n`chase-references` skill (see `docs/SKILLS.md`).\n\n## 5 · Why this exists\n\nA live session once burned ~3 turns re-discovering that (a) its fleet was\nreadable, (b) raw reads were the sanctioned mechanism, and (c) which files\ncarried each seat\'s truth — knowledge every prior doc implied but no\norientation surface stated as a route. This doc is that route. If it saves\nyou those turns it worked; if you find it stale, correct it in place —\norientation is first-class work.\n',
     'repo-navigation-map.md.tmpl': '# ${project_name} — repo navigation map\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. Where things live; where new code goes. **NOT\n> SOURCE OF TRUTH** — the tree itself wins.\n\n## Where things live\n\n| Path | What lives there | New code goes here when… |\n|---|---|---|\n| (one row per top-level area) | | |\n\n## Documentation roots\n\n${doc_roots}\n\n## Placement rule of thumb\n\nBefore creating a new file, find the row above that matches it; if no row\nmatches, the map is stale — extend the table in the same change.\n',
-    'routines.md.tmpl': '# ${project_name} — routines & wake-chain doctrine\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How agent sessions arm, verify, and audit\n> scheduled triggers / routines / wake chains. Every rule below is\n> incident-backed (one fleet\'s overnight forensics: recorded-live triggers\n> that vanished, a cron mode that never delivered, a manual fire misread as\n> scheduler health). Platform observations are dated evidence, not eternal\n> truths — re-verify them in YOUR environment before building on them.\n\n## Choosing the binding — by lifetime, then VERIFY delivery\n\n- **A self-bound trigger dies with its session.** Arm self-bind only for a\n  failsafe tied to a live persistent seat, and **re-arm it at every seat\n  cutover** — an archived seat\'s failsafe fires into nothing.\n- **A standing loop wants fresh-session-per-fire** by lifetime rationale: it\n  survives session archive. **BUT the platform caveat is verified the other\n  way around**: observed delivery was 0-for-2 on fresh-session cron fires vs\n  100% on self-bound crons and one-shot chains (2026-07-12 forensics) —\n  treat fresh-session cron as **UNVERIFIED-BROKEN until a scheduled fire is\n  proven in your environment**. Handle the tension explicitly: choose the\n  binding by lifetime rationale, then **verify the first scheduled delivery\n  actually landed** — never assume either mode works.\n- **Never hardcode environment or session ids** in prompts, docs, or\n  templates: the registry has been observed surfacing a DIFFERENT\n  environment id than the one recorded at arm time (a load-bearing\n  suspect in the fresh-session delivery failure, not cosmetic). Ids belong\n  in dated records; re-read them live at use.\n\n## Record verbatim — every create/delete call\n\nRecord every trigger create/delete call **verbatim** — id, cron, binding,\nnext-fire — in the same session\'s heartbeat/log (and the session card).\nAn unrecorded arm is invisible to every later session; a paraphrased one\ncannot be probed against the registry.\n\n## Re-verify at every wake — probe, never record\n\n- **A record is a claim; the live registry is the proof.** Verify trigger\n  state by listing the registry at every wake, never by reading your own\n  notes forward.\n- **Presence is cheap, absence is expensive:** a fresh trigger shows on the\n  first page; an ABSENCE claim requires walking the registry **to\n  exhaustion** before you assert it.\n- **Deleted triggers may vanish with no tombstone.** Auto-disabled triggers\n  stay listed with an `ended_reason` (auto-disable values are observed);\n  **total absence means hard deletion, actor unknown** — a trigger recorded\n  "verified live" has vanished within hours, unfired, with no audit trail\n  visible agent-side.\n\n## Scheduler health — read the fields, not the vibes\n\n- **Wedge signature:** `enabled ∧ next_run_at < now − 15min` = an\n  undelivered fire. A healthy trigger **advances `next_run_at` after each\n  fire**; a `next_run_at` frozen in the past means the scheduler is not\n  delivering.\n- **The manual-fire trap:** a manual `fire_trigger` sets `last_fired_at`\n  WITHOUT advancing `next_run_at` — **never read `last_fired_at` alone as\n  scheduler health**; a hand-kicked trigger looks alive while its schedule\n  stays wedged.\n\n## Pacing — one trigger write at a time\n\nTrigger-MCP writes are paced **sequentially, one write at a time** —\nparallel multi-call writers hung reliably under load (four workers, one\nnight). A short `send_later` chain is a **pacemaker for a live seat only**\nand ends with the seat — the cron failsafe is the dead-man backstop, not\nthe pacer.\n\n## The failsafe wake pattern\n\nOn every failsafe wake, **verify the standing loop\'s last slot actually\ndelivered** (compare the loop\'s expected slot against the registry and the\nrepo\'s activity) — the failsafe is the only thing that can see a missed\nloop fire, and without this check a miss sits in a blind window until a\nhuman notices. Detection latency is bounded by the failsafe cadence; the\ncheck makes it bounded instead of unbounded.\n\n## Seat wake discipline — hygiene + the end-of-turn invariant\n\nFor a persistent seat living on a wake chain (PL-012, the autonomy\nrider\'s seat mechanics — cite it, don\'t copy it):\n\n- **Wake hygiene:** consume-before-re-arm; exactly ONE outstanding\n  pacemaker tick at any time; verify the failsafe is ALIVE at every wake\n  (listed, enabled, next fire in the FUTURE — re-arm it if wedged, one\n  trigger write per worker); a wake with nothing to do is a SILENT\n  no-op — re-arm and exit without writes.\n- **End-of-turn invariant:** every turn ends with (a) work landed or\n  routed, (b) exactly one future tick armed + the failsafe verified, and\n  (c) the seat\'s heartbeat (`control/status.md`) re-stamped LAST after\n  re-reading its inbox at HEAD. Ending a turn with zero armed wakes is a\n  seat-killing bug.\n\n## Boundaries\n\nThe working agreement (`${agreement_home}`) governs when to act vs ask;\ncapability walls around trigger tooling (what arms agent-side, what stays\nconsole-only, venue-scoped grants) live in `docs/CAPABILITIES.md` — append\nnew trigger findings there same session, per its discovery rule.\n',
+    'routines.md.tmpl': '# ${project_name} — routines & wake-chain doctrine\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How agent sessions arm, verify, and audit\n> scheduled triggers / routines / wake chains. Every rule below is\n> incident-backed (one fleet\'s overnight forensics: recorded-live triggers\n> that vanished, a cron mode that never delivered, a manual fire misread as\n> scheduler health). Platform observations are dated evidence, not eternal\n> truths — re-verify them in YOUR environment before building on them.\n\n## Choosing the binding — by lifetime, then VERIFY delivery\n\n- **A self-bound trigger dies with its session.** Arm self-bind only for a\n  failsafe tied to a live persistent seat, and **re-arm it at every seat\n  cutover** — an archived seat\'s failsafe fires into nothing.\n- **A standing loop wants fresh-session-per-fire** by lifetime rationale: it\n  survives session archive. **BUT the platform caveat is verified the other\n  way around**: observed delivery was 0-for-2 on fresh-session cron fires vs\n  100% on self-bound crons and one-shot chains (2026-07-12 forensics) —\n  treat fresh-session cron as **UNVERIFIED-BROKEN until a scheduled fire is\n  proven in your environment**. Handle the tension explicitly: choose the\n  binding by lifetime rationale, then **verify the first scheduled delivery\n  actually landed** — never assume either mode works.\n- **Never hardcode environment or session ids** in prompts, docs, or\n  templates: the registry has been observed surfacing a DIFFERENT\n  environment id than the one recorded at arm time (a load-bearing\n  suspect in the fresh-session delivery failure, not cosmetic). Ids belong\n  in dated records; re-read them live at use.\n\n## Record verbatim — every create/delete call\n\nRecord every trigger create/delete call **verbatim** — id, cron, binding,\nnext-fire — in the same session\'s heartbeat/log (and the session card).\nAn unrecorded arm is invisible to every later session; a paraphrased one\ncannot be probed against the registry.\n\n## Re-verify at every wake — probe, never record\n\n- **A record is a claim; the live registry is the proof.** Verify trigger\n  state by listing the registry at every wake, never by reading your own\n  notes forward.\n- **Presence is cheap, absence is expensive:** a fresh trigger shows on the\n  first page; an ABSENCE claim requires walking the registry **to\n  exhaustion** before you assert it.\n- **Deleted triggers may vanish with no tombstone.** Auto-disabled triggers\n  stay listed with an `ended_reason` (auto-disable values are observed);\n  **total absence means hard deletion, actor unknown** — a trigger recorded\n  "verified live" has vanished within hours, unfired, with no audit trail\n  visible agent-side.\n\n## Scheduler health — read the fields, not the vibes\n\n- **Wedge signature:** `enabled ∧ next_run_at < now − 15min` = an\n  undelivered fire. A healthy trigger **advances `next_run_at` after each\n  fire**; a `next_run_at` frozen in the past means the scheduler is not\n  delivering.\n- **The manual-fire trap:** a manual `fire_trigger` sets `last_fired_at`\n  WITHOUT advancing `next_run_at` — **never read `last_fired_at` alone as\n  scheduler health**; a hand-kicked trigger looks alive while its schedule\n  stays wedged.\n\n## Pacing — one trigger write at a time\n\nTrigger-MCP writes are paced **sequentially, one write at a time** —\nparallel multi-call writers hung reliably under load (four workers, one\nnight). A short `send_later` chain is a **pacemaker for a live seat only**\nand ends with the seat — the cron failsafe is the dead-man backstop, not\nthe pacer.\n\n## The failsafe wake pattern\n\nOn every failsafe wake, **verify the standing loop\'s last slot actually\ndelivered** (compare the loop\'s expected slot against the registry and the\nrepo\'s activity) — the failsafe is the only thing that can see a missed\nloop fire, and without this check a miss sits in a blind window until a\nhuman notices. Detection latency is bounded by the failsafe cadence; the\ncheck makes it bounded instead of unbounded.\n\n## Boundaries\n\nThe working agreement (`${agreement_home}`) governs when to act vs ask;\ncapability walls around trigger tooling (what arms agent-side, what stays\nconsole-only, venue-scoped grants) live in `docs/CAPABILITIES.md` — append\nnew trigger findings there same session, per its discovery rule.\n',
     'runtime_contracts.md.tmpl': '# ${project_name} — runtime contracts\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Lifecycle guarantees and failure modes. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## Lifecycle guarantees\n\n### Startup\n\n(What is guaranteed initialized before work begins, and in what order.)\n\n### Steady state\n\n(The invariants that hold while the system is running — connection health,\nqueue bounds, cache coherence.)\n\n### Shutdown\n\n(What is flushed / persisted / cancelled on the way down, and in what order.)\n\n## Mutation seam\n\n${mutation_seam}\n\n## Failure modes\n\n(For each subsystem: what failing looks like from the outside, the blast\nradius, and the recovery step. One subsection per subsystem.)\n',
     'session-journal.md.tmpl': "# ${project_name} — session journal (process memory)\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. Cross-session working memory — a **guidebook, not a\n> log**. Per-session logs live in `.sessions/<date>-<slug>.md` (newest first);\n> older history archives out. Keep THIS file lean.\n\n## ⚡ Quick reference\n\n(Boot / run-checks / common-recovery commands for ${project_name}.)\n\n## Environment & boot runbook\n\n(How to bring a working dev/test environment up.)\n\n## Recurring problems + fixes\n\n(Known traps and their resolutions — so the next session doesn't re-discover them.)\n\n## Past mistakes to avoid\n\n(Things that went wrong before; don't repeat them.)\n\n## Candidate rules (not yet promoted)\n\n(Proposed working-agreement rules awaiting owner review.)\n",
 }

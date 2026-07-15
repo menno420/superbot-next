@@ -37,12 +37,23 @@ Discover claims with `ls control/claims/` — this README never lists them.
    `check_claims` checker parses both; an unparseable claim is invisible to
    its duplicate scan.)
    Grammar source of truth: the bullet's regexes (backticked token + ISO date) are kit-owned constants in the kit's `src/engine/grammar.py` (EAP §6.8) — the SAME module `check_claims` consumes; agreement is pinned by the kit's `tests/test_grammar.py`.
+   **Don't hand-write it** — `bootstrap claim <slug> --scope "<scope>"
+   [--area "<files/area>"] [--order NNN]` renders the bullet from those same
+   constants (round-trip verified, current UTC date last; `--dry-run`
+   previews), so the claim can never be invisible to the duplicate scan.
+   **Serving an inbox ORDER? Pass `--order NNN`** — it renders the
+   structured ` · order NNN` segment the cross-branch overlap scan keys on,
+   and the verb REFUSES to write when another live claim on a different
+   branch already names that order (two branches building one ORDER is the
+   twin-execution waste this guard exists for; `--force` overrides for a
+   deliberate split of one order across branches).
 3. **Land the claim on main FAST** (claims are `control/**` traffic — they
    ride the CI control fast lane), then re-read this directory at HEAD before
    you build: if both lanes do this, the second claimer always sees the first.
-4. **Delete your own claim file at session close.** The durable record is the
-   PR and the living ledger — a claim is a whiteboard note, not an audit
-   trail.
+4. **Delete your own claim file at session close** — `bootstrap claim
+   <slug> --delete` (it refuses to touch a foreign claim). The durable
+   record is the PR and the living ledger — a claim is a whiteboard note,
+   not an audit trail.
 
 ## Arbitration + expiry
 
@@ -56,7 +67,10 @@ Discover claims with `ls control/claims/` — this README never lists them.
 
 `check` warns on: `claims-format` (no parseable bullet), `claims-stale`
 (older than the ~72h horizon), `claims-duplicate` (two files, one
-branch/scope token), and `claims-legacy-location` (claims living in a
+branch/scope token), `claims-order-collision` (two live claims on DIFFERENT
+branches naming the same `order NNN` / free-text `ORDER NNN` on the bullet
+— likely duplicate work; confirm one owner), and `claims-legacy-location`
+(claims living in a
 pre-unification home — `docs/owner/claims/` or root `claims/`; move them
 here, or pin your deliberate location via `substrate.config.json` →
 `claims_dir`).
