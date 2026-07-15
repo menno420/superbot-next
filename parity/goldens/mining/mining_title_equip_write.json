@@ -1,0 +1,303 @@
+{
+ "case_id": "mining.title_equip_write",
+ "db_delta": {
+  "mining_player_state": {
+   "added": [
+    {
+     "depth": 0,
+     "energy": 0,
+     "energy_updated_at": 0,
+     "equipped_title": "spelunker",
+     "guild_id": "<guild>",
+     "last_broken_item": null,
+     "max_depth": 1,
+     "updated_at": 0,
+     "user_id": "<@member>",
+     "vault_level": 0
+    }
+   ],
+   "removed": [
+    {
+     "depth": 0,
+     "energy": 0,
+     "energy_updated_at": 0,
+     "equipped_title": null,
+     "guild_id": "<guild>",
+     "last_broken_item": null,
+     "max_depth": 1,
+     "updated_at": 0,
+     "user_id": "<@member>",
+     "vault_level": 0
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1959957200,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the titles-panel select drives mining.titles_pick → the audited mining.equip_title op (record_equip_title: live earn-check + the one equipped_title upsert), then the panel re-renders in place with `✅ Title set to 🪨 the Spelunker.` and the SUCCESS green frame — the first equipped_title write-bearing golden (title_service.equip verbatim)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": true,
+            "description": "Display no title",
+            "label": "(none)",
+            "value": "__none__"
+           },
+           {
+            "default": false,
+            "emoji": {
+             "id": null,
+             "name": "🪨"
+            },
+            "label": "the Spelunker",
+            "value": "spelunker"
+           }
+          ],
+          "placeholder": "Choose a title to display…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "label": "↩ Mining Hub",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 6323595,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Equipped",
+          "value": "— none —"
+         },
+         {
+          "inline": false,
+          "name": "Earned (1)",
+          "value": "🪨 the Spelunker"
+         },
+         {
+          "inline": false,
+          "name": "🔒 Locked (8)",
+          "value": "⛏️ the Deep One — Master the Mining branch (10/10)\n⚔️ the Ironclad — Master the Combat branch (10/10)\n🍀 the Lucky — Master the Fortune branch (10/10)\n🛠️ Master Smith — Master the Crafting branch (10/10)\n💎 the Deepdelver — Reach the Deep\n🌋 the Coreborn — Reach the Magma core\n🎖️ the Veteran — Reach game level 10\n👑 the Legend — Reach game level 25"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Earn titles by mastering skill branches, descending, and levelling up."
+        },
+        "title": "🏆 Titles",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!titles",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "Display no title",
+            "label": "(none)",
+            "value": "__none__"
+           },
+           {
+            "default": true,
+            "emoji": {
+             "id": null,
+             "name": "🪨"
+            },
+            "label": "the Spelunker",
+            "value": "spelunker"
+           }
+          ],
+          "placeholder": "Choose a title to display…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "label": "↩ Mining Hub",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "✅ Title set to 🪨 the Spelunker.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Equipped",
+          "value": "🪨 the Spelunker"
+         },
+         {
+          "inline": false,
+          "name": "Earned (1)",
+          "value": "🪨 the Spelunker"
+         },
+         {
+          "inline": false,
+          "name": "🔒 Locked (8)",
+          "value": "⛏️ the Deep One — Master the Mining branch (10/10)\n⚔️ the Ironclad — Master the Combat branch (10/10)\n🍀 the Lucky — Master the Fortune branch (10/10)\n🛠️ Master Smith — Master the Crafting branch (10/10)\n💎 the Deepdelver — Reach the Deep\n🌋 the Coreborn — Reach the Magma core\n🎖️ the Veteran — Reach game level 10\n👑 the Legend — Reach game level 25"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Earn titles by mastering skill branches, descending, and levelling up."
+        },
+        "title": "🏆 Titles",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1,
+    "values": [
+     "spelunker"
+    ]
+   }
+  }
+ ],
+ "subsystem": "mining"
+}

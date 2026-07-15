@@ -1239,10 +1239,11 @@ PENDING: dict[str, str] = {
     # WP-7 (skill_respec_route -> mining.respec -> record_respec, the ported
     # skill_service.respec — coin debit + player_skills wipe;
     # goldens/mining/mining_respec_write drives the funded respec click). The
-    # titles select-menu equip stays deferred (select-driven — the target titles
-    # panel renders no earned-title Select; porting means building new dynamic
-    # state-derived Select UI, so per scope PART C it stays an honest D-0043
-    # pending, not forced — no golden drives that write).
+    # titles select-menu equip went LIVE with the title-equip write slice
+    # (mining.titles_pick → the audited mining.equip_title /
+    # mining.unequip_title ops; goldens/mining/mining_title_equip_write.json
+    # drives the write) — this EMPTIES the mining deep-system PENDING roster
+    # of its last non-energy write lane.
 }
 
 

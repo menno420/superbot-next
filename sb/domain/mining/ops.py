@@ -335,6 +335,56 @@ async def _record_unequip(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"slot": slot, "message": f"cleared the **{slot}** slot."})
 
 
+@workflow("mining.record_equip_title")
+async def _record_equip_title(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The 🏆 Titles panel select's equip write — oracle
+    ``disbot/services/title_service.py::equip`` verbatim: validate the id is
+    a real title, gate on the LIVE earn-check (skills / max-depth / level —
+    earned titles are DERIVED, so this write grants nothing), then persist
+    the one ``equipped_title`` choice. Refusal copy byte-for-byte; a refusal
+    aborts the txn row-less (the use_ration full-bar posture). No lock — a
+    lost race is last-write-wins on one self-service column (the
+    record_equip gear posture; no resource is consumed)."""
+    from sb.domain.mining import titles
+
+    uid, gid, _ = _ids(ctx)
+    raw = str(ctx.params.get("title_id", "") or "")
+    title = titles.get_title(raw.strip().lower())
+    if title is None:
+        # two-arg D-0060 form: the raise site owns the sentence VERBATIM
+        # (title_service.equip copy) — never the missing-argument wrap.
+        raise ValidatorError(
+            "title_id",
+            "That isn't a real title — open the 🏆 Titles panel to see "
+            "yours.")
+    alloc = await store.get_skills(uid, gid, conn=conn)
+    max_depth = await store.get_max_depth(uid, gid, conn=conn)
+    level, _total = await game_xp.shared_level(uid, gid)
+    tctx = titles.TitleContext(skills=alloc, max_depth=max_depth,
+                               level=level)
+    if not titles.is_earned(title.id, tctx):
+        raise ValidatorError(
+            "title_id",
+            f"You haven't earned **{title.label}** yet — "
+            f"{title.requirement}.")
+    await store.set_equipped_title(uid, gid, title.id, conn=conn)
+    return LegOutcome(
+        step=StepResult(uid, "equip_title", True), before={},
+        after={"title_id": title.id,
+               "message": f"Title set to {titles.display(title)}."})
+
+
+@workflow("mining.record_unequip_title")
+async def _record_unequip_title(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The select's ``(none)`` pick — oracle ``title_service.unequip``
+    verbatim: clear the stored choice (no-op-safe, always succeeds)."""
+    uid, gid, _ = _ids(ctx)
+    await store.set_equipped_title(uid, gid, None, conn=conn)
+    return LegOutcome(
+        step=StepResult(uid, "unequip_title", True), before={},
+        after={"message": "Title cleared — none displayed."})
+
+
 @workflow("mining.record_save_loadout")
 async def _record_save_loadout(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid, _ = _ids(ctx)
@@ -1463,6 +1513,10 @@ RESET_INVENTORY = _op("mining.reset_inventory", "mining_inventory_reset",
 EQUIP = _op("mining.equip", "mining_equipped", "mining.record_equip", ())
 UNEQUIP = _op("mining.unequip", "mining_unequipped",
               "mining.record_unequip", ())
+EQUIP_TITLE = _op("mining.equip_title", "mining_title_equipped",
+                  "mining.record_equip_title", ())
+UNEQUIP_TITLE = _op("mining.unequip_title", "mining_title_unequipped",
+                    "mining.record_unequip_title", ())
 SAVE_LOADOUT = _op("mining.save_loadout", "mining_loadout_saved",
                    "mining.record_save_loadout", ())
 APPLY_LOADOUT = _op("mining.apply_loadout", "mining_loadout_applied",
@@ -1497,7 +1551,8 @@ USE_ITEM = _op("mining.use", "mining_item_used",
 COOK = _op("mining.cook", "mining_cooked", "mining.record_cook", ())
 
 _OPS = (MINE, DIG, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
-        EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
+        EQUIP, UNEQUIP, EQUIP_TITLE, UNEQUIP_TITLE,
+        SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
         STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
         REPAIR, QUICK_CRAFT, SKILL, BUILD, CRAFT, RESPEC, USE_ITEM, COOK)
@@ -1513,6 +1568,8 @@ _REF_TABLE = (
     ("mining.record_reset_inventory", _record_reset_inventory),
     ("mining.record_equip", _record_equip),
     ("mining.record_unequip", _record_unequip),
+    ("mining.record_equip_title", _record_equip_title),
+    ("mining.record_unequip_title", _record_unequip_title),
     ("mining.record_save_loadout", _record_save_loadout),
     ("mining.record_apply_loadout", _record_apply_loadout),
     ("mining.record_delete_loadout", _record_delete_loadout),
