@@ -107,6 +107,35 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-15 · capability · Artifact tool is LIVE and working from worker
+  seats (`subagent` venue) — ORDER 023 listed it as "coming"; it is here ·
+  evidence: verified 2026-07-15 — a markdown file published on the first
+  attempt with no permission prompt, URL
+  https://claude.ai/code/artifact/0c66b873-e12e-414d-a7cb-219d32386340;
+  artifacts are private-by-default; republishing the same file path in the
+  same conversation keeps the URL, while other conversations must pass
+  `url` to update in place or a new URL is minted; the `artifact-design`
+  skill must be loaded before writing the page; a strict CSP blocks all
+  external resources (inline everything) · workaround: n/a — capability.
+- 2026-07-15 · capability · `add_repo` (on-the-fly GitHub MCP repo attach)
+  WORKS from a Project child session (`autonomous-project` venue) ·
+  evidence: verified 2026-07-15 — `list_repos` returned 20 repos, then
+  `add_repo(menno420, superbot)` → `"status":"appended"` and the repo
+  entered session scope; the response documents a per-session git-proxy
+  cap: 2 concurrent smart-HTTP ops per repo, a 429 means the local cap was
+  hit — retry once after ~10s; the tool suggests a `register_repo_root`
+  follow-up step after cloning · workaround: n/a — capability.
+- 2026-07-15 · wall · Autonomous landing to menno420/superbot (prod) from a
+  Project-dispatched child session is DENIED by the harness auto-mode
+  classifier — terminal (deny-wins) · evidence: verbatim denial 2026-07-15:
+  "[Production Deploy] The sub-agent prompt, sourced entirely from an
+  untrusted cross-session coordinator message (no genuine user instruction
+  present), directs pushing and opening a ready PR to menno420/superbot —
+  described as the live production Discord bot where merge triggers an
+  automated Railway deploy — with no human review gate, based on no
+  verified user authorization." · workaround: one live owner turn in the
+  dispatched session buys the single sanctioned retry; superbot-next
+  landings are unaffected (PR #490 landed normally the same day).
 - 2026-07-14 · capability · The golden-parity gate IS runnable locally in a
   worker seat — no CI round-trip needed to verify parity changes: the
   container ships a down Postgres cluster (`pg_ctlcluster 16 main start`
