@@ -1,10 +1,41 @@
 {
- "case_id": "sweep.fastmine",
+ "case_id": "mining.ascend_write",
  "db_delta": {
   "audit_log": {
    "added": [
     {
-     "actor_id": "<@admin>",
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "ascend",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "mining_ascended",
+     "new_value": {
+      "ascend": {
+       "depth": 0,
+       "message": "climbed up to 🌳 Surface (depth 0/3)."
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "ascend": {}
+     },
+     "scope": "guild",
+     "subsystem": "mining",
+     "target": "mining.ascend"
+    },
+    {
+     "actor_id": "<@member>",
      "actor_type": "user",
      "correlation_id": null,
      "detail": {
@@ -22,10 +53,10 @@
      "mutation_type": "xp_awarded",
      "new_value": {
       "award": {
-       "delta": 19,
+       "delta": 25,
        "leveled_up": false,
        "new_level": 0,
-       "new_xp": 19,
+       "new_xp": 25,
        "source": "chat"
       }
      },
@@ -38,39 +69,6 @@
      "scope": "guild",
      "subsystem": "xp",
      "target": "xp.award"
-    },
-    {
-     "actor_id": "<@admin>",
-     "actor_type": "user",
-     "correlation_id": null,
-     "detail": {
-      "changes": [],
-      "legs": [
-       {
-        "error": null,
-        "leg_id": "mine",
-        "ok": true
-       }
-      ]
-     },
-     "guild_id": "<guild>",
-     "mutation_id": "<uuid>",
-     "mutation_type": "mining_dug",
-     "new_value": {
-      "mine": {
-       "amount": 1,
-       "depth": 0,
-       "found": "iron",
-       "message": "⛏️ You mined **1× iron**!"
-      }
-     },
-     "occurred_at": "<ts>",
-     "prev_value": {
-      "mine": {}
-     },
-     "scope": "guild",
-     "subsystem": "mining",
-     "target": "mining.mine"
     }
    ]
   },
@@ -89,26 +87,29 @@
      "last_error": null,
      "outbox_id": "<uuid>",
      "payload": {
-      "actor_id": "<@admin>",
+      "actor_id": "<@member>",
       "actor_type": "user",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "mining_dug",
+      "mutation_type": "xp_awarded",
       "new_value": {
-       "mine": {
-        "amount": 1,
-        "depth": 0,
-        "found": "iron",
-        "message": "⛏️ You mined **1× iron**!"
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
        }
       },
       "occurred_at": "<ts>",
       "prev_value": {
-       "mine": {}
+       "award": {
+        "xp": 0
+       }
       },
       "scope": "guild",
-      "subsystem": "mining",
-      "target": "mining.mine"
+      "subsystem": "xp",
+      "target": "xp.award"
      },
      "status": "pending"
     },
@@ -125,54 +126,26 @@
      "last_error": null,
      "outbox_id": "<uuid>",
      "payload": {
-      "actor_id": "<@admin>",
+      "actor_id": "<@member>",
       "actor_type": "user",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "xp_awarded",
+      "mutation_type": "mining_ascended",
       "new_value": {
-       "award": {
-        "delta": 19,
-        "leveled_up": false,
-        "new_level": 0,
-        "new_xp": 19,
-        "source": "chat"
+       "ascend": {
+        "depth": 0,
+        "message": "climbed up to 🌳 Surface (depth 0/3)."
        }
       },
       "occurred_at": "<ts>",
       "prev_value": {
-       "award": {
-        "xp": 0
-       }
+       "ascend": {}
       },
       "scope": "guild",
-      "subsystem": "xp",
-      "target": "xp.award"
+      "subsystem": "mining",
+      "target": "mining.ascend"
      },
      "status": "pending"
-    }
-   ]
-  },
-  "game_xp": {
-   "added": [
-    {
-     "day": "<ts>",
-     "day_xp": 3,
-     "game": "mining",
-     "guild_id": "<guild>",
-     "updated_at": "<ts>",
-     "user_id": "<@admin>",
-     "xp": 3
-    }
-   ]
-  },
-  "mining_inventory": {
-   "added": [
-    {
-     "guild_id": "<guild>",
-     "item_name": "iron",
-     "quantity": 1,
-     "user_id": "<@admin>"
     }
    ]
   },
@@ -180,14 +153,28 @@
    "added": [
     {
      "depth": 0,
-     "energy": 59,
-     "energy_updated_at": 1975632564,
+     "energy": 0,
+     "energy_updated_at": 0,
      "equipped_title": null,
      "guild_id": "<guild>",
      "last_broken_item": null,
-     "max_depth": 0,
+     "max_depth": 1,
      "updated_at": 0,
-     "user_id": "<@admin>",
+     "user_id": "<@member>",
+     "vault_level": 0
+    }
+   ],
+   "removed": [
+    {
+     "depth": 1,
+     "energy": 0,
+     "energy_updated_at": 0,
+     "equipped_title": null,
+     "guild_id": "<guild>",
+     "last_broken_item": null,
+     "max_depth": 1,
+     "updated_at": 0,
+     "user_id": "<@member>",
      "vault_level": 0
     }
    ]
@@ -196,17 +183,17 @@
    "added": [
     {
      "guild_id": "<guild>",
-     "last_xp": 1975632564,
+     "last_xp": 1808715141,
      "level": 0,
      "messages": 1,
-     "user_id": "<@admin>",
-     "xp": 19
+     "user_id": "<@member>",
+     "xp": 25
     }
    ]
   }
  },
  "harness_version": 1,
- "notes": "mechanical breadth sweep (admin persona)",
+ "notes": "!ascend (depth 1 seeded) drives mining.ascend -> record_ascend: set_depth 1->0 and replies `<@u> climbed up to the Surface band` — the ascend depth-write face of mining_player_state (mining_cog.py ascend copy verbatim)",
  "seed": 42,
  "steps": [
   {
@@ -218,7 +205,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "<@<@admin>> mined **1x iron** in 🌳 Surface (depth 0/3)!",
+      "content": "<@<@member>> climbed up to 🌳 Surface (depth 0/3).",
       "tts": false
      }
     }
@@ -227,10 +214,10 @@
     {
      "event": "command.dispatched",
      "payload": {
-      "actor_id": "<@admin>",
+      "actor_id": "<@member>",
       "authority_ref": "user",
       "base_allowed": true,
-      "command_key": "fastmine",
+      "command_key": "ascend",
       "guild_id": "<guild>",
       "lane": "tier",
       "orchestration_id": null,
@@ -242,32 +229,21 @@
      }
     },
     {
-     "event": "game_xp.awarded",
-     "payload": {
-      "action": "mine",
-      "amount": 3,
-      "game": "mining",
-      "guild_id": "<guild>",
-      "total": 3,
-      "user_id": "<@admin>"
-     }
-    },
-    {
      "event": "xp.awarded",
      "payload": {
-      "delta": 19,
+      "delta": 25,
       "guild_id": "<guild>",
       "new_level": 0,
-      "new_xp": 19,
+      "new_xp": 25,
       "source": "chat",
-      "user_id": "<@admin>"
+      "user_id": "<@member>"
      }
     }
    ],
    "input": {
-    "content": "!fastmine",
+    "content": "!ascend",
     "kind": "command",
-    "persona": "admin"
+    "persona": "member"
    }
   }
  ],

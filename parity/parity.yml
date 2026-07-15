@@ -196,6 +196,30 @@ source:
   # Ore click) DRIVE the audited mining.stash/unstash/stash_all/vault_upgrade
   # ops, pinning the mining_vault / mining_player_state (vault_level) row-level
   # db_delta (retiring their depth.exemptions.mining guard-only-capture rows).
+  # WP-3 mining WRITE-PARITY minted FIVE more (2026-07-12) via the same
+  # capture_case procedure — the depth / world / workshop write goldens:
+  # goldens/mining/mining_{descend,ascend,reseed_world,repair,quick_craft}_
+  # write.json. The argful !descend / !ascend / !mineworld <seed> / !repair
+  # / !quickcraft DRIVE the audited mining.descend/ascend/reseed_world/repair/
+  # quick_craft ops, pinning the mining_player_state (depth) / mining_world /
+  # mining_gear_wear (remove face) / mining_inventory / mining_equipment
+  # row-level db_delta (retiring the mining_world + mining_gear_wear
+  # depth.exemptions.mining guard-only-capture rows).
+  # +1 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
+  # same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/mining/mining_fastmine_out_of_energy_refusal.json — !fastmine
+  # on an empty bar refuses PLAIN with the oracle dig() hint (route-level
+  # pure read; the ~5s wait rides a fixture stamped 5s before the case's
+  # logical clock). The dig SPEND itself rides the RE-MINTED
+  # sweep_fastmine (fresh player settles full → digs → the
+  # mining_player_state energy 60→59 write joins its db_delta — a
+  # deliberate behaviour change re-minted in-PR, the creature
+  # battle-accept precedent; re-mints never move this count). The four
+  # WP-2/WP-3 mining_player_state row goldens
+  # (descend/ascend/quick_craft/vault_upgrade) were re-minted in the same
+  # slice: minted before migration 0052 widened the table, their pinned
+  # rows gain the energy/energy_updated_at column defaults (0, 0) on the
+  # merged schema — the post-WP-3 contract reconcile, replies unchanged.
   # +4 minted the fishing MINIGAME-TIMING slice-1 goldens (2026-07-14,
   # D-0043 timing rung — the first goldens that drive the Step.advance_s
   # clock grammar; oracle disbot/views/fishing/cast_view.py @ bbc524e):
@@ -220,10 +244,10 @@ source:
   # deliberate enforcement change re-minted in-PR, not a regression;
   # counts unchanged. The 4 slice-1 timing goldens replay clean under
   # the flip (their clicks were already in-window/premature by design).
-  minted_goldens: 40
+  minted_goldens: 46
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 502). The first retirement (2026-07-12
+  # imported + minted − retired = 508). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -927,15 +951,18 @@ depth:
       # (goldens/mining/mining_{equip,unequip,loadout_save,loadout_apply,
       # loadout_delete}_write.json), so they are COVERED, not exempt — the
       # D-0069 class's own exit ("the first row-bearing golden lands with an
-      # argful capture"). mining_gear_wear + player_skills stay guard-only
-      # until their own write captures (WP-4 wear-tick, WP-5 skill spend).
-      - surface: "table:mining_gear_wear"
-        reason: "guard-only-capture: durability rows are written only by a
-          wear tick behind an argful mine/explore/duel with equipped gear,
-          and the slice-1 capture drove only the bare gear/equip guards
-          (goldens/mining/sweep_gear.json pins the character_doll.png
-          attachment filename with no row) — goldens pin write-free guard
-          paths only; the first wear row lands with a geared argful capture"
+      # argful capture"). player_skills stays guard-only until its own write
+      # capture (WP-5 skill spend).
+      # table:mining_gear_wear is NO LONGER exempt — WP-3 mining WRITE-PARITY
+      # (this PR) RETIRED it. The spec imagined an ADD face via a geared-mine
+      # wear tick, but the ported mine leg has NO wear tick (set_gear_wear has
+      # zero runtime write ingress in sb/), so the only write ingress that
+      # touches the table is clear_gear_wear via !repair — the REMOVE face. The
+      # argful funded `!repair pickaxe` capture
+      # (goldens/mining/mining_repair_write.json) drives a row-bearing `removed`
+      # db_delta on mining_gear_wear, so the table is COVERED, not exempt — the
+      # D-0069 class's own exit. (The WP-4 workshop repair/quickcraft terminals
+      # fold in here per the spec's "may fold into WP-3".)
       - surface: "table:player_skills"
         reason: "guard-only-capture: skill-point rows are written only by an
           argful !skill spend, and the slice-1 capture drove only the bare
@@ -943,20 +970,15 @@ depth:
           the character.png attachment filename with no row); the skill
           command itself stays a D-0043 pending terminal this slice — goldens
           pin write-free guard paths only, so the table cannot be covered"
-      # Slice-2 depth/world port (this PR): the per-guild world seed is a
-      # declared mining surface, but the imported sweep drove only the bare
-      # `!mineworld` READ — which returns the seed = guild_id default from
-      # the store's no-row path — so no golden carries a mining_world row.
-      - surface: "table:mining_world"
-        reason: "guard-only-capture: the reseed write lane IS
-          corpus-expressible (!mineworld <seed>, manage_guild-gated) but the
-          imported sweep drove only the bare !mineworld, pinning the
-          default-seed read byte (\"This server's mining world seed is
-          **<guild>**. …\") off the store's no-row default = guild_id
-          (goldens/mining/sweep_mineworld.json) with no row; the row-bearing
-          owner reseed exists in no imported golden — goldens pin the
-          write-free read path only, so the table cannot be covered until an
-          admin-reseed capture lands"
+      # table:mining_world is NO LONGER exempt — WP-3 mining WRITE-PARITY
+      # (this PR) RETIRED it: the argful admin `!mineworld 12345` capture
+      # (goldens/mining/mining_reseed_world_write.json) drives set_world_seed,
+      # which upserts a row-bearing db_delta on mining_world (seed 12345), so
+      # the table is COVERED, not exempt — the D-0069 class's own exit ("the
+      # first row-bearing golden lands with an argful capture"). The depth face
+      # (mining_player_state) is likewise driven by the WP-3 geared !descend /
+      # !ascend captures (goldens/mining/mining_{descend,ascend}_write.json),
+      # though that table was already covered by WP-2's funded vaultupgrade.
       # table:mining_vault is NO LONGER exempt — WP-2 mining WRITE-PARITY
       # (this PR) RETIRED it: the argful !stash / !unstash and the !vault -> 📦
       # Stash All Ore click captures
@@ -1203,7 +1225,7 @@ depth:
     casino: {events: 1, tables: 2, settings: 0}
     chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 3, tables: 2, settings: 0}
-    cleanup: {events: 1, tables: 3, settings: 0}
+    cleanup: {events: 2, tables: 6, settings: 0}
     community: {events: 1, tables: 2, settings: 0}
     community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
@@ -1225,7 +1247,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
-    mining: {events: 4, tables: 13, settings: 0}
+    mining: {events: 4, tables: 15, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
