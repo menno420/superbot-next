@@ -78,7 +78,8 @@ def _install_world(monkeypatch, *, energy=(60, 0), venue="shore",
     from sb.domain.mining import store as ms
 
     sinks = SimpleNamespace(energy_writes=[], bait_writes=[],
-                            bait_clears=[])
+                            bait_clears=[], bait_consumes=[],
+                            bait_state={"row": tuple(bait)})
 
     async def get_fishing_energy(user_id, guild_id, conn=None):
         return energy
@@ -93,13 +94,27 @@ def _install_world(monkeypatch, *, energy=(60, 0), venue="shore",
         return rod_tier
 
     async def get_active_bait(user_id, guild_id, conn=None):
-        return bait
+        return sinks.bait_state["row"]
 
     async def set_active_bait(user_id, guild_id, key, charges, conn=None):
         sinks.bait_writes.append((key, charges))
+        sinks.bait_state["row"] = (key, charges)
 
     async def clear_active_bait(user_id, guild_id, conn=None):
         sinks.bait_clears.append((user_id, guild_id))
+        sinks.bait_state["row"] = ("", 0)
+
+    async def consume_bait_charge(user_id, guild_id, bait_key, conn=None):
+        # the real store's conditional-decrement contract: relative,
+        # keyed on the loadout, clearing the pack in-statement at 0,
+        # None when nothing matched (swapped/emptied concurrently).
+        key, charges = sinks.bait_state["row"]
+        if key != bait_key or charges < 1:
+            return None
+        left = charges - 1
+        sinks.bait_state["row"] = ("", 0) if left <= 0 else (key, left)
+        sinks.bait_consumes.append((bait_key, left))
+        return left
 
     async def get_structures(user_id, guild_id, conn=None):
         return dict(structures or {})
@@ -120,6 +135,7 @@ def _install_world(monkeypatch, *, energy=(60, 0), venue="shore",
     monkeypatch.setattr(fs, "get_active_bait", get_active_bait)
     monkeypatch.setattr(fs, "set_active_bait", set_active_bait)
     monkeypatch.setattr(fs, "clear_active_bait", clear_active_bait)
+    monkeypatch.setattr(fs, "consume_bait_charge", consume_bait_charge)
     monkeypatch.setattr(ms, "get_structures", get_structures)
     monkeypatch.setattr(ms, "get_equipment", get_equipment)
     monkeypatch.setattr(ms, "get_skills", get_skills)
@@ -335,9 +351,11 @@ def test_cast_open_compounds_every_knob_into_the_roll(monkeypatch):
     # (at the bare 30 s interval this cast would have been BLOCKED);
     # spend kept the settled stamp.
     assert sinks.energy_writes == [(0, NOW)]
-    # one grub charge spent: 2 → 1 (set, not clear)
-    assert sinks.bait_writes == [("grub", 1)]
-    assert sinks.bait_clears == []
+    # one grub charge spent: 2 → 1 (a relative consume — never an
+    # absolute set, never a clear)
+    assert sinks.bait_consumes == [("grub", 1)]
+    assert sinks.bait_state["row"] == ("grub", 1)
+    assert sinks.bait_writes == [] and sinks.bait_clears == []
     # the pending cast parked with the fishery-adjusted chance
     entry = service._PENDING_CASTS[(P1, GID)]
     assert entry["venue"] == "deepwater"
@@ -407,6 +425,7 @@ def test_cast_open_fresh_player_rolls_the_exact_neutral_profile(
     # the golden-pinned fresh-bar spend: 60 → 58 stamped now
     assert sinks.energy_writes == [(58, NOW)]
     assert sinks.bait_writes == [] and sinks.bait_clears == []
+    assert sinks.bait_consumes == []
     entry = service._PENDING_CASTS[(P1, GID)]
     assert entry["double_catch_chance"] == ops.BONUS_CATCH_CHANCE
     (_, req), = opened
@@ -420,8 +439,9 @@ def test_cast_open_fresh_player_rolls_the_exact_neutral_profile(
 
 
 def test_cast_open_last_bait_charge_clears_the_pack(monkeypatch):
-    """begin_cast L493-502: the last charge spends → clear_active_bait
-    (never a 0-charge row), and the panel note says 0 left."""
+    """begin_cast L493-502: the last charge spends → the pack clears
+    (never a 0-charge row — the consume clears in-statement), and the
+    panel note says 0 left."""
     from sb.domain.fishing import service
     from sb.spec.outcomes import SUCCESS
 
@@ -431,10 +451,87 @@ def test_cast_open_last_bait_charge_clears_the_pack(monkeypatch):
     opened = _capture_open_panel(monkeypatch)
     reply = run(route(_req()))
     assert reply.outcome is SUCCESS
-    assert sinks.bait_clears == [(P1, GID)]
-    assert sinks.bait_writes == []
+    assert sinks.bait_consumes == [("worm", 0)]
+    assert sinks.bait_state["row"] == ("", 0)
+    assert sinks.bait_writes == [] and sinks.bait_clears == []
     (_, req), = opened
     assert req.args["cast_bait_key"] == "worm"
+    assert req.args["cast_bait_charges_left"] == 0
+    service.reset_pending_casts_for_tests()
+
+
+def test_cast_open_consume_never_clobbers_a_concurrent_bait_buy(
+        monkeypatch):
+    """REGRESSION (cast-vs-buy lost update): the cast's bait consume is
+    a relative, key-conditional decrement — a bait BUY committing
+    between the cast's unlocked read and its consume keeps its
+    coin-bought charges. The handler reads ("worm", 3); the buy's txn
+    (held behind lock_bait_slot) stacks the loadout to 13 and commits
+    inside the window; the consume must land 12 — the old absolute
+    write-back (bait_charges - 1 = 2) ate 10 paid charges."""
+    from sb.domain.fishing import service
+    from sb.domain.fishing import store as fs
+    from sb.spec.outcomes import SUCCESS
+
+    route = _cast_route()
+    _freeze_clock(monkeypatch)
+    sinks = _install_world(monkeypatch, bait=("worm", 3))
+    opened = _capture_open_panel(monkeypatch)
+
+    real_read = fs.get_active_bait
+
+    async def stale_read_then_buy_commits(user_id, guild_id, conn=None):
+        row = await real_read(user_id, guild_id, conn=conn)
+        # the deterministic interleave: the moment the cast holds its
+        # stale snapshot, the concurrent buy's committed stack lands.
+        sinks.bait_state["row"] = ("worm", 13)
+        return row
+
+    monkeypatch.setattr(fs, "get_active_bait", stale_read_then_buy_commits)
+    reply = run(route(_req()))
+    assert reply.outcome is SUCCESS
+    # the consume decremented the COMMITTED count: 13 → 12
+    assert sinks.bait_state["row"] == ("worm", 12)
+    assert sinks.bait_consumes == [("worm", 12)]
+    assert sinks.bait_writes == [] and sinks.bait_clears == []
+    (_, req), = opened
+    assert req.args["cast_bait_charges_left"] == 12
+    service.reset_pending_casts_for_tests()
+
+
+def test_cast_open_consume_never_eats_a_concurrently_replaced_pack(
+        monkeypatch):
+    """REGRESSION (cast-vs-buy replace/clear): the cast rolled with the
+    last worm charge, but a buy of a DIFFERENT bait replaced the loadout
+    inside the window — the consume's key condition misses (None), the
+    fresh pack survives untouched, and the cast keeps the effects it
+    rolled with (0 left on the panel). The old path called
+    clear_active_bait and ate the whole purchase."""
+    from sb.domain.fishing import service
+    from sb.domain.fishing import store as fs
+    from sb.spec.outcomes import SUCCESS
+
+    route = _cast_route()
+    _freeze_clock(monkeypatch)
+    sinks = _install_world(monkeypatch, bait=("worm", 1))
+    opened = _capture_open_panel(monkeypatch)
+
+    real_read = fs.get_active_bait
+
+    async def stale_read_then_replace(user_id, guild_id, conn=None):
+        row = await real_read(user_id, guild_id, conn=conn)
+        sinks.bait_state["row"] = ("grub", 5)   # the replacing buy commits
+        return row
+
+    monkeypatch.setattr(fs, "get_active_bait", stale_read_then_replace)
+    reply = run(route(_req()))
+    assert reply.outcome is SUCCESS
+    # the purchase survives; nothing matched → no decrement, no clear
+    assert sinks.bait_state["row"] == ("grub", 5)
+    assert sinks.bait_consumes == []
+    assert sinks.bait_writes == [] and sinks.bait_clears == []
+    (_, req), = opened
+    assert req.args["cast_bait_key"] == "worm"   # what the cast rolled with
     assert req.args["cast_bait_charges_left"] == 0
     service.reset_pending_casts_for_tests()
 
@@ -480,6 +577,7 @@ def test_cast_open_quiet_venue_never_charges(monkeypatch):
         "⛵ The deepwater is quiet right now — try later.")
     assert sinks.energy_writes == []
     assert sinks.bait_writes == [] and sinks.bait_clears == []
+    assert sinks.bait_consumes == []
 
 
 # --- the Reel leg = the shipped commit_catch ---------------------------------------

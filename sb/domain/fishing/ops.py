@@ -23,18 +23,24 @@ in ONE leg txn, and answers the oracle ``_finish_caught`` result copy
 neutral (no row ⇒ ×1.0 / +0.0), so a fresh player's cast is
 byte-identical to the pre-wiring goldens.
 
-STILL PARKED (the D-0043 minigame rung — real-time asyncio message
-edits the headless panel engine doesn't model): the live bite-delay
-sleep / fake-out edit / reaction windows / premature-grace / trophy
-reel-fight taps + escape rolls (so the rod ``window_bonus`` /
-``escape_resist`` / ``premature_grace``, the venue ``bite_delay_*`` /
-``reaction_window`` / ``base_escape`` and the compounded
-``effective_bite_speed`` are computed + surfaced but never gate a
-catch — the port's Reel commits instantly), the ``_VIEW_TIMEOUT``-timed
-view lifecycle (the registry keeps the 45 s guard window without a
-timer), and the ``_FishingDoneView`` Cast-again continuation (the
-RESULT_CARD reply stands in). The pure math for all of it is ported
-(sb/domain/fishing/minigame.py) so the rung is wiring-only.
+TIMING RUNG (D-0043) — COMPLETE but for the continuation (slice 1
+click-gated resolution + slice 2 live edits & full enforcement,
+service.py): the cast ROLLS its timing at cast time (bite delay on the
+compounded ``effective_bite_speed`` at the venue band + the fake-out,
+both on this module's private cast RNG STRICTLY AFTER the catch roll)
+and the Reel click RESOLVES against it — premature spook / one
+``premature_grace`` forgive, LATE-window too-slow (slice 2 —
+``minigame.reel_is_in_time`` on SYSTEM_CLOCK), and the trophy
+reel-fight (per-tap ``roll_escape`` under venue ``base_escape`` × rod
+``escape_resist``, each round its own ``FIGHT_INTER_ROUND_DELAY`` +
+window). So EVERY timing knob now GATES outcomes. The live panel cues
+— fake-out nibble, 🐟 BITE! arm, unprompted got-away, fight-round
+prompts — ride the D-0090 kernel one-shot timers +
+``push_session_refresh`` seam (wall-clock, process-local per ADR-002;
+headless/parity they no-op via EDIT_UNAVAILABLE, and enforcement never
+depends on them). STILL PARKED: the ``_FishingDoneView`` Cast-again
+continuation (the RESULT_CARD reply stands in — the games-finalization
+review's ranked gap 3, a named successor).
 
 RNG POSTURE: the module ``_rng`` stays PRIVATE and unseeded in prod
 (the oracle's fresh-``random.Random()`` posture) — NEVER bind it to
@@ -441,7 +447,16 @@ async def _record_craft_rod(conn, ctx: WorkflowContext) -> LegOutcome:
     advisory-fenced against a concurrent double-craft (the quick_craft
     posture). The handler answers the maxed / not-enough-fish cases as
     pure reads before this leg runs — the only path any golden pins
-    (goldens/fishing/sweep_craftrod)."""
+    (goldens/fishing/sweep_craftrod). Ledgered posture (cross-craft
+    fish spend): the fish-spending crafts are fenced PER KIND (rod /
+    bait / charm each key their own advisory lock), so a raced craftrod
+    × craftbait/craftcharm pair can both plan over one fish stack and
+    the floor-0 ``update_mining_item`` debit masks the loser — two
+    grants from one stack, matching-or-narrower than the oracle (which
+    fenced nothing; same-kind races ARE serialized here). Materials,
+    never coins, so ``check_money_race`` does not cover it; if a coin
+    leg ever joins a cross-kind spend, the fix is one SHARED key (the
+    ``lock_coral_slot`` precedent)."""
     from sb.domain.fishing import crafting, rods as rods_mod
     from sb.domain.mining.store import get_mining_inventory, update_mining_item
 
@@ -556,7 +571,9 @@ async def _record_craft_bait(conn, ctx: WorkflowContext) -> LegOutcome:
     Q-0071 order). Not money-bearing, but the fish spend is
     advisory-fenced against a concurrent double-craft (the quick_craft
     posture). The handler answers the unknown-bait / not-enough-fish
-    cases as pure reads before this leg runs."""
+    cases as pure reads before this leg runs. Cross-craft fish-spend
+    posture ledgered at ``_record_craft_rod`` (per-kind locks — a raced
+    OTHER-kind craft over the same stack is not serialized)."""
     from sb.domain.fishing import bait as bait_mod, crafting
     from sb.domain.mining.store import get_mining_inventory, update_mining_item
 
@@ -651,7 +668,10 @@ async def _record_craft_charm(conn, ctx: WorkflowContext) -> LegOutcome:
     byte-matches the mining equipment catalog). Not money-bearing, but
     the fish spend is advisory-fenced against a concurrent double-craft
     (the quick_craft posture). The handler answers the unknown-charm /
-    not-enough-fish cases as pure reads before this leg runs."""
+    not-enough-fish cases as pure reads before this leg runs.
+    Cross-craft fish-spend posture ledgered at ``_record_craft_rod``
+    (per-kind locks — a raced OTHER-kind craft over the same stack is
+    not serialized)."""
     from sb.domain.fishing import crafting, gear as gear_mod
     from sb.domain.mining.store import get_mining_inventory, update_mining_item
 

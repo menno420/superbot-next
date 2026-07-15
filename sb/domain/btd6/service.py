@@ -164,13 +164,6 @@ async def ref_relic_view(req) -> Reply:
     return _ok(f"❓ No CT relic matches **{query}**.")
 
 
-async def ref_ct_pending(req) -> Reply:
-    return _ok(
-        "🗺️ Live Contested Territory data (active map, tiles, team score) "
-        "rides the BTD6 live-ingestion port — not armed yet. Static relic "
-        "effects: `!btd6ref relic <name>`.")
-
-
 # --- strategy views + routes --------------------------------------------------------
 
 
@@ -310,7 +303,7 @@ strat_submit_route = _run_op("btd6.submit_strategy", _submit_params)
 strat_review_route = _run_op("btd6.review_strategy", _review_params)
 
 
-# --- events / ops pending terminals -------------------------------------------------
+# --- events / ops usage views --------------------------------------------------------
 
 _INGESTION_PENDING = (
     "📡 Live BTD6 event data (bosses, races, CT, odyssey, source health) "
@@ -318,10 +311,6 @@ _INGESTION_PENDING = (
     "port not armed in this build. The committed dataset (towers, heroes, "
     "bloons, rounds, bosses' static tables) answers through `!btd6ref` "
     "and the grounded NL path.")
-
-
-async def events_pending(req) -> Reply:
-    return _ok(_INGESTION_PENDING)
 
 
 async def events_usage_view(req) -> Reply:
@@ -359,10 +348,6 @@ async def ops_usage_view(req) -> Reply:
         "`seed-data`. " + _INGESTION_PENDING)
 
 
-async def ops_pending(req) -> Reply:
-    return _ok(_INGESTION_PENDING)
-
-
 # The `btd6.paragon_pending` session terminal RETIRED (ORDER 017 night-run
 # fix slice A): the calculator's selectors + Calculate / Requirements /
 # Stats are armed in sb/domain/btd6/paragon_panel.py (pure-compute port;
@@ -379,7 +364,6 @@ _HANDLERS = (
     ("btd6.ref_income_view", ref_income_view),
     ("btd6.ref_rbe_view", ref_rbe_view),
     ("btd6.ref_relic_view", ref_relic_view),
-    ("btd6.ref_ct_pending", ref_ct_pending),
     ("btd6.strat_usage_view", strat_usage_view),
     ("btd6.strat_browse_view", strat_browse_view),
     ("btd6.strat_mine_view", strat_mine_view),
@@ -391,10 +375,8 @@ _HANDLERS = (
     ("btd6.strat_submit_route", strat_submit_route),
     ("btd6.strat_review_route", strat_review_route),
     ("btd6.events_usage_view", events_usage_view),
-    ("btd6.events_pending", events_pending),
     ("btd6.events_grounding_view", events_grounding_view),
     ("btd6.ops_usage_view", ops_usage_view),
-    ("btd6.ops_pending", ops_pending),
 )
 
 

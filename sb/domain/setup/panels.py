@@ -40,13 +40,21 @@ while the goldens keep pinning every OPEN render byte. Two interior
 panels ride along: ``setup.sections_hub`` (views/setup/hub.py — the
 depth click's shipped destination) and ``setup.review_item``
 (views/setup/ai_review/per_recommendation.py — the one-at-a-time
-walkthrough). Named successors stay honest terminals: the essential
-steps 2–8, the ten per-section flows + the linear wizard steps, the
-per-suggestion Edit lane, and the final-review apply lane (the
-wizard.py module docstring routes them).
+walkthrough). The FINAL-REVIEW APPLY LANE is live (final_review.py —
+its three panels ride the manifest), the ESSENTIAL STEPS 2–8 are
+live (essential_steps.py — the seven step cards, the summary/extras
+pair and the restart-resume bridge ride the manifest), and the
+SECTION-FLOW SPINE + the first two flows are live (the section-flows
+slice: section_card.py + wizard_nav.py + preset_select.py +
+channels.py — the linear wizard steps, the channels section card /
+detail picker and the preset card / preview ride the manifest). Named
+successors stay honest terminals: the remaining seven per-section
+flows (the wizard.py module docstring routes them).
 """
 
 from __future__ import annotations
+
+import logging
 
 from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
@@ -77,6 +85,8 @@ __all__ = [
     "install_setup_panels",
     "setup_hub_spec",
 ]
+
+logger = logging.getLogger("sb.domain.setup")
 
 HUB_PANEL_ID = "setup.hub"
 ESSENTIAL_PANEL_ID = "setup.essential_card"
@@ -350,22 +360,101 @@ def suggestions_card_spec() -> PanelSpec:
     )
 
 
+# --- the hub per-section catch seam (the #444 deferral) --------------------------------
+#
+# The oracle hub recorded a failing section as a durable workspace
+# notice ("⚠️ Section `slug` failed" — the push_setup_notice ride the
+# night-recovery-view slice named in notices.py's justification); the
+# target's hub buttons dispatched straight to the per-section
+# ``setup.open_section_{slug}`` handlers, so a raising section fell
+# through to the kernel's generic error envelope with NO durable
+# record. This seam is the sized follow-up (.sessions/2026-07-13-
+# night-recovery-view.md, control/claims/night-tail-setup-mint.md
+# night-tail-3): every hub section button routes through ONE wrapper
+# that passes success through untouched and, on any exception, logs +
+# posts the failure record + answers the click with a plain BLOCKED
+# ack. Notice bytes per the in-repo exemplar the #444 lane pinned
+# (tests/unit/setup_band/test_section_recovery.py
+# test_notice_render_composes_the_pushed_embed). Wizard-side entries
+# are untouched — their failure path mounts the recovery panel
+# (recovery.py); hub-origin recovery stays unwired, the oracle's own
+# posture ("grammar the oracle carried but never wired").
+
+_SECTION_FAILED_TITLE = "⚠️ Section `{slug}` failed"
+_SECTION_FAILED_DESCRIPTION = "See logs for details."
+_SECTION_FAILED_STYLE = "red"
+
+
+def _resolve_section_open(slug: str):
+    """Resolve the section's own registered route (the recovery.py
+    ``_run_section_flow`` twin) — module-level so tests can seam it."""
+    from sb.spec.refs import resolve
+
+    return resolve(HandlerRef(f"setup.open_section_{slug}"))
+
+
+def _hub_section_dispatch(slug: str, label: str):
+    async def _hub_open_section(req):
+        """The shared catch seam: call the section's registered
+        ``setup.open_section_{slug}`` handler; a raising section posts
+        the durable "⚠️ Section `slug` failed" workspace record (the
+        never-raises push_setup_notice lane) and answers the click with
+        a BLOCKED ack instead of the generic kernel envelope. Success
+        returns pass through byte-untouched."""
+        from sb.domain.setup import notices
+        from sb.kernel.interaction.handler_kit import Reply
+        from sb.spec.outcomes import BLOCKED
+
+        try:
+            section_open = _resolve_section_open(slug)
+            return await section_open(req)
+        except Exception:  # noqa: BLE001 — the seam's whole contract
+            logger.exception("sections hub: section %s failed", slug)
+            posted = await notices.push_setup_notice(
+                req,
+                title=_SECTION_FAILED_TITLE.format(slug=slug),
+                description=_SECTION_FAILED_DESCRIPTION,
+                style_token=_SECTION_FAILED_STYLE)
+            # the caller-decided ephemeral fallback (the notices.py
+            # contract): the ack names the workspace record only when
+            # the push actually landed.
+            tail = (" A failure record was posted to the setup "
+                    "workspace." if posted else "")
+            return Reply(BLOCKED,
+                         f"⚠️ Opening **{label}** failed — see logs. "
+                         f"Nothing was applied or skipped.{tail}")
+    return _hub_open_section
+
+
+def _ensure_hub_section_dispatch() -> None:
+    from sb.domain.setup.sections import SECTIONS
+
+    for s in SECTIONS:
+        name = f"setup.hub_open_section_{s.slug}"
+        if not is_registered(HandlerRef(name)):
+            handler(name)(_hub_section_dispatch(s.slug, s.label))
+
+
 def sections_hub_spec() -> PanelSpec:
     """The SECTIONS HUB (views/setup/hub.py ``SetupHubView`` +
     ``build_hub_embed``) — the depth click's shipped destination: one
     button per registered section (filtered to the persisted depth by
     the renderer override), plus Change depth + ↩ Back to wizard on the
-    nav row. Section buttons hold the honest section-flows terminal;
-    Change depth re-opens the chooser (live)."""
+    nav row. Section buttons route through the shared per-section catch
+    seam (``setup.hub_open_section_{slug}`` — the #444 deferral's
+    failure-notice wrapper over each section's own
+    ``setup.open_section_{slug}`` route); Change depth re-opens the
+    chooser (live)."""
     from sb.domain.setup.sections import SECTIONS
 
+    _ensure_hub_section_dispatch()
     section_actions = tuple(
         PanelActionSpec(
             action_id=f"section_{s.slug}", label=s.label,
             emoji=s.emoji,
             style=(ActionStyle.SUCCESS if s.slug == "preset_select"
                    else ActionStyle.SECONDARY),
-            handler=HandlerRef(f"setup.open_section_{s.slug}"),
+            handler=HandlerRef(f"setup.hub_open_section_{s.slug}"),
             custom_id_override=f"setup_section:{s.slug}")
         for s in SECTIONS)
     slugs = tuple(f"section_{s.slug}" for s in SECTIONS)
@@ -409,7 +498,32 @@ def sections_hub_spec() -> PanelSpec:
 def review_item_spec() -> PanelSpec:
     """The per-suggestion walkthrough card (views/setup/ai_review/
     per_recommendation.py): Accept · Deny · Edit / Skip · Back to
-    overview over one recommendation at a time."""
+    overview over one recommendation at a time. TWO Edit faces ride the
+    spec (the suggestion-edit slice) and the renderer keeps exactly one
+    per render (the mode-dependent control — the final-review
+    Apply-drop precedent): ``item_edit_rename`` carries the G-10
+    "Edit suggestion" rename modal for a ``create`` suggestion
+    (_EditRecommendationModal — the modal must be the interaction's
+    FIRST response, so the create face is its own declared
+    defer_mode=MODAL action, never a handler branch);
+    ``item_edit`` answers a ``bind`` suggestion with the shipped
+    can't-re-pick explanation."""
+    from sb.spec.outcomes import DeferMode
+    from sb.spec.panels import ModalFieldSpec, ModalSpec
+
+    rename_modal = ModalSpec(
+        modal_id="setup.review_item_edit_form",
+        title="Edit suggestion",
+        fields=(
+            # oracle label f"{rec.target_kind.title()} name to create"
+            # + default=rec.target_name are per-open dynamic; a G-10
+            # form's wire bytes are static (resolve.py's stash note),
+            # so the label is the kind-generic spelling and the card's
+            # own target line shows the proposed name — ledgered.
+            ModalFieldSpec(field_id="new_name", label="Name to create",
+                           required=True, min_length=1, max_length=100),
+        ),
+        on_submit=HandlerRef("setup.review_item_edit_rename"))
     return PanelSpec(
         panel_id=REVIEW_ITEM_PANEL_ID,
         subsystem="setup",
@@ -428,7 +542,12 @@ def review_item_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="item_edit", label="Edit",
                 style=ActionStyle.PRIMARY,
-                handler=HandlerRef("setup.review_item_edit_pending")),
+                handler=HandlerRef("setup.review_item_edit")),
+            PanelActionSpec(
+                action_id="item_edit_rename", label="Edit",
+                style=ActionStyle.PRIMARY,
+                defer_mode=DeferMode.MODAL, modal=rename_modal,
+                handler=HandlerRef("setup.review_item_edit_rename")),
             PanelActionSpec(
                 action_id="item_skip", label="Skip",
                 style=ActionStyle.SECONDARY,
@@ -440,7 +559,7 @@ def review_item_spec() -> PanelSpec:
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("item_accept", "item_deny", "item_edit"),
+            ("item_accept", "item_deny", "item_edit", "item_edit_rename"),
             ("item_skip", "item_back"))),)),
         renderer_override=HandlerRef("setup.review_item_render"),
         justification=(
@@ -448,9 +567,13 @@ def review_item_spec() -> PanelSpec:
             "title (Suggestion i/N · accepted/pending), description "
             "(the per-recommendation lines), footer (the accepted "
             "count) and COLOR (the per-confidence accent — "
-            "per_recommendation._CONFIDENCE_COLOR); all outside the "
+            "per_recommendation._CONFIDENCE_COLOR), and its EDIT "
+            "control is mode-dependent (a create suggestion's Edit "
+            "opens the rename modal, a bind suggestion's Edit "
+            "explains — per_recommendation._edit); all outside the "
             "static grammar vocabulary, so the override composes the "
-            "embed (no golden pins it — the oracle source does)."),
+            "embed and keeps one Edit face (no golden pins it — the "
+            "oracle source does)."),
         session_lifecycle=True,
     )
 
@@ -675,11 +798,22 @@ async def _render_sections_hub(spec: PanelSpec, ctx) -> object:
                                components=tuple(repacked))
 
 
+def _one_edit_face(components, mode: str):
+    """Keep exactly ONE Edit control for the rendered suggestion's mode
+    (per_recommendation._edit: a ``create`` suggestion's Edit opens the
+    rename modal, a ``bind`` suggestion's Edit explains) — the
+    final-review Apply-drop precedent for state-dependent controls."""
+    drop = (f"{REVIEW_ITEM_PANEL_ID}.item_edit" if mode == "create"
+            else f"{REVIEW_ITEM_PANEL_ID}.item_edit_rename")
+    return tuple(c for c in components if c.custom_id != drop)
+
+
 async def _render_review_item(spec: PanelSpec, ctx) -> object:
     """renderer_override — per_recommendation.build_per_recommendation_
     embed verbatim: one recommendation at the walkthrough index, the
-    accepted/pending title state, the per-confidence accent, the
-    accepted-count footer."""
+    accepted/pending title state, the mode-dependent target line, the
+    per-confidence accent, the accepted-count footer (+ the create
+    mode's Edit-to-rename hint), one Edit face per mode."""
     import dataclasses
 
     from sb.domain.setup import wizard
@@ -694,16 +828,27 @@ async def _render_review_item(spec: PanelSpec, ctx) -> object:
             title="🤖 Smart suggestions",
             description="No recommendations to review.",
             style_token="dark_grey")
-        return dataclasses.replace(base, embed=embed)
+        return dataclasses.replace(
+            base, embed=embed,
+            components=_one_edit_face(base.components, "bind"))
     index = max(0, min(state.index, len(recs) - 1))
     rec = recs[index]
     accepted = state.contains(rec)
     state_label = "✅ accepted" if accepted else "⬜ pending"
-    # the deterministic advisor's recommendations are all ``bind`` mode
-    # (the shipped mode default) — the bind target line renders.
-    target_line = f"**Target:** `{rec.target_name}` (id `{rec.target_id}`)\n"
+    # the oracle mode branch: a "create" rec has no existing id — it
+    # proposes making the resource and binding it; a "bind" rec wires
+    # an existing one (shown with its id).
+    mode = str(getattr(rec, "mode", "bind"))
+    if mode == "create":
+        target_line = (f"**Create & bind:** ➕ `{rec.target_name}` "
+                       f"(new `{rec.target_kind}`)\n")
+    else:
+        target_line = (f"**Target:** `{rec.target_name}` "
+                       f"(id `{rec.target_id}`)\n")
     source = getattr(rec, "source", None) or str(
         getattr(state.draft, "source", "deterministic"))
+    edit_hint = (" · Edit to rename before accepting"
+                 if mode == "create" else "")
     embed = RenderedEmbed(
         title=f"🤖 Suggestion {index + 1} / {len(recs)} · {state_label}",
         description=(
@@ -714,9 +859,11 @@ async def _render_review_item(spec: PanelSpec, ctx) -> object:
             f"**Source:** `{source}`\n\n"
             f"_{rec.reason}_"),
         footer=(f"Accepted set: {state.count} · Accept / Deny / Edit"
-                f" · Skip to defer, Back to return."),
+                f"{edit_hint} · Skip to defer, Back to return."),
         style_token=_CONFIDENCE_TOKEN.get(rec.confidence, "blurple"))
-    return dataclasses.replace(base, embed=embed)
+    return dataclasses.replace(
+        base, embed=embed,
+        components=_one_edit_face(base.components, mode))
 
 
 # --- registration ---------------------------------------------------------------------
@@ -759,6 +906,7 @@ handler("setup.sections_hub_render")(_render_sections_hub)
 handler("setup.review_item_render")(_render_review_item)
 
 _ensure_providers()
+_ensure_hub_section_dispatch()
 
 
 def install_setup_panels() -> PanelSpec:
@@ -783,6 +931,7 @@ def install_setup_panels() -> PanelSpec:
 
 def ensure_setup_refs() -> None:
     _ensure_providers()
+    _ensure_hub_section_dispatch()
     from sb.domain.setup.wizard import ensure_wizard_refs
 
     ensure_wizard_refs()

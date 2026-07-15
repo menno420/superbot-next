@@ -15,6 +15,11 @@ Layer map:
                          injection, page-turn)
   engine.py            — open_panel/handle_nav + sessions + invoker lock;
                          presenter PORT (discord adapter materializes)
+  browserview.py       — the shared BrowserView engine (sort/filter/page
+                         controls for declared Table/List blocks; D-0034)
+  selectwindow.py      — the windowed-select engine (a declared
+                         ``windowed`` selector pages past Discord's
+                         25-option cap with ◀ Prev / Next ▶ nav)
   projections.py       — generated settings panels + help-as-projection
 
 The composition root wires:

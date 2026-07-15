@@ -36,11 +36,28 @@ prefix bytes).
 from __future__ import annotations
 
 from sb.domain.setup import ai_tasks as _ai_tasks
+from sb.domain.setup import channels as _channels
+from sb.domain.setup import cleanup as _cleanup
+from sb.domain.setup import cog_routing as _cog_routing
+from sb.domain.setup import essential_steps as _essential_steps
+from sb.domain.setup import final_review as _final_review
 from sb.domain.setup import handlers as _handlers
+from sb.domain.setup import launcher as _launcher
+from sb.domain.setup import logging_presets as _logging_presets
+from sb.domain.setup import moderation as _moderation
+from sb.domain.setup import notices as _notices
 from sb.domain.setup import ops as _ops
 from sb.domain.setup import panels as _panels
+from sb.domain.setup import preset_select as _preset_select
+from sb.domain.setup import recovery as _recovery
+from sb.domain.setup import resume as _resume
+from sb.domain.setup import role_templates as _role_templates
+from sb.domain.setup import roles as _roles
+from sb.domain.setup import section_card as _section_card
 from sb.domain.setup import store as _store
+from sb.domain.setup import ticket as _ticket
 from sb.domain.setup import wizard as _wizard
+from sb.domain.setup import wizard_nav as _wizard_nav
 from sb.domain.setup.sections import SECTIONS
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -164,23 +181,78 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.setup_hub_spec(), _panels.essential_card_spec(),
             _panels.status_card_spec(), _panels.suggestions_card_spec(),
-            _panels.sections_hub_spec(), _panels.review_item_spec()),
+            _panels.sections_hub_spec(), _panels.review_item_spec(),
+            _final_review.final_review_spec(), _final_review.recovery_spec(),
+            _final_review.complete_spec(),
+            _essential_steps.greet_spec(), _essential_steps.mods_spec(),
+            _essential_steps.spam_spec(), _essential_steps.log_spec(),
+            _essential_steps.reward_spec(),
+            _essential_steps.reward_role_spec(),
+            _essential_steps.helpdesk_spec(),
+            _essential_steps.commands_spec(),
+            _essential_steps.summary_spec(), _essential_steps.extras_spec(),
+            _essential_steps.resume_spec(),
+            _wizard_nav.wizard_step_spec(),
+            _section_card.card_spec_for("channels"),
+            _channels.channels_detail_spec(),
+            _preset_select.preset_card_spec(),
+            _preset_select.preset_preview_spec(),
+            _section_card.card_spec_for("logging_presets"),
+            _logging_presets.logging_picker_spec(),
+            _section_card.card_spec_for("moderation"),
+            _moderation.moderation_detail_spec(),
+            _section_card.card_spec_for("cleanup"),
+            _cleanup.cleanup_detail_spec(),
+            _section_card.card_spec_for("roles"),
+            _roles.roles_detail_spec(),
+            _section_card.card_spec_for("role_templates"),
+            _role_templates.role_templates_detail_spec(),
+            _section_card.card_spec_for("cog_routing"),
+            _cog_routing.cog_routing_detail_spec(),
+            _recovery.section_recovery_spec(),
+            _notices.workspace_notice_spec(),
+            _launcher.launcher_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
 
 _ai_tasks.register_ai_tasks()
 _ops.register_ops()
+# the app-boot seam wiring (ORDER 019 item 5a): the on-ready resume sweep
+# registers on the kernel boot-hook registry here — the composition root
+# fires it once RUNNING; no kernel→domain import edge.
+_resume.register_setup_boot_hook()
+# the guild-join seam wiring (night-tail-2): the on-guild-join launcher
+# registers on the kernel guild-events registry here — the live adapter's
+# guild feed dispatches into it; no kernel→domain import edge.
+_launcher.register_guild_join_launcher()
 
 
 def _ensure_refs() -> None:
     _store.ensure_refs()
     _ops.ensure_ops_refs()
     _wizard.ensure_wizard_refs()
+    _final_review.ensure_final_review_refs()
+    _essential_steps.ensure_essential_steps_refs()
+    _wizard_nav.ensure_wizard_nav_refs()
+    _preset_select.ensure_preset_select_refs()
+    _channels.ensure_channels_refs()
+    _logging_presets.ensure_logging_presets_refs()
+    _moderation.ensure_setup_moderation_refs()
+    _cleanup.ensure_setup_cleanup_refs()
+    _roles.ensure_setup_roles_refs()
+    _role_templates.ensure_setup_role_templates_refs()
+    _cog_routing.ensure_setup_cog_routing_refs()
+    _ticket.ensure_setup_ticket_refs()
+    _recovery.ensure_section_recovery_refs()
+    _notices.ensure_setup_notice_refs()
+    _section_card.ensure_section_card_refs()
     _panels.ensure_setup_refs()
     _handlers.ensure_handler_refs()
     _ai_tasks.register_ai_tasks()
     _ops.register_ops()
+    _resume.register_setup_boot_hook()
+    _launcher.ensure_launcher_refs()
 
 
 # module-attribute hook convention (D-0026)

@@ -32,21 +32,23 @@ effect_text; utils/fishing/energy.py bar/settle constants) match the
 corpus goldens byte-for-byte — NO drift (corpus sha 7f7628e1).
 
 Under-port ledger (no golden pins these corners):
-* the shipped cast view ran the live minigame in-place — bite-delay
-  timers flipping the button to the reel window, fake-out shakes, early
-  reel escapes, a reeled catch EDITING the panel into the result embed
-  (``interaction.response.edit_message``). The port's Reel button
-  commits the cast-time roll through the audited ``fishing.cast`` K7 op
-  (dex upsert + pearl/coral/fish materials + game-XP in one leg txn)
-  and opens the result as a fresh result card (the farm in-place-edit
-  under-port precedent); the TIMING layer stays parked on the D-0043
-  minigame rung (real-time asyncio the headless panel engine doesn't
-  model) even though its pure math is now ported
-  (sb/domain/fishing/minigame.py) — see the ops.py DEVIATION header.
+* the shipped cast view's live minigame is PORTED WHOLE (D-0043
+  slices 1+2): a Reel click resolves against the cast-time timing roll
+  (premature spook / grace, LATE-window too-slow, the trophy
+  reel-fight — the grace/fight prompts edit the panel in place via
+  refresh_session_view, the ``cast_prompt`` override in
+  ``_render_cast``), and the UNPROMPTED cues — fake-out nibble,
+  🐟 BITE! arm (button label/style flip), fight-round prompts, the
+  got-away window expiry — edit it with no interaction via the D-0090
+  kernel one-shot timers + ``push_session_refresh`` (headless/parity:
+  EDIT_UNAVAILABLE no-op; enforcement is SYSTEM_CLOCK timestamp math,
+  never the timers). The commit still opens the result as a fresh
+  result card (the farm in-place-edit under-port precedent) — the
+  ``_FishingDoneView`` Cast-again continuation is the named remainder.
 * the shipped ``active_casts`` one-line-in-the-water guard now lives as
   the service.py pending-cast registry (the guard copy is answered;
-  the 45 s window is modelled without a timer); the timed view
-  lifecycle itself — same successor rung.
+  the 45 s window stays the outer bound; the got-away timer is the
+  oracle background expiry, the registry sweep its restart-safe net).
 * the cast LEG is WIRED (the cast-leg depth wiring): venue (slice 1),
   rod (slice 2), bait (slice 3) and the structures (slice 4) state all
   drive the roll through the shipped ``begin_cast`` compound —
@@ -56,8 +58,8 @@ Under-port ledger (no golden pins these corners):
   chance. Every knob reads exactly neutral on a fresh player (no row ⇒
   shore / tier 0 / bait-less / not built ⇒ ×1.0/+0.0), so every
   golden-pinned fresh-player byte is unchanged. The bite-SPEED half of
-  the compound (rod/bait/weather/gear/dock) is computed + surfaced but
-  outcome-inert until the timing rung above lands. The shipped
+  the compound (rod/bait/weather/gear/dock) now gates the cast — it
+  scales the cast-time bite-delay roll (timing rung slice 1). The shipped
   Build-click in-place panel edit (safe_edit with the ✅/❌ note +
   SUCCESS/ERROR recolor) opens as a fresh result card instead — the
   farm in-place-edit under-port precedent.
@@ -91,6 +93,7 @@ from sb.spec.panels import (
     SelectorSpec,
     TextBlock,
 )
+from sb.spec.outcomes import ReplyVisibility
 from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
 
 __all__ = [
@@ -104,6 +107,7 @@ __all__ = [
     "LOG_PANEL_ID",
     "ROD_PANEL_ID",
     "ROD_RECIPES_PANEL_ID",
+    "RULES_PANEL_ID",
     "STRUCTURES_PANEL_ID",
     "TIDE_POOL_PANEL_ID",
     "bait_shop_spec",
@@ -118,6 +122,7 @@ __all__ = [
     "log_spec",
     "rod_recipes_spec",
     "rod_shop_spec",
+    "rules_card_spec",
     "structures_hub_spec",
     "tide_pool_spec",
 ]
@@ -134,6 +139,7 @@ TIDE_POOL_PANEL_ID = "fishing.tide_pool_panel"
 DOCK_PANEL_ID = "fishing.dock_panel"
 BOATHOUSE_PANEL_ID = "fishing.boathouse_panel"
 FISHERY_PANEL_ID = "fishing.fishery_panel"
+RULES_PANEL_ID = "fishing.rules_card"
 
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
@@ -148,6 +154,24 @@ _CAST_DESCRIPTION = (
 
 #: views/fishing/menu.py set_footer literal, verbatim.
 _LOG_FOOTER = "🎣 Cast to fish · ⛵ Set sail for the deep · 🎒 Rod to upgrade"
+
+#: views/fishing/menu.py ``_rules_embed`` description, verbatim (the
+#: shipped 📖 how-to-fish quick-reference — a STATIC card,
+#: grammar-rendered; the creature ``_RULES_DESCRIPTION`` precedent).
+_RULES_DESCRIPTION = (
+    "**The loop**\n"
+    "1. **🎣 Cast** — drop a line, then *wait* for the bite.\n"
+    "2. **Bite!** — when the float dips, hit **Reel** before the fish "
+    "spits the hook (reel too early and it spooks).\n"
+    "3. **Fight** the big ones — keep reeling to land a trophy.\n\n"
+    "**Get better catches**\n"
+    "• **🎒 Rod** — upgrade your rod for a wider reel window, faster "
+    "bites, and less escape.\n"
+    "• **🪱 Bait** — load a lure for rarer fish (a consumable knob on "
+    "top of your rod).\n"
+    "• **⛵ Set sail** — head to deepwater for the rare boat-only fish.\n"
+    "• **📖 Fishdex** — track your collection and personal-best weights."
+)
 
 
 def _hub_description() -> str:
@@ -230,7 +254,12 @@ def fishing_hub_spec() -> PanelSpec:
                 action_id="fishing_rules", label="How to fish",
                 emoji="📖", style=ActionStyle.SECONDARY,
                 audience_tier="user",
-                handler=HandlerRef("fishing.howtofish_pending")),
+                # the shipped rules_btn sent _rules_embed as an EPHEMERAL
+                # component reply; routes to the live static rules card
+                # (label/emoji/style unchanged — byte-neutral vs
+                # sweep_fishing, the creature How-to-play precedent).
+                handler=HandlerRef("fishing.rules_view"),
+                reply_visibility=ReplyVisibility.EPHEMERAL),
         ),
         # the shipped standard nav row: 📚 Help + "↩ Games"
         # (nav:help / nav:hub:games — both pinned by the golden);
@@ -253,6 +282,28 @@ def fishing_hub_spec() -> PanelSpec:
             ("fishing_cast", "fishing_sail", "fishing_rod",
              "fishing_bait", "fishing_structures"),
             ("fishing_log", "fishing_rules"),)),)),
+    )
+
+
+def rules_card_spec() -> PanelSpec:
+    """The shipped 'how to fish' quick-reference (views/fishing/menu.py
+    ``_rules_embed`` — the menu's 📖 rules affordance) — a fully STATIC
+    card (no parameters), grammar-rendered: no override. The shipped
+    send was an ephemeral component reply mirroring the blackjack
+    panel's rules affordance; the creature ``rules_card_spec``
+    precedent, mirrored exactly."""
+    return PanelSpec(
+        panel_id=RULES_PANEL_ID,
+        subsystem="fishing",
+        title="📖 How to fish",
+        audience=Audience.INVOKER,
+        # GAME_COLOR purple (10181046, utils/ui_constants.py).
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_RULES_DESCRIPTION),),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        session_lifecycle=True,
     )
 
 
@@ -785,6 +836,45 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
 
     rendered = await render_panel(spec, ctx)
     params = getattr(ctx, "params", {}) or {}
+    prompt = params.get("cast_prompt")
+    if prompt:
+        # a mid-cast timing edit (D-0043: the grace forgive / reel-fight
+        # prompts riding refresh_session_view, and — slice 2 — the
+        # nibble/BITE!/got-away background edits riding the
+        # push_session_refresh seam) — the oracle ``_edit_message`` shape
+        # verbatim: a bare description embed (no weather field, no
+        # footer), the Reel component row kept. The slice-2 knobs mirror
+        # the oracle ``_arm``/``_fail`` surface: ``cast_prompt_style``
+        # recolors the embed (SUCCESS_COLOR bite arm / ERROR_COLOR
+        # terminals), ``cast_button_label``/``cast_button_style`` flip
+        # the Reel button ("Reel it in!"/"Reel!" success), and
+        # ``cast_disable`` is the terminal disable. The waiting-panel
+        # open and the slice-1 interaction edits pass none of them, so
+        # every golden-pinned byte is untouched.
+        embed = _dc_replace(rendered.embed, description=str(prompt),
+                            fields=(), footer="")
+        style = params.get("cast_prompt_style")
+        if style:
+            embed = _dc_replace(embed, style_token=str(style))
+        components = rendered.components
+        label = params.get("cast_button_label")
+        button_style = params.get("cast_button_style")
+        disable = bool(params.get("cast_disable"))
+        if label or button_style or disable:
+            patched = []
+            for comp in components:
+                if getattr(comp, "custom_id", "").endswith(".fishing_reel"):
+                    patch: dict = {}
+                    if label:
+                        patch["label"] = str(label)
+                    if button_style:
+                        patch["style"] = str(button_style)
+                    if disable:
+                        patch["disabled"] = True
+                    comp = _dc_replace(comp, **patch)
+                patched.append(comp)
+            components = tuple(patched)
+        return _dc_replace(rendered, embed=embed, components=components)
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(ctx.guild_id or 0)
     current = params.get("cast_energy")
@@ -1469,6 +1559,11 @@ def _fishery_factory() -> PanelSpec:
     return fishery_spec()
 
 
+@panel(RULES_PANEL_ID)
+def _rules_factory() -> PanelSpec:
+    return rules_card_spec()
+
+
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
     (LOG_PANEL_ID, _log_factory),
@@ -1482,6 +1577,7 @@ _FACTORIES = (
     (DOCK_PANEL_ID, _dock_factory),
     (BOATHOUSE_PANEL_ID, _boathouse_factory),
     (FISHERY_PANEL_ID, _fishery_factory),
+    (RULES_PANEL_ID, _rules_factory),
 )
 
 _RENDERS = (
@@ -1505,7 +1601,7 @@ def install_fishing_panels() -> tuple[PanelSpec, ...]:
     for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec,
                   rod_shop_spec, rod_recipes_spec, bait_shop_spec,
                   structures_hub_spec, tide_pool_spec, dock_spec,
-                  boathouse_spec, fishery_spec):
+                  boathouse_spec, fishery_spec, rules_card_spec):
         spec = build()
         try:
             out.append(register_panel(spec))

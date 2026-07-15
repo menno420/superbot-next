@@ -1,15 +1,21 @@
 """Settings-surface handlers — the ``!settings access`` front door plus
-the declared + honest pending terminals for every hub click whose target
-is its own port slice (the role/utility/channel-band precedent, never a
-silent stub): the per-group settings pages (``settings_subsystem.*``),
-the four diagnostic sub-panels (``settings_needs_setup.back`` family)
-and the Command Access panel (``settings_command_access.*``, PR-6) stay
-pending with the settings-mutation slice; the Access Policy Explorer's
-six controls are ARMED (curation rows 82-87) over the governance
-diagnostic read seam (``governance.resolve_subsystem_state``) and the
-K7 ``SET_VISIBILITY`` clear lane (Reset). Refs register at MODULE IMPORT
-(the composition-parity invariant — the live root never runs
-ENSURE_REFS)."""
+the declared + honest pending terminal for the one hub surface whose
+target is still its own port slice (the role/utility/channel-band
+precedent, never a silent stub): the per-group settings pages
+(``settings_subsystem.*``) stay pending with the settings-mutation
+slice. The Access Policy Explorer's six controls are ARMED (curation
+rows 82-87) over the governance diagnostic read seam
+(``governance.resolve_subsystem_state``) and the K7 ``SET_VISIBILITY``
+clear lane (Reset); the hub's three READ-ONLY diagnostics (Needs setup /
+Invalid settings / Missing bindings — settings-admin slice 1) and the
+🕒 Recent-changes audit view (slice 2) are ARMED as declared PanelRef
+open-child routes (sb/domain/settings/panels.py) — no handler here, the
+grammar owns the dispatch. The 🚪 Command Access panel is ARMED the same
+way (settings-admin slice 3) with its WRITE controls handled below over
+the live platform command-access K7 lanes (``platform.set_access_mode``
+/ ``set_access_channels`` — the setup-wizard step-8 seam, reused, never
+re-minted). Refs register at MODULE IMPORT (the composition-parity
+invariant — the live root never runs ENSURE_REFS)."""
 
 from __future__ import annotations
 
@@ -46,6 +52,19 @@ _ACCESS_EXPIRED = ("🔍 This explorer session has expired — reopen it with "
                    "`!settings access`.")
 _ACCESS_PICK_FIRST = ("🔍 Pick a subsystem from the first dropdown first "
                       "(and a scope — Channel is the default).")
+
+#: the Command-Access mode buttons → the shipped K7 mode values (the
+#: session_action arg carries the clicked action_id — the access_page
+#: discrimination precedent).
+_CA_MODES: dict[str, str] = {
+    "ca_all_channels": "all_channels",
+    "ca_selected_channels": "selected_channels",
+    "ca_disabled": "disabled_except_bootstrap",
+}
+
+#: the shipped no-guild guard copy (edit_command_access.py), verbatim.
+_CA_GUILD_ONLY = ("❌ Command access can only be configured inside a "
+                  "server.")
 
 
 def _display_name(req) -> str:
@@ -110,6 +129,25 @@ async def _refresh_access(req, key: str, state: dict) -> bool:
             req, message_key=key, params=_refresh_params(req, state))
     except Exception:  # noqa: BLE001 — the caller degrades to text
         logger.debug("settings.access refresh failed", exc_info=True)
+        return False
+
+
+async def _refresh_command_access(req) -> bool:
+    """Best-effort in-place re-render of the Command-Access panel after a
+    successful write (the oracle's ``_refresh_panel`` edit — the
+    ``_refresh_access`` posture: a miss degrades to the caller's text
+    confirmation, never an error). No params: the fields provider reads
+    the live policy snapshot (the write lanes forget the cache
+    post-commit)."""
+    key = _message_key(req)
+    if not key:
+        return False
+    try:
+        from sb.kernel.panels.engine import refresh_session_view
+
+        return await refresh_session_view(req, message_key=key, params={})
+    except Exception:  # noqa: BLE001 — the caller's text reply answers
+        logger.debug("settings.command_access refresh failed", exc_info=True)
         return False
 
 
@@ -195,18 +233,14 @@ def _register() -> None:
     from sb.domain.operator_spine import pending_handler
     from sb.spec.refs import HandlerRef, handler, is_registered
 
+    # The three read-only diagnostics' pending refs are RETIRED
+    # (settings-admin slice 1 armed them as PanelRef open-child routes —
+    # the retired-explorer-pending precedent), slice 2 retired the audit
+    # view's, and slice 3 retired the Command-Access door's the same
+    # way; only the per-group edit page keeps its honest terminal (the
+    # settings-mutation slice's port).
     pending_handler("settings.group_pending",
                     f"⚙️ The per-group settings page{_PENDING}")
-    pending_handler("settings.needs_setup_pending",
-                    f"📋 The Needs-setup diagnostic{_PENDING}")
-    pending_handler("settings.invalid_pending",
-                    f"⚠️ The Invalid-settings diagnostic{_PENDING}")
-    pending_handler("settings.missing_bindings_pending",
-                    f"🔗 The Missing-bindings diagnostic{_PENDING}")
-    pending_handler("settings.audit_pending",
-                    f"🕒 The Recent-changes audit view{_PENDING}")
-    pending_handler("settings.command_access_pending",
-                    f"🚪 The Command Access panel{_PENDING}")
 
     if is_registered(HandlerRef("settings.access_view")):
         return
@@ -372,6 +406,81 @@ def _register() -> None:
         if await _refresh_access(req, key, state):
             return None
         return Reply(SUCCESS, _ACCESS_EXPIRED)
+
+    # --- the armed Command Access panel controls (settings-admin slice 3) ---
+    # The set's ONE write surface (oracle disbot/views/settings/
+    # edit_command_access.py). Every mutation rides the LIVE platform
+    # command-access K7 lanes — platform.set_access_mode /
+    # set_access_channels (sb/domain/platform/command_access.py, the
+    # setup-wizard step-8 seam): audited compound ops, administrator
+    # authority floor (the engine's K6 check — the oracle's per-callback
+    # admin guard, structural here; the panel controls also carry
+    # audience_tier="administrator"), post-commit cache forget. A
+    # successful write refreshes the panel in place (the fields provider
+    # re-reads the live snapshot) then confirms with the shipped copy —
+    # the oracle's edit + ephemeral-followup pair (the access_reset
+    # posture). No session state: the DB snapshot IS the panel state.
+
+    @handler("settings.ca_mode")
+    async def ca_mode(req):
+        """One shipped mode button (🌐 All / 📋 Selected / 🚫 Disabled) —
+        the session_action discriminates (the access_page precedent);
+        writes through platform.set_access_mode."""
+        from sb.domain.platform import command_access
+        from sb.spec.outcomes import BLOCKED
+
+        if not req.guild_id:
+            # shipped guard copy, verbatim.
+            return Reply(BLOCKED, _CA_GUILD_ONLY)
+        mode = _CA_MODES.get(str(req.args.get("session_action") or ""))
+        if mode is None:
+            return Reply(BLOCKED, "❌ Unknown command access mode.")
+        result = await command_access.set_access_mode(
+            ctx_from_request(req, {}), mode=mode)
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't set the command access mode: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_command_access(req)
+        from sb.domain.settings.panels import _CA_MODE_LABELS
+
+        # shipped confirmation copy, verbatim.
+        return Reply(SUCCESS, f"✅ Command access mode set to "
+                              f"**{_CA_MODE_LABELS[mode]}**.")
+
+    @handler("settings.ca_channels")
+    async def ca_channels(req):
+        """The shipped multi-ChannelSelect — the atomic allowlist replace
+        (platform.set_access_channels: full DELETE + re-INSERT in one
+        leg; the oracle replace_allowed_channels shape). A blank
+        selection CLEARS the list (allow_empty — the shipped
+        min_values=0 contract)."""
+        from sb.domain.platform import command_access
+        from sb.spec.outcomes import BLOCKED
+
+        if not req.guild_id:
+            # shipped guard copy, verbatim.
+            return Reply(BLOCKED, _CA_GUILD_ONLY)
+        channel_ids = tuple(
+            int(v) for v in (req.args.get("values", ()) or ())
+            if str(v).isdigit())
+        result = await command_access.set_access_channels(
+            ctx_from_request(req, {}), channel_ids=channel_ids,
+            allow_empty=True)
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't update the allowed channels: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_command_access(req)
+        # shipped confirmation copy, verbatim (both branches).
+        if channel_ids:
+            return Reply(
+                SUCCESS,
+                f"✅ Allowed channels updated ({len(channel_ids)} "
+                f"channel{'s' if len(channel_ids) != 1 else ''}).")
+        return Reply(SUCCESS, "✅ Allowed channel list cleared.")
 
 
 _register()

@@ -103,6 +103,12 @@ CAPTURE_WORLD_COUNTERS: dict[str, dict[str, int]] = {
 #: invalidation would otherwise leak `test` differently per mode).
 CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
     "sweep.word_list": ("test",),
+    # the words manager renders the SAME leaked cache state (`!wordmenu`
+    # ran after `!word add test` in the alphabetical sweep) — the panel's
+    # Current Words field went live with the anti-evasion residue port,
+    # so the capture trajectory seeds here exactly like word_list
+    # (goldens/cleanup/sweep_wordmenu.json pins "Current Words: `test`").
+    "sweep.wordmenu": ("test",),
 }
 
 #: CAPTURE-WORLD LEAKED CHANNELS, reconstructed (world state — the
@@ -138,6 +144,32 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     # the forecast command renders the same capture-day condition
     # (goldens/fishing/sweep_forecast pins the 🌧️ Rain embed — slice 1).
     "sweep.forecast": "rain",
+    # the fishing CAST-leg + howtofish write goldens (#387) were captured
+    # on 2026-07-13, a ⛈️ Storm day under the reconstructed table, and their
+    # curated cases were minted with NO capture-world weather seed — so the
+    # shipped `current_weather()` fell through to the LIVE wall clock, and
+    # the goldens only replayed green on days whose real date still picked
+    # Storm. That is capture-world world state exactly like the sweep rows
+    # above; pin the capture-day ⛈️ Storm so replay is date-independent (was
+    # a wall-clock time-bomb: green on 2026-07-13, red on 2026-07-14 when the
+    # live date picked 🌧️ Rain). Seeded by #448; the goldens were then
+    # re-minted under this seed in the canonical stripped D-0073 flavor
+    # (mint_golden → capture_case and replay_case → capture_case share
+    # this one seeding site, so both legs are date-independent).
+    "fishing.cast_reel_write": "storm",
+    "fishing.cast_deepwater_reel_write": "storm",
+    "fishing.cast_bait_spend_write": "storm",
+    "fishing.howtofish_rules_card": "storm",
+    # the D-0043 slice-1 timing cases (2026-07-14): seeded BEFORE their
+    # mint per the post-07-13 date-live-outage doctrine — every
+    # weather-bearing golden registers its capture-world condition here
+    # FIRST so replay never falls through to the live wall clock. Storm
+    # matches the cast-write rows above (bite_speed 1.12 / rarity 1.30
+    # are part of each case's pinned timing/pull trajectory).
+    "fishing.cast_premature_spook": "storm",
+    "fishing.cast_premature_grace": "storm",
+    "fishing.cast_trophy_fight_land": "storm",
+    "fishing.cast_trophy_fight_escape": "storm",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
@@ -235,11 +267,13 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
             for name, cid in harness.world.channels.items():
                 content = content.replace(f"__CHANNEL_{name.upper()}__", f"<#{cid}>")
         await harness.send_command(content, persona=step.persona,
-                                   channel=step.channel, mentions=mentions)
+                                   channel=step.channel, mentions=mentions,
+                                   advance_s=step.advance_s)
         return None
     if step.kind == "slash":
         await harness.invoke_slash(step.name, list(step.options),
-                                   persona=step.persona, channel=step.channel)
+                                   persona=step.persona, channel=step.channel,
+                                   advance_s=step.advance_s)
         return None
     if step.kind == "click":
         index = step.target_message - 1
@@ -262,7 +296,8 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
         await harness.click(message_id=message_id, custom_id=custom_id,
                             component_type=component_type,
                             values=list(step.values) if step.values is not None else None,
-                            persona=step.persona, channel=step.channel)
+                            persona=step.persona, channel=step.channel,
+                            advance_s=step.advance_s)
         return custom_id
     if step.kind == "modal":
         # wire-type-5 modal submit (D-0073): target_message is optional —
@@ -280,7 +315,8 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
         await harness.modal_submit(message_id=message_id,
                                    custom_id=step.custom_id,
                                    fields=dict(step.fields),
-                                   persona=step.persona, channel=step.channel)
+                                   persona=step.persona, channel=step.channel,
+                                   advance_s=step.advance_s)
         return None
     raise ValueError(f"unknown step kind {step.kind!r}")  # pragma: no cover
 

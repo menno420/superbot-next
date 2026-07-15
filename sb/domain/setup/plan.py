@@ -65,6 +65,11 @@ class SetupRecommendation:
     target_name: str
     confidence: str
     reason: str
+    #: the oracle mode facet (per_recommendation.py): ``bind`` wires an
+    #: existing resource (everything this deterministic advisor mints);
+    #: ``create`` proposes MAKING the resource — its Edit face is the
+    #: rename modal (the suggestion-edit slice).
+    mode: str = "bind"
 
 
 @dataclass(frozen=True)

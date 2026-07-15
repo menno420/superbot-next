@@ -1002,17 +1002,22 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         subsystem="fishing",
         steps=(
             Step(kind="command", content="!fish", persona="member"),
+            # in-window since the slice-2 late-enforcement flip: the
+            # seed-42 storm bite lands at ~4.28 s, window 2.5 — 5.0 s
+            # sits inside [4.28 … 6.78] (the pre-flip default 30 s click
+            # would now be too-slow).
             Step(kind="click", target_message=1, component_index=0,
-                 persona="member"),
+                 persona="member", advance_s=5.0),
         ),
         notes=(
             "fresh player, shore profile — every knob reads exactly neutral "
             "(no-row venue → shore, rod tier 0, no bait, unbuilt structures, "
             "fresh gear): `!fish` spends 2 energy off the fresh full bar "
-            "(fishing_energy row 58) and the Reel click drives the audited "
-            "fishing.cast leg — the FIRST row-bearing fishing_catch_log "
-            "capture (dex row + the caught fish in mining_inventory + the "
-            "fishing game-XP award) with the oracle result-card copy "
+            "(fishing_energy row 58) and the in-window Reel click drives "
+            "the audited fishing.cast leg — the FIRST row-bearing "
+            "fishing_catch_log capture (dex row + the caught fish in "
+            "mining_inventory + the fishing game-XP award) with the oracle "
+            "result-card copy "
             "(retires the fishing_catch_log guard-only-capture exemption)"),
     ),
     GoldenCase(
@@ -1039,8 +1044,12 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         ),
         steps=(
             Step(kind="command", content="!fish", persona="member"),
+            # in-window (slice-2 late enforcement): the seed-42 storm
+            # deepwater bite at the loaded compound lands at ~7.09 s,
+            # window 2.8 (deep 2.0 + Silver rod 0.8) — 8.0 s sits inside
+            # [7.09 … 9.89].
             Step(kind="click", target_message=1, component_index=0,
-                 persona="member"),
+                 persona="member", advance_s=8.0),
         ),
         notes=(
             "deepwater reel at a loaded profile: the cast panel renders the "
@@ -1065,8 +1074,11 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         ),
         steps=(
             Step(kind="command", content="!fish", persona="member"),
+            # in-window (slice-2 late enforcement): the seed-42 storm
+            # bite on the worm loadout lands at ~4.28 s, window 2.5 —
+            # 5.0 s sits inside [4.28 … 6.78].
             Step(kind="click", target_message=1, component_index=0,
-                 persona="member"),
+                 persona="member", advance_s=5.0),
         ),
         notes=(
             "the last-charge spend: `!fish` consumes the worm pack's final "
@@ -1075,5 +1087,196 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "`('', 0)` (clear-at-0) beside the shore catch commit; the cast "
             "panel footer still shows the spent-from pack (`🪱 Worm Bait (0 "
             "left)`) exactly as the oracle CastStart carried it"),
+    ),
+    # ------------------------------------- fishing minigame timing (D-0043 s1)
+    # The first goldens that drive the CLOCK grammar: each Reel click carries
+    # ``advance_s`` (None = the fixed 30 s the whole corpus rides), so the
+    # click lands at a chosen offset from the cast — before the rolled bite
+    # (premature), or inside the reaction window (hook/fight). Seeds were
+    # chosen so the runner-armed cast-RNG trajectory (species → weight →
+    # bite → fake-out → [grace|escape…] → commit draws) takes the intended
+    # branch; the capture-world weather is storm (CAPTURE_WORLD_WEATHER —
+    # registered before the mint), whose 1.12 bite-speed / 1.30 rarity mults
+    # are part of each pinned trajectory.
+    GoldenCase(
+        id="fishing.cast_premature_spook",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # 0.5 s after the cast — always before the bite (shore floor
+            # 1.5 s), and the bare rod's grace 0 can never forgive (no
+            # rng draw — roll_premature_grace short-circuits at ≤ 0).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=0.5),
+        ),
+        notes=(
+            "fresh player, bare rod: reeling 0.5 s after the cast is "
+            "premature (seed-42 storm bite lands at ~4.28 s) and grace 0 "
+            "spooks deterministically — the oracle 🌀 reeled-too-early "
+            "terminal (verbatim; NO trophy clue — the oracle never wraps "
+            "the premature spook in _got_away), the paid cast is gone, "
+            "and db_delta pins the cast's own energy spend (60→58) plus "
+            "the passive chat-XP row every command golden carries: no "
+            "catch-log row, no fish grant, no game_xp"),
+    ),
+    GoldenCase(
+        id="fishing.cast_premature_grace",
+        subsystem="fishing",
+        # a Diamond Rod (tier 4, premature_grace 0.60) — the forgive knob.
+        fixture_sql=(
+            "INSERT INTO fishing_rod (user_id, guild_id, tier) VALUES "
+            "(900000000000000102, 700000000000000001, 4)",
+        ),
+        seed=4,
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=0.5),
+        ),
+        notes=(
+            "the one forgiven slip: seed-4's grace draw (0.067 < 0.60) "
+            "forgives the 0.5 s premature reel — the oracle 😅 'the "
+            "Diamond Rod steadies it' edit rides the in-place panel "
+            "refresh (the cast_prompt override), the cast STAYS parked "
+            "(grace spent), and db_delta still pins only the energy "
+            "spend — a forgiven slip neither lands nor loses the fish"),
+    ),
+    GoldenCase(
+        id="fishing.cast_trophy_fight_land",
+        subsystem="fishing",
+        # deepwater at fishing level 2 (cap 6): the seed-2 catch is the
+        # lancetfish (#6) — a trophy (threshold 4), a 3-tap fight.
+        fixture_sql=(
+            "INSERT INTO fishing_venue (user_id, guild_id, venue) VALUES "
+            "(900000000000000102, 700000000000000001, 'deepwater')",
+            "INSERT INTO game_xp (user_id, guild_id, game, xp) VALUES "
+            "(900000000000000102, 700000000000000001, 'fishing', 100)",
+        ),
+        seed=2,
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # the hook: seed-2's storm bite lands at ~7.10 s; 8.0 s sits
+            # inside the deepwater window (7.10 … 9.10 at window 2.0).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=8.0),
+            # three reel taps (rank 6 ⇒ 2 + round(12/21) = 3); every
+            # seed-2 escape draw holds (0.835/0.736/0.670 ≥ 0.195).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+        ),
+        notes=(
+            "the trophy reel-fight, landed: the in-window hook flips the "
+            "panel to the oracle 🎣 Hooked-a-big-one edit, taps 1-2 "
+            "advance the ▰▱ tension bar in place, and tap 3 commits the "
+            "audited fishing.cast leg — db_delta pins the lancetfish "
+            "catch-log row + fish grant + the game_xp bump off the "
+            "level-2 fixture row, with the 🏆 Trophy landed! result card"),
+    ),
+    GoldenCase(
+        id="fishing.cast_trophy_fight_escape",
+        subsystem="fishing",
+        fixture_sql=(
+            "INSERT INTO fishing_venue (user_id, guild_id, venue) VALUES "
+            "(900000000000000102, 700000000000000001, 'deepwater')",
+            "INSERT INTO game_xp (user_id, guild_id, game, xp) VALUES "
+            "(900000000000000102, 700000000000000001, 'fishing', 100)",
+        ),
+        seed=15,
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # the hook: seed-15's bite lands at ~11.67 s; 12.5 s is
+            # inside the window (11.67 … 13.67).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=12.5),
+            # tap 1 holds (0.986 ≥ 0.195)…
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+            # …tap 2's escape draw fires (0.017 < 0.195) — snapped.
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+        ),
+        notes=(
+            "the big one that got away: a lancetfish trophy hooks and "
+            "holds one tap, then the per-tap deepwater escape roll fires "
+            "— the oracle 💥 snapped-the-line terminal + the 💭 trophy "
+            "clue (a fight IS a trophy), the paid cast is gone, and "
+            "db_delta pins ONLY the energy spend — no catch-log row, no "
+            "fish, no xp movement on the fixture row"),
+    ),
+    GoldenCase(
+        id="fishing.howtofish_rules_card",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fishing", persona="member"),
+            # …the hub's 📖 How to fish button (row two, after Fishdex —
+            # flattened index 6 over the 5+2 layout rows) opens the
+            # static rules card as an ephemeral reply.
+            Step(kind="click", target_message=1, component_index=6,
+                 persona="member"),
+        ),
+        notes=(
+            "the hub 📖 How-to-fish affordance: the shipped rules_btn sent "
+            "_rules_embed as an ephemeral component reply (views/fishing/"
+            "menu.py) — a fully static purple quick-reference card with no "
+            "fields, footer or components and an EMPTY db_delta (a pure "
+            "read; the creature rules-card posture). Pins the "
+            "oracle-verbatim loop/get-better-catches copy the "
+            "fishing.howtofish_pending terminal answered with a stub "
+            "until 2026-07-13"),
+    ),
+    # ------------------------------------------- cleanup anti-evasion WRITE
+    # The first golden that CLICKS the words manager's 🛡️ Anti-evasion
+    # button (the 2026-07-13 residue port armed it — the imported sweep only
+    # pinned the panel open): `!wordmenu` renders the session view (empty DB
+    # → the shipped empty-state description + the default-off anti-evasion
+    # field), then the component_index click drives the audited
+    # cleanup.wordfilter_strict_op — the FIRST row-bearing wordfilter_config
+    # capture (migration 0053) with the in-place re-render flipping the
+    # field to the shipped 🟢 On literal. admin persona (the words manager
+    # is an Administrator surface).
+    GoldenCase(
+        id="cleanup.anti_evasion_toggle_write",
+        subsystem="cleanup",
+        steps=(
+            Step(kind="command", content="!wordmenu", persona="admin"),
+            Step(kind="click", target_message=1, component_index=4,
+                 persona="admin"),
+        ),
+        notes=(
+            "the anti-evasion opt-in: the 🛡️ click writes strict=true "
+            "through the audited cleanup.wordfilter_strict_op (db_delta "
+            "pins the wordfilter_config upsert + the audit row) and the "
+            "session view re-renders in place — the anti-evasion field "
+            "flips to the shipped 🟢 On copy while the empty word list "
+            "keeps the shipped no-words description"),
+    ),
+    # ------------------------------------------- cleanup policies open
+    # The hub's 🧹 Cleanup Policies button (the LAST cleanup pending,
+    # retired 2026-07-13 by the cleanup-policy slice): `!cleanup` renders
+    # the hub, then the component_index click (row 0: words/logging/
+    # settings/POLICIES → flattened 3) opens the ported cleanup.policies
+    # diagnostics view — empty DB → the oracle empty state. admin persona
+    # (the hub is an Administrator surface).
+    GoldenCase(
+        id="cleanup.policies_open",
+        subsystem="cleanup",
+        steps=(
+            Step(kind="command", content="!cleanup", persona="admin"),
+            Step(kind="click", target_message=1, component_index=3,
+                 persona="admin"),
+        ),
+        notes=(
+            "the 🧹 Cleanup Policies open: the shipped btn_policies EDITED "
+            "the hub message into the diagnostics panel "
+            "(views/cleanup/policy_panel.py diagnostics_embed_from) — the "
+            "red embed with the resolution-walk description, the empty "
+            "'Configured policies' state, the ℹ️ Command Access tip and "
+            "the 'Use “Set a policy” to add one.' footer over the "
+            "persistent cleanup_policy:build/remove/refresh trio — a pure "
+            "read (no cleanup_policies db_delta)"),
     ),
 )

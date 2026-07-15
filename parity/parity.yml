@@ -162,6 +162,33 @@ source:
   # mining delta (the pre-txn pure-read guard); use_torch_flavour pins the
   # flavour-only debit. Oracle copy verbatim from
   # disbot/services/mining_workflow.py use_item/cook @ 87bbe1d.
+  # +1 minted the cleanup ANTI-EVASION toggle golden (2026-07-13, the
+  # completeness-remainders residue port, same D-0073 capture_case
+  # procedure): goldens/cleanup/cleanup_anti_evasion_toggle_write.json —
+  # `!wordmenu` → the words manager's 🛡️ Anti-evasion button by
+  # component_index. The FIRST row-bearing wordfilter_config capture
+  # (migration 0053): the click drives the audited
+  # cleanup.wordfilter_strict_op (strict=true upsert + audit row) and the
+  # session view re-renders in place with the shipped 🟢 On field literal
+  # (oracle disbot/cogs/cleanup_cog.py _WordMenuView.btn_strict @ 9776401).
+  # +1 minted the fishing HOWTOFISH rules-card golden (2026-07-13, the
+  # completeness-remainders fishing row, same D-0073 procedure):
+  # goldens/fishing/fishing_howtofish_rules_card.json — `!fishing` → the
+  # hub's 📖 How-to-fish button by component_index (the first golden that
+  # drives the fishing_rules button): the shipped ephemeral _rules_embed
+  # quick-reference (views/fishing/menu.py rules_btn @ 9776401), a pure
+  # read whose only db_delta is the message-driven xp.award pair.
+  # +1 minted the cleanup POLICIES-OPEN golden (2026-07-13, the
+  # cleanup-policy slice — the LAST cleanup pending retired, same D-0073
+  # procedure): goldens/cleanup/cleanup_policies_open.json — `!cleanup` →
+  # the hub's 🧹 Cleanup Policies button by component_index (the first
+  # golden that drives the policies button past its retired pending
+  # terminal): the ported cleanup.policies diagnostics view (oracle
+  # disbot/views/cleanup/policy_panel.py diagnostics_embed_from
+  # @ 9776401) — the empty-state embed + the 'Use "Set a policy" to add
+  # one.' footer over the persistent cleanup_policy:build/remove/refresh
+  # trio, a pure read (no cleanup_policies db_delta; only the
+  # message-driven xp.award pair rides the delta).
   # WP-2 mining WRITE-PARITY minted FOUR more (2026-07-12) via the same
   # capture_case procedure — the vault write goldens:
   # goldens/mining/mining_{stash,unstash,stash_all,vault_upgrade}_write.json.
@@ -178,7 +205,7 @@ source:
   # mining_gear_wear (remove face) / mining_inventory / mining_equipment
   # row-level db_delta (retiring the mining_world + mining_gear_wear
   # depth.exemptions.mining guard-only-capture rows).
-  # +5 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
+  # +1 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
   # same D-0073 capture_case + kernel-spine-strip procedure):
   # goldens/mining/mining_fastmine_out_of_energy_refusal.json — !fastmine
   # on an empty bar refuses PLAIN with the oracle dig() hint (route-level
@@ -193,10 +220,34 @@ source:
   # slice: minted before migration 0052 widened the table, their pinned
   # rows gain the energy/energy_updated_at column defaults (0, 0) on the
   # merged schema — the post-WP-3 contract reconcile, replies unchanged.
-  minted_goldens: 39
+  # +4 minted the fishing MINIGAME-TIMING slice-1 goldens (2026-07-14,
+  # D-0043 timing rung — the first goldens that drive the Step.advance_s
+  # clock grammar; oracle disbot/views/fishing/cast_view.py @ bbc524e):
+  # goldens/fishing/fishing_cast_premature_spook.json (a 0.5 s pre-bite
+  # Reel on a bare rod — the 🌀 spook terminal, energy spent, no write),
+  # fishing_cast_premature_grace.json (a Diamond Rod's premature_grace
+  # forgives the slip — the 😅 in-place panel edit, cast stays parked),
+  # fishing_cast_trophy_fight_land.json (deepwater lancetfish trophy at
+  # the level-2 fixture: hook → two ▰▱ tension-bar edits → the 3rd tap
+  # commits the 🏆 result) and fishing_cast_trophy_fight_escape.json
+  # (one held tap, then the per-tap deepwater escape roll fires — the
+  # 💥 snapped-the-line terminal + the 💭 trophy clue, no write). All
+  # four seeded storm in CAPTURE_WORLD_WEATHER before the mint.
+  # The 3 cast-leg REEL write goldens were RE-MINTED by the timing-rung
+  # slice 2 (2026-07-14, late-window enforcement ON — D-0043/D-0090):
+  # their pre-flip default 30 s clicks would now resolve too-slow, so
+  # each curated click gained an in-window advance_s (reel 5.0 s /
+  # deepwater 8.0 s / bait-spend 5.0 s — inside the seed-42 storm bite
+  # windows [4.28…6.78] / [7.09…9.89] / [4.28…6.78]); the pinned
+  # species/weight/delta trajectories are unchanged (same seed, same
+  # draws — only the click timestamps and the input docs moved). A
+  # deliberate enforcement change re-minted in-PR, not a regression;
+  # counts unchanged. The 4 slice-1 timing goldens replay clean under
+  # the flip (their clicks were already in-window/premature by design).
+  minted_goldens: 46
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 501). The first retirement (2026-07-12
+  # imported + minted − retired = 508). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -1031,6 +1082,23 @@ depth:
           audit lane) — a run-minted role select whose value the click
           schema does not carry (D-0064); no imported golden
           corpus-wide carries the table"
+    server_management:
+      # the routing port (setup compound-ops slice 2): the table's sole
+      # writer is the K7 routing.set_policy op behind the K9
+      # set_cog_routing kind — staged ONLY through the setup wizard's
+      # cog-routing section (scope → target → cog → Enable/Disable
+      # select/pick chain, then the Final-Review apply); the read side
+      # is the access projection's axis 3 (default-true on the empty
+      # table, the production default per migration 0054's header).
+      - surface: "table:command_routing_policy"
+        reason: "select-driven: routing rows are written through the
+          shipped cog-routing section's scope/cog pick chain
+          (views/setup/sections/cog_routing.py _ScopeSelect →
+          _build_cog_pick_view → _EnableDisableSelect) — run-minted
+          selects whose values the click schema does not carry (D-0064)
+          — and land only via the Final-Review draft apply; no imported
+          golden corpus-wide carries the table (the resolver's
+          default-true empty-table read IS the capture world's state)"
     settings:
       # settings owns the SHARED K7 config lane (band 1): its stores/event
       # are written through the four scalar/binding ops that OTHER
@@ -1136,6 +1204,18 @@ depth:
   # Committed covered-surface floors — counts never decrease. A `ported`
   # subsystem MUST have a row; regenerate with
   #   python3 tools/check_parity_depth.py --write-ratchet
+  #
+  # fishing 3/10 → 2/8 — the ONE deliberate downward correction
+  # (2026-07-14 weather-golden hotfix): the 07-13 cast-leg/howtofish
+  # mints carried the kernel spine (audit_log/event_outbox tables + the
+  # command.dispatched event) that mint_golden's apply_dispositions
+  # strips from every non-kernel golden, so the 07-13 floor was minted
+  # from a non-canonical flavor; replay never diffed those bytes anyway
+  # (apply_dispositions runs on BOTH docs before every diff —
+  # sb/adapters/parity/runner.py replay_case). The re-mint (same
+  # captures, seam-seeded weather, canonical stripped D-0073 flavor)
+  # drops exactly those spine surfaces — which stay pinned in the
+  # `kernel` coverage home — not any fishing-owned surface.
   ratchet:
     admin: {events: 1, tables: 2, settings: 0}
     ai: {events: 2, tables: 4, settings: 1}
@@ -1145,7 +1225,7 @@ depth:
     casino: {events: 1, tables: 2, settings: 0}
     chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 3, tables: 2, settings: 0}
-    cleanup: {events: 1, tables: 3, settings: 0}
+    cleanup: {events: 2, tables: 6, settings: 0}
     community: {events: 1, tables: 2, settings: 0}
     community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
@@ -1155,7 +1235,7 @@ depth:
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
     farm: {events: 1, tables: 2, settings: 0}
-    fishing: {events: 3, tables: 10, settings: 0}
+    fishing: {events: 2, tables: 8, settings: 0}
     four_twenty: {events: 1, tables: 2, settings: 0}
     games: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}

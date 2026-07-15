@@ -1,9 +1,9 @@
 """Mining K7 lanes (band 6) — the CORE loop (mine / chop / explore / sell
 / sellall / buy) as one-leg one-txn ops over the shipped math, plus the
 ported deep-system write lanes (equip/loadout, descend/ascend, vault,
-repair/quickcraft, the energy-lane cook/use consumables, and the slice-3
-fastmine dig energy spend). The still unported deep systems (wear ticks,
-grid dig) ride their named successor slices."""
+repair/quickcraft, the energy-lane cook/use consumables, the grid dig
+``mining.dig`` — the navigator's move+mine+wear+XP txn, curation rework
+rows 45/59 — and the slice-3 fastmine dig energy spend)."""
 
 from __future__ import annotations
 
@@ -809,7 +809,13 @@ async def _record_cook(conn, ctx: WorkflowContext) -> LegOutcome:
     Gates (campfire / not-a-fish / short stack) are pure reads that abort
     the txn row-less; the raw-fish debit + cooked-fish grant commit in ONE
     txn (Q-0071). NOT money-bearing — raw fish sell for coins through the
-    market; cooking trades a fish for a meal."""
+    market; cooking trades a fish for a meal. Lockless by ledgered
+    posture (the ``_record_use_item`` twin above): two raced cooks over
+    one short stack can both pass the in-txn stack read and the floor-0
+    ``update_mining_item`` debit masks the loser — an extra meal minted
+    from one stack, matching the oracle's own unfenced cook; cooked fish
+    has no coin sink (``market.sell_price`` knows only resources + raw
+    species), so a raced cook can never mint or strand coins."""
     from sb.domain.mining import energy, structures
 
     uid, gid, _ = _ids(ctx)
@@ -845,6 +851,202 @@ async def _record_cook(conn, ctx: WorkflowContext) -> LegOutcome:
                "message": f"🔥 You cook **{qty}× {fish}** into "
                           f"**{qty}× cooked fish** (+{gain} ⚡ each when "
                           f"eaten — `!use cooked fish`)."})
+
+
+# --- the grid dig (curation rework rows 45/59 — oracle mining_workflow.dig) --
+
+
+def _wear_candidates(action: str, depth: int,
+                     equipped: dict[str, str]) -> list[tuple[str, str]]:
+    """The (slot, item) pairs that wear for *action* at *depth* (pure) —
+    oracle ``mining_workflow._wear_candidates`` verbatim over the ported
+    ``workshop.WEAR_PLAN``."""
+    from sb.domain.mining import equipment, workshop
+
+    plan = workshop.WEAR_PLAN.get(action, ())
+    return [
+        (slot, item)
+        for slot, underground_only in plan
+        if (item := equipped.get(slot))
+        and (not underground_only or depth > 0)
+        and equipment.max_durability(item) is not None
+    ]
+
+
+async def _apply_wear_writes(conn, uid: int, gid: int,
+                             candidates: list[tuple[str, str]],
+                             wear: dict[str, int]):
+    """The wear writes, on the caller's leg connection — oracle
+    ``mining_workflow._apply_wear_writes`` verbatim: tick 1 durability off
+    each candidate; at 0 the break consumes one unit from the inventory
+    (the actual sink), clears the slot, deletes the wear row and records
+    ``last_broken_item`` for quick-craft — all inside the dig's ONE txn
+    (the RS02 posture: pre-RS02 a mid-break failure could consume the item
+    but leave it equipped). First wear-tick writer in the tree; the WP-3/
+    WP-4 lane (#317) owns the wear GOLDENS — fold onto its helpers if it
+    lands its own."""
+    from sb.domain.mining import equipment, workshop
+
+    broke: list[str] = []
+    notes: list[str] = []
+    for slot, item in candidates:
+        maximum = equipment.max_durability(item)
+        if maximum is None:  # filtered by _wear_candidates; narrows the type
+            continue
+        remaining = wear.get(item, maximum) - 1
+        if remaining <= 0:
+            await store.clear_gear_wear(conn, user_id=uid, guild_id=gid,
+                                        item_name=item)
+            await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                           item=item, delta=-1)
+            await store.unequip_slot(conn, user_id=uid, guild_id=gid,
+                                     slot=slot)
+            await store.set_last_broken(conn, user_id=uid, guild_id=gid,
+                                        item=item)
+            broke.append(item)
+            notes.append(
+                f"💥 Your **{item}** broke! Re-craft or repair gear at the "
+                f"🔧 Workshop.")
+        else:
+            await store.set_gear_wear(conn, user_id=uid, guild_id=gid,
+                                      item_name=item, durability=remaining)
+            if remaining <= workshop.LOW_DURABILITY_WARN:
+                notes.append(
+                    f"⚠️ Your **{item}** is nearly worn out "
+                    f"({remaining}/{maximum}) — repair it at the "
+                    f"🔧 Workshop.")
+    return workshop.WearReport(broke=tuple(broke), notes=tuple(notes))
+
+
+def _pack_warning_after(inventory: dict[str, int],
+                        granted: str | None) -> str | None:
+    """The near-cap nudge AFTER a grant — oracle ``_pack_warning_after``
+    over the ported capacity math: project the granted item onto the
+    pre-grant pack and warn off the projected status."""
+    from sb.domain.mining import capacity
+
+    projected = dict(inventory)
+    if granted:
+        projected[granted] = projected.get(granted, 0) + 1
+    return capacity.pack_warning(capacity.pack_status(projected))
+
+
+@workflow("mining.record_dig")
+async def _record_dig(conn, ctx: WorkflowContext) -> LegOutcome:
+    """One directional dig — move into the adjacent cell AND mine it
+    (oracle ``mining_workflow.dig`` @ 9c16365, the post-#1281 owner model:
+    mining IS locomotion). The energy spend, the depth move, the loot
+    grant, the wear tick and the XP awards commit in ONE txn; the lateral
+    (x, y) move + fog-of-war mark ride the navigator session (see the
+    position note below — the durable columns are parity-walled tonight).
+    The route handler gates every not-moved case out before the op (energy
+    empty, light-gated Down, Surface Up, unknown token — pure reads, no
+    audit row, the ``record_descend`` guard posture); this leg re-checks
+    each defensively (ValidatorError aborts: no row, no audit)."""
+    from sb.domain.mining import character, energy, grid, workshop, world
+
+    uid, gid, now = _ids(ctx)
+    direction = str(ctx.params.get("direction", "")).strip().lower()
+    # Lateral position rides the NAVIGATOR SESSION (the panel hands it in;
+    # sb/domain/mining/panels.py owns the per-message session dict) — the
+    # durable pos_x/pos_y columns are parity-walled tonight: any new column
+    # on the row-covered mining_player_state changes the row shape the
+    # mining_use_ration_restore_write golden snapshots, and the disposition
+    # row lives in parity.yml (wp-stack lane). Depth stays fully durable.
+    x = int(ctx.params.get("x", 0) or 0)
+    y = int(ctx.params.get("y", 0) or 0)
+    depth = await store.get_depth(uid, gid, conn=conn)
+
+    # Energy is the frequency brake (owner's choice over a cooldown): no
+    # energy -> no move, no loot, no spend.
+    e_state = energy.EnergyState(*await store.get_energy(uid, gid,
+                                                         conn=conn))
+    if not energy.can_dig(e_state, now):
+        wait = energy.seconds_until(e_state, now, energy.DIG_COST)
+        raise ValidatorError(
+            "⚡ You're out of energy — rest a moment "
+            f"(~{wait}s until your next dig) or eat a **ration** / "
+            "**energy drink** (`!use ration`).")
+
+    equipped = await store.get_equipment(uid, gid, conn=conn)
+    # Gear + allocated skill points gate Down (byte-identical to gear-only
+    # when nothing is allocated — the additive safety property, as in
+    # record_descend).
+    alloc = await store.get_skills(uid, gid, conn=conn)
+    stats = character.character_stats(equipped, alloc)
+
+    if direction in grid.LATERAL:
+        nx, ny = grid.step(x, y, direction)
+        nz = depth
+    elif direction == grid.DOWN:
+        nz = world.descend(depth, stats)
+        if nz == depth:
+            raise ValidatorError(world.descend_hint(stats))
+        nx, ny = x, y
+    elif direction == grid.UP:
+        nz = world.ascend(depth)
+        if nz == depth:
+            raise ValidatorError(
+                "You're already at the Surface — nowhere up to dig.")
+        nx, ny = x, y
+    else:
+        raise ValidatorError(f"Unknown direction: {direction}.")
+
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    seed = await store.get_world_seed(gid, conn=conn)
+    cell = grid.cell_at(seed, nx, ny, nz)
+    found, amount = rewards.roll_mine_loot(
+        has_pickaxe=inventory.get("pickaxe", 0) > 0, depth=nz,
+        multiplier=rewards.mine_multiplier(equipped, inventory), rng=_rng)
+    found, amount, cell_note = grid.apply_cell_to_loot(cell, found, amount)
+    candidates = _wear_candidates(workshop.ACTION_MINE, nz, equipped)
+    wear = (await store.get_gear_wear(uid, gid, conn=conn)
+            if candidates else {})
+
+    spent = energy.spend(e_state, now)
+    await store.set_energy(uid, gid, spent.current, spent.updated_at,
+                           conn=conn)
+    if direction not in grid.LATERAL:
+        await store.set_depth(conn, user_id=uid, guild_id=gid, depth=nz)
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=found, delta=amount)
+    report = (await _apply_wear_writes(conn, uid, gid, candidates, wear)
+              if candidates else workshop.WearReport())
+
+    xp_note: str | None = None
+    descended = direction == grid.DOWN
+    if descended and await store.record_depth(conn, user_id=uid,
+                                              guild_id=gid, depth=nz):
+        record = await game_xp.award_in_txn(
+            conn, user_id=uid, guild_id=gid, game=game_xp.GAME_MINING,
+            action="depth_record", now=now)
+        if record.leveled_up:
+            xp_note = ("🎉 Game level up — you reached "
+                       f"**Level {record.new_level}**!")
+    mined = await game_xp.award_in_txn(
+        conn, user_id=uid, guild_id=gid, game=game_xp.GAME_MINING,
+        action="mine", now=now, depth=nz)
+    if mined.leveled_up:
+        xp_note = ("🎉 Game level up — you reached "
+                   f"**Level {mined.new_level}**!")
+    ctx.params["_balance_changes"] = []
+    # BOUNDED deviation from the oracle's per-award emit loop: the shared
+    # _XP_EMITS payload builders read the ONE ctx.params["_gxp"] slot, so
+    # the always-fired mine award rides the event; a same-dig depth_record
+    # award still WRITES its XP in-txn but skips its own emit (the emit
+    # grammar carries one conditional award per op — the record_descend
+    # single-slot precedent).
+    ctx.params["_gxp"] = mined
+    return LegOutcome(
+        step=StepResult(uid, "dig", True), before={},
+        after={"moved": True, "x": nx, "y": ny, "depth": nz,
+               "found": found, "amount": amount,
+               "cell_note": cell_note or "",
+               "wear_notes": list(report.notes),
+               "xp_note": xp_note or "",
+               "pack_warning": _pack_warning_after(inventory, found) or "",
+               "message": (f"You dig **{grid.move_phrase(direction)}** and "
+                           f"mine **{amount}× {found}**!")})
 
 
 @workflow("mining.erase_subject_structures")
@@ -938,6 +1140,7 @@ def _op(op_key: str, verb: str, leg_ref: str,
 
 
 MINE = _op("mining.mine", "mining_dug", "mining.record_mine", _XP_EMITS)
+DIG = _op("mining.dig", "mining_grid_dug", "mining.record_dig", _XP_EMITS)
 HARVEST = _op("mining.harvest", "mining_harvested",
               "mining.record_harvest", _XP_EMITS)
 EXPLORE = _op("mining.explore", "mining_explored",
@@ -979,7 +1182,7 @@ USE_ITEM = _op("mining.use", "mining_item_used",
                "mining.record_use_item", ())
 COOK = _op("mining.cook", "mining_cooked", "mining.record_cook", ())
 
-_OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
+_OPS = (MINE, DIG, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
         EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
         STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
@@ -987,6 +1190,7 @@ _OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
+    ("mining.record_dig", _record_dig),
     ("mining.record_harvest", _record_harvest),
     ("mining.record_explore", _record_explore),
     ("mining.record_sell", _record_sell),

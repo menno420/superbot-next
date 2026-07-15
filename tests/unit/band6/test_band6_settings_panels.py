@@ -239,9 +239,6 @@ def test_panel_and_handler_refs_registered():
     for name in ("settings.render_hub", "settings.render_access",
                  "settings.access_view", "settings.open_group",
                  "settings.group_pending",
-                 "settings.needs_setup_pending", "settings.invalid_pending",
-                 "settings.missing_bindings_pending", "settings.audit_pending",
-                 "settings.command_access_pending",
                  # the ARMED explorer controls (curation rows 82-87) —
                  # the five *_pending terminals they replaced must stay
                  # retired (the sweep below).
@@ -249,13 +246,30 @@ def test_panel_and_handler_refs_registered():
                  "settings.access_scope",
                  "settings.access_explain",
                  "settings.access_reset",
-                 "settings.access_page"):
+                 "settings.access_page",
+                 # the ARMED Command-Access write controls
+                 # (settings-admin slice 3).
+                 "settings.ca_mode",
+                 "settings.ca_channels",
+                 "settings.render_command_access"):
         assert is_registered(HandlerRef(name)), name
     for name in ("settings.access_subsystem_pending",
                  "settings.access_scope_pending",
                  "settings.access_explain_pending",
                  "settings.access_reset_pending",
-                 "settings.access_page_pending"):
+                 "settings.access_page_pending",
+                 # the three armed diagnostics (settings-admin slice 1)
+                 # retired their pending terminals too — PanelRef
+                 # open-child routes need no handler at all.
+                 "settings.needs_setup_pending",
+                 "settings.invalid_pending",
+                 "settings.missing_bindings_pending",
+                 # the audit view (settings-admin slice 2) retired its
+                 # pending terminal the same way.
+                 "settings.audit_pending",
+                 # the Command-Access door (settings-admin slice 3)
+                 # retired its pending terminal the same way.
+                 "settings.command_access_pending"):
         assert not is_registered(HandlerRef(name)), name
 
 
@@ -281,9 +295,16 @@ def test_manifest_declares_the_front_doors():
     assert access_cmd.qualified_name == "settings access"
     assert access_cmd.kind is CommandKind.PREFIX
     assert access_cmd.route == HandlerRef("settings.access_view")
-    hub_spec, access_spec = MANIFEST.panels
+    # the hub + explorer front doors, then the armed diagnostic
+    # sub-panels (settings-admin slices 1-2) + the Command-Access
+    # write panel (slice 3).
+    hub_spec, access_spec = MANIFEST.panels[:2]
     assert hub_spec.panel_id == "settings.hub"
     assert access_spec.panel_id == "settings.access"
+    assert [p.panel_id for p in MANIFEST.panels[2:]] == [
+        "settings.needs_setup", "settings.invalid",
+        "settings.missing_bindings", "settings.audit",
+        "settings.command_access"]
 
 
 def test_clicks_land_on_the_polite_pending_terminal():
@@ -293,10 +314,12 @@ def test_clicks_land_on_the_polite_pending_terminal():
     from sb.spec.outcomes import BLOCKED
     from sb.spec.refs import HandlerRef, resolve
 
-    reply = run(resolve(HandlerRef("settings.command_access_pending"))(
+    # the one remaining honest terminal (slice 3 armed command access;
+    # the per-group edit page is the settings-mutation slice's port).
+    reply = run(resolve(HandlerRef("settings.group_pending"))(
         SimpleNamespace(args={}, guild_id=1)))
     assert reply.outcome == BLOCKED
-    assert "Command Access panel" in reply.user_message
+    assert "per-group settings page" in reply.user_message
 
 
 # --- the group-select read-only navigation (settings.open_group) ---------------------

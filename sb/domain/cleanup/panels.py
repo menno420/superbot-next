@@ -26,21 +26,33 @@ The shipped view minted discord.py auto-ids (the golden pins
 run ids in declared order; the shipped view carried NO nav row, so the
 never-strand fence takes the session-view exemption.
 
-Deliberate under-ports (parity beyond the goldens; the settings
-Inventory-literal / servermanagement badge-literal precedent):
-* the words manager's ``Current Words`` value is the golden-pinned
-  literal `` `test` `` — the shipped view read ``self.cog._word_cache``
-  (an in-memory cache), and the capture's alphabetical sweep order left
-  the ``!word add test`` write in that cache when ``!wordmenu`` ran
-  (the per-case DB truncate cannot reach process memory), so the golden
-  pins the leaked cache state, not a DB read. The live-read rendering
-  (and the honest empty state) lands with the word-mutation panel
-  slice;
-* the ``🛡️ Anti-evasion matching`` field is the shipped default-off
-  literal — the anti-evasion setting read/toggle is the same slice;
-* the remaining pending clicks (sb/domain/cleanup/handlers.py): the
-  hub's ⚙️ Settings / 🧹 Cleanup Policies sub-views and the words
-  manager's 🛡️ Anti-evasion toggle. Everything else routes for real:
+The 2026-07-13 residue port (the word-mutation + settings-mutation
+leftovers, claim `completeness-remainders` item 2):
+* the words manager's ``Current Words`` / ``🛡️ Anti-evasion matching``
+  fields render LIVE (the shipped ``_word_cache`` read via
+  ``service.get_words_cached`` + the migration-0053 strict flag; the
+  shipped empty state — "No prohibited words are currently set." as the
+  DESCRIPTION with no words field — rides the renderer override). The
+  golden still pins ``Current Words: `test``` because the capture's
+  alphabetical sweep leaked the ``!word add test`` cache write into
+  ``!wordmenu``'s render — the parity runner reseeds that trajectory
+  per observing case (runner.CAPTURE_WORLD_WORD_CACHE, the
+  sweep.word_list precedent);
+* 🛡️ Anti-evasion toggles for real: the click runs the audited
+  ``cleanup.wordfilter_strict_op`` (the shipped
+  ``set_wordfilter_strict`` service posture) and re-renders the panel
+  in place (sb/domain/cleanup/handlers.py);
+* the hub's ⚙️ Settings opens the PORTED ``cleanup.settings`` page (the
+  shipped SubsystemSettingsView for `cleanup` — the ai.settings
+  precedent), whose edit/reset selects drive the numeric-presets widget
+  page + Override… G-10 form over the audited ``settings.set_scalar``
+  lane (sb/domain/cleanup/settings_widgets.py);
+* the hub's 🧹 Cleanup Policies opens the PORTED ``cleanup.policies``
+  diagnostics view (+ the presets/custom builder and remove flow over
+  the K7 governance cleanup lanes —
+  sb/domain/cleanup/policy_panels.py; views/cleanup/policy_panel.py
+  was the oracle; the cleanup-policy slice retired the LAST pending).
+  Everything else routes for real:
   🔤 Prohibited Words opens the ported words manager, 📝 Logging Status
   opens the ported ``logging.hub`` (the server-logging slice landed),
   ➕/➖ open G-10 word modals whose submits run the audited
@@ -55,6 +67,7 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
+from sb.spec.outcomes import ReplyVisibility
 from sb.spec.panels import (
     ActionStyle,
     Audience,
@@ -66,10 +79,13 @@ from sb.spec.panels import (
     ModalFieldSpec,
     ModalSpec,
     NavigationSpec,
+    NavRouteSpec,
     PageSpec,
     PanelActionSpec,
     PanelSpec,
     ResultRender,
+    SelectorKind,
+    SelectorSpec,
 )
 from sb.spec.panels import TextBlock
 from sb.spec.refs import (
@@ -84,6 +100,8 @@ from sb.spec.refs import (
 
 __all__ = [
     "cleanup_hub_spec",
+    "cleanup_settings_edit_presets_spec",
+    "cleanup_settings_spec",
     "cleanup_words_spec",
     "ensure_panel_refs",
     "install_cleanup_panels",
@@ -114,13 +132,15 @@ _HUB_AUTODELETE = (
 
 _WORDS_FOOTER = "Use buttons below to manage prohibited words."
 
-#: golden-pinned literals (module-docstring under-port note: the shipped
-#: view read the cog's in-memory `_word_cache`, and the capture pinned the
-#: cache state the alphabetical sweep left behind — `!word add test` ran
-#: before `!wordmenu`, and the per-case DB truncate cannot reach process
-#: memory).
-_WORDS_CURRENT = "`test`"
-_WORDS_ANTI_EVASION = "⚫ **Off** — exact word match only"
+#: the shipped empty state (cleanup_cog.py build_embed: no words → the
+#: DESCRIPTION carries this byte and the Current Words field is absent).
+_WORDS_EMPTY = "No prohibited words are currently set."
+
+#: the shipped anti-evasion field literals (build_embed, verbatim).
+_WORDS_ANTI_EVASION_ON = ("🟢 **On** — also catches leet, unicode "
+                          "look-alikes, invisible characters, and "
+                          "spaced-out letters")
+_WORDS_ANTI_EVASION_OFF = "⚫ **Off** — exact word match only"
 
 
 # --- the word-mutation prompt modals (the moderation.hub.warn G-10 ingress
@@ -164,11 +184,30 @@ async def _hub_fields(ctx) -> tuple[tuple[str, str], ...]:
 
 
 async def _words_fields(ctx) -> tuple[tuple[str, str], ...]:
-    """The golden-pinned words-manager fields (see the module-docstring
-    under-port note — the live cache read is the word-mutation slice's)."""
-    del ctx
-    return (("Current Words", _WORDS_CURRENT),
-            ("🛡️ Anti-evasion matching", _WORDS_ANTI_EVASION))
+    """The shipped words-manager fields, LIVE (cleanup_cog.py
+    build_embed): the per-guild word-cache read (sorted backticks,
+    1000-cap — ``service.get_words_cached``, the shipped ``_word_cache``
+    shape; the parity runner reseeds the capture trajectory so the
+    golden's leaked `test` still renders) + the migration-0053 strict
+    flag. No words → NO Current Words field; the renderer override
+    stamps the shipped empty-state description instead."""
+    from sb.domain.cleanup import service, store
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    try:
+        words = await service.get_words_cached(guild_id)
+    except Exception:  # noqa: BLE001 — a headless/db-free read renders empty
+        words = []
+    try:
+        strict = await store.get_wordfilter_strict(guild_id)
+    except Exception:  # noqa: BLE001 — no row/no DB = the shipped default off
+        strict = False
+    anti = _WORDS_ANTI_EVASION_ON if strict else _WORDS_ANTI_EVASION_OFF
+    if not words:
+        return (("🛡️ Anti-evasion matching", anti),)
+    current = ", ".join(f"`{w}`" for w in sorted(words))[:1000]
+    return (("Current Words", current),
+            ("🛡️ Anti-evasion matching", anti))
 
 
 # --- the hub spec -------------------------------------------------------------------
@@ -206,12 +245,21 @@ def cleanup_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="settings", label="⚙️ Settings",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("cleanup.settings_pending"),
+                # the shipped hub opened SubsystemSettingsView("cleanup")
+                # — the PORTED cleanup.settings page below (the
+                # ai.settings precedent).
+                handler=PanelRef("cleanup.settings"),
                 custom_id_override="cleanup:settings"),
             PanelActionSpec(
                 action_id="policies", label="🧹 Cleanup Policies",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
-                handler=HandlerRef("cleanup.policies_pending"),
+                # the shipped hub EDITED the message into the policy
+                # panel (cogs/cleanup/panel.py btn_policies) — the
+                # PORTED cleanup.policies diagnostics view
+                # (sb/domain/cleanup/policy_panels.py, the 2026-07-13
+                # residue port; byte-neutral repoint — the Dex-button
+                # precedent).
+                handler=PanelRef("cleanup.policies"),
                 custom_id_override="cleanup:policies"),
             # row 1 — the shipped grey in-place refresh (K1 custom_id
             # claims are repo-global on action_id — treasury owns bare
@@ -293,10 +341,13 @@ def cleanup_words_spec() -> PanelSpec:
                 action_id="scan_history", label="🔍 Scan History",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
                 handler=HandlerRef("cleanup.history_scan")),
+            # 🛡️ toggles the migration-0053 strict flag on the audited
+            # cleanup.wordfilter_strict_op and re-renders in place (the
+            # shipped btn_strict flow — sb/domain/cleanup/handlers.py).
             PanelActionSpec(
                 action_id="anti_evasion", label="🛡️ Anti-evasion",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("cleanup.anti_evasion_pending")),
+                handler=HandlerRef("cleanup.anti_evasion_toggle")),
         ),
         # the shipped word-menu view carried ONLY its own buttons (no nav
         # row; timeout session view) — the golden pins exactly two
@@ -320,6 +371,222 @@ def cleanup_words_spec() -> PanelSpec:
     )
 
 
+# --- the settings page (the shipped SubsystemSettingsView for `cleanup` —
+# views/settings/subsystem_view.py build_subsystem_embed + the S6 selects;
+# the ai.settings precedent, sb/domain/ai/panels.py). Buttons/selects are
+# run-minted session ids — the shipped persistent `settings_subsystem.*`
+# roots are ai.settings' repo-global claim (K1), and these click routes
+# are golden-unpinned (the #151 ledgered class).
+
+#: the shipped page description (subsystem_registry cleanup meta + the
+#: tier/key line — build_subsystem_embed verbatim, double spaces included).
+_SETTINGS_DESCRIPTION = (
+    "_Prohibited words, command deletion, channel hygiene_\n"
+    "visibility tier: `administrator`  ·  subsystem key: `cleanup`"
+)
+
+#: the shipped Domain-configuration discovery field (cogs/cleanup/
+#: schemas.py DomainPanelSpec, rendered `**{name}** — {description}`).
+_SETTINGS_DOMAIN_PANELS = (
+    "**Cleanup policies** — Prohibited words and message-cleanup behavior "
+    "— configured in the dedicated cleanup panel (governance-audited); "
+    "the Settings group routes there."
+)
+
+#: the shipped entry_points listing (subsystem_registry cleanup meta).
+_SETTINGS_RELATED = "`!cleanup`, `!wordmenu`, `!cleanuphistory`"
+
+
+def _settings_option_rosters() -> tuple[tuple, tuple]:
+    """The shipped S6 select rosters: one Edit + one Reset option per
+    declared SettingSpec (label = the shipped spec.name byte)."""
+    from sb.domain.cleanup.settings_schema import SHIPPED_CLEANUP_SETTINGS
+
+    edit, reset = [], []
+    for spec in SHIPPED_CLEANUP_SETTINGS:
+        name = spec.name
+        edit.append({"label": name[:100], "value": name,
+                     "description": f"type={spec.value_type}"[:100]})
+        reset.append({"label": f"Reset {name}"[:100], "value": name,
+                      "description": f"default={spec.default!r}"[:100]})
+    return tuple(edit), tuple(reset)
+
+
+async def _settings_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped page fields for the cleanup schema: Scalar settings
+    (per-name current value + provenance + declared default + validity
+    over THE K7 resolve seam), Domain configuration, Existing command
+    panels. Cleanup declares no bindings/resources — the shipped page
+    adds those fields only when present."""
+    from sb.domain.cleanup.settings_schema import SHIPPED_CLEANUP_SETTINGS
+    from sb.kernel import settings as ksettings
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    lines = []
+    for spec in SHIPPED_CLEANUP_SETTINGS:
+        try:
+            value = await ksettings.resolve(guild_id, "cleanup", spec.name)
+            explicit = await ksettings.is_explicitly_set(guild_id, "cleanup",
+                                                         spec.name)
+        except LookupError:
+            lines.append(f"`{spec.name}` — *(resolver returned None)*")
+            continue
+        prov = "guild" if explicit else "default"
+        if explicit:
+            # an explicit row arrives as the RAW KV string — the shipped
+            # page rendered the COERCED typed value + the coercion-driven
+            # validity flag (settings_resolution.resolve_setting).
+            from sb.domain.settings.service import coerce_value
+
+            value, ok, _diag = coerce_value(spec, str(value))
+            valid = "valid" if ok else "**invalid**"
+        else:
+            valid = "valid"
+        lines.append(f"`{spec.name}` = `{value!r}` "
+                     f"(`{prov}`, default=`{spec.default!r}`, {valid})")
+    return (("Scalar settings", "\n".join(lines)),
+            ("Domain configuration", _SETTINGS_DOMAIN_PANELS),
+            ("Existing command panels", _SETTINGS_RELATED))
+
+
+_EDIT_OPTIONS, _RESET_OPTIONS = _settings_option_rosters()
+
+#: the shipped NumberSettingModal (views/settings/edit_number.py) as the
+#: G-10 declared form — the presets page's "Override…" free-form input
+#: (the ai.settings_number_form twin; the D-0063 static-form rule: the
+#: per-open current/default readout rides the widget page's prompt).
+_NUMBER_MODAL = ModalSpec(
+    modal_id="cleanup.settings_number_form",
+    title="Edit cleanup setting",
+    fields=(ModalFieldSpec(
+        field_id="new_value",
+        label="New value (type: int)",       # shipped: value_type.__name__
+        required=True, max_length=64),))
+
+#: the widget page's back-route (the shipped attach_back_to_settings_button
+#: label, verbatim).
+_BACK_TO_SETTINGS = NavigationSpec(
+    show_help=False, show_home=False,
+    extra_routes=(NavRouteSpec(label="↩ Back to Settings",
+                               route=PanelRef("cleanup.settings")),))
+
+#: the cleanup roster's widest preset set is 3 values (spam window
+#: 10/15/30) — three declared slots; the renderer relabels the picked
+#: setting's roster onto them (shipped: one button per preset, current
+#: value highlighted primary).
+_PRESET_SLOTS = 3
+
+
+def cleanup_settings_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="cleanup.settings",
+        subsystem="cleanup",
+        title="🧹 Cleanup",
+        audience=Audience.INVOKER,
+        # the shipped page accent — discord.Color.blurple()
+        # (build_subsystem_embed).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_SETTINGS_DESCRIPTION),
+              FieldsBlock(provider=ProviderRef("cleanup.settings_fields"))),
+        actions=(
+            # the shipped navigation pair (emoji as a SEPARATE component
+            # field — the ai.settings shape); Open Panel routes to the
+            # subsystem's own cog panel, the cleanup hub.
+            PanelActionSpec(
+                action_id="cl_back_to_hub", label="Back to Hub", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                handler=PanelRef("settings.hub")),
+            PanelActionSpec(
+                action_id="cl_open_panel", label="Open Panel", emoji="🪟",
+                style=ActionStyle.PRIMARY, audience_tier="staff",
+                handler=PanelRef("cleanup.hub")),
+        ),
+        selectors=(
+            # the shipped S6 selects — picks dispatch through the shipped
+            # edit/reset routing (sb/domain/cleanup/settings_widgets.py).
+            SelectorSpec(
+                selector_id="edit_setting", kind=SelectorKind.ENUM,
+                options_source=_EDIT_OPTIONS,
+                placeholder="Edit a setting…",
+                audience_tier="staff",
+                on_select=HandlerRef("cleanup.settings_edit_route")),
+            SelectorSpec(
+                selector_id="reset_setting", kind=SelectorKind.ENUM,
+                options_source=_RESET_OPTIONS,
+                placeholder="Reset a setting to its default…",
+                audience_tier="staff",
+                on_select=HandlerRef("cleanup.settings_reset_route")),
+        ),
+        # the shipped page carried NO standard nav row (the ai.settings
+        # shape — exactly three component rows).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("cleanup.render_settings"),
+        justification=(
+            "the shipped page footer is the DYNAMIC 'Scalar edit + reset "
+            "live · use the selects below.  guild_id=<id>' literal "
+            "(views/settings/subsystem_view.py build_subsystem_embed "
+            "set_footer) — guild-parameterized copy outside FooterMode's "
+            "none/subsystem/provenance vocabulary (the ai.settings "
+            "precedent). The override delegates to the grammar renderer "
+            "and replaces ONLY the footer; body, fields, selectors, "
+            "actions and layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("cl_back_to_hub", "cl_open_panel"),
+            ("edit_setting",),
+            ("reset_setting",),
+        )),)),
+    )
+
+
+def cleanup_settings_edit_presets_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="cleanup.settings_edit_presets",
+        subsystem="cleanup",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        actions=(
+            *(PanelActionSpec(
+                action_id=f"cl_preset_{i}", label=str(i),
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                handler=HandlerRef("cleanup.settings_preset_pick"),
+                result_render=ResultRender.RESULT_CARD)
+              for i in range(_PRESET_SLOTS)),
+            # the shipped "Override…" free-form modal button (grey):
+            # G-10 — the click ISSUES the number form, the submit
+            # re-enters through the modal adapter and writes on the
+            # audited settings.set_scalar lane (the ai widget shape).
+            PanelActionSpec(
+                action_id="cl_override_btn", label="Override…",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                defer_mode=DeferMode.MODAL, modal=_NUMBER_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                handler=HandlerRef("cleanup.settings_number_submit"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=_BACK_TO_SETTINGS,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("cleanup.render_presets_widget"),
+        justification=(
+            "the shipped NumericPresetsView is fully runtime-"
+            "parameterized: one button PER DECLARED PRESET VALUE labeled "
+            "str(value) with the CURRENT value highlighted primary "
+            "(views/settings/edit_number_presets.py), and the shipped "
+            "dispatcher prompt carries the live current/default reprs — "
+            "labels, styles and copy depend on the picked SettingSpec at "
+            "open time, outside the static grammar (the ai."
+            "settings_edit_presets precedent). The override delegates to "
+            "the grammar renderer, then relabels/restyles the declared "
+            "slots and drops the surplus."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("cl_preset_0", "cl_preset_1", "cl_preset_2"),
+            ("cl_override_btn",),
+        )),)),
+    )
+
+
 # --- renderer overrides ---------------------------------------------------------------
 
 async def _render_hub(spec: PanelSpec, ctx) -> object:
@@ -337,12 +604,70 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
 
 
 async def _render_words(spec: PanelSpec, ctx) -> object:
-    """Grammar render + the shipped footer literal (see justification)."""
+    """Grammar render + the shipped footer literal (see justification) +
+    the shipped EMPTY state: with no words configured the shipped view
+    set ``embed.description`` and skipped the Current Words field
+    (cleanup_cog.py build_embed) — the fields provider already dropped
+    the field, the description rides here (dynamic per-guild copy,
+    outside the static grammar)."""
     from sb.kernel.panels.render import render_panel
 
     rendered = await render_panel(spec, ctx)
+    embed = _dc_replace(rendered.embed, footer=_WORDS_FOOTER)
+    if not any(f[0] == "Current Words" for f in embed.fields):
+        embed = _dc_replace(embed, description=_WORDS_EMPTY)
+    return _dc_replace(rendered, embed=embed)
+
+
+async def _render_settings(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped dynamic guild_id footer (see
+    justification; the ai.settings override shape)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    gid = ctx.guild_id if ctx.guild_id is not None else "DM"
+    footer = (f"Scalar edit + reset live · use the selects below.  "
+              f"guild_id={gid}")
     return _dc_replace(rendered,
-                       embed=_dc_replace(rendered.embed, footer=_WORDS_FOOTER))
+                       embed=_dc_replace(rendered.embed, footer=footer))
+
+
+async def _render_presets_widget(spec: PanelSpec, ctx) -> object:
+    """The shipped NumericPresetsView page: the dispatcher prompt as the
+    description, the declared preset roster relabeled onto the slot
+    buttons (current value primary, the rest secondary), surplus slots
+    dropped (the ai.render_presets_widget shape)."""
+    from sb.domain.cleanup import settings_widgets as widgets
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    name = str((ctx.params or {}).get("setting") or "")
+    sspec = widgets.spec_for_name(name)
+    if sspec is None or not sspec.presets:   # defensive: never a crash
+        return _dc_replace(rendered, embed=_dc_replace(
+            rendered.embed, description=f"❌ Unknown setting `{name}`."))
+    current = await widgets.current_value(int(ctx.guild_id or 0), sspec)
+    # the shipped dispatcher prompt byte (subsystem_view.py
+    # dispatch_edit_setting, the numeric_presets branch).
+    description = (f"Pick a value for `{name}` "
+                   f"(current=`{current!r}`, default=`{sspec.default!r}`):")
+    presets = tuple(sspec.presets)
+    components = []
+    prefix = f"{spec.panel_id}.cl_preset_"
+    for comp in rendered.components:
+        if comp.custom_id.startswith(prefix):
+            index = int(comp.custom_id[len(prefix):])
+            if index >= len(presets):
+                continue            # surplus slot — not rendered/minted
+            value = presets[index]
+            style = (ActionStyle.PRIMARY.value if value == current
+                     else ActionStyle.SECONDARY.value)
+            comp = _dc_replace(comp, label=str(value)[:80] or "(unset)",
+                               style=style)
+        components.append(comp)
+    return _dc_replace(
+        rendered, components=tuple(components),
+        embed=_dc_replace(rendered.embed, description=description))
 
 
 # --- registration -----------------------------------------------------------------
@@ -354,23 +679,35 @@ def _register_refs() -> None:
         panel("cleanup.hub")(cleanup_hub_spec)
     if not is_registered(PanelRef("cleanup.words")):
         panel("cleanup.words")(cleanup_words_spec)
+    if not is_registered(PanelRef("cleanup.settings")):
+        panel("cleanup.settings")(cleanup_settings_spec)
+    if not is_registered(PanelRef("cleanup.settings_edit_presets")):
+        panel("cleanup.settings_edit_presets")(
+            cleanup_settings_edit_presets_spec)
     if not is_registered(HandlerRef("cleanup.render_hub")):
         handler("cleanup.render_hub")(_render_hub)
     if not is_registered(HandlerRef("cleanup.render_words")):
         handler("cleanup.render_words")(_render_words)
+    if not is_registered(HandlerRef("cleanup.render_settings")):
+        handler("cleanup.render_settings")(_render_settings)
+    if not is_registered(HandlerRef("cleanup.render_presets_widget")):
+        handler("cleanup.render_presets_widget")(_render_presets_widget)
     if not is_registered(ProviderRef("cleanup.hub_fields")):
         provider("cleanup.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("cleanup.words_fields")):
         provider("cleanup.words_fields")(_words_fields)
+    if not is_registered(ProviderRef("cleanup.settings_fields")):
+        provider("cleanup.settings_fields")(_settings_fields)
 
 
 _register_refs()
 
 
 def install_cleanup_panels() -> tuple[PanelSpec, ...]:
-    """Register both panels with the panels registry (fences run here);
+    """Register the panels with the panels registry (fences run here);
     composition-root/boot call. Idempotent for identical specs."""
-    specs = (cleanup_hub_spec(), cleanup_words_spec())
+    specs = (cleanup_hub_spec(), cleanup_words_spec(),
+             cleanup_settings_spec(), cleanup_settings_edit_presets_spec())
     for spec in specs:
         try:
             register_panel(spec)

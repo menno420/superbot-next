@@ -48,9 +48,11 @@ __all__ = ["Reply", "ensure_handler_refs", "reset_pending_casts_for_tests"]
 #: lines never accumulate. A timed-out cast's ECONOMICS match the
 #: oracle exactly (it spent its energy + bait charge and landed
 #: nothing); the oracle's UNPROMPTED got-away message — the background
-#: window task's edit — rides the parked timing rung, so a player who
-#: recasts over a dead line sees the loss only on the dead panel's own
-#: click (scope-doc, codex #373). Entries carry a per-cast ``token``
+#: window task's edit — now rides the D-0043 slice-2 got-away timer
+#: (``_arm_bite_timers``), which pops the entry at bite_at + window and
+#: edits the dead panel terminal in prod; the sweep + the dead panel's
+#: own click stay the restart-safe net (scope-doc, codex #373).
+#: Entries carry a per-cast ``token``
 #: echoed through the panel-args binding, so a Reel click only ever
 #: lands its OWN cast — never a newer one that replaced it. The parity
 #: harness clears this per case (boot.reset_case_state →
@@ -64,6 +66,247 @@ PENDING_CAST_TIMEOUT_SECONDS = 45.0
 #: the copy a dead line answers; ``minigame.escape_clue`` may append the
 #: trophy tease, the oracle ``_got_away`` soft-fail).
 _GOT_AWAY = "🌊 *...the line goes slack. The fish got away.*"
+
+#: The shipped premature-spook terminal (cast_view.py reel_btn, the
+#: no-grace branch — verbatim; the oracle passes this straight to
+#: ``_terminate_interaction`` WITHOUT the ``_got_away`` wrapper, so a
+#: premature spook never appends the trophy clue).
+_SPOOKED = ("🌀 You reeled too early — the fish darted off. "
+            "*Hold your nerve!*")
+
+#: The shipped fight-escape terminal (cast_view.py _on_fight_tap —
+#: verbatim; it rides ``_got_away``, so the trophy clue appends — a
+#: reel-fight only ever runs on a trophy).
+_SNAPPED = "💥 It gave one last thrash, **snapped the line**, and bolted!"
+
+#: The shipped hook / fight prompts (cast_view.py _on_hooked /
+#: _on_fight_tap — verbatim; ride the in-place panel edit).
+_HOOKED_BIG_ONE = "🎣 **Hooked a big one!** It dives deep — hang on…"
+
+#: The shipped LATE-reel terminal (cast_view.py reel_btn, the
+#: armed-but-out-of-window branch — verbatim; rides ``_got_away``, so
+#: the trophy clue appends). The D-0043 slice-2 enforcement flip: a
+#: click past bite_at + window (or past a fight round's window) answers
+#: this instead of landing.
+_TOO_SLOW = "🌊 *...too slow. The fish got away.*"
+
+#: The shipped fake-out tease (cast_view.py _run_bite — verbatim; a
+#: GAME_COLOR background edit, the button untouched).
+_NIBBLE = "🎣 *...something nibbles at the bait...*"
+
+#: The shipped bite arm (cast_view.py _run_bite → _arm — verbatim:
+#: SUCCESS_COLOR embed + the Reel button flipped to the armed
+#: label/style).
+_BITE_ARM = "🐟 **BITE!** Reel it in — quick!"
+
+#: The shipped fight-round window expiry (cast_view.py _run_fight_round
+#: — verbatim; rides ``_got_away``).
+_FIGHT_SLACK = "🌊 You let the line go slack — it thrashed free and escaped."
+
+#: The shipped armed-button labels (cast_view.py _arm calls — verbatim;
+#: both arm with ButtonStyle.success).
+_LABEL_BITE = "Reel it in!"
+_LABEL_FIGHT = "Reel!"
+
+
+def _got_away_text(entry: dict, text: str) -> str:
+    """*text* with the trophy clue appended when the parked catch was a
+    trophy — the oracle ``_got_away`` soft-fail wrapper, verbatim."""
+    from sb.domain.fishing import catalog, minigame
+
+    species = catalog.species_by_name(str(entry.get("species", "")))
+    if species is None:
+        return text
+    clue = minigame.escape_clue(species, int(entry.get("level_before", 0)))
+    return f"{text}\n{clue}" if clue else text
+
+
+def _cancel_cast_timers(entry: dict) -> None:
+    """Disarm every one-shot timer a parked cast holds (idempotent) —
+    called wherever the entry resolves, is swept, or is popped."""
+    for handle in entry.pop("timers", ()):  # type: ignore[union-attr]
+        handle.cancel()
+
+
+def _timer_due(fire_at_f: float) -> bool:
+    """Is a wall-fired timer's LOGICAL moment actually here? The one-shot
+    timers sleep on the event loop's wall clock, but every deadline is a
+    SYSTEM_CLOCK timestamp — in prod the two agree and this always
+    passes (the 50 ms slack absorbs wall-vs-monotonic drift); under the
+    parity harness the logical clock only moves when a step advances it,
+    so a timer that wall-fires mid-case (replay wall time can exceed the
+    bite delay — DB snapshots between steps) reads a logical now BEFORE
+    its deadline and must no-op instead of popping a cast the driven
+    steps still own."""
+    from sb.kernel.workflow.context import SYSTEM_CLOCK
+
+    return SYSTEM_CLOCK().timestamp() >= fire_at_f - 0.05
+
+
+async def _push_cast_edit(entry: dict, prompt: str, *,
+                          style: str = "", label: str = "",
+                          button_style: str = "", disable: bool = False,
+                          expire: bool = False) -> None:
+    """Edit the parked cast's live panel with NO interaction — the oracle
+    background-task ``_edit_message``/``_fail`` edits riding the kernel
+    push seam (``push_session_refresh`` → the ``_message_editor`` port).
+    Headless/parity: no editor installed ⇒ EDIT_UNAVAILABLE no-op; a
+    gone session/message ⇒ EDIT_MISSING no-op (the oracle's
+    message-gone debug-and-skip)."""
+    from sb.kernel.panels.engine import push_session_refresh
+
+    message_key = entry.get("panel_key")
+    if not message_key:
+        return
+    params: dict = {"cast_prompt": prompt}
+    if style:
+        params["cast_prompt_style"] = style
+    if label:
+        params["cast_button_label"] = label
+    if button_style:
+        params["cast_button_style"] = button_style
+    if disable:
+        params["cast_disable"] = True
+    await push_session_refresh(
+        str(message_key), params=params, actor=entry.get("actor"),
+        guild_id=entry.get("guild_id"), expire=expire)
+
+
+def _arm_bite_timers(key: tuple[int, int], entry: dict) -> None:
+    """Arm the cast's live-wait cues (the oracle ``_run_bite`` background
+    task as three one-shot timers): the fake-out nibble (only when the
+    cast rolled one AND the lead fits — the oracle guard
+    ``delay − FAKEOUT_LEAD > BITE_DELAY_FLOOR``), the 🐟 BITE! arm at
+    bite_at, and the unprompted got-away at bite_at + window (pop the
+    entry, terminal edit, NO DB write — the paid cast's economics stand).
+    Every callback is identity-guarded so a resolved/replaced cast's
+    stale timer exits instead of false-failing (the oracle ``_round_id``
+    staleness token), AND due-guarded on SYSTEM_CLOCK (:func:`_timer_due`)
+    so a wall-fired timer whose LOGICAL moment has not arrived is a
+    no-op — in prod wall == logical and the guard always passes; in
+    parity the logical clock never reaches the deadline inside a driven
+    case (a step advances it 30 s while replay wall time crawls past the
+    delay), so an in-case wall fire can never pop a cast the goldens
+    still own. Enforcement itself NEVER rides these timers — it is
+    timestamp math on SYSTEM_CLOCK in fish_route."""
+    from sb.domain.fishing import minigame
+    from sb.kernel.panels import timers
+
+    uid, _gid = key
+    delay = float(entry["bite_at_f"]) - float(entry["cast_at_f"])
+    window = float(entry["reaction_window"])
+    bite_at = float(entry["bite_at_f"])
+    handles = []
+
+    async def _nibble() -> None:
+        if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        if not _timer_due(bite_at - minigame.FAKEOUT_LEAD):
+            return
+        await _push_cast_edit(entry, _NIBBLE)
+
+    async def _bite() -> None:
+        if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        if not _timer_due(bite_at):
+            return
+        await _push_cast_edit(entry, _BITE_ARM, style="green",
+                              label=_LABEL_BITE, button_style="success")
+
+    async def _got_away() -> None:
+        if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        if not _timer_due(bite_at + window):
+            return
+        # unresolved past the window — the oracle ``_fail``: pop the
+        # paid cast (energy/bait spent, NO write) + the terminal edit
+        # (ERROR_COLOR, button disabled, session torn down).
+        del _PENDING_CASTS[key]
+        _cancel_cast_timers(entry)
+        await _push_cast_edit(
+            entry, _got_away_text(entry, _GOT_AWAY), style="red",
+            label=_LABEL_BITE, button_style="success", disable=True,
+            expire=True)
+
+    if (entry.get("fakeout")
+            and delay - minigame.FAKEOUT_LEAD > minigame.BITE_DELAY_FLOOR):
+        handles.append(timers.schedule(
+            delay - minigame.FAKEOUT_LEAD, _nibble,
+            name=f"fishing:nibble:{uid}"))
+    handles.append(timers.schedule(delay, _bite,
+                                   name=f"fishing:bite:{uid}"))
+    handles.append(timers.schedule(delay + window, _got_away,
+                                   name=f"fishing:gotaway:{uid}"))
+    entry["timers"] = handles
+
+
+def _arm_fight_timers(key: tuple[int, int], entry: dict,
+                      now_f: float) -> None:
+    """Arm one reel-fight round (the oracle ``_run_fight_round``): the
+    0.8 s suspense beat then the 💪 keep-reeling arm at
+    ``fight_round_open_f``, and the round's got-away expiry one window
+    later. Re-armed by the hook and by every non-final tap; the round
+    number guard (taps_done at arm time) is the oracle staleness token."""
+    from sb.kernel.panels import timers
+
+    uid, _gid = key
+    open_f = float(entry["fight_round_open_f"])
+    window = float(entry["reaction_window"])
+    round_no = int(entry.get("taps_done", 0))
+    bar = _tension_bar(round_no, int(entry.get("taps_required", 0)))
+    prompt = f"💪 **It's a big one — it dives!** Keep reeling!\n`{bar}`"
+    handles = []
+
+    def _stale() -> bool:
+        return (_PENDING_CASTS.get(key) is not entry
+                or not entry.get("fight")
+                or int(entry.get("taps_done", 0)) != round_no)
+
+    async def _arm_round() -> None:
+        if _stale() or not _timer_due(open_f):
+            return
+        await _push_cast_edit(entry, prompt, label=_LABEL_FIGHT,
+                              button_style="success")
+
+    async def _round_expired() -> None:
+        if _stale() or not _timer_due(open_f + window):
+            return
+        del _PENDING_CASTS[key]
+        _cancel_cast_timers(entry)
+        await _push_cast_edit(
+            entry, _got_away_text(entry, _FIGHT_SLACK), style="red",
+            label=_LABEL_FIGHT, button_style="success", disable=True,
+            expire=True)
+
+    handles.append(timers.schedule(max(0.0, open_f - now_f), _arm_round,
+                                   name=f"fishing:fight:{uid}"))
+    handles.append(timers.schedule(
+        max(0.0, open_f + window - now_f), _round_expired,
+        name=f"fishing:fight-expire:{uid}"))
+    entry["timers"] = handles
+
+
+def _tension_bar(done: int, total: int) -> str:
+    """A tiny reel-progress bar, e.g. ``▰▰▱▱`` (2 of 4 reeled in) — the
+    shipped cast_view.py ``_tension_bar``, verbatim."""
+    done = max(0, min(done, total))
+    return "▰" * done + "▱" * (total - done)
+
+
+async def _refresh_cast_panel(req, prompt: str) -> bool:
+    """Edit the live cast panel IN PLACE with *prompt* as its whole
+    description — the oracle ``_edit_message`` shape (a bare description
+    embed, the Reel button kept) through the panels refresh seam (the
+    deathmatch/settings ``refresh_session_view`` precedent). Returns
+    False when the session is gone (restart/eviction) so the caller can
+    degrade to a text reply."""
+    from sb.kernel.panels.engine import refresh_session_view
+
+    message = getattr(req.origin, "message", None)
+    message_key = str(getattr(message, "id", "") or "")
+    return await refresh_session_view(
+        req, message_key=message_key,
+        params={**dict(req.args), "cast_prompt": prompt})
 
 #: Per-cast identity tokens — monotonic, process-local, never rendered
 #: and never persisted (they ride the in-memory panel-args binding only).
@@ -83,11 +326,14 @@ def _sweep_expired_casts(now: int) -> None:
     stale = [key for key, entry in _PENDING_CASTS.items()
              if now - entry["rolled_at"] > PENDING_CAST_TIMEOUT_SECONDS]
     for key in stale:
+        _cancel_cast_timers(_PENDING_CASTS[key])
         del _PENDING_CASTS[key]
 
 
 def reset_pending_casts_for_tests() -> None:
     global _cast_token_counter
+    for entry in _PENDING_CASTS.values():
+        _cancel_cast_timers(entry)
     _PENDING_CASTS.clear()
     _cast_token_counter = 0
 
@@ -122,6 +368,23 @@ async def _card(req, embed) -> Reply:
     return Reply(SUCCESS, None)
 
 
+async def _angler_name(user_id: int, guild_id: int) -> str:
+    """The leaderboard row's resolved display name (fishing_cog.py
+    fishtop/trophies: ``resources.resolve_member`` →
+    ``member.display_name``) through the guild-directory read port (the
+    panels ``_member_display_name`` recipe) — degrading to the shipped
+    ``User {id}`` copy when the member doesn't resolve, never invented
+    data."""
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        member = await guild_directory().member_info(guild_id, user_id)
+        name = member.tag.rsplit("#", 1)[0]
+    except Exception:  # noqa: BLE001 — unresolved ⇒ shipped fallback
+        name = ""
+    return name or f"User {user_id}"
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
@@ -141,9 +404,14 @@ def _register() -> None:
         rolled, so a catalog-load failure never charges) → spend energy
         → spend one bait charge (a missed reel still spends both — the
         shipped "charge per attempt" rule) → park the rolled cast in the
-        pending registry → open the waiting-for-a-bite panel. Energy +
-        bait writes are the shipped direct game-state writes
-        (autocommit, non-money — the energy-spend posture);
+        pending registry → open the waiting-for-a-bite panel. The energy
+        write is the shipped direct game-state write (autocommit,
+        non-money — the energy-spend posture); the bait consume is a
+        single conditional relative decrement
+        (``store.consume_bait_charge``) so a coin-bought bait load
+        committing behind ``lock_bait_slot`` mid-cast is never clobbered
+        by a stale absolute write-back (the #213/#217 doctrine — bait is
+        money-bearing; user-visible bytes unchanged);
         goldens/fishing/sweep_fish pins the spent fresh-bar row + the
         shore panel bytes (every knob reads exactly neutral on a fresh
         player, so the wired cast is byte-identical there)."""
@@ -153,6 +421,7 @@ def _register() -> None:
         from sb.domain.fishing import catalog
         from sb.domain.fishing import energy as energy_mod
         from sb.domain.fishing import gear as gear_mod
+        from sb.domain.fishing import minigame
         from sb.domain.fishing import ops as ops_mod
         from sb.domain.fishing import rods as rods_mod
         from sb.domain.fishing import store
@@ -174,7 +443,11 @@ def _register() -> None:
 
         uid = int(getattr(req.actor, "user_id", 0) or 0)
         gid = int(req.guild_id or 0)
-        now = int(SYSTEM_CLOCK().timestamp())
+        # the timing fields need sub-second resolution (a shore bite can
+        # land 1.5 s after the cast), so the float timestamp is kept
+        # beside the int the 45 s sweep / energy math always used.
+        now_f = SYSTEM_CLOCK().timestamp()
+        now = int(now_f)
         # the shipped one-line-in-the-water guard (cast_view.py
         # prepare_cast L86-87); a pending cast past the oracle view
         # timeout would have timed out live — sweep it (and every other
@@ -283,6 +556,32 @@ def _register() -> None:
                 return Reply(BLOCKED,
                              f"{profile.emoji} The {profile.name.lower()} "
                              "is quiet right now — try later.")
+            # --- the D-0043 slice-1 timing rolls, STRICTLY AFTER the
+            # catch roll on the SAME private cast RNG: the catch draws
+            # (species choices → weight uniform) stay first so every
+            # pinned species/weight trajectory in the existing cast-write
+            # goldens is unmoved; the timing draws (bite uniform →
+            # fake-out random) EXTEND the stream after them. Reordering
+            # these shifts every cast-write golden — don't. This consumes
+            # the previously-discarded effective_bite_speed (the oracle
+            # _run_bite, cast_view.py) at the venue's bite band.
+            bite_delay = minigame.roll_bite_delay(
+                ops_mod.cast_rng(),
+                speed=effective_bite_speed,
+                lo=profile.bite_delay_min,
+                hi=profile.bite_delay_max,
+                floor=profile.bite_delay_floor)
+            # rolled NOW (not in slice 2) so the fake-out's slice-2
+            # visibility wiring never shifts an already-pinned RNG
+            # trajectory; outcome-inert this slice — a pre-bite click
+            # resolves premature whether or not the shake tempted it.
+            fakeout = minigame.roll_fakeout(ops_mod.cast_rng())
+            # the fairness knob compound (oracle FishingCastView.__init__):
+            # every reaction window = the venue's base + the rod's bonus.
+            reaction_window = profile.reaction_window + rod.window_bonus
+            trophy = minigame.is_trophy(catch.species, level_before)
+            taps_required = (minigame.reel_fight_taps(catch.species)
+                             if trophy else 0)
             spent = energy_mod.spend(state, now,
                                      regen_seconds=regen_seconds)
             await store.set_fishing_energy(uid, gid, spent.current,
@@ -290,15 +589,24 @@ def _register() -> None:
             # consume one bait charge — only now that the cast is
             # actually happening (begin_cast L493-502: the same "charge
             # per attempt" rule as energy; the pack clears at 0 left).
+            # ONE conditional relative decrement, never an absolute
+            # write-back of the stale read above: the buy/craft legs
+            # stack/replace the loadout behind lock_bait_slot in their
+            # own txn, and this lockless leg racing them with
+            # set_active_bait(bait_charges - 1) would eat a purchase's
+            # coin-bought charges (or clear a freshly replaced pack) —
+            # the #213/#217 read-then-settle lost update on a
+            # money-bearing slot. consume_bait_charge decrements the
+            # COMMITTED count (and clears the pack in-statement at 0);
+            # None = the loadout was swapped/emptied concurrently — the
+            # shipped "no bait" posture (nothing to spend), the cast
+            # keeps the effects it rolled with.
             charges_left = 0
             if bait is not None:
-                charges_left = bait_charges - 1
-                if charges_left <= 0:
-                    await store.clear_active_bait(uid, gid)
-                    charges_left = 0
-                else:
-                    await store.set_active_bait(uid, gid, bait.key,
-                                                charges_left)
+                remaining = await store.consume_bait_charge(
+                    uid, gid, bait.key)
+                if remaining is not None:
+                    charges_left = remaining
             _PENDING_CASTS[(uid, gid)] = {
                 "rolled_at": now,
                 "token": token,
@@ -307,6 +615,22 @@ def _register() -> None:
                 "venue": profile.key,
                 "double_catch_chance": double_catch_chance,
                 "level_before": level_before,
+                # --- D-0043 slice-1 timing state (floats: the int
+                # truncation above stays confined to the 45 s sweep /
+                # energy fields) ---
+                "cast_at_f": now_f,
+                "bite_at_f": now_f + bite_delay,
+                "reaction_window": reaction_window,
+                "grace": rod.premature_grace,
+                "grace_used": False,
+                "fakeout": fakeout,        # stored; outcome-inert (slice 2)
+                "trophy": trophy,
+                "taps_required": taps_required,
+                "taps_done": 0,
+                "fight": False,
+                "rod_name": rod.name,      # the grace-forgive copy
+                "escape_resist": rod.escape_resist,
+                "base_escape": profile.base_escape,
             }
             parked = True
         finally:
@@ -315,13 +639,9 @@ def _register() -> None:
             if (not parked
                     and _PENDING_CASTS.get((uid, gid)) is reservation):
                 del _PENDING_CASTS[(uid, gid)]
-        # effective_bite_speed is computed + carried for the shipped
-        # CastStart contract but is outcome-inert until the live timing
-        # rung (see the module-tail DEVIATION note).
-        del effective_bite_speed
         # the panel opens OUTSIDE the try: a failed send keeps the
         # rolled, PAID cast parked and reelable (its costs are spent).
-        await open_panel(
+        message_key = await open_panel(
             PanelRef(CAST_PANEL_ID),
             dataclasses.replace(
                 req, args={
@@ -339,35 +659,69 @@ def _register() -> None:
                     # Reel can never pop a newer cast (codex #373 P1).
                     "cast_token": token,
                 }))
+        # --- D-0043 slice 2: arm the live-wait cues on the freshly
+        # opened panel (the oracle view.start() → _run_bite task). The
+        # push-edit context rides the entry; edits no-op headless
+        # (EDIT_UNAVAILABLE) and enforcement never depends on them.
+        entry = _PENDING_CASTS.get((uid, gid))
+        if entry is not None and entry.get("token") == token:
+            entry["panel_key"] = message_key
+            entry["actor"] = req.actor
+            entry["guild_id"] = gid
+            _arm_bite_timers((uid, gid), entry)
         return Reply(SUCCESS, None)
 
     @handler("fishing.fish_route")
     async def fish_route(req) -> Reply:
-        """The cast panel's Reel button — lands the pending cast rolled
-        at cast time (the shipped roll-at-cast / commit-at-reel split,
-        cast_view.py ``_land_catch`` → ``commit_catch``) through the
-        audited ``fishing.cast`` K7 op (dex upsert + pearl / coral /
-        fish materials + game XP in one leg txn). The click carries the
-        cast's identity token (the panel-args binding), so a STALE Reel
-        — the cast timed out, or a newer cast replaced it — answers the
-        shipped got-away terminal (cast_view.py window-expiry copy +
-        the ``_got_away`` trophy clue) instead of landing a dead fish or
-        popping a newer cast (codex #373 P1). The entry is popped only
-        for the commit and RESTORED on a failed commit, so a transient
-        failure never loses the paid cast (codex #373 P2). A token-less
-        Reel with no pending cast keeps the leg's roll-at-commit starter
-        seam (the shipped legacy ``fish()`` — the direct-invocation
-        path). The shipped live-timing layer (bite delay / fake-out /
-        escape) rides the D-0043 successor port — see the panels module
-        under-port ledger."""
+        """The cast panel's Reel button — resolves the pending cast
+        rolled at cast time against its D-0043 slice-1 timing state
+        (the shipped cast_view.py ``reel_btn`` ladder), then lands it
+        through the audited ``fishing.cast`` K7 op (dex upsert + pearl /
+        coral / fish materials + game XP in one leg txn):
+
+        * BEFORE the rolled bite moment (fake-out clicks included) —
+          the rod's ``premature_grace`` can forgive ONE slip per cast
+          (the oracle 😅 panel edit; the line stays in the water), else
+          the spook terminal (``_SPOOKED``, no DB write, cast gone).
+        * IN the reaction window, ordinary fish — the commit, unchanged.
+        * IN the window, trophy — the reel-fight: the hook click flips
+          the panel to ``_HOOKED_BIG_ONE``; each further click is one
+          tap with a per-tap ``roll_escape`` (venue ``base_escape`` ×
+          rod ``escape_resist``) — snap free (``_SNAPPED`` + the trophy
+          clue, no write) or advance the ▰▰▱▱ bar; the last tap commits.
+          Fight rounds open ``FIGHT_INTER_ROUND_DELAY`` after the
+          previous resolve (the oracle suspense beat): a click before
+          the round opens is the oracle mash-ignore (deferred, no
+          state), one past the round's window is too-slow.
+        * AFTER the window (D-0043 slice 2 — ENFORCED now that the
+          push-edit seam makes the bite visible): the oracle too-slow
+          got-away terminal (``_TOO_SLOW`` + the trophy clue), no DB
+          write. Enforcement is ``minigame.reel_is_in_time`` timestamp
+          math on SYSTEM_CLOCK — never the wall-clock timers, so parity
+          decides identically on the logical clock. In prod the armed
+          got-away timer usually pops the entry first and a later click
+          answers the stale-token ``_GOT_AWAY`` terminal instead.
+
+        The click carries the cast's identity token (the panel-args
+        binding), so a STALE Reel — the cast timed out, or a newer cast
+        replaced it — answers the shipped got-away terminal (cast_view
+        window-expiry copy + the ``_got_away`` trophy clue) instead of
+        landing a dead fish or popping a newer cast (codex #373 P1);
+        the 45 s pending sweep stays the OUTER bound around the whole
+        ladder. The entry is popped only for the commit and RESTORED on
+        a failed commit (codex #373 P2). A token-less Reel with no
+        pending cast keeps the leg's roll-at-commit starter seam (the
+        shipped legacy ``fish()`` — the direct-invocation path)."""
         from sb.domain.fishing import catalog, minigame
+        from sb.domain.fishing import ops as ops_mod
         from sb.kernel.workflow import engine
         from sb.kernel.workflow.context import SYSTEM_CLOCK
         from sb.spec.refs import WorkflowRef
 
         uid = int(getattr(req.actor, "user_id", 0) or 0)
         gid = int(req.guild_id or 0)
-        now = int(SYSTEM_CLOCK().timestamp())
+        now_f = SYSTEM_CLOCK().timestamp()
+        now = int(now_f)
         key = (uid, gid)
         token = req.args.get("cast_token")
         entry = _PENDING_CASTS.get(key)
@@ -386,6 +740,7 @@ def _register() -> None:
             # (the shipped economics: energy + bait already spent, no
             # write); surface it with the oracle ``_got_away`` soft-fail
             # clue at the cast's own level_before.
+            _cancel_cast_timers(entry)
             del _PENDING_CASTS[key]
             species = catalog.species_by_name(str(entry["species"]))
             clue = (minigame.escape_clue(species,
@@ -393,10 +748,124 @@ def _register() -> None:
                     if species is not None else None)
             return Reply(BLOCKED,
                          f"{_GOT_AWAY}\n{clue}" if clue else _GOT_AWAY)
+        # ------- the D-0043 slice-1 click-gated resolution ladder -------
+        # (timing rolls draw on the SAME private cast RNG as the cast /
+        # commit draws, so a runner-armed seed pins the whole trajectory;
+        # entries missing the timing fields — the pre-slice shape only
+        # tests construct — resolve as in-time, i.e. the old behavior.)
+        if entry is not None and entry.get("fight"):
+            # mid-reel-fight: this click is one tap — but only inside
+            # its round's window (D-0043 slice 2; entries armed before
+            # the flip carry no round timestamp and stay in-time).
+            round_open = entry.get("fight_round_open_f")
+            if round_open is not None:
+                if now_f < float(round_open):
+                    # between fight rounds — the oracle mash-ignore
+                    # (safe_defer: no state moves, no rng draw).
+                    return Reply(SUCCESS, None)
+                if not minigame.reel_is_in_time(
+                        now_f - float(round_open),
+                        float(entry.get("reaction_window", 0.0))):
+                    # the round's window closed — too slow (the oracle
+                    # reel_btn late branch; clue appends, a fight IS a
+                    # trophy). No write, the paid cast is gone.
+                    _cancel_cast_timers(entry)
+                    del _PENDING_CASTS[key]
+                    return Reply(BLOCKED, _got_away_text(entry, _TOO_SLOW))
+            species = catalog.species_by_name(str(entry["species"]))
+            if species is not None and minigame.roll_escape(
+                    species,
+                    escape_resist=float(entry.get("escape_resist", 0.0)),
+                    base_escape=float(
+                        entry.get("base_escape",
+                                  minigame.SHORE_ESCAPE_CHANCE)),
+                    rng=ops_mod.cast_rng()):
+                # snapped free — terminal, the paid cast is gone, no
+                # write; the clue always appends (a fight IS a trophy).
+                _cancel_cast_timers(entry)
+                del _PENDING_CASTS[key]
+                clue = minigame.escape_clue(species,
+                                            int(entry["level_before"]))
+                return Reply(BLOCKED,
+                             f"{_SNAPPED}\n{clue}" if clue else _SNAPPED)
+            entry["taps_done"] = int(entry.get("taps_done", 0)) + 1
+            if entry["taps_done"] < int(entry.get("taps_required", 0)):
+                # the next round opens after the oracle suspense beat —
+                # re-arm its live cues (the oracle re-spawned
+                # _run_fight_round per tap).
+                _cancel_cast_timers(entry)
+                entry["fight_round_open_f"] = (
+                    now_f + minigame.FIGHT_INTER_ROUND_DELAY)
+                _arm_fight_timers(key, entry, now_f)
+                bar = _tension_bar(int(entry["taps_done"]),
+                                   int(entry["taps_required"]))
+                prompt = f"💪 Reeling it in… `{bar}`"
+                if not await _refresh_cast_panel(req, prompt):
+                    return Reply(SUCCESS, prompt)
+                return Reply(SUCCESS, None)
+            # the last tap lands it — fall through to the commit.
+        elif entry is not None:
+            if now_f < float(entry.get("bite_at_f", 0.0)):
+                # reeled BEFORE the bite (a fake-out click lands here too
+                # — the shake rides FAKEOUT_LEAD ahead of the real bite).
+                if (not entry.get("grace_used")
+                        and minigame.roll_premature_grace(
+                            float(entry.get("grace", 0.0)),
+                            ops_mod.cast_rng())):
+                    # the rod steadies it — spent once per cast; the line
+                    # stays in the water and the parked cast stays live.
+                    # The armed bite timers stay armed too: the oracle's
+                    # still-running bite task arms the real bite after a
+                    # forgiven slip (cast_view.py reel_btn @bbc524e).
+                    entry["grace_used"] = True
+                    prompt = (
+                        "😅 *You twitch the rod too soon — but the "
+                        f"{entry.get('rod_name', 'rod')} steadies it. "
+                        "The line's still in the water… hold your "
+                        "nerve.*")
+                    if not await _refresh_cast_panel(req, prompt):
+                        return Reply(SUCCESS, prompt)
+                    return Reply(SUCCESS, None)
+                # spooked it (no grace left / bare rod) — terminal, the
+                # paid cast is gone, no write (oracle: no trophy clue on
+                # a premature spook).
+                _cancel_cast_timers(entry)
+                del _PENDING_CASTS[key]
+                return Reply(BLOCKED, _SPOOKED)
+            if ("bite_at_f" in entry
+                    and not minigame.reel_is_in_time(
+                        now_f - float(entry["bite_at_f"]),
+                        float(entry.get("reaction_window", 0.0)))):
+                # bite_at + window < now — TOO SLOW (D-0043 slice 2: the
+                # enforcement flip; the oracle reel_btn late branch, clue
+                # appended for a trophy). No write, the paid cast is
+                # gone. Pre-slice entries (no bite_at_f) stay in-time.
+                _cancel_cast_timers(entry)
+                del _PENDING_CASTS[key]
+                return Reply(BLOCKED, _got_away_text(entry, _TOO_SLOW))
+            # bite_at ≤ now ≤ bite_at + window — in the window.
+            if entry.get("trophy") and int(entry.get("taps_required",
+                                                     0)) > 0:
+                # hooked a big one — flip into the reel-fight; the
+                # commit waits for the taps. The bite cues retire and
+                # the first fight round arms (the oracle _on_hooked →
+                # _run_fight_round spawn).
+                _cancel_cast_timers(entry)
+                entry["fight"] = True
+                entry["fight_round_open_f"] = (
+                    now_f + minigame.FIGHT_INTER_ROUND_DELAY)
+                _arm_fight_timers(key, entry, now_f)
+                if not await _refresh_cast_panel(req, _HOOKED_BIG_ONE):
+                    return Reply(SUCCESS, _HOOKED_BIG_ONE)
+                return Reply(SUCCESS, None)
+            # ordinary fish in time — fall through to the commit.
         params: dict = {}
         if entry is not None:
             # pop EXCLUSIVELY for the commit (two racing Reels can never
-            # double-land one cast) …
+            # double-land one cast) … — the live cues retire with it (a
+            # restored-on-failed-commit entry stays clickable; only its
+            # edits are lost, never the window math).
+            _cancel_cast_timers(entry)
             _PENDING_CASTS.pop(key, None)
             params = {k: entry[k]
                       for k in ("species", "weight", "venue",
@@ -946,14 +1415,30 @@ def _register() -> None:
                      "`!fishlog` your dex · `!fishtop` top anglers · "
                      "`!trophies` biggest catches")
 
+    @handler("fishing.rules_view")
+    async def rules_view(req) -> Reply:
+        """The hub's 📖 How-to-fish affordance — the shipped static
+        rules card (views/fishing/menu.py ``_rules_embed`` sent
+        ephemeral by ``rules_btn``; fishing.rules_card,
+        grammar-rendered — the creature.rules_view precedent)."""
+        import dataclasses
+
+        from sb.domain.fishing.panels import RULES_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(RULES_PANEL_ID),
+                         dataclasses.replace(req, args=dict(req.args)))
+        return Reply(SUCCESS, None)
+
     @handler("fishing.top_view")
     async def top_view(req) -> Reply:
         """!fishtop — the shipped 🎣 Top Anglers embed (fishing_cog.py
         fishtop: _FISHING_COLOR blue; the empty-world description is
         golden-pinned — goldens/fishing/sweep_fishtop). The populated
-        leaderboard body keeps the port's numbered lines inside the
-        shipped embed frame (not golden-pinned; the oracle fragment
-        index surfaces only the empty branch — under-port note)."""
+        leaderboard body is the shipped copy verbatim
+        (fishing_cog.py:154-164): 🥇🥈🥉 medals then ``**N.**``,
+        resolved display names, ``— **N** caught (S/21 species)``."""
         from sb.domain.fishing import catalog, store
 
         rows = await store.top_fishers(int(req.guild_id or 0),
@@ -961,9 +1446,17 @@ def _register() -> None:
         if not rows:
             desc = "No one has cast a line yet — be the first with `!fish`!"
         else:
-            desc = "\n".join(
-                f"{i + 1}. <@{r['user_id']}> — {r['total']} fish"
-                for i, r in enumerate(rows))
+            medals = ["🥇", "🥈", "🥉"]
+            lines = []
+            for rank, r in enumerate(rows):
+                prefix = (medals[rank] if rank < len(medals)
+                          else f"**{rank + 1}.**")
+                name = await _angler_name(int(r["user_id"]),
+                                          int(req.guild_id or 0))
+                lines.append(
+                    f"{prefix} {name} — **{r['total']}** caught "
+                    f"({r['species']}/{len(catalog.SPECIES)} species)")
+            desc = "\n".join(lines)
         return await _card(req, _embed("🎣 Top Anglers", desc))
 
     @handler("fishing.trophies_view")
@@ -971,9 +1464,9 @@ def _register() -> None:
         """!trophies — the shipped 🏅 Biggest Catches embed
         (fishing_cog.py trophies: _FISHING_COLOR blue; the empty-world
         description is golden-pinned — goldens/fishing/sweep_trophies).
-        The populated hall-of-fame body keeps the port's numbered lines
-        inside the shipped embed frame (not golden-pinned — the same
-        under-port note as fishtop)."""
+        The populated hall-of-fame body is the shipped copy verbatim
+        (fishing_cog.py:181-192): medals, the species emoji (🐟 when
+        the catalog misses), ``**{weight:g} kg** {Species} — {name}``."""
         from sb.domain.fishing import catalog, store
 
         rows = await store.top_trophies(int(req.guild_id or 0),
@@ -982,10 +1475,19 @@ def _register() -> None:
             desc = ("No trophies landed yet — reel in a big one with "
                     "`!fish`!")
         else:
-            desc = "\n".join(
-                f"{i + 1}. <@{r['user_id']}> — {r['species']} "
-                f"({float(r['best_weight']):g}kg)"
-                for i, r in enumerate(rows))
+            medals = ["🥇", "🥈", "🥉"]
+            lines = []
+            for rank, r in enumerate(rows):
+                prefix = (medals[rank] if rank < len(medals)
+                          else f"**{rank + 1}.**")
+                name = await _angler_name(int(r["user_id"]),
+                                          int(req.guild_id or 0))
+                fish = catalog.species_by_name(str(r["species"]))
+                emoji = fish.emoji if fish else "🐟"
+                lines.append(
+                    f"{prefix} {emoji} **{float(r['best_weight']):g} kg** "
+                    f"{str(r['species']).title()} — {name}")
+            desc = "\n".join(lines)
         return await _card(req, _embed("🏅 Biggest Catches", desc))
 
 
@@ -1006,33 +1508,35 @@ def _register() -> None:
 #: (deepwater species pool, coral drop, the compounded rarity_pull, the
 #: per-cast bait charge spend, the pull/regen/double-catch structure
 #: mults — cast_open above = the shipped begin_cast; record_cast =
-#: commit_catch). STILL PARKED on the D-0043 minigame rung (real-time
-#: asyncio the headless panel engine doesn't model): the live
-#: bite-delay/fake-out/reel-fight timing — so bite-speed knobs
-#: (rod/bait/weather/gear/dock) and the escape/grace/window knobs are
-#: computed + surfaced but never gate a catch — and the
-#: _FishingDoneView Cast-again continuation.
+#: commit_catch). The D-0043 minigame TIMING rung then made the timing
+#: knobs gate outcomes — slice 1 (click-gated): cast_open rolls
+#: bite-delay (consuming the compounded effective_bite_speed) +
+#: fake-out at cast time and fish_route resolves the Reel click
+#: (premature spook / one premature-grace forgive, the trophy
+#: reel-fight with per-tap escape rolls); slice 2 (live cues + full
+#: enforcement): the cast panel edits itself mid-wait — fake-out
+#: nibble, 🐟 BITE! arm, fight-round prompts, the unprompted got-away
+#: expiry — via the D-0090 kernel one-shot timers +
+#: push_session_refresh seam, and a LATE reel (past bite_at + window,
+#: or past a fight round's window) now answers the oracle too-slow
+#: got-away terminal (reel_is_in_time on SYSTEM_CLOCK — parity decides
+#: identically on the logical clock; the timers only carry edits and
+#: no-op headless via EDIT_UNAVAILABLE). The ONLY remainder is the
+#: _FishingDoneView Cast-again continuation (the games-finalization
+#: review's ranked gap 3 — a named successor, not this rung).
 PENDING: dict[str, str] = {}
 
 
-def _register_hub_pending() -> None:
-    """Hub-button-only pending surfaces (no command form — the shipped
-    menu routed these to the rules embed view). Registered at module
-    IMPORT (the role/handlers.py pattern — declaring IS reserving;
-    never ensure-only). The 🏗 Structures button left this set in
-    slice 4 — it now routes to the live structures sub-hub PanelSpec."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler(
-        "fishing.howtofish_pending",
-        "🎣 The how-to-fish guide rides the fishing depth port — named "
-        "successor work (D-0043); cast with `!fish` and hit Reel when "
-        "it bites.")
+#: The hub-button-only pending set is EMPTY too: the 📖 How-to-fish
+#: button (the last `_register_hub_pending` occupant —
+#: fishing.howtofish_pending) now routes to the live static rules card
+#: (fishing.rules_view → fishing.rules_card, the oracle _rules_embed
+#: verbatim); the 🏗 Structures button left in slice 4. The retired
+#: pending ref no longer registers (trap 12a).
 
 
 def ensure_handler_refs() -> None:
     _register()
-    _register_hub_pending()
     from sb.domain.operator_spine import pending_handler
 
     for name, system in PENDING.items():
@@ -1044,4 +1548,3 @@ def ensure_handler_refs() -> None:
 
 
 _register()
-_register_hub_pending()

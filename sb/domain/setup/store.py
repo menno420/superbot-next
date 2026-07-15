@@ -31,11 +31,17 @@ from sb.spec.versioning import (
 __all__ = [
     "KNOWN_DEPTHS",
     "SETUP_SESSION_STORE",
+    "clear_essential_anchor",
+    "clear_workspace_pointers",
     "ensure_refs",
     "get_session_row",
+    "list_resumable_sessions",
+    "mark_in_progress",
     "scrub_subject_session",
     "set_depth",
+    "set_essential_step",
     "set_section_skip",
+    "set_session_status",
     "upsert_session",
 ]
 
@@ -87,6 +93,28 @@ async def get_session_row(guild_id: int, conn: Any = None) -> dict | None:
         "essential_step, created_at, updated_at "
         "FROM setup_session WHERE guild_id=$1", (guild_id,), conn=conn)
     return dict(row) if row else None
+
+
+async def list_resumable_sessions() -> list[dict]:
+    """The on-ready resume sweep's roster read: every session row still
+    carrying a persisted message pointer — a workspace anchor
+    (``setup_channel_id`` + ``setup_message_id``, the launcher-refresh
+    leg's input) and/or an interrupted essential flow
+    (``setup_channel_id`` + ``essential_message_id``, the revive leg's
+    input). The oracle iterated ``bot.guilds`` and read each row
+    (setup_cog._resume_launchers / essential_setup.revive_essential_flows);
+    the durable rows already know, so ONE query replaces the guild walk."""
+    from sb.kernel.db.pool import fetchall
+
+    rows = await fetchall(
+        "SELECT guild_id, setup_status, setup_channel_id, setup_message_id, "
+        "essential_message_id, essential_step "
+        "FROM setup_session "
+        "WHERE setup_channel_id IS NOT NULL "
+        "  AND (setup_message_id IS NOT NULL "
+        "       OR essential_message_id IS NOT NULL) "
+        "ORDER BY guild_id")
+    return [dict(row) for row in rows or ()]
 
 
 # --- write primitives (K7 leg only — conn REQUIRED) ---------------------------------
@@ -151,6 +179,69 @@ async def set_section_skip(conn: Any, *, guild_id: int, slug: str,
             "   SET skipped_sections = ARRAY_REMOVE(skipped_sections, $2::TEXT), "
             "       updated_at = NOW() "
             " WHERE guild_id = $1", (guild_id, slug), conn=conn)
+
+
+async def mark_in_progress(conn: Any, *, guild_id: int,
+                           step: str | None) -> None:
+    """The shipped ``setup_session.mark_in_progress`` write shape
+    (services/setup_session.py: ``set_status("in_progress")`` +
+    ``set_step(step)`` — two bare keyed UPDATEs, folded into one; no row
+    means a silent no-op, the set_depth semantics twin). Every section
+    open / staging lane records its step marker through this (the
+    section-flows slice)."""
+    if step is None:
+        await execute(
+            "UPDATE setup_session SET setup_status = 'in_progress', "
+            "updated_at = NOW() WHERE guild_id = $1", (guild_id,), conn=conn)
+    else:
+        await execute(
+            "UPDATE setup_session SET setup_status = 'in_progress', "
+            "current_step = $2, updated_at = NOW() "
+            "WHERE guild_id = $1", (guild_id, step), conn=conn)
+
+
+async def set_session_status(conn: Any, *, guild_id: int,
+                             status: str) -> None:
+    """The shipped ``mark_complete`` UPDATE shape (disbot
+    utils/db/setup_session.py: a bare status UPDATE keyed on the guild —
+    no row means a silent no-op, the set_depth semantics twin). The
+    final-review apply lane writes ``complete`` on full success."""
+    await execute(
+        "UPDATE setup_session SET setup_status = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, status), conn=conn)
+
+
+async def set_essential_step(conn: Any, *, guild_id: int, step: int) -> None:
+    """The shipped ``setup_session.set_essential_step`` UPDATE shape
+    (the migration-099 essential-flow anchor: the 0-based step index the
+    resume lane rebuilds at). A bare keyed UPDATE — no row means a
+    silent no-op, the set_depth semantics twin (the ``!setup`` entry
+    mints no session row; the golden-pinned empty delta stands)."""
+    await execute(
+        "UPDATE setup_session SET essential_step = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, int(step)), conn=conn)
+
+
+async def clear_essential_anchor(conn: Any, *, guild_id: int) -> None:
+    """The shipped ``setup_session.clear_essential_anchor`` UPDATE shape
+    (the flow reached the summary — null the anchor pair so the on-ready
+    resume sweep stops trying to revive a done flow)."""
+    await execute(
+        "UPDATE setup_session SET essential_message_id = NULL, "
+        "essential_step = NULL, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id,), conn=conn)
+
+
+async def clear_workspace_pointers(conn: Any, *, guild_id: int) -> None:
+    """The shipped post-cleanup pointer nulls (setup_channel.py
+    ``set_session_channel_id(guild_id, None)`` +
+    ``set_session_message_id(guild_id, None)`` — folded into one keyed
+    UPDATE; no row = silent no-op) so the next ``/setup`` re-creates a
+    fresh channel."""
+    await execute(
+        "UPDATE setup_session SET setup_channel_id = NULL, "
+        "setup_message_id = NULL, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id,), conn=conn)
 
 
 # --- privacy erasure row helper (flag-18 discipline) --------------------------------

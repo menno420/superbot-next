@@ -50,5 +50,8 @@
   "0049_fishing_rod.sql": "sha256:f0b5eaaf37b393575fffbe059055be721b7ce9520d8bfe0d5a869ed8f7d3e17c",
   "0050_fishing_bait.sql": "sha256:8a0ffb49510d8121bf69168262f2d50495cb38a63c05b637fb98019088e1160c",
   "0051_help_overlay.sql": "sha256:9206da786e848ab11618483c53b5677c83a4d236b5fb099096e2e9240d57b53a",
-  "0052_mining_energy.sql": "sha256:6abc7186bf0696d3166f9efe5f495ba9a1c8578d12ed90dd48f4c2e057dba58c"
+  "0052_mining_energy.sql": "sha256:6abc7186bf0696d3166f9efe5f495ba9a1c8578d12ed90dd48f4c2e057dba58c",
+  "0053_wordfilter_config.sql": "sha256:9ef86acaf8305971eb9e0ed72493fa9836d6d9c854dd4e2cc6b7f00968f8ab56",
+  "0054_command_routing.sql": "sha256:7d08e9d2c782832500ab22febba2cb40e31098a11795837a436aec1bc9e508af",
+  "0055_automation_rules.sql": "sha256:2dc0f4bb9634e1bb3d53a92203567a23502c8eb11ad10fccf9600e75bbc7c5e7"
 }

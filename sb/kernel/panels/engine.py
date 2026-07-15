@@ -34,15 +34,24 @@ from sb.spec.refs import PanelRef, resolve as resolve_ref
 logger = logging.getLogger("sb.kernel.panels.engine")
 
 __all__ = [
+    "EDIT_EDITED",
+    "EDIT_FAILED",
+    "EDIT_MISSING",
+    "EDIT_UNAVAILABLE",
     "EphemeralComponent",
     "PanelPresenterNotInstalled",
     "PanelSession",
+    "edit_anchored_panel",
     "ephemeral_route",
     "handle_nav",
     "install_panel_anchor_store",
+    "install_panel_message_editor",
+    "install_panel_message_poster",
     "install_panel_presenter",
     "may_interact",
     "open_panel",
+    "post_anchored_panel",
+    "push_session_refresh",
     "refresh_session_view",
     "register_confirm_session",
     "reset_panel_engine_for_tests",
@@ -72,6 +81,123 @@ _presenter: PanelPresenter = _no_presenter
 def install_panel_presenter(presenter: PanelPresenter) -> None:
     global _presenter
     _presenter = presenter
+
+
+# --- message-editor port (the on-ready resume sweep's edit lane) ----------------
+#
+# The oracle's ``on_ready`` sweeps edited persisted panel messages in place
+# (``channel.fetch_message`` → ``message.edit`` — setup_cog._resume_one_launcher
+# / essential_setup.revive_one_essential_flow). At boot there is no live
+# interaction origin and no PanelSession, so the presenter port cannot carry
+# the edit; this dedicated port takes a kernel-rendered panel plus the
+# PERSISTED (channel_id, message_id) pair. The discord adapter implements it
+# (sb/adapters/discord/panel_view.DiscordPanelMessageEditor); uninstalled it
+# answers EDIT_UNAVAILABLE (headless/CI — never a crash).
+
+#: the edit was applied.
+EDIT_EDITED = "edited"
+#: the message is GONE (the oracle ``discord.NotFound`` branch) — callers may
+#: clear their persisted pointer so the sweep stops retrying it.
+EDIT_MISSING = "missing"
+#: the edit could not be applied (channel uncached / forbidden / HTTP error —
+#: the oracle's log-and-skip branches, folded).
+EDIT_FAILED = "failed"
+#: no editor installed (headless composition — the sweep degrades to a no-op).
+EDIT_UNAVAILABLE = "unavailable"
+
+# editor(rendered, *, channel_id, message_id) -> EDIT_EDITED|EDIT_MISSING|EDIT_FAILED
+_message_editor = None
+
+
+def install_panel_message_editor(editor) -> None:
+    global _message_editor
+    _message_editor = editor
+
+
+async def edit_anchored_panel(ref: PanelRef, *, guild_id: int | None,
+                              channel_id: int, message_id: int,
+                              actor, params: dict | None = None) -> str:
+    """Re-render panel *ref* fresh and edit it onto the persisted channel
+    message (the boot-time twin of ``refresh_session_view`` — no live
+    session required). Returns one of the ``EDIT_*`` outcomes.
+
+    Component ids are NOT session-minted here: a boot edit re-binds only
+    components whose wire ids are static (``custom_id_override`` /
+    persistent panels) — exactly the oracle's persistent-view doctrine
+    (the rebound message keeps working because custom ids never change).
+    Renderers see ``PanelOrigin.ANCHOR`` with the caller's *actor* (the
+    sweep passes a system actor)."""
+    if _message_editor is None:
+        return EDIT_UNAVAILABLE
+    spec = get_panel(ref.name)
+    ctx = PanelContext(
+        bot=None, guild_id=guild_id, actor=actor,
+        channel_id=channel_id, origin=PanelOrigin.ANCHOR,
+        audience=spec.audience, locale=LocaleContext(),
+        params=dict(params or {}), surface=None)
+    if spec.renderer_override is not None:
+        rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
+    else:
+        rendered = await render_panel(spec, ctx)
+    return await _message_editor(rendered, channel_id=int(channel_id),
+                                 message_id=int(message_id))
+
+
+# --- message-poster port (the on-guild-join launcher's post lane) ---------------
+#
+# The oracle's ``on_guild_join`` posted the setup launcher into a chosen
+# channel (``channel.send(embed=..., view=...)`` — setup_cog
+# ``_post_launcher_in_setup_channel`` / launcher.post_launcher). At a
+# gateway event there is no live interaction origin, so the presenter port
+# cannot carry the send; this dedicated port — the message-editor port's
+# POST twin — takes a kernel-rendered panel plus the target channel id and
+# answers the minted message id. The discord adapter implements it
+# (sb/adapters/discord/panel_view.DiscordPanelMessagePoster); uninstalled
+# it answers None (headless/CI — the callers' counted no-op, never a
+# crash).
+
+# poster(rendered, *, channel_id, mention_user_ids) -> message_id | None
+_message_poster = None
+
+
+def install_panel_message_poster(poster) -> None:
+    global _message_poster
+    _message_poster = poster
+
+
+async def post_anchored_panel(ref: PanelRef, *, guild_id: int | None,
+                              channel_id: int, actor,
+                              params: dict | None = None,
+                              mention_user_ids: tuple[int, ...] = ()
+                              ) -> int | None:
+    """Render panel *ref* fresh and POST it into *channel_id* (the
+    event-time twin of ``edit_anchored_panel`` — no live interaction
+    required). Returns the minted message id, or None when no poster is
+    installed / the send could not be applied.
+
+    Component ids are NOT session-minted here: an event-time post binds
+    only components whose wire ids are static (``custom_id_override`` /
+    persistent panels) — exactly the oracle's persistent-view doctrine.
+    Renderers see ``PanelOrigin.ANCHOR`` with the caller's *actor*.
+    ``mention_user_ids`` is the send's explicit user-mention allowlist
+    (the oracle's owner-ping ``AllowedMentions(users=True,
+    everyone=False)`` — default-deny stands: empty means no pings)."""
+    if _message_poster is None:
+        return None
+    spec = get_panel(ref.name)
+    ctx = PanelContext(
+        bot=None, guild_id=guild_id, actor=actor,
+        channel_id=channel_id, origin=PanelOrigin.ANCHOR,
+        audience=spec.audience, locale=LocaleContext(),
+        params=dict(params or {}), surface=None)
+    if spec.renderer_override is not None:
+        rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
+    else:
+        rendered = await render_panel(spec, ctx)
+    message_id = await _message_poster(
+        rendered, channel_id=int(channel_id),
+        mention_user_ids=tuple(int(u) for u in mention_user_ids))
+    return int(message_id) if message_id is not None else None
 
 
 # --- anchor-store port (the shipped panel_anchors registry) ---------------------
@@ -138,6 +264,11 @@ class PanelSession:
     # (a refresh re-renders onto the SAME wire ids — the shipped views kept
     # their auto-ids across edits).
     component_ids: dict = field(default_factory=dict)
+    # the channel the session message lives in — what an interaction-free
+    # push edit (``push_session_refresh``) hands the ``_message_editor``
+    # port; None for sessions minted outside a channel (confirm surfaces,
+    # request-id-keyed fallbacks).
+    channel_id: int | None = None
 
     @property
     def expired(self) -> bool:
@@ -265,9 +396,11 @@ def _mint_ephemeral(spec: PanelSpec, rendered: RenderedPanel,
 
 
 def reset_panel_engine_for_tests() -> None:
-    global _presenter, _anchor_store
+    global _presenter, _anchor_store, _message_editor, _message_poster
     _presenter = _no_presenter
     _anchor_store = None
+    _message_editor = None
+    _message_poster = None
     _sessions.clear()
     _ephemeral.clear()
 
@@ -284,8 +417,17 @@ def _context_from_request(spec: PanelSpec, req: ResolveRequest) -> PanelContext:
 
 
 async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
-                              page: int = 0, browse=None) -> str:
+                              page: int = 0, browse=None,
+                              window=None) -> str:
     ctx = _context_from_request(spec, req)
+    if window is not None:
+        # windowed-select position: rides the reserved ctx.params key so it
+        # reaches render_panel through EVERY render path — the grammar
+        # renderer's fallback AND a renderer_override that re-calls
+        # ``render_panel(spec, ctx)`` itself (the cog_routing detail).
+        from sb.kernel.panels import selectwindow
+
+        ctx.params[selectwindow.WINDOW_PARAM] = window
     if spec.renderer_override is not None:
         # tier-2 escape hatch: a registered renderer produces the RenderedPanel.
         rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
@@ -319,7 +461,9 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
     _store_session(key, PanelSession(
         panel_id=spec.panel_id, invoker_id=rendered.invoker_lock,
         audience=rendered.audience, page=page, timeout_s=rendered.timeout_s,
-        message_ref=message_ref, component_ids=minted_ids))
+        message_ref=message_ref, component_ids=minted_ids,
+        channel_id=(int(req.channel_id)
+                    if req.channel_id is not None else None)))
     if not spec.session_lifecycle:
         # session views are never anchored — no refreshable channel panel
         # exists (the shipped game views were not in panel_anchors).
@@ -357,6 +501,21 @@ async def refresh_session_view(req: ResolveRequest, *, message_key: str,
     ctx = _context_from_request(spec, req)
     ctx.params.clear()
     ctx.params.update(params)
+    rendered = await _render_session_panel(spec, session, ctx)
+    rendered = _dc_replace(rendered,
+                           edit_message_ref=session.message_ref)
+    await _presenter(rendered, req)
+    if expire:
+        _expire_session(message_key, session)
+    return True
+
+
+async def _render_session_panel(spec: PanelSpec, session: PanelSession,
+                                ctx: PanelContext) -> RenderedPanel:
+    """Re-render *spec* for a live session and rewrite the declared
+    components back onto the session's ORIGINAL minted ids (never re-mint
+    — the wire ids are stable across edits; the shipped views kept their
+    auto-ids). Shared by the interaction refresh and the push edit."""
     if spec.renderer_override is not None:
         rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
     else:
@@ -368,15 +527,61 @@ async def refresh_session_view(req: ResolveRequest, *, message_key: str,
                 component = _dc_replace(component, custom_id=minted)
                 break
         remapped.append(component)
-    rendered = _dc_replace(
-        rendered, components=tuple(remapped),
-        edit_message_ref=session.message_ref)
-    await _presenter(rendered, req)
+    return _dc_replace(rendered, components=tuple(remapped))
+
+
+def _expire_session(message_key: str, session: PanelSession) -> None:
+    """Tear a session down after a terminal edit (the shipped
+    ``view.stop()`` — later clicks fall to the polite-expiry terminal)."""
+    for minted in session.component_ids.values():
+        _ephemeral.pop(minted, None)
+    _sessions.pop(message_key, None)
+
+
+async def push_session_refresh(message_key: str, *, params: dict,
+                               actor, guild_id: int | None = None,
+                               expire: bool = False) -> str:
+    """Re-render a live session view IN PLACE with NO interaction — the
+    real-time twin of :func:`refresh_session_view` (docs/decisions.md
+    D-0090): same render-onto-the-ORIGINAL-minted-ids body, but the edit
+    rides the ``_message_editor`` port (the boot-sweep lane) instead of
+    the presenter, so a background task (the fishing bite timer) can
+    announce state onto the session message the way the oracle's
+    ``message.edit`` background edits did. Returns one of the ``EDIT_*``
+    outcomes: no editor installed ⇒ ``EDIT_UNAVAILABLE`` (headless/CI —
+    the sweep's degradation posture, never a crash); no live session /
+    no editable channel message ⇒ ``EDIT_MISSING`` (process restart or
+    eviction — the caller degrades exactly as the shipped game views'
+    message-gone edits did). Renderers see ``PanelOrigin.ANCHOR`` (no
+    live interaction origin — the ``edit_anchored_panel`` posture).
+    ``expire=True`` tears the session down after the edit (terminal
+    edits — the shipped ``view.stop()``)."""
+    if _message_editor is None:
+        return EDIT_UNAVAILABLE
+    session = _sessions.get(message_key)
+    if session is None or session.expired:
+        return EDIT_MISSING
+    if session.channel_id is None:
+        return EDIT_MISSING          # no editable channel message exists
+    try:
+        message_id = int(str(session.message_ref
+                             if session.message_ref is not None
+                             else message_key))
+    except (TypeError, ValueError):
+        return EDIT_MISSING          # opaque non-message handle
+    spec = get_panel(session.panel_id)
+    ctx = PanelContext(
+        bot=None, guild_id=guild_id, actor=actor,
+        channel_id=session.channel_id, origin=PanelOrigin.ANCHOR,
+        audience=spec.audience, locale=LocaleContext(),
+        params=dict(params or {}), surface=None)
+    rendered = await _render_session_panel(spec, session, ctx)
+    outcome = await _message_editor(rendered,
+                                    channel_id=int(session.channel_id),
+                                    message_id=message_id)
     if expire:
-        for minted in session.component_ids.values():
-            _ephemeral.pop(minted, None)
-        _sessions.pop(message_key, None)
-    return True
+        _expire_session(message_key, session)
+    return outcome
 
 
 async def handle_nav(binding: NavBinding, req: ResolveRequest) -> None:
@@ -398,6 +603,8 @@ async def handle_nav(binding: NavBinding, req: ResolveRequest) -> None:
         await _render_and_present(get_panel(panel_id), req, page=int(page))
     elif binding.kind == "browse":
         await _handle_browse(binding.target, req)
+    elif binding.kind == "selwin":
+        await _handle_selwin(binding.target, req)
     else:  # pragma: no cover — the registry mints only the recognized kinds
         raise ValueError(f"unknown nav binding kind {binding.kind!r}")
 
@@ -439,3 +646,54 @@ async def _handle_browse(custom_id: str, req: ResolveRequest) -> None:
     values = req.args.get("values") if req.args else None
     new_state = browserview.apply_delta(control, state, block_spec, values)
     await _render_and_present(spec, req, browse=new_state)
+
+
+async def _handle_selwin(custom_id: str, req: ResolveRequest) -> None:
+    """Dispatch a windowed-select ◀ Prev / Next ▶ click (the windowed-select
+    grammar successor): decode the current window against the panel spec,
+    step it, and re-render with the new window — the options re-resolve
+    fresh at click time (§2.4), and the upper bound clamps at render where
+    the fresh count is known. A live session under the clicked message
+    refreshes IN PLACE (the shipped SelectWindow edited its own message; a
+    window flip must never spawn a second card); without one it re-presents
+    (the browse/page-turn posture). A malformed/stale id — unknown panel,
+    unknown selector, or a selector no longer declared windowed — degrades
+    to the §3.4 polite-expiry terminal, never a crash."""
+    from sb.kernel.panels import selectwindow
+    from sb.kernel.panels.router import EXPIRY_MESSAGE
+
+    async def _expire() -> None:
+        try:
+            await req.responder.deny(EXPIRY_MESSAGE, ephemeral=True)
+        except Exception:  # noqa: BLE001 — a failed expiry render never raises
+            logger.warning("selwin expiry render failed for %r", custom_id,
+                           exc_info=True)
+
+    panel_id = selectwindow.window_panel_id(custom_id)
+    if panel_id is None:
+        await _expire()
+        return
+    try:
+        spec = get_panel(panel_id)
+    except LookupError:
+        await _expire()
+        return
+    decoded = selectwindow.decode_window(custom_id, spec)
+    if decoded is None:
+        await _expire()
+        return
+    control, _selector, state = decoded
+    new_state = selectwindow.apply_window_delta(control, state)
+    message = getattr(req.origin, "message", None)
+    message_key = str(getattr(message, "id", "") or "")
+    if message_key:
+        try:
+            refreshed = await refresh_session_view(
+                req, message_key=message_key,
+                params={selectwindow.WINDOW_PARAM: new_state})
+            if refreshed:
+                return
+        except Exception:  # noqa: BLE001 — degrade to the fresh present
+            logger.warning("selwin in-place refresh failed for %r", custom_id,
+                           exc_info=True)
+    await _render_and_present(spec, req, window=new_state)

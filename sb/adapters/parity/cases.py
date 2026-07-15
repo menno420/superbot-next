@@ -39,14 +39,19 @@ def _step_from_input(doc: dict) -> Step | None:
     kind = doc.get("kind")
     persona = doc.get("persona", "member")
     channel = doc.get("channel", "general")
+    # the D-0043 clock-grammar growth: a non-default logical-clock advance
+    # round-trips (absent = None = the fixed 30.0 s — the whole corpus).
+    raw_advance = doc.get("advance_s")
+    advance_s = float(raw_advance) if raw_advance is not None else None
     if kind == "command":
         content = doc.get("content", "")
         return Step(kind="command", content=content, persona=persona,
-                    channel=channel, mentions=_mentions_from(content))
+                    channel=channel, mentions=_mentions_from(content),
+                    advance_s=advance_s)
     if kind == "slash":
         options = tuple(dict(o) for o in doc.get("options", ()))
         return Step(kind="slash", name=doc.get("name", ""), options=options,
-                    persona=persona, channel=channel)
+                    persona=persona, channel=channel, advance_s=advance_s)
     if kind == "click":
         custom_id = doc.get("custom_id", "")
         if not custom_id or custom_id.startswith("<"):
@@ -61,7 +66,8 @@ def _step_from_input(doc: dict) -> Step | None:
                   if raw_values is not None else None)
         return Step(kind="click", custom_id=custom_id,
                     target_message=int(doc.get("target_message", 0)),
-                    values=values, persona=persona, channel=channel)
+                    values=values, persona=persona, channel=channel,
+                    advance_s=advance_s)
     if kind == "modal":
         # wire-type-5 modal submit (D-0073 corpus-schema growth — the
         # D-0063 deletion clause's replay-case vocabulary): custom_id is
@@ -73,7 +79,7 @@ def _step_from_input(doc: dict) -> Step | None:
             (str(k), str(v)) for k, v in (doc.get("fields") or {}).items()))
         return Step(kind="modal", custom_id=custom_id, fields=fields,
                     target_message=int(doc.get("target_message", 0)),
-                    persona=persona, channel=channel)
+                    persona=persona, channel=channel, advance_s=advance_s)
     return None
 
 

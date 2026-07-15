@@ -391,6 +391,24 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         register_error_handlers(bot)
         install_channel_emitter(DiscordChannelEmitter(bot))
 
+        # the panel message-EDIT port (the on-ready resume sweep's edit
+        # lane): the bot edits ITS OWN persisted panel messages in place —
+        # the send-egress emitter's edit sibling, installed ungated like it
+        # (no guild mutation class rides an own-message edit).
+        from sb.adapters.discord.panel_view import DiscordPanelMessageEditor
+        from sb.kernel.panels.engine import install_panel_message_editor
+
+        install_panel_message_editor(DiscordPanelMessageEditor(bot))
+
+        # the panel message-POST port (the on-guild-join launcher's post
+        # lane): the bot posts a kernel-rendered panel into a channel with
+        # no live interaction — the editor port's twin, installed ungated
+        # like it (mentions stay default-deny through the egress seam).
+        from sb.adapters.discord.panel_view import DiscordPanelMessagePoster
+        from sb.kernel.panels.engine import install_panel_message_poster
+
+        install_panel_message_poster(DiscordPanelMessagePoster(bot))
+
         # 10a. the moderation guild-action port (D-0049 live successor) — the
         #      moderation twin of the channel emitter above: live kick/ban/
         #      timeout/unban + the guild.me 🤖 readiness read. DOUBLE-GATED,
@@ -660,6 +678,14 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
         install_ai_operator_ports(bot)
 
+        # 14b³. the setup-advisor guild reads: the deterministic advisor's
+        #       channel index + the channel-recommender's perms-bearing
+        #       guild-snapshot source (uninstalled they degrade to the
+        #       advisor-fallback hints — never a crash).
+        from sb.adapters.discord.setup_reads import install_setup_read_ports
+
+        install_setup_read_ports(bot)
+
         # 14c. the reaction feed — raw reaction add/remove → the kernel
         #      reaction seam (band 6; the tournament sign-up consumer rides
         #      it, starboard/reaction-roles/AI-review 👎 are named
@@ -674,6 +700,21 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         logger.info("reaction feed armed: %d consumer(s): %s",
                     len(registered_reaction_consumers()),
                     ", ".join(registered_reaction_consumers()) or "—")
+
+        # 14d. the guild-join feed — gateway on_guild_join → the kernel
+        #      guild-events seam (the setup launcher consumer rides it —
+        #      night-tail-2; the economy log-channel ensure is a named
+        #      successor). The guilds intent is non-privileged
+        #      (Intents.default() carries it) — no degrade marker gates it.
+        from sb.adapters.discord.guild_feed import arm_guild_join_feed
+        from sb.kernel.interaction.guild_events import (
+            registered_guild_join_consumers,
+        )
+
+        arm_guild_join_feed(bot)
+        logger.info("guild-join feed armed: %d consumer(s): %s",
+                    len(registered_guild_join_consumers()),
+                    ", ".join(registered_guild_join_consumers()) or "—")
 
         # 15. the ONE PollSupervisor (outbox relay/reaper + durability lanes).
         from sb.app.poll_host import build_poll_supervisor
@@ -704,6 +745,20 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
             if refunded:
                 logger.info("recover_escrow(%s): refunded %d stranded row(s)",
                             subsystem, refunded)
+
+        # 16b. the app-boot hooks (the ORDER-019 on-ready seam): manifest-
+        #      registered domain recovery (the setup resume sweep — the
+        #      oracle's cog on_ready twin), fired ONCE here with per-hook
+        #      isolation; gateway is RUNNING and every port above is live.
+        from sb.kernel.lifecycle.boot_hooks import run_boot_hooks
+
+        hook_results = await run_boot_hooks()
+        for hook_result in hook_results:
+            if hook_result.ok:
+                logger.info("boot hook %s: ok", hook_result.name)
+            else:
+                logger.warning("boot hook %s FAILED (isolated): %s",
+                               hook_result.name, hook_result.error)
 
         canary_id = await _enqueue_boot_canary()
         logger.info("boot complete: RUNNING (canary enqueued %s)", canary_id)

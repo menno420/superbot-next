@@ -40,20 +40,28 @@ class TestImportedCorpus:
         # WP-1 mining write-parity goldens (equip/unequip/loadout
         # save·apply·delete) + 4 minted WP-2 mining vault write-parity goldens
         # (stash/unstash/stash-all/vaultupgrade) + 5 minted WP-3 mining
-        # depth/world/workshop write-parity goldens (descend/ascend/reseed-world/
-        # repair/quickcraft) + 1 minted paid-tournament conservation golden
+        # depth/world/workshop write-parity goldens (descend/ascend/
+        # reseed-world/repair/quickcraft)
+        # + 1 minted paid-tournament conservation golden
         # + 2 minted creature picker/bot-guard goldens (D-0081) + 3 minted
         # fishing cast-leg reel write goldens + 4 minted energy-slice-2
         # mining cook/use goldens (2026-07-13) + 1 minted energy-slice-3
         # fastmine out-of-energy refusal golden (2026-07-13; the dig-spend
         # behaviour change rides the RE-MINTED sweep_fastmine — re-mints
-        # never move counts) (parity.yml
+        # never move counts) + 1 minted cleanup
+        # anti-evasion toggle write golden (completeness-remainders residue
+        # port, 2026-07-13) + 1 minted fishing howtofish rules-card golden
+        # (completeness-remainders fishing row, 2026-07-13) + 1 minted
+        # cleanup policies-open golden (2026-07-13) + 4 minted
+        # fishing minigame-timing slice-1 goldens (premature spook/grace +
+        # trophy fight land/escape — the first Step.advance_s cases,
+        # 2026-07-14) (parity.yml
         # source.minted_goldens) − 3 retired (sweep_cog.json, the deploy-ops
         # `!cog` capture, + sweep_query_logs.json / sweep_recent_errors.json,
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 501
+        assert len(goldens) == 508
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -87,7 +95,12 @@ class TestImportedCorpus:
         # + 3 fishing cast-leg reel write mints (2026-07-13)
         # + 4 energy-slice-2 mining cook/use mints (2026-07-13)
         # + 1 energy-slice-3 fastmine out-of-energy refusal mint (2026-07-13)
-        assert source["minted_goldens"] == 39
+        # + 1 cleanup anti-evasion toggle write mint (completeness-remainders
+        # residue port, 2026-07-13)
+        # + 1 fishing howtofish rules-card mint (2026-07-13)
+        # + 1 cleanup policies-open mint (2026-07-13)
+        # + 4 fishing minigame-timing slice-1 mints (2026-07-14)
+        assert source["minted_goldens"] == 46
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -608,11 +621,14 @@ class TestGateDriver:
         assert "vacuously" not in out
         assert "flipped `ported` but no replay is possible" in out
 
-    def test_report_leg_is_born_red_by_design(self, capsys):
+    def test_report_leg_prints_full_corpus_banner(self, capsys):
+        # No replay binding in the unit env, so the leg exits nonzero;
+        # the banner is the neutral full-corpus report wording (the leg
+        # is live-green in CI since 2026-07-13).
         assert run_report() == 1
         out = capsys.readouterr().out
-        assert "RED BY DESIGN" in out
-        assert "501 goldens" in out
+        assert "full-corpus parity report" in out
+        assert "508 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

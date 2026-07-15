@@ -13,7 +13,10 @@ the oracle (menno420/superbot):
   ``ServerTypeStep``): the five-kind select records the pick, Save &
   continue applies the shipped starter-set bundle FOR REAL through the
   audited K7 ``settings.set_scalar`` lane (the oracle's
-  SettingsMutationPipeline twin), Skip leaves everything untouched;
+  SettingsMutationPipeline twin) and advances into the guided spine,
+  Skip records the step and moves on — steps 2–8, the summary and the
+  restart-resume lane are LIVE (the essential-steps slice —
+  sb/domain/setup/essential_steps.py);
 * the SMART-SUGGESTIONS review lanes (views/setup/ai_review/
   main_panel.py + per_recommendation.py): accept-all / reject-AI /
   rerun mutate the in-memory review state exactly like the oracle's
@@ -33,13 +36,81 @@ destination panel through ``open_panel`` (the #295 settings-hub
 precedent) and refreshes a panel's OWN card in place via
 ``refresh_session_view``.
 
-Named successors kept honest (each a declared BLOCKED terminal, never
-silent): the essential flow's steps 2–8 (essential-steps slice), the
-ten per-section flows + the linear wizard steps behind ↩ Back to
-wizard (section-flows slice), the per-suggestion Edit modal/re-pick
-flow (suggestion-edit slice), and the final-review apply lane
-(final-review slice — staged ops apply nowhere yet; ``/setup-reset``
-clears them).
+The FINAL-REVIEW APPLY LANE is LIVE (the final-review slice —
+sb/domain/setup/final_review.py): the ``final_review`` section button
+lands on the ported FinalReviewView card, Apply executes the staged
+ops through the K9 DraftPipeline over the audited K7 seams, and the
+apply-summary / partial-recovery / setup-complete views ride along.
+
+The per-suggestion EDIT lane is LIVE (the suggestion-edit slice): a
+``create`` suggestion's Edit opens the "Edit suggestion" rename modal
+(G-10 form; submit rewrites the draft row + re-accepts it and
+advances — the oracle ``apply_edit``/``_swap_and_accept``), a ``bind``
+suggestion's Edit answers the shipped can't-re-pick explanation (the
+native ChannelSelect/RoleSelect re-pick sub-view — oracle
+``_RepickTargetView`` — is the flagged follow-up), and the staged
+``bind_channel`` payload carries ``target_name`` so the (possibly
+edited) name round-trips into the final-review pending line.
+
+The SECTION-FLOW SPINE + the first two per-section flows are LIVE (the
+section-flows slice — sb/domain/setup/section_card.py carries the
+shared card frame, the setup_progress status vocabulary and the
+replace-recommended/stage-custom/skip staging seams;
+sb/domain/setup/wizard_nav.py carries the LINEAR WIZARD STEPS behind
+↩ Back to wizard — ``setup.back_to_wizard`` is live there;
+sb/domain/setup/preset_select.py flips
+``setup.open_section_preset_select`` — pick → preview → stage-every-op
+into the K9 draft; sb/domain/setup/channels.py flips
+``setup.open_section_channels`` — the declared-binding walk, the
+channel pick staging ``bind_channel``, and the high-confidence
+Apply-Recommended builder).
+
+The SETTINGS-WRITE section flows are LIVE (the settings-write slice):
+sb/domain/setup/logging_presets.py flips
+``setup.open_section_logging_presets`` — the Single / Balanced /
+Detailed / Custom picker staging ``create_channel`` rows (fail-closed
+op kind, its module-docstring ledger); sb/domain/setup/moderation.py
+flips ``setup.open_section_moderation`` — the four-knob detail view
+staging ``set_setting`` rows through the registered
+``settings.set_scalar`` op kind; sb/domain/setup/cleanup.py flips
+``setup.open_section_cleanup`` — the scope × level walker + the
+six-profile batch picker staging ``set_cleanup_policy`` through the
+newly registered K7 ``governance.set_cleanup`` op.
+
+The ROLES-FAMILY section flows are LIVE (the roles-family slice):
+sb/domain/setup/roles.py flips ``setup.open_section_roles`` — the
+time/XP tier detail staging ``set_role_threshold`` rows through the
+newly registered K7 ``role.set_threshold`` op (time + XP folded per
+role onto the full-row-upsert leg, its module-docstring ledger);
+sb/domain/setup/role_templates.py flips
+``setup.open_section_role_templates`` — the six-template
+permission-free bundle catalogue (pick → preview → stage), each
+missing role staging a ``create_managed_role`` row (fail-closed op
+kind, the logging_presets ``create_channel`` precedent).
+
+The COG-ROUTING + TICKET section flows are LIVE (the routing-ticket
+slice — the FINAL section-flow slice): sb/domain/setup/cog_routing.py
+flips ``setup.open_section_cog_routing`` — the scope → target → cog →
+Enable/Disable walker + the four-profile batch picker staging
+``set_cog_routing`` rows (fail-closed op kind — no live routing
+resolver exists in this build, its module-docstring ledger);
+sb/domain/setup/ticket.py flips ``setup.open_section_ticket`` — the
+thin wizard adapter opening the ALREADY-SHIPPED ``ticket.setup``
+panel (no staged op, the oracle posture; writes ride the audited K7
+``ticket.update_config`` / ``ticket.create_log_channel`` lanes).
+
+The named-successor lane this docstring declared is CLOSED: every one
+of the wizard's 10 sections walks its full flow — NO section slug
+holds a BLOCKED terminal any more. The follow-ups that survive the
+lane ride the completeness table's setup row
+(docs/status/completeness-table-2026-07-13.md): the role/channel-
+create K9→K7 compound ops (``create_managed_role`` /
+``create_channel`` / ``set_cog_routing`` / ``add_rule`` rows apply
+fail-closed as skipped until their seams exist), the on-ready resume
+sweep (app-boot seam), the automation-rule apply seam, the
+SectionRecoveryView + workspace-notice rides, the native
+channel-recommender port, and the windowed-select grammar successor
+(the >25-option cog picker windows at 25 meanwhile).
 """
 
 from __future__ import annotations
@@ -283,6 +354,14 @@ async def review_state(guild_id: int, user_id: int) -> ReviewState:
 def reset_wizard_state_for_tests() -> None:
     _ESSENTIAL_PICKS.clear()
     _REVIEW.clear()
+    try:
+        from sb.domain.setup.essential_steps import (
+            reset_essential_state_for_tests,
+        )
+
+        reset_essential_state_for_tests()
+    except ImportError:  # pragma: no cover — module always ships alongside
+        pass
 
 
 # --- the apply-authority gate (setup_access.can_apply_setup, ported) ------------------
@@ -350,8 +429,9 @@ def _register_op_kind() -> None:
     """Bind the ONE op kind the deterministic advisor's recommendations
     stage (``bind_channel`` — the G-19 section vocabulary's channel-bind
     entry) onto the audited K7 ``settings.bind`` op, so the K9 pipeline's
-    fail-closed registry accepts the staged rows. The APPLY lane stays
-    the final-review slice's port — staging only ever writes draft rows."""
+    fail-closed registry accepts the staged rows. The final-review APPLY
+    lane (final_review.py) executes them through the same registry;
+    staging itself only ever writes draft rows."""
     from sb.kernel.draft.registry import OP_KINDS, OpKindBinding
     from sb.spec.events import FieldSpec
     from sb.spec.refs import WorkflowRef
@@ -419,8 +499,16 @@ async def stage_accepted(guild_id: int, accepted: list) -> int:
             op_kind=_BIND_CHANNEL_OP_KIND,
             subsystem=rec.subsystem,
             authority_ref="",          # the ADMIN floor (settings.bind's own)
+            # ``target_name`` rides ABOVE the op-kind's declared minimum
+            # (the suggestion-edit slice): the final-review pending line
+            # prefers it over the raw id (draft_render._short_label's
+            # bind branch), so a renamed suggestion round-trips into the
+            # staged card; the settings.bind legs read only their own
+            # params and ignore it. Pre-slice staged rows lack the key —
+            # the renderer's ``<id>`` fallback still answers.
             payload={"subsystem": rec.subsystem, "name": rec.binding_name,
-                     "kind": rec.target_kind, "resource_id": rec.target_id},
+                     "kind": rec.target_kind, "resource_id": rec.target_id,
+                     "target_name": rec.target_name},
             label=(f"{_SUGGESTIONS_LABEL_PREFIX}{rec.subsystem}."
                    f"{_BIND_CHANNEL_OP_KIND}")))
         staged += 1
@@ -513,8 +601,10 @@ def _register() -> None:
             silent no-op, the shipped UPDATE semantics), then land on the
             sections hub at that depth (the shipped ``after="hub"``
             default destination; the ``after="wizard"`` step-0 render is
-            the section-flows slice's port and lands on the SAME hub
-            until then, ledgered)."""
+            LIVE at the hub's ↩ Back to wizard — the chooser keeps the
+            ONE hub landing because the ported panel lane carries no
+            per-presentation ``after`` facet, ledgered: one click more
+            than the oracle's workspace-anchor path)."""
             from sb.kernel.workflow import engine
             from sb.spec.refs import WorkflowRef
 
@@ -554,7 +644,23 @@ def _register() -> None:
 
     from sb.domain.setup.sections import SECTIONS
 
+    #: slugs whose flows are LIVE — their own modules register the
+    #: ``setup.open_section_*`` route (final_review.py · the
+    #: section-flows slice's preset_select.py + channels.py · the
+    #: settings-write slice's logging_presets.py + moderation.py +
+    #: cleanup.py · the roles-family slice's roles.py +
+    #: role_templates.py · the routing-ticket slice's cog_routing.py +
+    #: ticket.py). ALL 10 sections are live — the loop below is the
+    #: honest-terminal fallback for any FUTURE registrant whose flow
+    #: hasn't ported yet, and currently registers nothing.
+    _LIVE_SECTIONS = frozenset({"final_review", "preset_select", "channels",
+                                "logging_presets", "moderation", "cleanup",
+                                "roles", "role_templates", "cog_routing",
+                                "ticket"})
+
     for _section in SECTIONS:
+        if _section.slug in _LIVE_SECTIONS:
+            continue
         handler(f"setup.open_section_{_section.slug}")(
             _section_handler(_section.slug))
 
@@ -567,19 +673,8 @@ def _register() -> None:
         await _open(req, "setup.hub")
         return None
 
-    @handler("setup.back_to_wizard")
-    async def back_to_wizard(req) -> Reply:
-        """The hub's ↩ Back to wizard button — the linear wizard step
-        render (wizard_nav.render_wizard_step) is the section-flows
-        slice's port; honest terminal until then."""
-        if not await can_apply_setup(req):
-            return Reply(BLOCKED, GATE_MSG_WIZARD)
-        return Reply(BLOCKED,
-                     "🚧 The linear wizard steps aren't armed in this "
-                     "build yet — they land with the section-flows "
-                     "slice. Open a section from the hub instead once "
-                     "the flows port; the depth chooser and "
-                     "`/setup-status` stay live meanwhile.")
+    # ``setup.back_to_wizard`` is LIVE — the section-flows slice's
+    # linear wizard steps (sb/domain/setup/wizard_nav.py registers it).
 
     # ---- the essential Step-1 interior (essential_setup.ServerTypeStep) ----
 
@@ -608,13 +703,13 @@ def _register() -> None:
         return None
 
     @handler("setup.essential_save")
-    async def essential_save(req) -> Reply:
+    async def essential_save(req) -> Reply | None:
         """✨ Save & continue: apply the picked starter set IMMEDIATELY
         through the audited settings lane (the oracle's direct-apply
-        doctrine — "save each step instantly"), then confirm with the
-        shipped summary line. Steps 2–8 of the essential flow are the
-        essential-steps slice's port — the card stays on Step 1 and the
-        confirmation says so."""
+        doctrine — "save each step instantly"), record the shipped
+        applied-summary line, and advance to Step 2 (the essential-steps
+        slice's spine — ``_StepView.complete``'s record + advance +
+        show-current, the open_panel navigation lane)."""
         guild_id = int(req.guild_id or 0)
         user_id = int(getattr(req.actor, "user_id", 0) or 0)
         kind = essential_pick(guild_id, user_id)
@@ -650,28 +745,31 @@ def _register() -> None:
             return Reply(BLOCKED,
                          "Something went wrong applying the starter set — "
                          "please try again.")
-        await _refresh_own_panel(req, {**dict(req.args or {}),
-                                       "essential_kind": kind})
-        # the shipped applied-summary line (ServerTypeStep.complete's
-        # record_applied byte) + the honest successor note.
-        return Reply(SUCCESS,
-                     f"✨ {preset.emoji} {preset.label} starter set on · "
-                     f"{preset.blurb}. Every change is live — the guided "
-                     "steps after this one land with the essential-steps "
-                     "slice; adjust anything meanwhile from `!settings`.")
+        # the shipped complete(): record the applied line (byte verbatim),
+        # advance, land on the Step-2 card (essential_steps._show_current).
+        from sb.domain.setup import essential_steps
+
+        state = essential_steps.flow_state(guild_id, user_id)
+        state.record_applied(
+            f"{preset.emoji} {preset.label} starter set on · {preset.blurb}")
+        state.index = 1
+        await essential_steps._show_current(req, state)
+        return None
 
     @handler("setup.essential_skip")
-    async def essential_skip(req) -> Reply:
-        """Skip — set things up myself: nothing changes (the shipped
-        skip records the step and moves on; with the later steps still
-        the essential-steps slice's port, the shipped all-skipped
-        summary copy answers)."""
-        # shipped summary copy (EssentialSummaryView.render, the
-        # skipped-everything branch) + the honest successor note.
-        return Reply(SUCCESS,
-                     "You skipped this step — nothing was changed. Run "
-                     "`/setup` again any time; the guided steps after "
-                     "this one land with the essential-steps slice.")
+    async def essential_skip(req) -> Reply | None:
+        """Skip — set things up myself: nothing changes; the shipped
+        skip records the step and moves on to Step 2
+        (``_StepView.skip`` — the essential-steps slice's spine)."""
+        from sb.domain.setup import essential_steps
+
+        state = essential_steps.flow_state(
+            int(req.guild_id or 0),
+            int(getattr(req.actor, "user_id", 0) or 0))
+        state.record_skipped(essential_steps.STEP_TITLES[0])
+        state.index = 1
+        await essential_steps._show_current(req, state)
+        return None
 
     # ---- the smart-suggestions review lanes (ai_review/main_panel) ----
 
@@ -772,13 +870,12 @@ def _register() -> None:
         return None
 
     @handler("setup.review_stage")
-    async def review_stage(req) -> Reply:
+    async def review_stage(req) -> Reply | None:
         """Stage & open Final review (main_panel ``_stage_final``): the
         shipped guards verbatim, then the accepted set lands in the K9
         draft (the sole apply path's staging leg — "nothing has changed
-        yet"). The FinalReviewView render + apply lane is the
-        final-review slice's port; until then the confirmation carries
-        the staged truth and ``/setup-reset`` clears it."""
+        yet") and the FINAL-REVIEW card opens (the shipped destination —
+        the final-review slice's live lane)."""
         state = await review_state(int(req.guild_id or 0),
                                    int(getattr(req.actor, "user_id", 0) or 0))
         if not state.accepted:
@@ -803,11 +900,13 @@ def _register() -> None:
         await _refresh_own_panel(req, {
             "setup_plan_draft": state.draft,
             "review_status": state.last_status})
-        return Reply(SUCCESS,
-                     f"✅ Staged **{staged}** {word} into the setup draft — "
-                     "nothing has changed yet. The Final-review apply lane "
-                     "lands with the final-review slice; `/setup-reset` "
-                     "clears the staged set.")
+        # the shipped destination: the FinalReviewView opens over the
+        # freshly staged draft (main_panel._stage_final's view swap —
+        # the ported open_panel navigation lane).
+        from sb.domain.setup.final_review import FINAL_REVIEW_PANEL_ID
+
+        await _open(req, FINAL_REVIEW_PANEL_ID)
+        return None
 
     # ---- the per-suggestion walkthrough (ai_review/per_recommendation) ----
 
@@ -867,15 +966,73 @@ def _register() -> None:
         await _return_to_overview(req, state)
         return None
 
-    # the per-suggestion Edit lane (rename a `create` proposal / re-pick
-    # a `bind` target) — modal + native-picker successor, honest terminal.
-    from sb.domain.operator_spine import pending_handler
+    # ---- the per-suggestion Edit lane (per_recommendation._edit +
+    # _EditRecommendationModal — the suggestion-edit slice) ----
 
-    pending_handler(
-        "setup.review_item_edit_pending",
-        "The Edit lane (rename / re-pick) isn't armed in this build yet — "
-        "it lands with the suggestion-edit slice. **Deny** this suggestion "
-        "and bind a different one if it isn't right.")
+    def _bind_edit_refusal(rec) -> str:
+        # shipped copy, verbatim (per_recommendation._edit's
+        # can't-re-pick branch — the native picker sub-view is the
+        # flagged follow-up, so every ``bind`` kind answers it).
+        return (f"**Edit** can't re-pick a `{rec.target_kind}` here — "
+                "**Deny** this suggestion and bind a different one if it "
+                "isn't right.")
+
+    @handler("setup.review_item_edit")
+    async def review_item_edit(req) -> Reply | None:
+        """Edit on a ``bind`` suggestion (the renderer's bind face):
+        an existing resource can't be renamed — explain (oracle
+        docstring: "A ``bind`` suggestion (an existing resource) can't
+        be renamed — Edit explains that")."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        recs = state.draft.recommendations
+        if not (0 <= state.index < len(recs)):
+            await _return_to_overview(req, state)
+            return None
+        rec = recs[state.index]
+        if getattr(rec, "mode", "bind") == "create":
+            # stale card (the create face renders the rename modal
+            # button): re-render so the right Edit face shows.
+            if not await _refresh_own_panel(req, {}):
+                await _open(req, "setup.review_item")
+            return None
+        return Reply(BLOCKED, _bind_edit_refusal(rec))
+
+    @handler("setup.review_item_edit_rename")
+    async def review_item_edit_rename(req) -> Reply | None:
+        """_EditRecommendationModal.on_submit → PerRecommendationView.
+        apply_edit → _swap_and_accept, ported: rewrite the ``create``
+        suggestion's target name in the shared draft, re-accept it
+        under the (unchanged) binding key, advance the walkthrough.
+        Pure in-memory state mutation — no DB write, no Discord
+        resource creation (the edited op still applies only through
+        the gated Final Review)."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        recs = state.draft.recommendations
+        if not (0 <= state.index < len(recs)):
+            await _return_to_overview(req, state)
+            return None
+        rec = recs[state.index]
+        if getattr(rec, "mode", "bind") != "create":
+            # stale form (the walkthrough moved off the create
+            # suggestion the form was opened on): the bind explanation
+            # answers — nothing is changed.
+            return Reply(BLOCKED, _bind_edit_refusal(rec))
+        new_name = str(req.args.get("new_name") or "").strip()
+        if not new_name:
+            # shipped copy, verbatim (_EditRecommendationModal.on_submit).
+            return Reply(BLOCKED,
+                         "The name can't be empty — nothing was changed.")
+        edited = replace(rec, target_name=new_name)
+        swapped = list(recs)
+        swapped[state.index] = edited
+        state.draft = replace(state.draft,
+                              recommendations=tuple(swapped))
+        state.remove(rec.subsystem, rec.binding_name)
+        state.add(edited)
+        await _advance_or_return(req, state)
+        return None
 
 
 _register()

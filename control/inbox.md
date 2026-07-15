@@ -196,3 +196,119 @@ provenance: filed by the Fleet Manager — owner live ask 2026-07-13 morning (th
 do: NIGHT REPORT REQUEST — owner ask 2026-07-13 (relayed via Fleet Manager). Post a THOROUGH night report, window 2026-07-12T22:30Z→now, to your control/status.md heartbeat AND your outbox (manager-addressed): SHIPPED (merges/PRs with numbers+SHAs) · OPEN PRs + check states · ORDERS served + outstanding · SIM-REQUESTs/asks pending · STALLS/denials verbatim · wake-chain health (failsafe + pacemaker ids/fires) · next-3.
 why: owner morning review.
 done-when: report posted in both files; the Fleet Manager compiles the fleet roll-up from them.
+
+## ORDER 019 · 2026-07-13T22:13Z · status: new
+**EAP final-night worklist — owner directive relay (fm ORDER 045, Phase 3 fan-out).**
+
+Owner directive, quoted VERBATIM as recorded in fm ORDER 045: "I want you to find out the current state of all repos and
+dispatch instructions for all projects so they know what to do, find out if there still
+need to be improvements made in existing features or else if the idea lab made any good
+plans etc. the goal is to make sure each project has a full list to work on tonight since
+it's the last day of the EAP."
+
+Citations: fm ORDER 045, control/inbox.md @ ca1ce28 · docs/eap-final-night-worklists-2026-07-13.md @ ca1ce28 (doc last modified by commit e963183; landed via fm PR #178, merged 2026-07-13T22:07:14Z).
+
+**Your seat's full night worklist, copied faithfully from the doc:**
+
+## superbot-next — swept @ `5dac6ce`
+
+All 18 inbox ORDERs served except owner-side ORDER 001 (live-test token). NOTE: a
+session is actively working this repo (claims #413/#414 landed 21:35–21:40Z) —
+night workers must re-scan `control/claims/` at start.
+
+1. WP-stack conflict reconcile — #312→#317→#335→#344→#371 now verifiably conflicts with main (4 files: `parity/cases/curated.py`, `parity/parity.yml`, 2 count-pin tests, via merge-tree) + re-mint the migration-0052-invalidated WP-2/3 goldens; merge itself stays owner-click (superbot-next PRs #312–#371) `[lane]`
+2. Curation REWORK backlog bundle — next ~17 of the 27 backlog rows (`docs/review/curation-report-2026-07-13.md@5dac6ce`; 3 bundles already shipped as precedent) `[standing]` (ORDER 017 residue)
+3. `tools/check_money_race.py` mis-classification fix — conditional-FOR-UPDATE ownership SELECT at `sb/domain/mining/ops.py:598` read as a fence; flagged in five consecutive WP PR bodies, never fixed `[improve]`
+4. Fishing cast-leg profile wiring — venue/rod/bait/structure → cast (`sb/domain/fishing/service.py` PENDING-roster note; completeness table @`5dac6ce`) `[improve]`
+5. Setup successor follow-ups, unclaimed subset — on-ready resume sweep, automation-rule apply seam, SectionRecoveryView, channel-recommender port; the compound-ops + routing-resolver subset is CLAIMED (PR #414) — do not duplicate (`docs/status/completeness-table-2026-07-13.md@5dac6ce`) `[lane]`
+6. Host-side `plugins.lock.json` pin for the idle plugin adapter — executed from this seat; closes superbot-idle's live wiring gap (superbot-idle `control/status.md` Next-3 @`1f4d774`) `[lane]` (cross-repo)
+7. Windowed-select grammar successor — needed on ≥2 surfaces, unlocks the parked mining title-equip select (completeness table @`5dac6ce`; PR #371 body) `[improve]`
+8. Doc-only PR: band-binding doctrine + effect-arming compensator checklist — one `docs/collaboration-model.md` PR, gives ORDER 004 its `done=` citation hook (idea-engine `ideas/superbot-next/band-binding-doctrine-encoding-2026-07-10.md` + sibling @`2e5d73f`) `[build-direct]`
+
+**Blocked (do not schedule):** casino/minigame section (ORDER 017 item 4 — awaits the SBW inventory/spec SIM-REQUEST answer, ⚑5) · hermes egress + AI NL lane (owner-keyed env) · ORDER 001 live-test band 1 (owner token) · mineverse #2058/#2061 flips + DROP-list ratify + the stamped owner decision in `docs/owner-queue.md` (owner).
+
+Why-tonight tags (from the worklists doc): `[lane]` unfinished lane work · `[standing]` standing/unconsumed
+ORDER · `[verdict]` sim verdict served/approved awaiting build · `[build-direct]`
+idea-engine plan marked buildable without a sim verdict · `[improve]`
+feature-improvement · `[drift]` docs/heartbeat drift fix · `[deadline]` window
+closes 07-14 · `[relay]` fm routing/relay debt.
+
+---
+
+**ADDITIONAL DISTINCT WORKLIST ITEM — fm ORDER 031 (mining/fishing/idle finalization + casino inventory/spec).**
+The fm sweep found ORDER 031 landed in NO seat inbox at all (worklists doc,
+cross-cutting finding 1 + fm self item 3, @ ca1ce28); its named owner seat
+(SuperBot World / superbot-games) is DARK. Decide-and-flag: **superbot-next is
+primary owner** of this relayed order. Split notes: the IDLE-GAME component is
+referenced onto superbot-idle's night list (idle seat's item 2 lane + its own
+relay); the CASINO-SPEC dependency stands per the doc's cross-cutting findings
+and your Blocked line (casino/minigame section awaits the SBW inventory/spec
+answer) — build what is unblocked, flag the rest. ORDER 031 verbatim from fm
+control/inbox.md @ ca1ce28:
+
+> ## ORDER 031 · 2026-07-13T00:01Z · status: new
+> priority: P1 — games finalization + casino inventory/spec
+> owner: SuperBot World seat (superbot-games + superbot-idle + superbot-mineverse)
+> do: Owner's words, verbatim: "finalize the mining game completely as a standalone game, with integration in the exploration/world hub" — review end-to-end first, then extend/improve wherever possible; "same for fishing and the idle game". Card games and all minigames consolidated "into one minigame/casino section" with expanded options ("any kind of minigame they can add should be there"), in sections with enable-all-or-pick-a-few and dynamically updating panels — this seat owns the game inventory, section spec, and per-game readiness; the panel build is superbot-next's (ORDER 030): publish the spec for it via heartbeat/outbox. Context: these goals are being consolidated into a fleet grounding doc by the hub venue (superbot docs/owner/fleet-grounding.md, pending commit) — read it when it lands.
+> why: owner goals message — owner live in the fleet-manager coordinator chat, 2026-07-13T00:1xZ.
+> done-when: mining/fishing/idle each have a review+finalize+improve report and landed PRs; the casino inventory+spec is published and referenced in the heartbeat.
+
+
+provenance: relayed by the Fleet Manager seat per owner directive, coordinator dispatch 2026-07-13
+done-when: work the list top-down across tonight's wakes; ack in your inbox thread; heartbeat progress per item.
+
+## ORDER 020 · 2026-07-14T05:39:41Z · status: new
+priority: P2 — version-line drift (INC-42; detected live by fm
+`scripts/gen_kit_versions.py`: plugin pins v1.13.0, host superbot-next pins
+v1.15.0). Routed to superbot-next as host lane: superbot-plugin-hello has no
+`control/` directory (verified at plugin HEAD `bbaccec`), and superbot-next
+owns the plugin pin (`plugins.lock.json`).
+do: bump `substrate.config.json` `kit_version` in
+menno420/superbot-plugin-hello to mirror the host superbot-next's pin
+(v1.15.0 at fm PR #185 time and re-verified at superbot-next
+HEAD `e2d792a` — re-derive at execution; the seed commit's "mirroring the
+host's pin" claim is the contract being restored), and re-verify the manifest
+hash the seed commit cites against the host's live `plugins.lock.json` (the
+06023075→ff75b9eb drift class) — fix or annotate in the same PR. Evidence:
+plugin-hello `substrate.config.json@bbaccec` = `{"kit_version": "1.13.0"}` vs
+host `substrate.config.json@e2d792a` = v1.15.0; seed commit `bbaccec` cites
+manifest hash `sha256:06023075b8db1a16f4f3c1bb4a9400252e88931501de50deccdc095a825e93a0`
+while host `plugins.lock.json@e2d792a` records
+`manifest_hash: sha256:ff75b9eba291ca659793b91545f71c1e5bb31120270d3d77f8d604fe1314bdf3`.
+why: INC-42 — nothing in-repo flags the drift (no planted docs); the fm table
+(`registry/kit-versions.md`) now detects it every regen, but only a lane write
+can close it.
+done-when: `gen_kit_versions.py` renders the plugin-hello row
+"OK — mirrors host superbot-next pin" at the next fm regen.
+Provenance: relayed by the Fleet Manager seat, coordinator dispatch 2026-07-14, fm docs/dispatch-log.md @ 3b335a8.
+
+## ORDER 021 · 2026-07-14T07:47Z · status: new
+priority: P2
+do: (a) INC-58 — withdraw ⚑8 (the history-rewrite confirm ask in `control/status.md`'s needs-owner list) with the ground-truth citation: NO rewrite happened — #319's squash `91b0767` resolves at origin (commits API: "feat(creature): … (#319)", committed 2026-07-12T23:52:05Z) and `2cb4d91` is simply PR #334's squash (2026-07-13T02:51:30Z); "history roots at 2cb4d91" was a shallow-clone artifact. (b) INC-22 — re-stamp the two entry docs: `README.md:12` ("band 5 … live-testing in flight") and `docs/current-state.md` § In flight (snapshot 2026-07-10) to current reality.
+why: INC-58 — a standing owner ask contradicting verifiable git ground truth burns owner attention; INC-22 — boot-set docs ~4 days stale at the fleet's highest velocity, contradicting their own next paragraphs.
+done-when: ⚑8 gone from the heartbeat; README + current-state In-flight stamped ≥ 2026-07-14.
+provenance: relayed by the Fleet Manager seat, coordinator dispatch 2026-07-14, fm docs/dispatch-log.md @ 1694bfc
+
+## ORDER 022 · 2026-07-14T09:36:47Z · status: new
+
+- priority: P1
+- from: fleet-manager (relayed by the Fleet Manager seat per owner directive, coordinator dispatch 2026-07-14; fm PR #193 carries the dispatch log)
+- executor: next superbot-next session
+- do:
+  (a) FINISH — today (2026-07-14) is the EAP final day. Complete what is completable today from this cited list; anything that can't finish today gets parked HONESTLY with a one-line citation of why:
+      1. Complete ORDER 021 (a)+(b) — withdraw ⚑8 (history-rewrite confirm ask) with the INC-58 ground-truth citation (no rewrite; shallow-clone artifact), and re-stamp `README.md:12` ("band 5 … live-testing in flight") + `docs/current-state.md` § In flight (dated snapshot 2026-07-10, L27–28) to ≥2026-07-14 — all three staleness targets verified still present at `dd33fb3`.
+      2. Casino/minigame section BUILD — hereby UNLOCKED: the SBW spec dependency was self-published first-party at `docs/specs/casino-section-spec.md` (SBW seat dark; decide-and-flag PL-001), ORDER 019's §031 close-out recorded "the casino SECTION BUILD itself stays a separate order", and the heartbeat next-2 waits on "casino section build = new order when ready" — this is that order.
+      3. Mining title-equip write slice — the night report (item 7) corrected the premise: it "needs an equip-write slice, not windowing"; windowed-select grammar shipped (#435), so build the state-derived select UI + equip write (PR #371 body § title-equip carries the oracle citations).
+      4. Curation backlog row 72 — parked only on WP count-pin files; take the branch-from-#371-head path per ORDER 017 rule 2 (mint recipe verified, night report item 2), or complete it the moment the WP sweep lands.
+      5. ⚑7 cosmetic banner strings — fix the "RED BY DESIGN"/"EXPECTED RED" strings in `run_golden_parity.py`/harness + the golden-parity.yml step name (heartbeat ⚑7); small, agent-completable.
+      Parked/blocked — cite, do not schedule: the WP stack #312→#317→#335→#344→#371 STAYS PARKED for the owner's click-sweep by design (#344 body "Do NOT auto-merge"; heartbeat ⚑2; night report "merge order …, owner-click") · #392 auto-retargets after that sweep · ORDER 020 terminal state (plugin-hello PR #2 merge, classifier-denied, ⚑0) · ORDER 001 live-test band 1 (owner token, ⚑6) · DROP-list ratification + D-0083 anchor call (owner, ⚑3/⚑4).
+      Premises are from fm recon at `dd33fb3bb6a661aacbaeac0b99177b0303f68a7f` (recon read 2026-07-14T09:20:28Z) — re-verify each live before acting (Q-0120).
+  (b) WALKTHROUGH — land docs/eap-closeout-walkthrough-2026-07-14.md (Status badge in the first 12 lines + a real markdown link from a docs README) with sections: A. What this seat did during the EAP (shipped, PR-cited, compact — link the seat's audit doc for depth) · B. Current state + how to run/verify (exact commands) · C. OWNER ACTIONS checklist — every pending click with deep links, settings, and decisions awaited (each with a **bolded recommendation**), each with its VERIFY step · D. a 5-minute verify-it-yourself tour · E. handoff notes (batons, what the next phase needs). Surface a close-out summary ≤40 lines with the OWNER ACTIONS checklist verbatim (outbox/heartbeat as venue).
+- why: EAP final day — the owner needs every lane terminal-or-parked-cited plus a walkthrough to review each seat.
+- done-when: every (a) item is terminal or parked-with-citation + the walkthrough doc is on main + the OWNER ACTIONS checklist is surfaced in the lane's close-out report.
+
+## ORDER 022 · 2026-07-14T16:42:23Z · status: reissued
+priority: P1
+do: grammar-clean reissue of ORDER 022 (2026-07-14T09:36:47Z, above) — execute that order as written; its four required fields were bulleted ("- priority:" / "- do:" / "- why:" / "- done-when:"), which the `[inbox-order-grammar]` enforcer (bootstrap.py `ORDER_REQUIRED_FIELDS` + `_validate_block`, `ln.lstrip().startswith(field)`) cannot parse, and the append-only law (`inbox-not-append`, `check_inbox_append`: the base must stay a byte-prefix) rejects an in-place repair of the original block — so this bare-field restatement is the canonical machine-parseable copy. Field values: unchanged from the original; the paste-ready de-bulleted block lives in control/outbox.md § lane→manager ask (PR #484), byte-identical to the original minus the "- " prefixes.
+why: the inbox must stay grammar-clean per control/README.md § order format (bare field lines); the in-place fix is checker-forbidden, so the repair ships in the one shape the checker accepts — a pure append of a well-formed ORDER block (fm dispatch 2026-07-14, serving PR #484's lane→manager ask).
+done-when: this append validates green through the inbox gate (zero `[inbox-order-grammar]` / `inbox-not-append` findings) on this PR's `substrate-gate` and `checkers` runs.

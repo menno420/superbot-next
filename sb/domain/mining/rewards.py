@@ -1,9 +1,10 @@
 """Mining loot tables + explore outcomes — ported from the shipped
-``utils/mining/rewards.py`` (pure). DEVIATION (D-0043): the equipped-tool
-multiplier path (``equipment.compute_stats``) rides the deferred
-equipment/wear system — until that system ports, the multiplier is the
-LEGACY inventory-pickaxe path only (shipped kept the two paths matched,
-so pre-equipment players are byte-identical)."""
+``utils/mining/rewards.py`` (pure). The historical D-0043 deviation (the
+equipped-tool multiplier path deferred with the equipment system) closed
+with the grid-dig port: :func:`mine_multiplier` is the shipped equipped-
+tool curve verbatim, and the pre-equipment legs (``record_mine`` — the
+!fastmine lane goldens pin) keep passing ``multiplier=None`` so their
+LEGACY inventory-pickaxe path stays byte-identical."""
 
 from __future__ import annotations
 
@@ -13,6 +14,7 @@ __all__ = [
     "EXPLORE_OUTCOMES",
     "LEGACY_PICKAXE_MULT",
     "ORE_WEIGHTS",
+    "mine_multiplier",
     "ore_weights_for_depth",
     "roll_explore_outcome",
     "roll_harvest_amount",
@@ -42,6 +44,28 @@ def ore_weights_for_depth(depth: int) -> dict[str, float]:
 TOOL_POWER_GAIN = 0.0625
 LEGACY_PICKAXE_MULT = 1.0 + 2 * TOOL_POWER_GAIN
 BASE_ROLL_MAX = 2
+
+
+def mine_multiplier(equipped: dict[str, str],
+                    inventory: dict[str, int]) -> float:
+    """The mine-amount multiplier from the player's tool — shipped
+    ``rewards.mine_multiplier`` verbatim (oracle @ 9c16365).
+
+    An **equipped** tool wins and scales with its ``mining_power`` via a
+    gentle linear gain (``1 + power * TOOL_POWER_GAIN``): pickaxe ×1.13,
+    iron ×1.25, diamond ×1.5 — a better tool still pays, but the curve no
+    longer runs away (the oracle 2026-06-22 rebalance). With no tool
+    equipped, a pickaxe in the inventory keeps the matched legacy bonus so
+    pre-equipment players lose nothing (and take no durability wear
+    either). Imported lazily — rewards stays a pure leaf for the legacy
+    callers that never pass gear."""
+    from sb.domain.mining import equipment
+
+    tool = equipped.get(equipment.TOOL)
+    if tool:
+        power = equipment.compute_stats({equipment.TOOL: tool}).mining_power
+        return 1.0 + power * TOOL_POWER_GAIN
+    return LEGACY_PICKAXE_MULT if inventory.get("pickaxe", 0) > 0 else 1.0
 
 
 def roll_mine_loot(*, has_pickaxe: bool, depth: int = 0,

@@ -59,11 +59,11 @@
 | ai | ⚑ env-gated only: NL answer path dormant without `ANTHROPIC_API_KEY` (`parity.yml:361` ai_review_log exemption); all 24 cmds / 36 actions / 17 selectors live | ✅ `!aireview` family live (preset + review-channel writes golden-covered) | ✅ policy/preset/orchestration mutation live — "No chooser pending terminals remain" (`sb/domain/ai/panels.py:39`) |
 | automod | ✅ decision core live-proven (band-2s2) | ✅ hub read-view | ✅ 15 settings resolve |
 | blackjack | ✅ solo + tournament full flow, paid-pot conservation golden | ✅ `!bjstart` launch | ✅ 1 setting |
-| btd6 | ✅ paragon calculator armed (3 actions + 4 selectors live, `btd6.paragon_pending` retired — `sb/domain/btd6/paragon_panel.py`, ORDER 017 slice A; live-API reconciliation stays a named successor, stamped in that module) | ⚑ `btd6.ctteam/set_team` pending (NK-bracket ingestion successor, `sb/domain/btd6/oracle_surface.py:623`); seed-data live | ✅ 1 setting |
+| btd6 | ✅ paragon calculator armed (3 actions + 4 selectors live, `btd6.paragon_pending` retired — `sb/domain/btd6/paragon_panel.py`, ORDER 017 slice A; live-API reconciliation stays a named successor, stamped in that module) | ✅ guided CT-team flow armed (`btd6.ctteam_set_pending` retired — modal → preview → confirm over the audited `btd6.set_ct_team` op, `sb/domain/btd6/ct_team.py`, curation row 2; live NK bracket standings stay a ledger-parked decision, stamped in that module); seed-data live | ✅ 1 setting |
 | casino | ⚑ roulette disabled = SHIPPED parity byte (`sb/domain/casino/service.py:99`); poker play layer golden-pinned; per-player ephemeral hands = owner-armed live step (ledgered decision) | ✅ | ✅ |
 | chain | ✅ 7 cmds + create modal live (`chain_channels` guard-only depth debt, `parity.yml:485` — coverage, not function) | ✅ | ✅ |
 | channel | ✅ 17 channel-op cmds implemented over the ChannelActions adapter with real failure copy (`sb/domain/channel/handlers.py`) | ✅ hub 5 sub-panel flows live (create/delete/restrict/move/visibility + the toggle grid over the audited twin lanes — ORDER 017 operator-hub edits B; Send to Top/Bottom + create-new-category answer honest port-extension refusals) | ✅ |
-| cleanup | ⚑ `!cleanuphistory` runtime-gated (honest refusal when HistoryReader unarmed, `handlers.py:114-117`; non-prohibited scan modes refuse honestly `:125`) | ⚑ 8 hub/word-panel actions pending (`cleanup.{logging,settings,policies}_pending` + words `word_add/word_remove/word_refresh/scan_history/anti_evasion` → `operator_spine`) — the `!word` K7 command lane IS live | ✅ |
+| cleanup | ⚑ `!cleanuphistory` runtime-gated (honest refusal when HistoryReader unarmed, `handlers.py:114-117`; non-prohibited scan modes refuse honestly `:125`) | ✅ zero cleanup pendings remain — words panel + 📝 Logging nav wired to the live workflows / `logging.hub` (#333), ⚙️ Settings page + 🛡️ Anti-evasion toggle armed (#408), 🧹 Cleanup Policies panel ported (#411, the LAST pending retired — `sb/domain/cleanup/policy_panels.py`) — *evening true-up 2026-07-13* | ✅ |
 | community | ✅ hub + 10 actions live | ✅ | ✅ |
 | community_spotlight | ✅ glance + clicks live | ✅ | ✅ |
 | counters | ✅ status/templates over real census | ✅ argful `!counterpreset <name>` apply live — three audited `settings.set_scalar` template writes + the shipped ack (`sb/domain/counters/panels.py` `_preset_view`; ORDER 017 operator-hub edits A); renames ride the sync loop as shipped | ✅ 4 settings |
@@ -73,7 +73,7 @@
 | diagnostic | ✅ 42 cmds live | ✅ 10 actions + 2 selectors implemented (ORDER 017 fix slice): hub `diag_status/sysinfo/errors` live successor reads (`process_state.py`/`log_buffer.py` + gateway-census seam), cmdlist pages 1–14 (oracle-extracted, page 1 golden-verified), flag-manager select→detail + guard-ladder mutations (`flag_catalog.py`), automation-panel pick + shipped guards — zero `*_pending` routes remain in `sb/domain/diagnostic/` | ✅ |
 | economy | ✅ full value loop live + atomicity proven (band 3); INV-F clean | ✅ | ✅ |
 | farm | ✅ hub + 3 K7 money lanes | ✅ | ✅ |
-| fishing | ⚑ all 20 shipped commands ported — the fishing lane landed slices 1–4 tonight (#313 forecast/sail · #330 rod ladder · #342 bait shelf · #350 curios/tidepool/dock/boathouse/fishery; claim closed #353; the deep-system `PENDING` roster is empty, `sb/domain/fishing/service.py:720`); residue: the cast leg still runs the starter shore profile (venue/rod/bait/structure→cast wiring rides the minigame rung, per the service PENDING-roster note) + the 🎣 how-to-fish hub guide (`fishing.howtofish_pending`) — *morning true-up 2026-07-13; row was written pre-landing* | ✅ | ✅ |
+| fishing | ✅ all 20 shipped commands ported (slices 1–4: #313/#330/#342/#350, claim closed #353) and the 📖 How-to-fish hub guide now routes to the live rules card (#410 — `fishing.howtofish_pending` retired, the hub-pending set is EMPTY, `sb/domain/fishing/service.py:1082`); the cast LEG is live too: venue/rod/bait/gear/structure/weather → cast wiring shipped (#373 — deepwater species pool + coral drop, compounded `effective_pull`, per-cast bait charge spend — race-fenced by #394's `consume_bait_charge` conditional decrement, Tide Pool/Boathouse/Fishery mults; write goldens #387, claim closed #389); the surviving residue is ledgered fidelity, not a pending terminal: the parked real-time minigame rung (bite-delay/fake-out/reel-fight timing — the bite-speed + escape/grace/window knobs are computed + surfaced but never gate a catch) + the `_FishingDoneView` Cast-again continuation, per the service PENDING-roster note (`sb/domain/fishing/service.py:1066`) — *night true-up 2026-07-13* | ✅ | ✅ |
 | four_twenty | ✅ | ✅ | ✅ |
 | games | ✅ hubs + substrate (checkpoints/game-xp covered-elsewhere, `parity.yml:668`) | ✅ | ✅ |
 | general | ✅ 8 cmds + menu | ✅ | ✅ |
@@ -90,12 +90,12 @@
 | platform | ✅ declaration-only manifest by design (stores only — kernel-band home) | ✅ | ✅ |
 | projmoon | ✅ 11 cmds / 8 actions, 0 pending | ✅ | ✅ |
 | proof_channel | ✅ prize family live (locks table = env-keyed exemption, needs #proof channel, `parity.yml:879`) | ✅ | ✅ |
-| role | ✅ 17 cmds incl. temprole compensator; reaction-roles K7 lanes | ✅ hub 📝 Create = the shipped `RoleCreateModal` over the live `!createrole` lane (`role.create_form_submit`; ORDER 017 operator-hub edits A — hoist/mentionable ride the provisioning-port extension, the preset creation menu is a named successor) | ✅ |
+| role | ✅ 17 cmds incl. temprole compensator; reaction-roles K7 lanes | ✅ hub 📝 Create = the shipped `RoleCreateModal` over the live `!createrole` lane (`role.create_form_submit`; ORDER 017 operator-hub edits A — hoist/mentionable ride the provisioning-port extension, the preset creation menu is a named successor). Honest note (orphan-refs true-up 2026-07-13): the oracle's hub→manager back-button ("↩ Server Management", `disbot/views/server_management/hub.py:169`) is unported EVERYWHERE — a manager opened from the server_management hub cannot route back to it; the panel engine has no route-origin signal to build that button on. Decision-sized follow-up, not ledgered elsewhere. | ✅ |
 | rps_tournament | ✅ `!rpsbot` deep bot-match flow armed (ORDER 017 fix slice, the PR that updates this row): per-player button views on the ledgered home-channel deviation, per-round stats through the audited `rps.bot_round` lane (`rps.bot_route`/`rps.botmatch_move` → `sb/domain/rps/bot_match.py`; zero rps pending routes remain); tournament core + cross-game guard (#277) live | ✅ | ✅ |
 | security | ✅ raid window + age gate cores live-proven | ✅ | ✅ 9 settings |
-| server_management | ✅ hub renders; channels forwards to ported channel ops | ⚑ 3 hub actions pending (moderation/roles/cleanup → `operator_spine`); access_map/help_preview/help_editor PORTED (ORDER 017 projections slices A/B/C — #362 Access Map = the P1A projection + P1C subpanel, D-0087 `sb/domain/server_management/access_projection.py`+`access_map.py`; Help Preview = the compiled-honest projection consumer, D-0088 `help_preview.py`; Help editor = the named-successor overlay store + audited K7 lanes + editor family, D-0089 `sb/domain/help/{overlay,overlay_ops,editor}.py`, live-Help overlay wiring incl. hide/rename on index+category surfaces) | ✅ |
+| server_management | ✅ hub renders; channels forwards to ported channel ops | ✅ the moderation/roles/cleanup hub nav trio routes to the ported `moderation.hub`/`role.hub`/`cleanup.hub` (#332 — *evening true-up 2026-07-13*); access_map/help_preview/help_editor PORTED (ORDER 017 projections slices A/B/C — #362 Access Map = the P1A projection + P1C subpanel, D-0087 `sb/domain/server_management/access_projection.py`+`access_map.py`; Help Preview = the compiled-honest projection consumer, D-0088 `help_preview.py`; Help editor = the named-successor overlay store + audited K7 lanes + editor family, D-0089 `sb/domain/help/{overlay,overlay_ops,editor}.py`, live-Help overlay wiring incl. hide/rename on index+category surfaces) | ✅ |
 | settings | ✅ hub + explorer + per-group mutation pages (band-7 settings-mutation slice) | ⚑ 9 actions + 2 selectors pending: hub `needs_setup/invalid/missing_bindings/audit/command_access` + access panel explain/reset/paging + subsystem/scope selects (`operator_spine`) | ✅ K7 declare/read/bind proven live |
-| setup | ✅ wizard interior live (wizard-lifecycle slice, ORDER 017): the 10 counted actions + the `essential_kind` selector armed — depth choice persists + lands on the ported sections hub, essential Step-1 applies the starter set through K7 `settings.set_scalar`, the suggestions review/walkthrough/stage lanes mutate state + write the K9 draft; `/setup-skip`+`/setup-unskip` session writes + `/setup-reset` clearing branch live (`sb/domain/setup/wizard.py`) | ✅ | ⚑ named successors (declared-honest terminals, `wizard.py` docstring): essential steps 2–8, the 10 per-section flows + linear wizard steps (`setup.open_section_*` / `setup.back_to_wizard`), the suggestion Edit lane, the final-review apply lane |
+| setup | ✅ wizard interior live (wizard-lifecycle slice, ORDER 017): the 10 counted actions + the `essential_kind` selector armed — depth choice persists + lands on the ported sections hub, essential Step-1 applies the starter set through K7 `settings.set_scalar`, the suggestions review/walkthrough/stage lanes mutate state + write the K9 draft; `/setup-skip`+`/setup-unskip` session writes + `/setup-reset` clearing branch live (`sb/domain/setup/wizard.py`) | ✅ | ⚑ final-review apply lane LIVE (final-review slice: `sb/domain/setup/final_review.py` — Apply executes the staged K9 draft through `DraftPipeline` over the audited K7 seams, apply summary + partial-recovery + setup-complete views armed) AND essential steps 2–8 LIVE (essential-steps slice: `sb/domain/setup/essential_steps.py` — Step-1 Save/Skip advances into the guided spine; greet/moderators/spam/log-channels/rewards/help-desk/command-access each direct-apply through `settings.set_scalar`+`settings.bind`+`role.set_threshold`+`ticket.update_config`+`platform.set_access_mode(+channels)` with channel/role auto-create over the armed ports; summary + extras + check-my-setup + the `essential_setup:resume` restart bridge armed) AND the suggestion Edit lane LIVE (suggestion-edit slice: the walkthrough's Edit opens the G-10 "Edit suggestion" rename modal for a `create` suggestion — submit rewrites the draft row, re-accepts it, advances — and answers a `bind` suggestion with the shipped can't-re-pick explanation; the staged `bind_channel` payload carries `target_name` so edits round-trip into the final-review pending line; the native re-pick picker sub-view is the flagged follow-up); AND the section-flow spine + first two flows LIVE (section-flows slice 4: `sb/domain/setup/section_card.py` — the shared card frame, status badges, replace-recommended/stage-custom/skip staging seams over the K9 draft; `sb/domain/setup/wizard_nav.py` — the LINEAR WIZARD STEPS behind ↩ Back to wizard, `setup.back_to_wizard` flipped: Back/Continue/Jump/Cancel + gated Apply Recommended / Apply-all / Skip, last step opens Final Review; `sb/domain/setup/preset_select.py` — `setup.open_section_preset_select` flipped: the 7-preset catalogue verbatim, pick → preview → stage-every-op; `sb/domain/setup/channels.py` — `setup.open_section_channels` flipped: the declared-binding walk, binding pick → channel pick → staged `bind_channel`, the high-confidence Apply-Recommended builder); AND the settings-write flows LIVE (settings-write slice 5: `sb/domain/setup/logging_presets.py` — `setup.open_section_logging_presets` flipped: the Single / Balanced / Detailed / Custom picker staging `create_channel` rows, Apply Recommended = Balanced; `sb/domain/setup/moderation.py` — `setup.open_section_moderation` flipped: the four-knob detail staging `set_setting` rows; `sb/domain/setup/cleanup.py` — `setup.open_section_cleanup` flipped: the scope × level walker + six-profile batch picker staging `set_cleanup_policy` through the K7 `governance.set_cleanup` op) AND the roles-family flows LIVE (roles-family slice 6: `sb/domain/setup/roles.py` — `setup.open_section_roles` flipped: the time/XP tier detail staging `set_role_threshold` rows through the K7 `role.set_threshold` op, time + XP folded per role onto the full-row-upsert leg; `sb/domain/setup/role_templates.py` — `setup.open_section_role_templates` flipped: the six-template permission-free bundle catalogue, pick → preview → stage `create_managed_role` rows fail-closed) AND the routing-ticket flows LIVE (routing-ticket slice 7, the FINAL section-flow slice: `sb/domain/setup/cog_routing.py` — `setup.open_section_cog_routing` flipped: the scope → target → cog → Enable/Disable walker + the four-profile batch picker staging `set_cog_routing` rows fail-closed (NO live routing resolver exists in this build — the access_projection axis-3 ledger); `sb/domain/setup/ticket.py` — `setup.open_section_ticket` flipped: the thin adapter opening the shipped `ticket.setup` panel, no staged op, the oracle posture); **the setup-wizard successor lane is CLOSED — all 10 sections walk their full flow, no section slug holds a BLOCKED terminal**; surviving follow-ups (individually sliceable, none a wizard terminal): the role/channel-create + routing K9→K7 compound ops (the staged `create_managed_role` / `create_channel` / `set_cog_routing` rows apply fail-closed as skipped until their seams exist — the routing one also wants the command-routing resolver port itself), ~~the on-ready resume sweep~~ — **DONE** (night lane 2026-07-13: the kernel boot-hook seam `sb/kernel/lifecycle/boot_hooks.py` + the sweep `sb/domain/setup/resume.py` — workspace-anchor refresh + essential-flow revive with the vanished-message anchor clear, the PR that updates this row), the automation-rule apply seam (preset `add_rule` rows stage fail-closed), ~~the SectionRecoveryView + workspace-notice ride~~ — **DONE** (night lane 2026-07-13: `sb/domain/setup/recovery.py` — the `setup.section_recovery` panel with the oracle's Continue/Retry/Skip-section/Customize/Cancel lanes, mounted by the wizard's Apply-Recommended failure catch; `sb/domain/setup/notices.py` — the `push_setup_notice` durable workspace-notice lane riding `post_panel_to_channel`, wired into Apply Recommended + Apply-all (`/setup-status` already rode it) — the PR that updates this row), ~~the native channel-recommender port (perms-bearing snapshot)~~ — **DONE** (night lane 2026-07-13: the pure scorer `sb/domain/setup/recommender.py` — oracle intent catalogue + perms tiers + full classifier table verbatim — over the perms-bearing `guild_snapshot.snapshot_for` source seam, filled live by `sb/adapters/discord/setup_reads.py`; the channels section's hints/Apply-Recommended ride the recommender when armed, advisor fallback otherwise — the PR that updates this row), the windowed-select grammar successor (the 43-cog picker windows at the 25-option cap — the access_map precedent, now two surfaces deep) |
 | starboard | ✅ config command family + ignore writes | ✅ | ✅ threshold modal armed (the shipped `_ThresholdModal` G-10 form over the audited `starboard.configure` op — `sb/domain/starboard/panels.py`, ORDER 017 slice C) |
 | ticket | ✅ 12 cmds live (RoleSelect wiring live) | ✅ | ✅ ticket.setup panel armed: 3 actions + 2 selectors live over the audited config/channel ops (`ticket.setup_pending` retired — `sb/domain/ticket/setup_panel.py`, ORDER 017 slice B; the ticket-OPEN provisioning flow stays a named successor, stamped in that module) |
 | treasury | ✅ contribute modal + K7 round-trip + overdraw refusals | ✅ | ✅ |
@@ -105,12 +105,13 @@
 | xp | ✅ chat award + level-up fan-out live-proven (band 4) | ✅ | ⚑ xp.config panel 4 actions pending (`xp.config_{range,cooldown,channel}_pending` + `xp.import_setup_pending` → `operator_spine`; K7 settings lanes ARE the live workaround) |
 | kernel (panels/engine) | ✅ render/browserview/engine golden-pinned (browse-interaction batch, kernel band `parity.yml:227` ported); `resolve.py:89` NotImplementedError = default port replaced at composition | ✅ | ✅ |
 
-**Headline counts (49 rows — morning true-up recount 2026-07-13 at HEAD,
-after the night's fix slices landed):** core **43 ✅ / 6 ⚑** (ai · casino ·
-cleanup · fishing · hermes · mining) · admin **44 ✅ / 5 ⚑** (btd6 ·
-cleanup · server_management · settings · utility) · setup **47 ✅ / 2 ⚑**
+**Headline counts (49 rows — evening true-up recount 2026-07-13 at HEAD,
+after #332/#333/#408/#410/#411 landed):** core **44 ✅ / 5 ⚑** (ai ·
+casino · cleanup · hermes · mining) · admin **46 ✅ / 3 ⚑** (btd6 ·
+settings · utility) · setup **47 ✅ / 2 ⚑**
 (setup · xp) *(the original "50 rows" counted the header line; per-slice
-flip annotations consolidated into this recount)*. Every flag is a *declared-honest* terminal or an
+flip annotations consolidated into the morning recount, rows
+server_management/cleanup/fishing trued up this evening)*. Every flag is a *declared-honest* terminal or an
 in-flight/owner-gated lane — the sweep found **zero silent gaps** (no
 unregistered refs, no empty-string error paths).
 
@@ -134,16 +135,40 @@ unregistered refs, no empty-string error paths).
    night-run; morning true-up 2026-07-13): slices 1–4 merged
    (#313/#330/#342/#350; claim closed #353) — all 20 shipped fishing
    commands ported, the deep-system `PENDING` roster is empty
-   (`sb/domain/fishing/service.py:720`). Residue (small, ledgered in the
-   service's roster note): the cast leg still runs the starter shore
-   profile (venue/rod/bait/structure→cast wiring rides the minigame rung)
-   and the 🎣 how-to-fish hub guide stays a pending terminal
-   (`fishing.howtofish_pending`).
+   (`sb/domain/fishing/service.py:720`). Residue trued up (evening
+   2026-07-13): the 🎣 how-to-fish hub guide is DONE — #410 routes it to
+   the live rules card and retires `fishing.howtofish_pending`. Cast-leg
+   residue trued up (night 2026-07-13, verified in code at HEAD): the
+   venue/rod/bait/gear/structure/weather → cast wiring is LIVE (#373 —
+   write goldens #387, claim closed #389; the per-cast bait spend
+   race-fenced by #394's `consume_bait_charge`); the only parked residue is
+   the parked real-time minigame rung (bite-delay/fake-out/reel-fight
+   timing — knobs computed + surfaced but never gating a catch) + the
+   `_FishingDoneView` Cast-again continuation, per the service
+   PENDING-roster note (`sb/domain/fishing/service.py:1066`).
 2. ~~**setup wizard interior**~~ — **DONE** (wizard-lifecycle slice, ORDER
    017 night-run): the 10 counted actions + selector + `/setup-skip` armed
-   (`sb/domain/setup/wizard.py`). Remaining named successors (smaller, now
-   individually sliceable): essential steps 2–8 · the 10 per-section flows ·
-   the suggestion Edit lane · the final-review apply lane.
+   (`sb/domain/setup/wizard.py`). The final-review apply lane is ALSO DONE
+   (final-review slice, `sb/domain/setup/final_review.py`), and the
+   essential steps 2–8 are ALSO DONE (essential-steps slice,
+   `sb/domain/setup/essential_steps.py` — the guided spine, summary,
+   extras, health check + restart-resume bridge), and the suggestion
+   Edit lane is ALSO DONE (suggestion-edit slice — the rename modal +
+   bind explanation in `wizard.py`/`panels.py`), and the section-flow
+   spine + linear wizard steps + the preset_select/channels flows are
+   ALSO DONE (section-flows slice 4 — `section_card.py`,
+   `wizard_nav.py`, `preset_select.py`, `channels.py`), and ALL TEN
+   per-section flows are ALSO DONE (settings-write slice 5 —
+   `logging_presets.py`/`moderation.py`/`cleanup.py`; roles-family
+   slice 6 — `roles.py`/`role_templates.py`; routing-ticket slice 7 —
+   `cog_routing.py`/`ticket.py`; **the setup-wizard successor lane is
+   CLOSED**). Surviving follow-ups (individually sliceable, none a
+   wizard terminal): the role/channel-create + routing K9→K7 compound
+   ops (staged rows apply fail-closed as skipped) · the on-ready
+   resume sweep (app-boot seam) · the automation-rule apply seam · the
+   recovery-view/notice rides · ~~the native channel-recommender
+   port~~ (**DONE**, night lane 2026-07-13) · the windowed-select
+   grammar successor.
 3. **mining argful write faces** — `!skill` spend (WP-5, **PR #335 open**),
    argful `!build`/`!craft` (WP-6, **PR #344 open**), `!cook`/`!use`
    (energy, #320), 12 panel-button writes; **fully in-flight — WP-5/WP-6
@@ -175,8 +200,12 @@ unregistered refs, no empty-string error paths).
    Remaining free: ~~server_management access_map/help_preview/
    help_editor~~ — ✅ DONE (ORDER 017 night-run follow-up, projections
    slices A/B/C: #362 + the help-preview + help-editor PRs; D-0087/
-   D-0088/D-0089). The hub's remaining pending trio is
-   moderation/roles/cleanup (each its own manager port slice).**
+   D-0088/D-0089). ~~The hub's remaining pending trio
+   moderation/roles/cleanup~~ — ✅ DONE (evening true-up 2026-07-13):
+   #332 routes the trio to the ported `moderation.hub`/`role.hub`/
+   `cleanup.hub`, and the cleanup hub itself is now fully armed
+   (#333 words/logging · #408 settings/anti-evasion · #411 policies —
+   zero cleanup pendings remain).**
 7. **btd6 paragon calculator** — ✅ DONE (ORDER 017 night-run slice A):
    the 3 actions + 4 selectors armed as the pure-compute port
    (`sb/domain/btd6/paragon_panel.py`); `btd6.paragon_pending` retired.

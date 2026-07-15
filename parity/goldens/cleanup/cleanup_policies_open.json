@@ -1,0 +1,239 @@
+{
+ "case_id": "cleanup.policies_open",
+ "db_delta": {
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1916358028,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@admin>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the 🧹 Cleanup Policies open: the shipped btn_policies EDITED the hub message into the diagnostics panel (views/cleanup/policy_panel.py diagnostics_embed_from) — the red embed with the resolution-walk description, the empty 'Configured policies' state, the ℹ️ Command Access tip and the 'Use “Set a policy” to add one.' footer over the persistent cleanup_policy:build/remove/refresh trio — a pure read (no cleanup_policies db_delta)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "cleanup:words",
+          "disabled": false,
+          "label": "🔤 Prohibited Words",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "cleanup:logging",
+          "disabled": false,
+          "label": "📝 Logging Status",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "cleanup:settings",
+          "disabled": false,
+          "label": "⚙️ Settings",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "cleanup:policies",
+          "disabled": false,
+          "label": "🧹 Cleanup Policies",
+          "style": 1,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "cleanup:refresh",
+          "disabled": false,
+          "label": "🔄 Refresh",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:moderation",
+          "disabled": false,
+          "label": "↩ Moderation",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 15158332,
+        "description": "Auto-moderation policies for command-style messages and prohibited content. Per-channel behaviour is configured under **Cleanup Policies** below.",
+        "fields": [
+         {
+          "inline": true,
+          "name": "Prohibited Words",
+          "value": "_None configured_"
+         },
+         {
+          "inline": false,
+          "name": "Auto-Delete",
+          "value": "Invalid/failed command-style messages are removed per the channel's cleanup policy (set a channel to **Off** to exempt it). Prohibited-word matches are removed with a brief warning."
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Read-only summary. Use the buttons below to manage policies."
+        },
+        "title": "🧹 Cleanup Hub",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@admin>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!cleanup",
+    "kind": "command",
+    "persona": "admin"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "cleanup_policy:build",
+          "disabled": false,
+          "label": "🔧 Set a policy",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "cleanup_policy:remove",
+          "disabled": false,
+          "label": "🗑️ Remove a policy",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "cleanup_policy:refresh",
+          "disabled": false,
+          "label": "🔄 Refresh",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:back:cleanup.hub",
+          "disabled": false,
+          "label": "↩ Back to Cleanup",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 15158332,
+        "description": "Resolution walks **channel → category → guild → default**; the most specific override wins. Threads inherit from their parent channel.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Configured policies",
+          "value": "_None — every scope uses the fallback default (delete after 5s)._"
+         },
+         {
+          "inline": false,
+          "name": "ℹ️ Tip",
+          "value": "These levels only delete **invalid/blocked** command-style messages. To delete **any** command typed in a channel where commands aren't allowed, use **Command Access → 🗑️ Delete blocked commands** in `!settings`."
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Use “Set a policy” to add one."
+        },
+        "title": "🧹 Cleanup Policies — Diagnostics",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "cleanup:policies",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "cleanup"
+}

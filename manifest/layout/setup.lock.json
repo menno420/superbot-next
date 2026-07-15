@@ -96,103 +96,940 @@
    },
    "value": 0
   },
-  "setup:setup.suggestions_card:LayoutSpec.pages": {
+  "setup:setup.cleanup_detail:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: the settings-write slice carries the shipped cleanup detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cleanup.py CleanupSectionView: the scope select + the profile batch picker; the oracle's per-scope target/level picks opened as second ephemeral views — folded here as the state-dependent rows 2–3, the channels-detail precedent; the ↩ Back to step button rides the wizard_nav row-4 injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
    },
    "value": [
     {
      "rows": [
       [
-       "accept_high_confidence",
-       "review_one_by_one",
-       "reject_ai_suggestions",
-       "rerun_deterministic"
+       "cleanup_scope"
       ],
       [
-       "stage_final_review"
+       "cleanup_profile"
+      ],
+      [
+       "cleanup_target"
+      ],
+      [
+       "cleanup_level"
+      ],
+      [
+       "cleanup_back_step"
       ]
      ]
     }
    ]
   },
-  "setup:setup.suggestions_card:PageSpec.rows": {
+  "setup:setup.cleanup_detail:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: the settings-write slice carries the shipped cleanup detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cleanup.py CleanupSectionView: the scope select + the profile batch picker; the oracle's per-scope target/level picks opened as second ephemeral views — folded here as the state-dependent rows 2–3, the channels-detail precedent; the ↩ Back to step button rides the wizard_nav row-4 injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
    },
    "value": [
     [
-     "accept_high_confidence",
-     "review_one_by_one",
-     "reject_ai_suggestions",
-     "rerun_deterministic"
+     "cleanup_scope"
     ],
     [
-     "stage_final_review"
+     "cleanup_profile"
+    ],
+    [
+     "cleanup_target"
+    ],
+    [
+     "cleanup_level"
+    ],
+    [
+     "cleanup_back_step"
     ]
    ]
   },
-  "setup:setup.suggestions_card:PanelSpec.layout": {
+  "setup:setup.cleanup_detail:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: the settings-write slice carries the shipped cleanup detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cleanup.py CleanupSectionView: the scope select + the profile batch picker; the oracle's per-scope target/level picks opened as second ephemeral views — folded here as the state-dependent rows 2–3, the channels-detail precedent; the ↩ Back to step button rides the wizard_nav row-4 injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
    },
    "value": {
     "pages": [
      {
       "rows": [
        [
-        "accept_high_confidence",
-        "review_one_by_one",
-        "reject_ai_suggestions",
-        "rerun_deterministic"
+        "cleanup_scope"
        ],
        [
-        "stage_final_review"
+        "cleanup_profile"
+       ],
+       [
+        "cleanup_target"
+       ],
+       [
+        "cleanup_level"
+       ],
+       [
+        "cleanup_back_step"
        ]
       ]
      }
     ]
    }
   },
-  "setup:setup:CommandSpec.help_section_order": {
+  "setup:setup.cog_routing_detail:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+    "exempt": "legacy-seed: the routing-ticket slice carries the shipped cog-routing detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cog_routing.py CogRoutingSectionView: the scope select + the routing-profile batch picker; the oracle's target/cog/Enable-Disable picks opened as successive ephemeral views — folded here as the state-dependent rows 2–4, the cleanup-detail precedent; the oracle _EnableDisableSelect rides as the declared Enable/Disable button pair sharing row 4 — a fifth select would need a sixth action row past the compiler's five-row page cap; the ↩ Back to step button rides the wizard_nav injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "routing_scope"
+      ],
+      [
+       "routing_profile"
+      ],
+      [
+       "routing_target"
+      ],
+      [
+       "routing_cog"
+      ],
+      [
+       "routing_enable",
+       "routing_disable",
+       "routing_back_step"
+      ]
+     ]
+    }
+   ]
   },
-  "setup:setup:SubsystemManifest.wizard_sections/WizardSectionSpec.order": {
+  "setup:setup.cog_routing_detail:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
+    "exempt": "legacy-seed: the routing-ticket slice carries the shipped cog-routing detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cog_routing.py CogRoutingSectionView: the scope select + the routing-profile batch picker; the oracle's target/cog/Enable-Disable picks opened as successive ephemeral views — folded here as the state-dependent rows 2–4, the cleanup-detail precedent; the oracle _EnableDisableSelect rides as the declared Enable/Disable button pair sharing row 4 — a fifth select would need a sixth action row past the compiler's five-row page cap; the ↩ Back to step button rides the wizard_nav injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
    },
-   "value": 90
+   "value": [
+    [
+     "routing_scope"
+    ],
+    [
+     "routing_profile"
+    ],
+    [
+     "routing_target"
+    ],
+    [
+     "routing_cog"
+    ],
+    [
+     "routing_enable",
+     "routing_disable",
+     "routing_back_step"
+    ]
+   ]
   },
-  "setup:setup:WizardSectionSpec.order": {
+  "setup:setup.cog_routing_detail:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
+    "exempt": "legacy-seed: the routing-ticket slice carries the shipped cog-routing detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cog_routing.py CogRoutingSectionView: the scope select + the routing-profile batch picker; the oracle's target/cog/Enable-Disable picks opened as successive ephemeral views — folded here as the state-dependent rows 2–4, the cleanup-detail precedent; the oracle _EnableDisableSelect rides as the declared Enable/Disable button pair sharing row 4 — a fifth select would need a sixth action row past the compiler's five-row page cap; the ↩ Back to step button rides the wizard_nav injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
    },
-   "value": 25
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "routing_scope"
+       ],
+       [
+        "routing_profile"
+       ],
+       [
+        "routing_target"
+       ],
+       [
+        "routing_cog"
+       ],
+       [
+        "routing_enable",
+        "routing_disable",
+        "routing_back_step"
+       ]
+      ]
+     }
+    ]
+   }
   },
-  "setup:setupadvanced:CommandSpec.help_section_order": {
+  "setup:setup.essential_commands:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: the wave-9 prefix-twin re-home carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "cmd_mode"
+      ],
+      [
+       "cmd_channels"
+      ],
+      [
+       "cmd_save"
+      ],
+      [
+       "cmd_back",
+       "cmd_skip"
+      ]
+     ]
+    }
+   ]
   },
-  "setup:setupdescribe:CommandSpec.help_section_order": {
+  "setup:setup.essential_commands:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: the wave-9 prefix-twin re-home carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "cmd_mode"
+    ],
+    [
+     "cmd_channels"
+    ],
+    [
+     "cmd_save"
+    ],
+    [
+     "cmd_back",
+     "cmd_skip"
+    ]
+   ]
   },
-  "setup:ticket:WizardSectionSpec.order": {
+  "setup:setup.essential_commands:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 72
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "cmd_mode"
+       ],
+       [
+        "cmd_channels"
+       ],
+       [
+        "cmd_save"
+       ],
+       [
+        "cmd_back",
+        "cmd_skip"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.essential_greet:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "greet_channel"
+      ],
+      [
+       "greet_role"
+      ],
+      [
+       "greet_save"
+      ],
+      [
+       "greet_back",
+       "greet_skip"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.essential_greet:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "greet_channel"
+    ],
+    [
+     "greet_role"
+    ],
+    [
+     "greet_save"
+    ],
+    [
+     "greet_back",
+     "greet_skip"
+    ]
+   ]
+  },
+  "setup:setup.essential_greet:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "greet_channel"
+       ],
+       [
+        "greet_role"
+       ],
+       [
+        "greet_save"
+       ],
+       [
+        "greet_back",
+        "greet_skip"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.essential_helpdesk:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "helpdesk_staff"
+      ],
+      [
+       "helpdesk_log"
+      ],
+      [
+       "helpdesk_save"
+      ],
+      [
+       "helpdesk_back",
+       "helpdesk_skip"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.essential_helpdesk:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "helpdesk_staff"
+    ],
+    [
+     "helpdesk_log"
+    ],
+    [
+     "helpdesk_save"
+    ],
+    [
+     "helpdesk_back",
+     "helpdesk_skip"
+    ]
+   ]
+  },
+  "setup:setup.essential_helpdesk:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "helpdesk_staff"
+       ],
+       [
+        "helpdesk_log"
+       ],
+       [
+        "helpdesk_save"
+       ],
+       [
+        "helpdesk_back",
+        "helpdesk_skip"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.essential_log:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "log_activity"
+      ],
+      [
+       "log_mod_channel"
+      ],
+      [
+       "log_activity_channel"
+      ],
+      [
+       "log_names",
+       "log_save"
+      ],
+      [
+       "log_back",
+       "log_skip"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.essential_log:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "log_activity"
+    ],
+    [
+     "log_mod_channel"
+    ],
+    [
+     "log_activity_channel"
+    ],
+    [
+     "log_names",
+     "log_save"
+    ],
+    [
+     "log_back",
+     "log_skip"
+    ]
+   ]
+  },
+  "setup:setup.essential_log:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "log_activity"
+       ],
+       [
+        "log_mod_channel"
+       ],
+       [
+        "log_activity_channel"
+       ],
+       [
+        "log_names",
+        "log_save"
+       ],
+       [
+        "log_back",
+        "log_skip"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.essential_mods:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "mods_role"
+      ],
+      [
+       "mods_dm_toggle"
+      ],
+      [
+       "mods_save"
+      ],
+      [
+       "mods_back",
+       "mods_skip"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.essential_mods:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "mods_role"
+    ],
+    [
+     "mods_dm_toggle"
+    ],
+    [
+     "mods_save"
+    ],
+    [
+     "mods_back",
+     "mods_skip"
+    ]
+   ]
+  },
+  "setup:setup.essential_mods:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "mods_role"
+       ],
+       [
+        "mods_dm_toggle"
+       ],
+       [
+        "mods_save"
+       ],
+       [
+        "mods_back",
+        "mods_skip"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.essential_reward:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "reward_rate"
+      ],
+      [
+       "reward_types"
+      ],
+      [
+       "reward_next"
+      ],
+      [
+       "reward_back",
+       "reward_skip"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.essential_reward:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "reward_rate"
+    ],
+    [
+     "reward_types"
+    ],
+    [
+     "reward_next"
+    ],
+    [
+     "reward_back",
+     "reward_skip"
+    ]
+   ]
+  },
+  "setup:setup.essential_reward:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "reward_rate"
+       ],
+       [
+        "reward_types"
+       ],
+       [
+        "reward_next"
+       ],
+       [
+        "reward_back",
+        "reward_skip"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.essential_reward_role:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "reward_source"
+      ],
+      [
+       "reward_name"
+      ],
+      [
+       "reward_existing"
+      ],
+      [
+       "reward_type_name",
+       "reward_save"
+      ],
+      [
+       "reward_role_back",
+       "reward_role_skip"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.essential_reward_role:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "reward_source"
+    ],
+    [
+     "reward_name"
+    ],
+    [
+     "reward_existing"
+    ],
+    [
+     "reward_type_name",
+     "reward_save"
+    ],
+    [
+     "reward_role_back",
+     "reward_role_skip"
+    ]
+   ]
+  },
+  "setup:setup.essential_reward_role:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row — the _StepView.__init__ row convention; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "reward_source"
+       ],
+       [
+        "reward_name"
+       ],
+       [
+        "reward_existing"
+       ],
+       [
+        "reward_type_name",
+        "reward_save"
+       ],
+       [
+        "reward_role_back",
+        "reward_role_skip"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.final_review:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the final-review slice carries the shipped FinalReviewView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/final_review.py: the five @discord.ui.button declarations pack one row — Apply staged setup / 🧠 Ask AI to review / Edit setup / Back / Cancel; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "final_apply",
+       "final_ai_review",
+       "final_edit",
+       "final_back",
+       "final_cancel"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.final_review:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the final-review slice carries the shipped FinalReviewView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/final_review.py: the five @discord.ui.button declarations pack one row — Apply staged setup / 🧠 Ask AI to review / Edit setup / Back / Cancel; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "final_apply",
+     "final_ai_review",
+     "final_edit",
+     "final_back",
+     "final_cancel"
+    ]
+   ]
+  },
+  "setup:setup.final_review:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the final-review slice carries the shipped FinalReviewView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/final_review.py: the five @discord.ui.button declarations pack one row — Apply staged setup / 🧠 Ask AI to review / Edit setup / Back / Cancel; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "final_apply",
+        "final_ai_review",
+        "final_edit",
+        "final_back",
+        "final_cancel"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.launcher:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-tail-2 launcher port carries the shipped SetupLauncherView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/launcher.py @bbc524e4 decorator order: Start Setup / Run Readiness Scan / Smart Suggestions / Choose Preset on row 0, View Summary / Repost launcher / Dismiss on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "launcher_start",
+       "launcher_readiness",
+       "launcher_suggestions",
+       "launcher_preset"
+      ],
+      [
+       "launcher_summary",
+       "launcher_repost",
+       "launcher_dismiss"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.launcher:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-tail-2 launcher port carries the shipped SetupLauncherView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/launcher.py @bbc524e4 decorator order: Start Setup / Run Readiness Scan / Smart Suggestions / Choose Preset on row 0, View Summary / Repost launcher / Dismiss on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "launcher_start",
+     "launcher_readiness",
+     "launcher_suggestions",
+     "launcher_preset"
+    ],
+    [
+     "launcher_summary",
+     "launcher_repost",
+     "launcher_dismiss"
+    ]
+   ]
+  },
+  "setup:setup.launcher:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-tail-2 launcher port carries the shipped SetupLauncherView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/launcher.py @bbc524e4 decorator order: Start Setup / Run Readiness Scan / Smart Suggestions / Choose Preset on row 0, View Summary / Repost launcher / Dismiss on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "launcher_start",
+        "launcher_readiness",
+        "launcher_suggestions",
+        "launcher_preset"
+       ],
+       [
+        "launcher_summary",
+        "launcher_repost",
+        "launcher_dismiss"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.logging_picker:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the settings-write slice carries the shipped logging-presets picker arrangement as the seed (oracle menno420/superbot views/setup/sections/logging_presets.py LoggingPresetsView._populate_buttons: the three preset buttons + Custom on row 0, Cancel on row 1 — explicit row= assignments; the ↩ Back to step button rides the wizard_nav row-4 injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "logging_single",
+       "logging_balanced",
+       "logging_detailed",
+       "logging_custom"
+      ],
+      [
+       "logging_cancel"
+      ],
+      [
+       "logging_back_step"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.logging_picker:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the settings-write slice carries the shipped logging-presets picker arrangement as the seed (oracle menno420/superbot views/setup/sections/logging_presets.py LoggingPresetsView._populate_buttons: the three preset buttons + Custom on row 0, Cancel on row 1 — explicit row= assignments; the ↩ Back to step button rides the wizard_nav row-4 injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    [
+     "logging_single",
+     "logging_balanced",
+     "logging_detailed",
+     "logging_custom"
+    ],
+    [
+     "logging_cancel"
+    ],
+    [
+     "logging_back_step"
+    ]
+   ]
+  },
+  "setup:setup.logging_picker:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the settings-write slice carries the shipped logging-presets picker arrangement as the seed (oracle menno420/superbot views/setup/sections/logging_presets.py LoggingPresetsView._populate_buttons: the three preset buttons + Custom on row 0, Cancel on row 1 — explicit row= assignments; the ↩ Back to step button rides the wizard_nav row-4 injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "logging_single",
+        "logging_balanced",
+        "logging_detailed",
+        "logging_custom"
+       ],
+       [
+        "logging_cancel"
+       ],
+       [
+        "logging_back_step"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.moderation_detail:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the settings-write slice carries the shipped moderation detail arrangement as the seed (oracle menno420/superbot views/setup/sections/moderation.py ModerationSectionView: the four single-purpose pickers on rows 0–3 — explicit row= assignments; \"row 4 is reserved by wizard_nav.render_step_detail for the injected ↩ Back to step button\", its own docstring); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "mod_dm"
+      ],
+      [
+       "mod_reason"
+      ],
+      [
+       "mod_escalation"
+      ],
+      [
+       "mod_role"
+      ],
+      [
+       "mod_back_step"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.moderation_detail:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the settings-write slice carries the shipped moderation detail arrangement as the seed (oracle menno420/superbot views/setup/sections/moderation.py ModerationSectionView: the four single-purpose pickers on rows 0–3 — explicit row= assignments; \"row 4 is reserved by wizard_nav.render_step_detail for the injected ↩ Back to step button\", its own docstring); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    [
+     "mod_dm"
+    ],
+    [
+     "mod_reason"
+    ],
+    [
+     "mod_escalation"
+    ],
+    [
+     "mod_role"
+    ],
+    [
+     "mod_back_step"
+    ]
+   ]
+  },
+  "setup:setup.moderation_detail:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the settings-write slice carries the shipped moderation detail arrangement as the seed (oracle menno420/superbot views/setup/sections/moderation.py ModerationSectionView: the four single-purpose pickers on rows 0–3 — explicit row= assignments; \"row 4 is reserved by wizard_nav.render_step_detail for the injected ↩ Back to step button\", its own docstring); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "mod_dm"
+       ],
+       [
+        "mod_reason"
+       ],
+       [
+        "mod_escalation"
+       ],
+       [
+        "mod_role"
+       ],
+       [
+        "mod_back_step"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "setup:setup.review_item:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; the suggestion-edit slice adds the second Edit face — the G-10 rename-modal action — beside the shipped Edit slot on row 0, the renderer keeping exactly one per suggestion mode; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     {
@@ -200,7 +1037,8 @@
       [
        "item_accept",
        "item_deny",
-       "item_edit"
+       "item_edit",
+       "item_edit_rename"
       ],
       [
        "item_skip",
@@ -212,13 +1050,14 @@
   },
   "setup:setup.review_item:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; the suggestion-edit slice adds the second Edit face — the G-10 rename-modal action — beside the shipped Edit slot on row 0, the renderer keeping exactly one per suggestion mode; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     [
      "item_accept",
      "item_deny",
-     "item_edit"
+     "item_edit",
+     "item_edit_rename"
     ],
     [
      "item_skip",
@@ -228,7 +1067,7 @@
   },
   "setup:setup.review_item:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; the suggestion-edit slice adds the second Edit face — the G-10 rename-modal action — beside the shipped Edit slot on row 0, the renderer keeping exactly one per suggestion mode; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": {
     "pages": [
@@ -237,11 +1076,140 @@
        [
         "item_accept",
         "item_deny",
-        "item_edit"
+        "item_edit",
+        "item_edit_rename"
        ],
        [
         "item_skip",
         "item_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.roles_detail:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the roles-family slice carries the shipped roles detail arrangement as the seed (oracle menno420/superbot views/setup/sections/roles.py RolesSectionView: the time-tier role picker on row 0 + the XP-tier role picker on row 1 — explicit row= assignments; the oracle's pick-opened threshold modals ride the declared defer_mode=MODAL buttons on row 2, state-revealed — a G-10 modal must be the interaction's FIRST response; “row 4 is reserved by wizard_nav.render_step_detail”, its own docstring — the ↩ Back to step button rides that injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "roles_time_role"
+      ],
+      [
+       "roles_xp_role"
+      ],
+      [
+       "roles_time_days",
+       "roles_xp_level"
+      ],
+      [
+       "roles_back_step"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.roles_detail:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the roles-family slice carries the shipped roles detail arrangement as the seed (oracle menno420/superbot views/setup/sections/roles.py RolesSectionView: the time-tier role picker on row 0 + the XP-tier role picker on row 1 — explicit row= assignments; the oracle's pick-opened threshold modals ride the declared defer_mode=MODAL buttons on row 2, state-revealed — a G-10 modal must be the interaction's FIRST response; “row 4 is reserved by wizard_nav.render_step_detail”, its own docstring — the ↩ Back to step button rides that injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    [
+     "roles_time_role"
+    ],
+    [
+     "roles_xp_role"
+    ],
+    [
+     "roles_time_days",
+     "roles_xp_level"
+    ],
+    [
+     "roles_back_step"
+    ]
+   ]
+  },
+  "setup:setup.roles_detail:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the roles-family slice carries the shipped roles detail arrangement as the seed (oracle menno420/superbot views/setup/sections/roles.py RolesSectionView: the time-tier role picker on row 0 + the XP-tier role picker on row 1 — explicit row= assignments; the oracle's pick-opened threshold modals ride the declared defer_mode=MODAL buttons on row 2, state-revealed — a G-10 modal must be the interaction's FIRST response; “row 4 is reserved by wizard_nav.render_step_detail”, its own docstring — the ↩ Back to step button rides that injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "roles_time_role"
+       ],
+       [
+        "roles_xp_role"
+       ],
+       [
+        "roles_time_days",
+        "roles_xp_level"
+       ],
+       [
+        "roles_back_step"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.section_recovery:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-recovery-view slice carries the shipped SectionRecoveryView ordering/grouping as the seed arrangement (oracle menno420/superbot@bbc524e4 views/setup/recovery.py SectionRecoveryView._populate_buttons: Continue / Retry / Skip section on row=0, Customize / Cancel on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "recovery_continue",
+       "recovery_retry_step",
+       "recovery_skip_section"
+      ],
+      [
+       "recovery_customize",
+       "recovery_cancel_view"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.section_recovery:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-recovery-view slice carries the shipped SectionRecoveryView ordering/grouping as the seed arrangement (oracle menno420/superbot@bbc524e4 views/setup/recovery.py SectionRecoveryView._populate_buttons: Continue / Retry / Skip section on row=0, Customize / Cancel on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "recovery_continue",
+     "recovery_retry_step",
+     "recovery_skip_section"
+    ],
+    [
+     "recovery_customize",
+     "recovery_cancel_view"
+    ]
+   ]
+  },
+  "setup:setup.section_recovery:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-recovery-view slice carries the shipped SectionRecoveryView ordering/grouping as the seed arrangement (oracle menno420/superbot@bbc524e4 views/setup/recovery.py SectionRecoveryView._populate_buttons: Continue / Retry / Skip section on row=0, Customize / Cancel on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "recovery_continue",
+        "recovery_retry_step",
+        "recovery_skip_section"
+       ],
+       [
+        "recovery_customize",
+        "recovery_cancel_view"
        ]
       ]
      }
@@ -332,6 +1300,179 @@
      }
     ]
    }
+  },
+  "setup:setup.suggestions_card:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "accept_high_confidence",
+       "review_one_by_one",
+       "reject_ai_suggestions",
+       "rerun_deterministic"
+      ],
+      [
+       "stage_final_review"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.suggestions_card:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "accept_high_confidence",
+     "review_one_by_one",
+     "reject_ai_suggestions",
+     "rerun_deterministic"
+    ],
+    [
+     "stage_final_review"
+    ]
+   ]
+  },
+  "setup:setup.suggestions_card:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "accept_high_confidence",
+        "review_one_by_one",
+        "reject_ai_suggestions",
+        "rerun_deterministic"
+       ],
+       [
+        "stage_final_review"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.wizard_step:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the section-flows slice carries the shipped linear-wizard arrangement as the seed (oracle menno420/superbot views/setup/wizard.py LinearWizardView._rebuild_buttons: Back/Apply Recommended/Customize/Skip on row 0, Continue/Cancel on row 1, the Jump-to-section select on row 2, Apply all recommended on row 3 — explicit row= assignments); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "wiz_back",
+       "wiz_apply_recommended",
+       "wiz_customize",
+       "wiz_skip"
+      ],
+      [
+       "wiz_continue",
+       "wiz_cancel"
+      ],
+      [
+       "wiz_jump"
+      ],
+      [
+       "wiz_apply_all"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.wizard_step:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the section-flows slice carries the shipped linear-wizard arrangement as the seed (oracle menno420/superbot views/setup/wizard.py LinearWizardView._rebuild_buttons: Back/Apply Recommended/Customize/Skip on row 0, Continue/Cancel on row 1, the Jump-to-section select on row 2, Apply all recommended on row 3 — explicit row= assignments); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "wiz_back",
+     "wiz_apply_recommended",
+     "wiz_customize",
+     "wiz_skip"
+    ],
+    [
+     "wiz_continue",
+     "wiz_cancel"
+    ],
+    [
+     "wiz_jump"
+    ],
+    [
+     "wiz_apply_all"
+    ]
+   ]
+  },
+  "setup:setup.wizard_step:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the section-flows slice carries the shipped linear-wizard arrangement as the seed (oracle menno420/superbot views/setup/wizard.py LinearWizardView._rebuild_buttons: Back/Apply Recommended/Customize/Skip on row 0, Continue/Cancel on row 1, the Jump-to-section select on row 2, Apply all recommended on row 3 — explicit row= assignments); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "wiz_back",
+        "wiz_apply_recommended",
+        "wiz_customize",
+        "wiz_skip"
+       ],
+       [
+        "wiz_continue",
+        "wiz_cancel"
+       ],
+       [
+        "wiz_jump"
+       ],
+       [
+        "wiz_apply_all"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup:SubsystemManifest.wizard_sections/WizardSectionSpec.order": {
+   "provenance": {
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
+   },
+   "value": 90
+  },
+  "setup:setup:WizardSectionSpec.order": {
+   "provenance": {
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
+   },
+   "value": 25
+  },
+  "setup:setupadvanced:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: the wave-9 prefix-twin re-home carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setupdescribe:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: the wave-9 prefix-twin re-home carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:ticket:WizardSectionSpec.order": {
+   "provenance": {
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
+   },
+   "value": 72
   }
  },
  "schema_version": 1,

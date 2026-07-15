@@ -1,8 +1,9 @@
 """Role command handlers (band 5) — thin HandlerRef routes: text views
-over the DB truth, K7-lane routes for the audited writes, and honest
-pending terminals for surfaces needing the live guild view / the
-role-provisioning port (roleinfo, createrole/deleterole, assignroles,
-debugroles, refreshmembers, rolecreator — the band-2 precedent).
+over the DB truth, K7-lane routes for the audited writes, and live
+guild-view surfaces via the actions/provisioning ports (roleinfo,
+createrole/deleterole, assignroles, debugroles, refreshmembers — all
+live since ORDER 017 edits A; the polite pending terminals are retired,
+see the module-import registration note below).
 """
 
 from __future__ import annotations
@@ -611,36 +612,22 @@ def _parse_duration(token: str) -> int | None:
     return value if value > 0 else None
 
 
-def _register_pending() -> None:
-    """The three polite pending terminals (role:create's is retired —
-    the hub Create modal runs the live create lane, 2026-07-13
-    operator-hub edits A). Registered at MODULE IMPORT (declaring IS
-    reserving) — the live root imports and dispatches without ever
-    running the manifest ENSURE_REFS hooks when zero plugins are
-    admitted, so an ensure-only registration left `!roleinfo`/
-    `!assignroles`/`!debugroles` dying in RefUnresolved BUG envelopes
-    live (band-5 live-drive ledger, bug 1)."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler("role.roleinfo_pending",
-                    "ℹ️ Role info needs the live guild view "
-                    "(arms with the live adapter).")
-    pending_handler("role.assignroles_pending",
-                    "⏱️ The role check needs the live guild view "
-                    "(arms with the live adapter).")
-    pending_handler("role.debug_pending",
-                    "🔧 Live role diagnostics need the gateway cache "
-                    "(arms with the live adapter).")
-
-
 def ensure_handler_refs() -> None:
     _register()
     _register_guild_surfaces()
     _register_task_fire()
-    _register_pending()
 
 
+# Registered at MODULE IMPORT (declaring IS reserving) — the live root
+# imports and dispatches without ever running the manifest ENSURE_REFS
+# hooks when zero plugins are admitted; an ensure-only registration left
+# commands dying in RefUnresolved BUG envelopes live (band-5 live-drive
+# ledger, bug 1). The polite role pending terminals are ALL retired:
+# role:create at the 2026-07-13 operator-hub edits A (#358 — the hub
+# Create modal runs the live create lane); roleinfo/assignroles/
+# debugroles at the 2026-07-13 orphan-refs true-up — their live handlers
+# (role.roleinfo / role.assignroles / role.debugroles) landed via #358,
+# leaving the pendings registered but unreachable.
 _register()
 _register_guild_surfaces()
 _register_task_fire()
-_register_pending()

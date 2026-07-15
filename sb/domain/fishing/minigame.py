@@ -9,16 +9,21 @@ bot can only measure the whole round trip ``L_down + reaction + L_up``
 against the window, so sub-second windows are unwinnable on a normal
 connection; hence the generous ~2.5 s window.
 
-CONSUMED THIS SLICE: only :func:`is_trophy` (+ its constants) — the
-cast result card's "🏆 Trophy landed!" title. The TIMING consumers
-(:func:`roll_bite_delay` / :func:`roll_fakeout` /
-:func:`roll_premature_grace` / :func:`escape_clue` /
-:func:`reel_fight_taps` / :func:`fight_escape_chance` /
-:func:`roll_escape` / :func:`reel_is_in_time`) are ported for parity of
-the pure math but have NO runtime caller yet — the live bite-delay /
-fake-out / reel-fight loop needs real-time asyncio message edits the
-headless panel engine doesn't model (the D-0043 minigame rung; the
-ops.py/service.py DEVIATION headers carry the parked list).
+CONSUMED IN FULL (D-0043 minigame-timing rung, slices 1+2 —
+service.py cast_open/fish_route): :func:`is_trophy` (the result
+card's "🏆 Trophy landed!" title + the trophy/fight branch),
+:func:`roll_bite_delay` (at cast time, consuming the compounded
+effective_bite_speed at the venue's band), :func:`roll_fakeout` (the
+pre-bite nibble edit, armed under the oracle lead-fit guard
+``delay − FAKEOUT_LEAD > BITE_DELAY_FLOOR``; reeling on it resolves
+premature), :func:`roll_premature_grace` (the one forgiven early reel
+per cast), :func:`reel_is_in_time` (slice 2 — the late-window /
+fight-round-window enforcement on SYSTEM_CLOCK timestamps),
+:func:`escape_clue` (the got-away/snap/too-slow terminals),
+:func:`reel_fight_taps` + :func:`roll_escape` /
+:func:`fight_escape_chance` (the trophy reel-fight, whose rounds open
+on :data:`FIGHT_INTER_ROUND_DELAY`). The live cues ride the D-0090
+kernel one-shot timer + push-edit seam; enforcement never does.
 
 Pure + stdlib-only (no Discord, no DB, no clock)."""
 
