@@ -205,6 +205,15 @@ source:
   # mining_gear_wear (remove face) / mining_inventory / mining_equipment
   # row-level db_delta (retiring the mining_world + mining_gear_wear
   # depth.exemptions.mining guard-only-capture rows).
+  # WP-5 mining WRITE-PARITY minted TWO more (2026-07-13) via the same
+  # capture_case procedure — the skill-spend PORT write goldens:
+  # goldens/mining/mining_skill_write.json + mining_skill_bad_branch.json. The
+  # argful !skill <branch> was a live D-0043 pending terminal (no write leg);
+  # WP-5 ports skill_service.allocate onto the audited mining.skill ->
+  # record_skill op and flips skill_route. mining_skill_write DRIVES the
+  # player_skills upsert (retiring its guard-only-capture row);
+  # mining_skill_bad_branch pins the bad-branch refusal (a denied audit_log row,
+  # no player_skills db_delta).
   # +1 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
   # same D-0073 capture_case + kernel-spine-strip procedure):
   # goldens/mining/mining_fastmine_out_of_energy_refusal.json — !fastmine
@@ -244,10 +253,10 @@ source:
   # deliberate enforcement change re-minted in-PR, not a regression;
   # counts unchanged. The 4 slice-1 timing goldens replay clean under
   # the flip (their clicks were already in-window/premature by design).
-  minted_goldens: 46
+  minted_goldens: 48
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 508). The first retirement (2026-07-12
+  # imported + minted − retired = 510). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -951,8 +960,7 @@ depth:
       # (goldens/mining/mining_{equip,unequip,loadout_save,loadout_apply,
       # loadout_delete}_write.json), so they are COVERED, not exempt — the
       # D-0069 class's own exit ("the first row-bearing golden lands with an
-      # argful capture"). player_skills stays guard-only until its own write
-      # capture (WP-5 skill spend).
+      # argful capture").
       # table:mining_gear_wear is NO LONGER exempt — WP-3 mining WRITE-PARITY
       # (this PR) RETIRED it. The spec imagined an ADD face via a geared-mine
       # wear tick, but the ported mine leg has NO wear tick (set_gear_wear has
@@ -963,13 +971,21 @@ depth:
       # db_delta on mining_gear_wear, so the table is COVERED, not exempt — the
       # D-0069 class's own exit. (The WP-4 workshop repair/quickcraft terminals
       # fold in here per the spec's "may fold into WP-3".)
-      - surface: "table:player_skills"
-        reason: "guard-only-capture: skill-point rows are written only by an
-          argful !skill spend, and the slice-1 capture drove only the bare
-          character/skills guards (goldens/mining/sweep_character.json pins
-          the character.png attachment filename with no row); the skill
-          command itself stays a D-0043 pending terminal this slice — goldens
-          pin write-free guard paths only, so the table cannot be covered"
+      # table:player_skills is NO LONGER exempt — WP-5 mining WRITE-PARITY
+      # (this PR) RETIRED it. The argful !skill <branch> spend was a live D-0043
+      # pending terminal (skill_route returned the BLOCKED successor copy, NO
+      # write leg); WP-5 PORTS the oracle services/skill_service.py::allocate
+      # onto the audited one-leg one-txn seam (mining.skill -> record_skill),
+      # flips skill_route to run it, and the argful `!skill mining` capture
+      # (goldens/mining/mining_skill_write.json) drives set_skill_points, which
+      # upserts a row-bearing db_delta on player_skills (mining -> 1 point), so
+      # the table is COVERED, not exempt — the D-0069 class's own exit ("the
+      # first row-bearing golden lands with an argful capture"). The spend is
+      # advisory-fenced (lock_skill_slot) against the shared-budget
+      # over-allocation race. respec (no command form — a panel-button coin
+      # sink) and title equip (select-driven, scope PART C) stay deferred
+      # D-0043 pending terminals — but player_skills is already covered by the
+      # allocate spend, so neither is needed to retire it.
       # table:mining_world is NO LONGER exempt — WP-3 mining WRITE-PARITY
       # (this PR) RETIRED it: the argful admin `!mineworld 12345` capture
       # (goldens/mining/mining_reseed_world_write.json) drives set_world_seed,
@@ -1247,7 +1263,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
-    mining: {events: 4, tables: 15, settings: 0}
+    mining: {events: 4, tables: 16, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}

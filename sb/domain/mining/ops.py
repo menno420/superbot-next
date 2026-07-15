@@ -731,6 +731,97 @@ async def _record_quick_craft(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"item": last, "message": message})
 
 
+# --- skills write leg (slice 5 PORT): the shipped services/skill_service.py
+# ``allocate`` verbatim, re-homed onto the audited one-leg one-txn seam. The
+# argful `!skill <branch>` spend was a live D-0043 pending terminal (no leg); the
+# oracle allocate is self-service (no coins move ⇒ no economy leg — the craft
+# precedent). It IS a read-then-settle over the shared available-points budget
+# (min(level, SOFT_TOTAL_CAP) − total_spent, spread across per-branch rows), so
+# the alloc/level read is advisory-fenced (lock_skill_slot) against a concurrent
+# over-allocation. goldens/mining/mining_skill_write drives the success spend
+# (retires the player_skills guard-only-capture exemption); mining_skill_bad_branch
+# pins the bad-branch refusal (a pure read). --------------------------------------
+
+
+def _branch_amount_from(ctx: WorkflowContext) -> tuple[str, int]:
+    """``(branch, amount)`` off the argful `!skill <branch> [amount]` — the
+    shipped ``skill_cmd(ctx, branch: str = None, amount: int = 1)`` positional
+    parse: the first non-numeric token is the branch, the first numeric token is
+    the amount (default 1). Branch normalization (strip/lower) is the allocate
+    body's job (oracle verbatim), so it is left un-normalized here."""
+    argv = [str(t) for t in tuple(ctx.params.get("argv", ()) or ())]
+    values = [str(t) for t in tuple(ctx.params.get("values", ()) or ())]
+    tokens = argv or values
+    branch = ""
+    amount = 1
+    for tok in tokens:
+        if tok.isdigit():
+            amount = int(tok)
+            break
+        if not branch:
+            branch = tok
+    return branch, amount
+
+
+@workflow("mining.record_skill")
+async def _record_skill(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!skill <branch> [n]` — spend *n* skill points into *branch* (the shipped
+    ``skill_service.allocate`` verbatim: validate the branch, the amount, the
+    per-branch cap, and the available-points budget, then upsert the absolute
+    branch total in ONE txn). Self-service — no coins move, so no economy/audit
+    leg. The available pool is ``min(level, SOFT_TOTAL_CAP) − total_spent`` with
+    the level off the shared game-XP curve; the read-then-settle over that shared
+    budget is advisory-fenced first (lock_skill_slot) so two racing spends cannot
+    overspend the pool. Business refusals raise ValidatorError with the oracle's
+    verbatim copy — the route prefixes the invoker mention on both faces."""
+    from sb.domain.games import store as games_store
+    from sb.domain.mining import skills
+    from sb.domain.xp.levels import level_progress
+
+    uid, gid, _ = _ids(ctx)
+    branch, n = _branch_amount_from(ctx)
+    branch = branch.strip().lower()
+    # ValidatorError(param, message): the 2nd arg is the VERBATIM user copy the
+    # surface renders bare (D-0060) — the oracle allocate owns the sentence, and
+    # skill_route prefixes the invoker mention on both faces.
+    if not skills.is_branch(branch):
+        names = ", ".join(skills.BRANCHES)
+        raise ValidatorError(
+            "branch", f"**{branch or '(blank)'}** isn't a skill branch — "
+            f"pick one of: {names}.")
+    if n <= 0:
+        raise ValidatorError("amount", "Spend a positive number of points.")
+    # Fence the shared-budget read-then-settle BEFORE the alloc/level read → two
+    # racing spends serialize (no over-allocation of the available pool).
+    await store.lock_skill_slot(conn, user_id=uid, guild_id=gid)
+    alloc = await store.get_skills(uid, gid, conn=conn)
+    current = alloc.get(branch, 0)
+    if current + n > skills.PER_BRANCH_CAP:
+        room = skills.PER_BRANCH_CAP - current
+        raise ValidatorError(
+            "branch", f"**{branch}** caps at **{skills.PER_BRANCH_CAP}** points "
+            f"(you have {current} — room for {room}).")
+    total = await games_store.total_game_xp(uid, gid, conn=conn)
+    level, _into, _needed = level_progress(total)
+    pool = min(level, skills.SOFT_TOTAL_CAP)
+    avail = max(0, pool - skills.total_spent(alloc))
+    if n > avail:
+        raise ValidatorError(
+            "amount",
+            f"You only have **{avail}** skill point{'s' if avail != 1 else ''} "
+            "to spend — level up (play more) to earn more.")
+    await store.set_skill_points(conn, user_id=uid, guild_id=gid,
+                                 branch=branch, points=current + n)
+    remaining = avail - n
+    return LegOutcome(
+        step=StepResult(uid, "skill", True), before={},
+        after={"branch": branch, "amount": n,
+               "message": f"Spent **{n}** point{'s' if n != 1 else ''} into "
+                          f"**{branch}** (now {current + n}/"
+                          f"{skills.PER_BRANCH_CAP}). **{remaining}** "
+                          f"point{'s' if remaining != 1 else ''} left."})
+
+
 #: The food produced by cooking a fish (eaten via ``!use`` for energy) —
 #: services/mining_workflow.py ``COOKED_FISH`` verbatim (@ 87bbe1d).
 COOKED_FISH = "cooked fish"
@@ -1178,6 +1269,8 @@ REPAIR = _op("mining.repair", "mining_repaired", "mining.record_repair",
              _BALANCE_EMITS)
 QUICK_CRAFT = _op("mining.quick_craft", "mining_quick_crafted",
                   "mining.record_quick_craft", ())
+SKILL = _op("mining.skill", "mining_skill_allocated", "mining.record_skill",
+            ())
 USE_ITEM = _op("mining.use", "mining_item_used",
                "mining.record_use_item", ())
 COOK = _op("mining.cook", "mining_cooked", "mining.record_cook", ())
@@ -1186,7 +1279,7 @@ _OPS = (MINE, DIG, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
         EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
         STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
-        REPAIR, QUICK_CRAFT, USE_ITEM, COOK)
+        REPAIR, QUICK_CRAFT, SKILL, USE_ITEM, COOK)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -1211,6 +1304,7 @@ _REF_TABLE = (
     ("mining.record_vault_upgrade", _record_vault_upgrade),
     ("mining.record_repair", _record_repair),
     ("mining.record_quick_craft", _record_quick_craft),
+    ("mining.record_skill", _record_skill),
     ("mining.record_use_item", _record_use_item),
     ("mining.record_cook", _record_cook),
     ("mining.erase_subject_structures", _erase_structures),

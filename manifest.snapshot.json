@@ -14758,6 +14758,9 @@
       "workflow:mining.record_sell_all": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_skill": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_stash": {
         "module": "sb.domain.mining.ops"
       },
@@ -14792,6 +14795,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.sell_all": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.skill": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.stash": {

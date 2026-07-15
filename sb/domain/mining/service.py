@@ -1055,19 +1055,20 @@ def _register() -> None:
 
     @handler("mining.skill_route")
     async def skill_route(req) -> Reply:
-        """`!skill [branch] [amount]` — spend a skill point into a branch
+        """`!skill [branch] [amount]` — spend skill points into a branch
         (mining_cog.py ``skill_cmd``; services/skill_service.py ``allocate``).
         The bare invocation answers the branch-picker guard PLAIN
         (goldens/mining/sweep_skill pins the byte:
         ``Pick a branch to train: mining, combat, fortune, crafting — e.g.
         `!skill mining`, or `!skills` for the panel.``) — a pure read, no write.
-        The argful point spend (the self-service player_skills write) rides the
-        deferred skill panel/allocate port — no golden drives it (the imported
-        sweep drove only the bare `!skill`; player_skills is
-        depth.exemptions.mining guard-only-capture) — so it stays an honest
-        D-0043 pending terminal (the pre-slice-2 argful cook/use posture —
-        those lanes went LIVE with the energy lane; this one still waits on
-        its own port)."""
+        The argful point spend runs the audited ``mining.skill`` op
+        (record_skill: the ported allocate, self-service upsert of the
+        player_skills row, advisory-fenced against the shared-budget race) and
+        prefixes the invoker mention on BOTH the success and the business-refusal
+        face — the shipped ``ctx.send(f"{mention} {result.message}")`` lane
+        (goldens/mining/mining_skill_write drives the spend, mining_skill_bad_branch
+        pins the refusal). Constants/copy are oracle-verbatim (skill_service /
+        utils/mining/skills)."""
         from sb.domain.mining import skills
 
         if _no_args(req):
@@ -1075,11 +1076,14 @@ def _register() -> None:
             return Reply(BLOCKED,
                          f"Pick a branch to train: {names} — e.g. "
                          "`!skill mining`, or `!skills` for the panel.")
-        return Reply(BLOCKED,
-                     "🌳 `!skill <branch>` spending rides the mining skill-tree "
-                     "allocate lane — the deep mining port is named successor "
-                     "work (D-0043); the core loop "
-                     "(mine/chop/explore/sell/buy) is live.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.skill", {"argv": argv, "values": values})
+        if blocked is not None:
+            return Reply(blocked.outcome, f"<@{uid}> {blocked.user_message}")
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
 
 
 #: The deep-system commands (shipped names) → pending copy. The mining
@@ -1119,10 +1123,12 @@ PENDING: dict[str, str] = {
     # (🔥 Build) stays deferred (a D-0043 pending terminal).
     # skills / skill / titles are LIVE (slice 5 port): the mining.skills +
     # mining.titles session PanelSpecs carry the skill-tree + earned-title
-    # render bytes, and skill_route carries the `!skill` branch-picker guard.
-    # The argful `!skill <branch>` spend, the skills-panel branch/respec button
-    # clicks, and the titles select-menu equip stay deferred (D-0043 pending
-    # terminals — no golden drives a skill/title write).
+    # render bytes, and skill_route carries the `!skill` branch-picker guard AND
+    # the argful `!skill <branch>` spend (WP-5 PORT: mining.skill -> record_skill,
+    # the ported skill_service.allocate — goldens/mining/mining_skill_write drives
+    # the player_skills upsert). The skills-panel respec button (no command form —
+    # a panel-button coin sink) and the titles select-menu equip (select-driven)
+    # stay deferred (D-0043 pending terminals — no golden drives those writes).
 }
 
 
