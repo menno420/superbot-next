@@ -11426,6 +11426,9 @@
       "handler:mining.stats_view": {
         "module": "sb.domain.mining.service"
       },
+      "handler:mining.titles_pick": {
+        "module": "sb.domain.mining.panels"
+      },
       "handler:mining.unequip_route": {
         "module": "sb.domain.mining.service"
       },
@@ -13745,6 +13748,9 @@
       "provider:leaderboard.category_options": {
         "module": "sb.domain.community.panels"
       },
+      "provider:mining.titles_select_options": {
+        "module": "sb.domain.mining.panels"
+      },
       "provider:mining.workshop_craft_options": {
         "module": "sb.domain.mining.panels"
       },
@@ -14690,6 +14696,9 @@
       "workflow:mining.equip": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.equip_title": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.erase_subject_equipment": {
         "module": "sb.domain.mining.ops"
       },
@@ -14756,6 +14765,9 @@
       "workflow:mining.record_equip": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_equip_title": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_explore": {
         "module": "sb.domain.mining.ops"
       },
@@ -14801,6 +14813,9 @@
       "workflow:mining.record_unequip": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_unequip_title": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_unstash": {
         "module": "sb.domain.mining.ops"
       },
@@ -14841,6 +14856,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.unequip": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.unequip_title": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.unstash": {
@@ -50382,6 +50400,9 @@
               {
                 "rows": [
                   [
+                    "ti_select"
+                  ],
+                  [
                     "ti_hub"
                   ]
                 ]
@@ -50401,7 +50422,29 @@
           "renderer_override": {
             "$ref": "handler:mining.render_titles"
           },
-          "selectors": [],
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "Choose a title to display…",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:mining.titles_pick"
+              },
+              "options_source": {
+                "$ref": "provider:mining.titles_select_options"
+              },
+              "page_size": 25,
+              "placeholder": "Choose a title to display…",
+              "selector_id": "ti_select",
+              "slash_common": false,
+              "usage_weight": 1.0,
+              "windowed": false
+            }
+          ],
           "session_lifecycle": true,
           "subsystem": "mining",
           "timeout_s": 180,

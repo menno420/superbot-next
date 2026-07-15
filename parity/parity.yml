@@ -297,10 +297,23 @@ source:
   # same draws; only the terminal reply's wire shape moved).
   # fishing_cast_premature_grace replays clean untouched (a forgiven
   # slip is not a terminal). Counts move by exactly the +1 new case.
-  minted_goldens: 55
+  # The title-equip write slice (2026-07-14, ORDER 022 (a)3) minted 2:
+  # goldens/mining/mining_title_equip_write.json (the 🏆 Titles panel's
+  # state-derived earned-title select — fixture max_depth=1 earns 🪨 the
+  # Spelunker — picked through mining.titles_pick → the audited
+  # mining.equip_title op: the one equipped_title upsert + the ✅ green
+  # in-place re-render, title_service.equip verbatim @ bbc524e) and
+  # mining_title_equip_unearned_refusal.json (a forged un-earned value
+  # refuses through the leg's live earn-check — ❌ red re-render, NO
+  # write; the D-0060 two-arg ValidatorError verbatim-copy form).
+  # mining_player_state was already covered (the ration golden), so no
+  # exemption/ratchet movement. Weather-free surface: no
+  # CAPTURE_WORLD_WEATHER rows needed (checked before mint — the
+  # post-07-13 date-live doctrine).
+  minted_goldens: 57
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 517). The first retirement (2026-07-12
+  # imported + minted − retired = 519). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

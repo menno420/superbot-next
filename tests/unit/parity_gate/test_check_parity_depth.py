@@ -68,7 +68,7 @@ class TestImportedCorpus:
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 517
+        assert len(goldens) == 519
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -116,7 +116,8 @@ class TestImportedCorpus:
         # + 1 cleanup policies-open mint (2026-07-13)
         # + 4 fishing minigame-timing slice-1 mints (2026-07-14)
         # + 1 fishing cast-again continuation mint (2026-07-14)
-        assert source["minted_goldens"] == 55
+        # + 2 mining title-equip write mints (2026-07-14)
+        assert source["minted_goldens"] == 57
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -644,7 +645,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "full-corpus parity report" in out
-        assert "517 goldens" in out
+        assert "519 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):
