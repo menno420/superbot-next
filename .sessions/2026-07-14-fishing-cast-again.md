@@ -1,8 +1,8 @@
 # 2026-07-14 — fishing: Cast-again continuation on the result card (gap 3)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** Claude Fable
+- **📊 Model:** fable-5
 
 ## Scope
 
