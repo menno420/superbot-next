@@ -42,9 +42,11 @@ Under-port ledger (no golden pins these corners):
   got-away window expiry — edit it with no interaction via the D-0090
   kernel one-shot timers + ``push_session_refresh`` (headless/parity:
   EDIT_UNAVAILABLE no-op; enforcement is SYSTEM_CLOCK timestamp math,
-  never the timers). The commit still opens the result as a fresh
-  result card (the farm in-place-edit under-port precedent) — the
-  ``_FishingDoneView`` Cast-again continuation is the named remainder.
+  never the timers). The commit opens the result as a fresh result
+  card (the farm in-place-edit under-port precedent) that now carries
+  the ``_FishingDoneView`` Cast-again continuation
+  (``cast_result_spec`` — the catch AND click-failure terminals; the
+  timer terminals stay disable-only, the oracle posture).
 * the shipped ``active_casts`` one-line-in-the-water guard now lives as
   the service.py pending-cast registry (the guard copy is answered;
   the 45 s window stays the outer bound; the got-away timer is the
@@ -80,6 +82,7 @@ from dataclasses import replace as _dc_replace
 from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
     ActionStyle,
+    AnchorPolicy,
     Audience,
     EmbedFrameSpec,
     FooterMode,
@@ -101,6 +104,7 @@ __all__ = [
     "BOATHOUSE_PANEL_ID",
     "CARD_PANEL_ID",
     "CAST_PANEL_ID",
+    "CAST_RESULT_PANEL_ID",
     "DOCK_PANEL_ID",
     "FISHERY_PANEL_ID",
     "HUB_PANEL_ID",
@@ -112,6 +116,7 @@ __all__ = [
     "TIDE_POOL_PANEL_ID",
     "bait_shop_spec",
     "boathouse_spec",
+    "cast_result_spec",
     "cast_spec",
     "dock_spec",
     "ensure_panel_refs",
@@ -128,6 +133,7 @@ __all__ = [
 ]
 
 CAST_PANEL_ID = "fishing.cast_panel"
+CAST_RESULT_PANEL_ID = "fishing.cast_result"
 LOG_PANEL_ID = "fishing.log"
 HUB_PANEL_ID = "fishing.hub"
 CARD_PANEL_ID = "fishing.card"
@@ -369,6 +375,63 @@ def cast_spec() -> PanelSpec:
             "Description, color and the component stay grammar-rendered."),
         session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(("fishing_reel",),)),)),
+    )
+
+
+def cast_result_spec() -> PanelSpec:
+    """The cast TERMINAL's result card with the shipped Cast-again
+    continuation (disbot/views/fishing/cast_view.py ``_FishingDoneView``
+    @bbc524e, doc-pinned :545/:562): the committed-catch card AND the
+    click-driven failure terminals (premature spook / too-slow reel /
+    fight snap) carry one green 🎣 **Cast again** button (the oracle
+    ``fishing_done:cast_again``) that re-runs the FULL cast path with
+    fresh randomness — ``fishing.cast_open`` runs its own guards at
+    click time (active-cast, energy), so a refused re-cast answers an
+    ephemeral error and the card stays untouched, exactly as shipped.
+    Never pre-disabled; author-only (the shipped author-check). The
+    TIMER-driven terminals (ignored-window got-away / fight-round
+    expiry) deliberately do NOT open this card — the oracle attached no
+    done view there.
+
+    CHANNEL_ANCHOR: the card opens off the Reel CLICK and must be a
+    fresh, click-targetable channel message (the blackjack tournament /
+    poker #130 presenter seam — an interaction response cannot carry a
+    later click), exactly the oracle's public result message."""
+    return PanelSpec(
+        panel_id=CAST_RESULT_PANEL_ID,
+        subsystem="fishing",
+        title="",
+        audience=Audience.INVOKER,
+        anchor_policy=AnchorPolicy.CHANNEL_ANCHOR,
+        # SUCCESS green is the catch default; the failure terminals pass
+        # the ERROR red tone through the renderer params.
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="fishing_cast_again", label="Cast again",
+                emoji="🎣", style=ActionStyle.SUCCESS,
+                audience_tier="user",
+                handler=HandlerRef("fishing.cast_open"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        # the shipped _FishingDoneView is a bare timer view — no
+        # help/home nav row (the cast panel posture).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("fishing.render_cast_result"),
+        justification=(
+            "the shipped result card is handler-composed end to end "
+            "(cast_view.py _finish_caught L398-456 / the terminal "
+            "_terminate_interaction edits @bbc524e): the TITLE is the "
+            "commit-time trophy judgement ('🏆 Trophy landed!' / '🎣 "
+            "Caught it!'), the description interpolates the live catch "
+            "(species/weight/personal-best/pearl/coral/level-up lines "
+            "built inside the audited fishing.cast leg), and the COLOR "
+            "is the terminal's tone (SUCCESS green catch / ERROR red "
+            "got-away) — all outside the static grammar vocabulary. "
+            "The 🎣 Cast again component stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(("fishing_cast_again",),)),)),
     )
 
 
@@ -931,6 +994,28 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
         footer += " · ⚓ dock"
     embed = _dc_replace(rendered.embed, description=description,
                         fields=fields, footer=footer)
+    return _dc_replace(rendered, embed=embed)
+
+
+async def _render_cast_result(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the cast terminal's result card (see the
+    cast_result_spec justification): the fish_route terminal passes the
+    composed copy (``result_title`` — empty on a failure terminal —
+    ``result_desc``) and the tone (``result_style``: green catch / red
+    failure); the 🎣 Cast again button stays grammar-rendered and never
+    pre-disabled (the oracle _FishingDoneView posture @bbc524e)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    params = getattr(ctx, "params", {}) or {}
+    embed = _dc_replace(
+        rendered.embed,
+        title=str(params.get("result_title", "") or ""),
+        description=str(params.get("result_desc", "") or ""),
+        fields=(), footer="")
+    style = params.get("result_style")
+    if style:
+        embed = _dc_replace(embed, style_token=str(style))
     return _dc_replace(rendered, embed=embed)
 
 
@@ -1504,6 +1589,11 @@ def _cast_factory() -> PanelSpec:
     return cast_spec()
 
 
+@panel(CAST_RESULT_PANEL_ID)
+def _cast_result_factory() -> PanelSpec:
+    return cast_result_spec()
+
+
 @panel(LOG_PANEL_ID)
 def _log_factory() -> PanelSpec:
     return log_spec()
@@ -1566,6 +1656,7 @@ def _rules_factory() -> PanelSpec:
 
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
+    (CAST_RESULT_PANEL_ID, _cast_result_factory),
     (LOG_PANEL_ID, _log_factory),
     (HUB_PANEL_ID, _hub_factory),
     (CARD_PANEL_ID, _card_factory),
@@ -1582,6 +1673,7 @@ _FACTORIES = (
 
 _RENDERS = (
     ("fishing.render_cast", _render_cast),
+    ("fishing.render_cast_result", _render_cast_result),
     ("fishing.render_log", _render_log),
     ("fishing.render_hub", _render_hub),
     ("fishing.render_card", _render_card),
@@ -1598,10 +1690,10 @@ _RENDERS = (
 
 def install_fishing_panels() -> tuple[PanelSpec, ...]:
     out = []
-    for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec,
-                  rod_shop_spec, rod_recipes_spec, bait_shop_spec,
-                  structures_hub_spec, tide_pool_spec, dock_spec,
-                  boathouse_spec, fishery_spec, rules_card_spec):
+    for build in (cast_spec, cast_result_spec, log_spec, fishing_hub_spec,
+                  fishing_card_spec, rod_shop_spec, rod_recipes_spec,
+                  bait_shop_spec, structures_hub_spec, tide_pool_spec,
+                  dock_spec, boathouse_spec, fishery_spec, rules_card_spec):
         spec = build()
         try:
             out.append(register_panel(spec))

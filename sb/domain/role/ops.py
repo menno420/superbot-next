@@ -282,7 +282,10 @@ async def _apply_grant_temp(conn, ctx: WorkflowContext) -> LegOutcome:
 
 @workflow("role.compensate_grant_temp")
 async def _compensate_grant_temp(conn, ctx: WorkflowContext) -> LegOutcome:
-    """Grant's compensator: drop the persisted row (pure DB)."""
+    """Grant's compensator: drop the persisted row (pure DB). SPEAKS —
+    the engine renders its line as the op's copy (a rolled-back grant
+    must never render as granted; band-5 partial-honesty class), and
+    grant_temp_role's RuntimeError carries it to the handler."""
     gid = int(ctx.guild_id or 0)
     rows = await store.list_grants_for_member(
         gid, int(ctx.params.get("member_id", 0) or 0), conn=conn)
@@ -291,7 +294,10 @@ async def _compensate_grant_temp(conn, ctx: WorkflowContext) -> LegOutcome:
         if int(row["role_id"]) == role_id:
             await store.delete_grant(conn, grant_id=int(row["grant_id"]))
     return LegOutcome(step=StepResult(0, "compensate_grant_temp", True),
-                      before={}, after={"compensated": "grant_temp"})
+                      before={}, after={"compensated": "grant_temp"},
+                      user_message="Could not grant the temporary role — "
+                                   "Discord refused the role change; the "
+                                   "grant was rolled back.")
 
 
 @workflow("role.record_expire_temp")

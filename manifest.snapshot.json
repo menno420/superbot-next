@@ -5027,6 +5027,11 @@
         {
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
+          "value": "fishing_cast_again"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
           "value": "rs_upgrade"
         },
         {
@@ -7547,6 +7552,11 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.cast_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.cast_result"
         },
         {
           "source": "sb/manifest/fishing.py",
@@ -10986,6 +10996,9 @@
       "handler:fishing.render_cast": {
         "module": "sb.domain.fishing.panels"
       },
+      "handler:fishing.render_cast_result": {
+        "module": "sb.domain.fishing.panels"
+      },
       "handler:fishing.render_dk_structure": {
         "module": "sb.domain.fishing.panels"
       },
@@ -11319,8 +11332,8 @@
       "handler:mining.fastmine_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.forge_build_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.forge_build_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.gear_view": {
         "module": "sb.domain.mining.service"
@@ -11343,8 +11356,8 @@
       "handler:mining.gr_west": {
         "module": "sb.domain.mining.panels"
       },
-      "handler:mining.home_build_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.home_build_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.inventory_view": {
         "module": "sb.domain.mining.service"
@@ -11406,8 +11419,8 @@
       "handler:mining.sellall_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.skill_respec_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.skill_respec_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.skill_route": {
         "module": "sb.domain.mining.service"
@@ -12919,6 +12932,9 @@
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.cast_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.cast_result": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.dock_panel": {
@@ -14664,10 +14680,16 @@
       "workflow:mining.ascend": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.build": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.buy": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.cook": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.craft": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.delete_loadout": {
@@ -14724,10 +14746,16 @@
       "workflow:mining.record_ascend": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_build": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_buy": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_cook": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_craft": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_delete_loadout": {
@@ -14763,6 +14791,9 @@
       "workflow:mining.record_reset_inventory": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_respec": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_save_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -14770,6 +14801,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_sell_all": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_skill": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_stash": {
@@ -14799,6 +14833,9 @@
       "workflow:mining.reset_inventory": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.respec": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.save_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -14806,6 +14843,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.sell_all": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.skill": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.stash": {
@@ -37793,6 +37833,78 @@
           "usage_weight": 1.0
         },
         {
+          "actions": [
+            {
+              "action_id": "fishing_cast_again",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎣",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.cast_open"
+              },
+              "label": "Cast again",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "channel_anchor",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped result card is handler-composed end to end (cast_view.py _finish_caught L398-456 / the terminal _terminate_interaction edits @bbc524e): the TITLE is the commit-time trophy judgement ('🏆 Trophy landed!' / '🎣 Caught it!'), the description interpolates the live catch (species/weight/personal-best/pearl/coral/level-up lines built inside the audited fishing.cast leg), and the COLOR is the terminal's tone (SUCCESS green catch / ERROR red got-away) — all outside the static grammar vocabulary. The 🎣 Cast again component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "fishing_cast_again"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.cast_result",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_cast_result"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
           "actions": [],
           "anchor_policy": "reply",
           "audience": "invoker",
@@ -49975,7 +50087,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.forge_build_pending"
+                "$ref": "handler:mining.forge_build_route"
               },
               "label": "🔥 Build",
               "modal": null,
@@ -50173,7 +50285,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.skill_respec_pending"
+                "$ref": "handler:mining.skill_respec_route"
               },
               "label": "♻ Respec",
               "modal": null,
@@ -50498,7 +50610,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.home_build_pending"
+                "$ref": "handler:mining.home_build_route"
               },
               "label": "🏠 Build",
               "modal": null,

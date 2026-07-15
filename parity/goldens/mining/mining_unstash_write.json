@@ -1,0 +1,251 @@
+{
+ "case_id": "mining.unstash_write",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    },
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "unstash",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "mining_unstashed",
+     "new_value": {
+      "unstash": {
+       "item": "diamond",
+       "message": "Withdrew **5× diamond** from your vault back into your pack.",
+       "qty": 5
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "unstash": {}
+     },
+     "scope": "guild",
+     "subsystem": "mining",
+     "target": "mining.unstash"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    },
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "mining_unstashed",
+      "new_value": {
+       "unstash": {
+        "item": "diamond",
+        "message": "Withdrew **5× diamond** from your vault back into your pack.",
+        "qty": 5
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "unstash": {}
+      },
+      "scope": "guild",
+      "subsystem": "mining",
+      "target": "mining.unstash"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "mining_inventory": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "item_name": "diamond",
+     "quantity": 5,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "mining_vault": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "item_name": "diamond",
+     "quantity": 0,
+     "user_id": "<@member>"
+    }
+   ],
+   "removed": [
+    {
+     "guild_id": "<guild>",
+     "item_name": "diamond",
+     "quantity": 5,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1886943037,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "argful !unstash drives mining.unstash → record_unstash: debits the mining_vault row and credits the mining_inventory pack row in one txn, and replies `<@u> Withdrew **5× diamond** from your vault back into your pack.` — the withdraw face of mining_vault",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "<@<@member>> Withdrew **5× diamond** from your vault back into your pack.",
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "unstash",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!unstash diamond 5",
+    "kind": "command",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "mining"
+}

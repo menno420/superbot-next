@@ -172,6 +172,44 @@ async def _push_cast_edit(entry: dict, prompt: str, *,
         guild_id=entry.get("guild_id"), expire=expire)
 
 
+async def _open_cast_result(req, *, title: str, description: str,
+                            style: str) -> Reply:
+    """Open the cast terminal's RESULT CARD — the oracle result embed
+    with the ``_FishingDoneView`` 🎣 Cast-again continuation attached
+    (cast_view.py @bbc524e :545/:562) — as a fresh session panel (the
+    cast_open open_panel lane; the farm in-place-edit under-port
+    precedent). The card is the reply: Reply(SUCCESS, None), exactly
+    the cast_open shape."""
+    import dataclasses
+
+    from sb.domain.fishing.panels import CAST_RESULT_PANEL_ID
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
+
+    await open_panel(PanelRef(CAST_RESULT_PANEL_ID), dataclasses.replace(
+        req, args={"result_title": title, "result_desc": description,
+                   "result_style": style}))
+    return Reply(SUCCESS, None)
+
+
+async def _fail_cast_terminal(req, entry: dict, text: str, *,
+                              label: str = "",
+                              button_style: str = "") -> Reply:
+    """A CLICK-driven failure terminal (premature spook / too-slow reel
+    / fight snap): retire the live cast panel with the timer terminals'
+    close mechanics (red terminal edit, Reel disabled, session torn
+    down — headless/parity: EDIT_UNAVAILABLE no-op) and open the
+    error-tone result card with the oracle Cast-again continuation —
+    the oracle attached ``_FishingDoneView`` on exactly these click
+    failures (@bbc524e), NEVER on the timer-driven ignored-window
+    terminals (those stay disable-only)."""
+    await _push_cast_edit(entry, text, style="red", label=label,
+                          button_style=button_style, disable=True,
+                          expire=True)
+    return await _open_cast_result(req, title="", description=text,
+                                   style="red")
+
+
 def _arm_bite_timers(key: tuple[int, int], entry: dict) -> None:
     """Arm the cast's live-wait cues (the oracle ``_run_bite`` background
     task as three one-shot timers): the fake-out nibble (only when the
@@ -711,7 +749,16 @@ def _register() -> None:
         ladder. The entry is popped only for the commit and RESTORED on
         a failed commit (codex #373 P2). A token-less Reel with no
         pending cast keeps the leg's roll-at-commit starter seam (the
-        shipped legacy ``fish()`` — the direct-invocation path)."""
+        shipped legacy ``fish()`` — the direct-invocation path).
+
+        TERMINALS (the _FishingDoneView continuation, @bbc524e): the
+        committed catch AND the click-driven failures (premature spook /
+        too-slow / fight snap) retire the cast panel and open the
+        ``fishing.cast_result`` card with the 🎣 Cast-again button
+        (``_open_cast_result`` / ``_fail_cast_terminal``); the
+        TIMER-driven got-away terminals and the stale/timed-out-line
+        clicks stay text-only — the oracle attached no done view on an
+        ignored window."""
         from sb.domain.fishing import catalog, minigame
         from sb.domain.fishing import ops as ops_mod
         from sb.kernel.workflow import engine
@@ -768,10 +815,13 @@ def _register() -> None:
                         float(entry.get("reaction_window", 0.0))):
                     # the round's window closed — too slow (the oracle
                     # reel_btn late branch; clue appends, a fight IS a
-                    # trophy). No write, the paid cast is gone.
+                    # trophy). No write, the paid cast is gone; the
+                    # result card carries the Cast-again continuation.
                     _cancel_cast_timers(entry)
                     del _PENDING_CASTS[key]
-                    return Reply(BLOCKED, _got_away_text(entry, _TOO_SLOW))
+                    return await _fail_cast_terminal(
+                        req, entry, _got_away_text(entry, _TOO_SLOW),
+                        label=_LABEL_FIGHT, button_style="success")
             species = catalog.species_by_name(str(entry["species"]))
             if species is not None and minigame.roll_escape(
                     species,
@@ -786,8 +836,10 @@ def _register() -> None:
                 del _PENDING_CASTS[key]
                 clue = minigame.escape_clue(species,
                                             int(entry["level_before"]))
-                return Reply(BLOCKED,
-                             f"{_SNAPPED}\n{clue}" if clue else _SNAPPED)
+                return await _fail_cast_terminal(
+                    req, entry,
+                    f"{_SNAPPED}\n{clue}" if clue else _SNAPPED,
+                    label=_LABEL_FIGHT, button_style="success")
             entry["taps_done"] = int(entry.get("taps_done", 0)) + 1
             if entry["taps_done"] < int(entry.get("taps_required", 0)):
                 # the next round opens after the oracle suspense beat —
@@ -828,10 +880,11 @@ def _register() -> None:
                     return Reply(SUCCESS, None)
                 # spooked it (no grace left / bare rod) — terminal, the
                 # paid cast is gone, no write (oracle: no trophy clue on
-                # a premature spook).
+                # a premature spook; the button was still the waiting
+                # form, so the terminal edit keeps the declared label).
                 _cancel_cast_timers(entry)
                 del _PENDING_CASTS[key]
-                return Reply(BLOCKED, _SPOOKED)
+                return await _fail_cast_terminal(req, entry, _SPOOKED)
             if ("bite_at_f" in entry
                     and not minigame.reel_is_in_time(
                         now_f - float(entry["bite_at_f"]),
@@ -842,7 +895,9 @@ def _register() -> None:
                 # gone. Pre-slice entries (no bite_at_f) stay in-time.
                 _cancel_cast_timers(entry)
                 del _PENDING_CASTS[key]
-                return Reply(BLOCKED, _got_away_text(entry, _TOO_SLOW))
+                return await _fail_cast_terminal(
+                    req, entry, _got_away_text(entry, _TOO_SLOW),
+                    label=_LABEL_BITE, button_style="success")
             # bite_at ≤ now ≤ bite_at + window — in the window.
             if entry.get("trophy") and int(entry.get("taps_required",
                                                      0)) > 0:
@@ -881,7 +936,22 @@ def _register() -> None:
                          result.user_message or "The line came back "
                                                 "empty.")
         after = (result.after or {}).get("cast", {})
-        return Reply(SUCCESS, after.get("message", ""))
+        message = str(after.get("message", ""))
+        # the committed catch — the oracle result card (title line +
+        # description) with the Cast-again continuation; the live cast
+        # panel retires first (the timer terminals' close mechanics —
+        # terminal edit, Reel disabled, session torn down;
+        # headless/parity: EDIT_UNAVAILABLE no-op). The token-less
+        # direct-invocation seam (entry is None) has no panel to close
+        # and rides the same result card.
+        title, _, desc = message.partition("\n")
+        if entry is not None:
+            await _push_cast_edit(
+                entry, title, style="green",
+                label=_LABEL_FIGHT if entry.get("fight") else _LABEL_BITE,
+                button_style="success", disable=True, expire=True)
+        return await _open_cast_result(req, title=title,
+                                       description=desc, style="green")
 
     @handler("fishing.forecast_view")
     async def forecast_view(req) -> Reply:

@@ -637,23 +637,6 @@ def _vault_modal_handlers() -> dict[str, HandlerRef]:
     }
 
 
-def _forge_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminal for the forge's 🔥 Build button — the structure BUILD
-    write rides the deferred structures build system (the `!build` command stays
-    a D-0043 pending terminal this slice); the ↩ Workshop button opens the
-    now-live ``mining.workshop`` panel (slice 6). Registered
-    at IMPORT (module bottom), never ensure-only (#111 doctrine). No golden drives
-    a forge click, so the terminal copy is unpinned."""
-    from sb.domain.operator_spine import pending_handler
-
-    return {
-        "build": pending_handler(
-            "mining.forge_build_pending",
-            "🔥 Building the forge rides the deep-system structures build port "
-            "(D-0043) — " + _D0043_TAIL),
-    }
-
-
 def mining_forge_spec() -> PanelSpec:
     """The shipped 🔥 Forge panel (views/mining/forge_panel.py ``MiningForgeView``
     + ``build_forge_embed``) — an ephemeral (session) child of the mining hub:
@@ -678,7 +661,7 @@ def mining_forge_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="fo_build", label="🔥 Build",
                 style=ActionStyle.SUCCESS, audience_tier="user",
-                handler=HandlerRef("mining.forge_build_pending")),
+                handler=HandlerRef("mining.forge_build_route")),
             PanelActionSpec(
                 action_id="fo_workshop", label="↩ Workshop",
                 style=ActionStyle.SECONDARY, audience_tier="user",
@@ -752,12 +735,13 @@ async def _render_forge(spec: PanelSpec, ctx) -> object:
 
 
 def _skills_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminals for the skill-tree panel's spend/respec buttons — the
-    per-branch point spend and the ♻ Respec (coin-bearing) refund ride the
-    deferred panel port (D-0043); the LIVE command lane `!skill <branch>` is the
-    named successor for the audited allocate. Registered at IMPORT (module
-    bottom), never ensure-only (#111 doctrine). No golden drives a skills-panel
-    click, so the terminal copy is unpinned."""
+    """Pending terminal for the skill-tree panel's per-branch spend button — the
+    point spend rides the deferred panel port (D-0043); the LIVE command lane
+    `!skill <branch>` is the named successor for the audited allocate. The ♻
+    Respec button is LIVE as of WP-7 (``mining.skill_respec_route`` ->
+    mining.respec -> record_respec, the ported skill_service.respec), so its
+    pending registration is retired (the forge/home 🔥 Build precedent).
+    Registered at IMPORT (module bottom), never ensure-only (#111 doctrine)."""
     from sb.domain.operator_spine import pending_handler
 
     return {
@@ -766,10 +750,6 @@ def _skills_button_handlers() -> dict[str, HandlerRef]:
             "🌳 Spending a skill point from the panel rides the deep-system "
             "panel port (D-0043) — spend now with `!skill <branch>` (mining, "
             "combat, fortune, crafting)."),
-        "respec": pending_handler(
-            "mining.skill_respec_pending",
-            "♻ Respec (the level-scaled coin refund) rides the deep-system "
-            "panel port (D-0043) — " + _D0043_TAIL),
     }
 
 
@@ -814,7 +794,7 @@ def mining_skills_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="sk_respec", label="♻ Respec",
                 style=ActionStyle.DANGER, audience_tier="user",
-                handler=HandlerRef("mining.skill_respec_pending")),
+                handler=HandlerRef("mining.skill_respec_route")),
             PanelActionSpec(
                 action_id="sk_titles", label="🏆 Titles",
                 style=ActionStyle.SUCCESS, audience_tier="user",
@@ -1179,22 +1159,6 @@ async def _render_workshop(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed, components=components)
 
 
-def _home_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminal for the Home panel's 🏠 Build button — the structure
-    BUILD write (coin + material sink → level raise) rides the deferred
-    structures build port (D-0043). Registered at IMPORT (module bottom), never
-    ensure-only (#111 doctrine). No golden drives a home click, so the terminal
-    copy is unpinned."""
-    from sb.domain.operator_spine import pending_handler
-
-    return {
-        "build": pending_handler(
-            "mining.home_build_pending",
-            "🏠 Building your Home rides the deep-system structures build port "
-            "(D-0043) — " + _D0043_TAIL),
-    }
-
-
 def mining_home_spec() -> PanelSpec:
     """The shipped 🏠 Home panel (views/mining/home_panel.py ``MiningHomeView``
     + ``build_home_embed``) — an ephemeral (session) child of the mining hub:
@@ -1219,7 +1183,7 @@ def mining_home_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="ho_build", label="🏠 Build",
                 style=ActionStyle.SUCCESS, audience_tier="user",
-                handler=HandlerRef("mining.home_build_pending")),
+                handler=HandlerRef("mining.home_build_route")),
             PanelActionSpec(
                 action_id="ho_hub", label="↩ Mining Hub",
                 style=ActionStyle.SECONDARY, audience_tier="user",
@@ -1570,10 +1534,8 @@ def _register_refs() -> None:
 
     _grid_button_handlers()
     _vault_modal_handlers()
-    _forge_button_handlers()
     _skills_button_handlers()
     _workshop_button_handlers()
-    _home_button_handlers()
     _ensure_workshop_craft_provider()
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)

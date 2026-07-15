@@ -1,0 +1,268 @@
+{
+ "case_id": "fishing.cast_again_continuation",
+ "db_delta": {
+  "fishing_catch_log": {
+   "added": [
+    {
+     "best_weight": 0.3799999952316284,
+     "count": 1,
+     "first_caught": 1873926097,
+     "guild_id": "<guild>",
+     "last_caught": 1873926097,
+     "species": "guppy",
+     "total_value": 0,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "fishing_energy": {
+   "added": [
+    {
+     "energy": 56,
+     "energy_updated_at": 1873926092,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "game_xp": {
+   "added": [
+    {
+     "day": "<ts>",
+     "day_xp": 5,
+     "game": "fishing",
+     "guild_id": "<guild>",
+     "updated_at": "<ts>",
+     "user_id": "<@member>",
+     "xp": 5
+    }
+   ]
+  },
+  "mining_inventory": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "item_name": "guppy",
+     "quantity": 1,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1873926092,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the Cast-again continuation (review-doc gap 3): the committed catch answers the fishing.cast_result card — the oracle result copy split title/description onto a SUCCESS-green embed over the single 🎣 Cast again button (_FishingDoneView @bbc524e) — and clicking it re-runs the full cast path: db_delta pins the first catch's commit (catch-log row + fish grant + game XP) AND the second cast's energy spend (60→58→56), with a brand-new waiting panel as the final message",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "You cast a line from the shoreline… 🏖️\n*Watch the water — hit **Reel** the moment it bites, but not before!*",
+        "fields": [
+         {
+          "inline": false,
+          "name": "⛈️ Storm",
+          "value": "*Storm's up — choppy and slow, but the big, rare ones are running.* (slower bites · rarer fish)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "🏖️ Shore · ⚡ 58/60 [▰▰▰▰▰▰▰▰▰▰]"
+        },
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!fish",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🎣"
+          },
+          "label": "Cast again",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "You reeled in 🐟 a **Guppy**!  (size #2 of 21 shore)\n⚖️ It weighs **0.38 kg**. 🏅 **New personal best!**",
+        "flags": 0,
+        "title": "🎣 Caught it!",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "game_xp.awarded",
+     "payload": {
+      "action": "fish",
+      "amount": 5,
+      "game": "fishing",
+      "guild_id": "<guild>",
+      "total": 5,
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 5.0,
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "You cast a line from the shoreline… 🏖️\n*Watch the water — hit **Reel** the moment it bites, but not before!*",
+        "fields": [
+         {
+          "inline": false,
+          "name": "⛈️ Storm",
+          "value": "*Storm's up — choppy and slow, but the big, rare ones are running.* (slower bites · rarer fish)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "🏖️ Shore · ⚡ 56/60 [▰▰▰▰▰▰▰▰▰▱]"
+        },
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 2.0,
+    "custom_id": "<cid:2>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 2
+   }
+  }
+ ],
+ "subsystem": "fishing"
+}

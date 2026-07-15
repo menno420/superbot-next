@@ -203,6 +203,7 @@ class FakeMiningStore:
     def __init__(self):
         self.inv: dict[tuple, dict] = {}
         self.depth: dict[tuple, int] = {}
+        self.energy: dict[tuple, tuple] = {}   # (user, guild) -> (e, ts)
 
     def install(self, monkeypatch):
         from sb.domain.mining import store as ms
@@ -220,10 +221,19 @@ class FakeMiningStore:
         async def get_depth(user_id, guild_id, conn=None):
             return self.depth.get((int(user_id), guild_id), 0)
 
+        async def get_energy(user_id, guild_id, conn=None):
+            return self.energy.get((int(user_id), guild_id), (0, 0))
+
+        async def set_energy(user_id, guild_id, energy, updated_at,
+                             conn=None):
+            self.energy[(int(user_id), guild_id)] = (energy, updated_at)
+
         monkeypatch.setattr(ms, "get_mining_inventory",
                             get_mining_inventory)
         monkeypatch.setattr(ms, "update_mining_item", update_mining_item)
         monkeypatch.setattr(ms, "get_depth", get_depth)
+        monkeypatch.setattr(ms, "get_energy", get_energy)
+        monkeypatch.setattr(ms, "set_energy", set_energy)
         return self
 
 
@@ -238,6 +248,42 @@ def test_mine_grants_ore_and_xp(fake_economy, fake_games_store,
     assert after["amount"] >= 1
     assert mstore.inv[(P1, GID)][after["found"]] == after["amount"]
     assert fake_games_store.xp                     # mine xp written
+
+
+def test_mine_spends_dig_energy(fake_economy, fake_games_store,
+                                monkeypatch):
+    """Energy-lane slice 3: the swing settles the bar (missing row →
+    (0, 0) → full at any positive clock), spends DIG_COST=1, and writes
+    the settled state back — 60 → 59 stamped at the leg clock."""
+    from sb.domain.mining import energy, ops
+
+    mstore = FakeMiningStore().install(monkeypatch)
+    ops.set_rng_for_tests(random.Random(7))
+    out = run(ops._record_mine(None, _ctx({})))
+    assert out.after["amount"] >= 1
+    assert mstore.energy[(P1, GID)] == (
+        energy.MAX_ENERGY - energy.DIG_COST, 1_000_000)
+
+
+def test_mine_refuses_out_of_energy(fake_economy, fake_games_store,
+                                    monkeypatch):
+    """A settled-empty bar refuses the swing in-leg (the race fence; the
+    route pre-checks the same gate as a pure read for the oracle-plain
+    bytes): no loot grant, no energy write, no XP."""
+    from sb.kernel.interaction.errors import ValidatorError
+
+    from sb.domain.mining import ops
+
+    mstore = FakeMiningStore().install(monkeypatch)
+    # future-stamped empty bar: settle clamps elapsed to 0 → stays 0
+    mstore.energy[(P1, GID)] = (0, 4_102_444_800)
+    with pytest.raises(ValidatorError) as err:
+        run(ops._record_mine(None, _ctx({})))
+    assert "⚡ You're out of energy — rest a moment" in str(err.value)
+    assert "(`!use ration`)" in str(err.value)
+    assert (P1, GID) not in mstore.inv
+    assert mstore.energy[(P1, GID)] == (0, 4_102_444_800)   # unwritten
+    assert not fake_games_store.xp
 
 
 def test_sell_all_pays_ledger_audited(fake_economy, fake_games_store,

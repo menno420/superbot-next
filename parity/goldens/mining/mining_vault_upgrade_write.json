@@ -1,0 +1,280 @@
+{
+ "case_id": "mining.vault_upgrade_write",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    },
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "vault_upgrade",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "mining_vault_upgraded",
+     "new_value": {
+      "vault_upgrade": {
+       "balance": 500,
+       "cost": 2000,
+       "message": "Vault upgraded to capacity **45** item types for **2000** 🪙. Balance: **500** 🪙."
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "vault_upgrade": {}
+     },
+     "scope": "guild",
+     "subsystem": "mining",
+     "target": "mining.vault_upgrade"
+    }
+   ]
+  },
+  "economy_audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "delta": -2000,
+     "guild_id": "<guild>",
+     "id": 1,
+     "mutation_id": "<uuid>",
+     "new_balance": 500,
+     "occurred_at": "<ts>",
+     "reason": "mining:vault_upgrade",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "economy_balances": {
+   "added": [
+    {
+     "coins": 500,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ],
+   "removed": [
+    {
+     "coins": 2500,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "mining_vault_upgraded",
+      "new_value": {
+       "vault_upgrade": {
+        "balance": 500,
+        "cost": 2000,
+        "message": "Vault upgraded to capacity **45** item types for **2000** 🪙. Balance: **500** 🪙."
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "vault_upgrade": {}
+      },
+      "scope": "guild",
+      "subsystem": "mining",
+      "target": "mining.vault_upgrade"
+     },
+     "status": "pending"
+    },
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "mining_player_state": {
+   "added": [
+    {
+     "depth": 0,
+     "energy": 0,
+     "energy_updated_at": 0,
+     "equipped_title": null,
+     "guild_id": "<guild>",
+     "last_broken_item": null,
+     "max_depth": 0,
+     "updated_at": 0,
+     "user_id": "<@member>",
+     "vault_level": 1
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2037260230,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "argful !vaultupgrade (funded) drives mining.vault_upgrade → record_vault_upgrade: debits the 2000 🪙 cost via wager.debit_in_txn and bumps mining_player_state.vault_level 0->1 in one advisory-fenced txn, and replies `<@u> Vault upgraded to capacity **45** item types for **2000** 🪙. Balance: **500** 🪙.` — the funded-upgrade capture that covers the vault_level face of mining_player_state (retires its guard-only-capture exemption)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "<@<@member>> Vault upgraded to capacity **45** item types for **2000** 🪙. Balance: **500** 🪙.",
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "vaultupgrade",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "economy.balance_changed",
+     "payload": {
+      "delta": -2000,
+      "guild_id": "<guild>",
+      "new_balance": 500,
+      "reason": "mining:vault_upgrade",
+      "user_id": "<@member>"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!vaultupgrade",
+    "kind": "command",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "mining"
+}

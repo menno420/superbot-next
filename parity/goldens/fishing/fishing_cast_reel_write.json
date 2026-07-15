@@ -143,11 +143,39 @@
     },
     {
      "args": {
-      "webhook_id": "<@bot>"
+      "channel_id": "<#general>"
      },
-     "method": "followup_send",
+     "method": "send_message",
      "payload": {
-      "content": "🎣 Caught it!\nYou reeled in 🐟 a **Guppy**!  (size #2 of 21 shore)\n⚖️ It weighs **0.38 kg**. 🏅 **New personal best!**"
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🎣"
+          },
+          "label": "Cast again",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "You reeled in 🐟 a **Guppy**!  (size #2 of 21 shore)\n⚖️ It weighs **0.38 kg**. 🏅 **New personal best!**",
+        "flags": 0,
+        "title": "🎣 Caught it!",
+        "type": "rich"
+       }
+      ],
+      "tts": false
      }
     }
    ],
