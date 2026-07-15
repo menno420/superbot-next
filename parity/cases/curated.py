@@ -1082,6 +1082,41 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "and replies `<@u> You light a torch and peer into the "
             "darkness...` — no energy movement, no mining_player_state row"),
     ),
+    # ------------------------------------------- mining ENERGY (slice 3)
+    # The fastmine dig energy-spend (docs/scoping/energy-system-scope.md
+    # slice 3, Option A; oracle copy: disbot/services/mining_workflow.py
+    # dig() @ 87bbe1d — the energy bracket grafted onto the fastmine
+    # lane). The spend itself is pinned by the RE-MINTED sweep_fastmine
+    # (fresh player settles full → digs → energy 60→59 joins its
+    # db_delta); this case pins the out-of-energy REFUSAL, a route-level
+    # pure read replying PLAIN (the slice-2 ValidatorError-envelope
+    # trap: an in-leg raise would wrap as the kernel envelope).
+    GoldenCase(
+        id="mining.fastmine_out_of_energy_refusal",
+        subsystem="mining",
+        # An EMPTY bar that stays empty: energy=0 stamped 5s before the
+        # case's logical clock (the harness pins time.time to the
+        # case-id-derived logical timeline, so the stamp is a pure
+        # function of the case id — computed by probe capture). settle()
+        # gains 0 units over 5s (<REGEN_SECONDS), the gate refuses, and
+        # seconds_until lands the hint at exactly ~5s. Any harness
+        # clock-pacing change re-lands here loudly (the xp.last_xp
+        # absolute-stamp class).
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, energy, "
+            "energy_updated_at) VALUES "
+            "('900000000000000102', 700000000000000001, 0, 1877604670)",
+        ),
+        steps=(
+            Step(kind="command", content="!fastmine", persona="member"),
+        ),
+        notes=(
+            "!fastmine on an empty bar refuses PLAIN with the oracle dig() "
+            "hint (`⚡ You're out of energy — rest a moment (~{wait}s until "
+            "your next dig) or eat a **ration** / **energy drink** (`!use "
+            "ration`).`) — a pre-txn pure read: no loot, no energy write, "
+            "no game XP, no mining db_delta"),
+    ),
     # ------------------------------------------------ fishing cast-leg WRITES
     # The first goldens that ever CLICK Reel (the imported sweeps only pinned
     # the waiting panel — parity.yml's own fishing_catch_log exemption text

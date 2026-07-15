@@ -1,50 +1,35 @@
-# superbot-next · status
-updated: 2026-07-14T14:30:20Z
-phase: post-EAP-night morning — dawn lanes complete (ORDER 020 executed + review-parked; D-0043 both slices merged, D-0090 ratified); owner sweep queued.
-health: main at `36d47d6bb91e3605259a766b4746b10aa6f3c9e7`. Gate incident 00:00–01:12Z RESOLVED: 4 fishing goldens were minted date-live 07-13 (weather derives from UTC date) → fleet-wide gate red at midnight; fixed by #448 (seed via CAPTURE_WORLD_WEATHER) + #449 (canonical stripped re-mints + fishing ratchet floor 3/10→2/8). Goldens must have their case id in CAPTURE_WORLD_WEATHER before minting (team memory + docs).
-kit: v1.15.0
-orders: acked=001–022 done=002–022 (020 ratified 2026-07-14T14:20Z via plugin-hello#2 merge; 022 closed via #480); ORDER 001 open owner-side.
-EAP audit landed: docs/audits/eap-project-audit-2026-07-14.md (#468).
+# control/status.md — coordinator heartbeat
 
-## ORDER 022 log
-1. ORDER 021 completion — #464 was an empty vehicle (order text only); real re-stamps landed via #472; ⚑8 withdrawn HERE per INC-58 ground truth (no rewrite occurred — shallow-clone artifact; #319's squash resolves at origin).
-- item 2 casino section build DISPATCHED
-- item 3 title-equip write DISPATCHED
-- item 4 row-72 stacked path DISPATCHED
-- item 5 ⚑7 verify DISPATCHED
-- item (b) walkthrough doc QUEUED (lands after items resolve)
-- parked-by-design per the order: WP stack owner-click, #392, plugin-hello#2 ⚑0, ORDER 001 ⚑6, DROP/D-0083 ⚑3/⚑4.
-- Note: corpus-moving slices park green under the coordinator WP-stack freeze, flip after the owner sweep.
-- lifeboat: claude/lifeboat-fishing-minigame-timing @ 0c1e3bf audited fully SUPERSEDED (fishing lane verdict 2026-07-14T~12:00Z) — branch-delete walled (403, CAPABILITIES), branch parked to owner standing-tail cleanup.
-- ORDER 020 ratified: superbot-plugin-hello#2 merged 2026-07-14T14:20Z (owner sweep signal) — kit pin 1.15.0 mirrored; ratification park cleared.
+updated: 2026-07-15T20:35:00Z
+phase: ACTIVE (rebooted 2026-07-15 on the owner's v3.6 per-seat go; EAP extended through 2026-07-21 — ORDER 023)
+health: green — main 454ec71 (post #491/#492 band-5 close); local pytest at reconcile: 3117 passed
+main at boot: ad75bbcfca001fefcb39e677e4b5ecddb3c80af3
 
-## ORDER 019 night log
-All 8 items + relayed ORDER 031 closed out — full citations in the outbox 2026-07-14T04:48:20Z night report.
-WP owner table (merge order, all-green mergeable-clean): #312 dc35d48 · #317 259176d · #335 b548687 · #344 e6553a7 · #371 91bc32f.
-Extras: night-tail lane #454–#457; gate incident fix #448/#449; ORDER 031 spec hook = docs/specs/casino-section-spec.md.
-Dawn: D-0043 fishing minigame timing rung COMPLETE (#460 + #462; kernel timer + push-edit seam ratified D-0090). ORDER 020 executed, plugin PR parked for owner merge.
+## ROUTINES (verified via exhaustive list_triggers — 19 pages, 1814 triggers — 2026-07-15T04:08Z)
+- failsafe cron: trig_01UC7wiV3n5Vgs3RpSQt4gWz "SuperBot 2.0 failsafe wake" · `0 1-23/2 * * *` · enabled · bound session_01KzBYEreBPYPj5nEEHwwRwe · next fire 2026-07-15T13:08Z — STAYS ARMED as the successor's dead-man bridge (F-1); successor boot cutover rebinds-then-deletes it.
+- pacemaker: chain CLOSED at session end (exhaustive list_triggers 2026-07-15T11:30Z: zero unfired one-shots bound to this seat)
+- predecessor triggers: none live — the 2026-07-14 shutdown deletions confirmed by the audit. Not-this-seat's entries unchanged: kit-lab daily trig_01Jm57GAjNCFrYJn1oLMiYGE (never rebind); superbot docs-recon poke trig_018wP6XTPmf9DLnxrG4RpGVh (enabled, poke-only, legacy — disposition is hub-side, superbot ORDER 003 class)
 
-## ROUTINES
-- FAILSAFE trig_012sSzXkABoZEFW1BqXuqi3v (0 1-23/2 * * *) armed, bound to this seat. Pacemaker chain live (~15 min links).
-- business crons unchanged: kit-lab trig_01Jm57GAjNCFrYJn1oLMiYGE (fresh-session — NEVER rebind); docs-recon trig_018wP6XTPmf9DLnxrG4RpGVh (poke-only).
+## ⚑ NEEDS-OWNER
+1. D-0043 deep-game go/no-go (restored — rotated out at the 2026-07-14 dormancy): draining the 25 mining + 15 fishing unmapped goldens turns on the deep-game ports (docs/decisions.md:326; docs/review/program-review-2026-07-12.md:590-598). Owner-gated.
 
-## OPEN PRs
-- WP stack #312→#317→#335→#344→#371 — all-green, mergeable-clean, owner-click sweep (heads: dc35d48 · 259176d · b548687 · e6553a7 · 91bc32f).
-- #392 parked on wp3 (auto-retargets after WP sweep) · superbot #2058/#2061 draft deploy-holds (~2h churn caveat).
+## FEATURE TESTS (ORDER 023, EAP extension)
+- add_repo: WORKS (child session, 2026-07-15) · Artifact tool: LIVE (worker seat, 2026-07-15) — details docs/CAPABILITIES.md
+- overview panel: owner-side UI, not testable from the seat · coordinator-comms improvements: not yet observed
 
-## ⚑ needs-owner (the standing eight)
+## PARKED — owner-side (re-verified 2026-07-15T11:10Z)
+- WP stack, merge in order: #317 (head 43f06b3 — now carries #392's energy slice; wait for its checks to re-green before clicking) → #335 (44ce9ee) → #344 (bc0aeda) → #371 (873f457). After the stack lands on main: re-sum count pins FROM DISK, dispatch the #457 conform sweep, and flip the frozen cards (#466/#473/#476/#477) via a fresh session.
+- Frozen PRs (do-not-automerge, ratification park): #466 @ 0c1048e · #477 @ 5c4838e · #473 @ d6421a2 · #476 @ f1548e4 (RECONCILED 2026-07-15: wp7 873f457 merged in, guard-fires.jsonl chronological union; sole red = designed born-red hold, card 2026-07-14-curation-row72.md still in-progress by design) — card flips after the WP stack lands, by a fresh session per .sessions/README.md.
+- Outbox lane PRs: #484, #485 (lane→manager asks).
+- superbot #2061 (mineverse FLAG 2): green draft @ 140c384 — owner mark-ready + merge = deploy (Q-0193); post-merge env steps per docs/eap-closeout-walkthrough-2026-07-14.md.
+- Remaining owner actions: eap-closeout walkthrough §C list, unchanged.
+- #457 conform sweep: gated on the WP stack landing.
 
-0. DONE 2026-07-14T14:20Z — superbot-plugin-hello PR #2 merged (ORDER 020 ratified; kit pin 1.15.0 mirrored; ratification park cleared).
-1. Flip superbot #2058 (head a6b8c99) + #2061 to ready (merge=deploy). NOTE: the 2-hourly dashboard-refresh cron re-dirties #2061 while open (#2072 made resolution mechanical — scripts/resolve_generated_conflicts.py — it does NOT prevent churn); flip within ~2h of a fresh resolve (last: 0cc9a62 ~15:27Z) or run the resolver during a merge of main first. #2058 has no dashboard delta, merges clean. Deploy env names: FLAG1 MINING_SNAPSHOT_RELAY_URL + MINING_SNAPSHOT_RELAY_GUILD_ID; FLAG2 MINING_WRITE_SHARED_SECRET + MINING_WRITE_GUILD_ALLOWLIST (+ mineverse MINING_WRITE_ENDPOINT).
-2. Sweep-merge the WP stack #312→#317→#335→#344 (+ #371), then #320.
-3. Ratify the curation DROP list (60 items, #327 report §DROP).
-4. D-0083 anchor call (#346 proposal).
-5. SBW inventory+spec for sections (SIM-REQUEST 00:55Z, unanswered).
-6. Standing: settings-prune ratification; OWNER-ACTION 3 (ruleset/merge-queue) + 5 (ANTHROPIC_API_KEY/AI_ENABLED); delete scratch/union-test-a,-b; ORDER 001 token run; hermes egress creds (CLAUDE_ROUTINE_FIRE_URL + token).
-7. Minor: cosmetic "RED BY DESIGN"/"EXPECTED RED" banner strings in run_golden_parity.py/harness + golden-parity.yml step name (report leg is live green).
+## ORDERS
+acked=001–023 done=001–023 (001 closed 2026-07-15: band-1 live PASS + app-command registration recorded in docs/status/testing-report-2026-07-09.md — replay reds ledgered D-0050; band-5 tail CLOSED via #491/#492). No open agent-side orders.
 
-next-2-tasks:
-1. Awaiting owner WP sweep → send go-to-flip to the frozen lanes.
-2. Monitor inbox for ORDER 023+.
+## NEXT
+1. Owner: mark this close-out PR ready (one click — the enabler lands it on green); WP stack clicks (#317 first, once green at 43f06b3); D-0043 go/no-go.
+2. Successor boot: cutover the failsafe (rebind-then-delete trig_01UC7wiV3n5Vgs3RpSQt4gWz), re-arm a pacemaker, HARD-SYNC, read inbox at HEAD.
 
-Pointers: night ack = PR #421; ORDER 019 close-out = outbox 2026-07-14T04:48:20Z; ORDER 031 hook = docs/specs/casino-section-spec.md; incident detail = PRs #448/#449 bodies.
+kit: v1.17.0

@@ -7,7 +7,7 @@
     "soft_target_sessions": 50
   },
   "graduation_proposed": false,
-  "kit_version": "1.16.0",
+  "kit_version": "1.17.0",
   "last_compaction_session": 0,
   "mode": "guided",
   "mode_history": [],
