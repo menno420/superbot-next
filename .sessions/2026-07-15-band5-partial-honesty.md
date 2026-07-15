@@ -52,7 +52,7 @@ compensator-invariant way.
 
 ## Close-out
 
-Landed as PR #490 (squash) — commits: session card + claim born first,
+Landed as PR #491 (squash) — commits: session card + claim born first,
 then the fix slice (engine seam + speaking compensators for
 `proof_channel.compensate_lock`/`compensate_unlock`/
 `role.compensate_grant_temp` + the three proof after-key reads +
