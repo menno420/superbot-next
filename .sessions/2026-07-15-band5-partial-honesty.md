@@ -1,6 +1,6 @@
 # 2026-07-15 — band-5 partial-honesty tail (speaking compensators + proof after-keys)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `fable-5` · resumed band-5 testing seat (the 2026-07-09
   session that shipped #94/#95) · mandate: land the remainder of its
