@@ -107,6 +107,27 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-15 · capability · CORRECTION — superbot-next DOES have
+  auto-merge-enabler behavior: squash auto-merge is armed on `claude/*` PRs
+  at open AND RE-ARMED ON EVERY PUSH. Parking a PR owner-click therefore
+  requires BOTH disabling auto-merge via the API mutation AND adding the
+  `do-not-automerge` label (the enabler's carve-out; #344 precedent). Any
+  prior "no enabler in superbot-next" note is superseded · evidence: #392
+  re-armed on the 2026-07-15 reconcile push to an owner-parked PR ·
+  workaround: n/a — this is the park recipe: disable mutation + label,
+  both, on every parked PR.
+- 2026-07-15 · wall · GitHub MCP `pull_request_read` strips the
+  `auto_merge` field — a PR's armed auto-merge state is UNREADABLE via MCP
+  reads · evidence: #392, 2026-07-15 reconcile session — reads carried no
+  `auto_merge` field; the disable mutation's response ("Auto-merge disabled
+  for menno420/superbot-next#392.") was the only signal the PR had been
+  armed · workaround: the disable mutation's success/failure response is
+  the only reliable probe of armed state.
+- 2026-07-15 · wall · Auto-mode denied printing a live secret — `echo
+  $DATABASE_URL` refused as "[Credential Materialization] … exposes a live
+  secret" · evidence: 2026-07-15 reconcile session, verbatim classifier
+  denial · workaround: pass the env var by reference (e.g. `psql
+  "$DATABASE_URL"`), never materialize it into output.
 - 2026-07-15 · capability · Artifact tool is LIVE and working from worker
   seats (`subagent` venue) — ORDER 023 listed it as "coming"; it is here ·
   evidence: verified 2026-07-15 — a markdown file published on the first
