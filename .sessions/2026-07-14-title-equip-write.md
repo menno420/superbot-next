@@ -1,9 +1,8 @@
 # 2026-07-14 — mining title-equip write slice (ORDER 022 (a)3)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** `Claude Fable` · ORDER 022 (a)3 EQUIP-WRITE slice · claim
-  live via control/claims (PR #471)
+- **📊 Model:** fable-5
 
 ## Scope
 
