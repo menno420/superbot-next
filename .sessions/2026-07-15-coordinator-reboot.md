@@ -1,6 +1,6 @@
 # 2026-07-15 — Coordinator reboot: ORDER 023 ack + revival heartbeat
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Fable-class (Claude 5 family) · coordinator reboot session
 
@@ -29,13 +29,29 @@ first commit; it holds the PR red until the end-of-session flip.
 
 ## Verification
 
-- (to be completed at session close before the status flip)
+- Close-out shipped list below (## Shipped); heartbeat deltas landed in
+  `control/status.md` in the same commit (control + .sessions only).
 
 ## 💡 Session idea
 
-- (slot held — written at the end-of-session flip to `complete`)
+- The auto-merge-enabler should skip re-arming PRs that carry the
+  do-not-automerge label — today the carve-out demands a manual disable
+  after every push to a parked PR (bit #392's reconcile push on
+  2026-07-15).
 
 ## ⟲ Previous-session review
 
-- (slot held — previous-session review written at the end-of-session
-  flip to `complete`)
+- The 2026-07-14 dormancy heartbeat was an exemplary baton — routine
+  specs exact enough to recreate verbatim; its one rot ('No ORDER ≥
+  023') went stale within hours, re-confirming that position lines rot
+  and HEAD re-verification before acting is mandatory.
+
+## Shipped
+
+- ORDER 023 acked+done
+- ORDER 001 closed per testing ledger
+- feature tests add_repo/Artifact recorded
+- 5 terminal claims swept
+- #392/#476 reconciled
+- superbot #2110 landed (ORDERs 003+005)
+- #490 landed by owner 2026-07-15
