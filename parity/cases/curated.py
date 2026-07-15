@@ -909,6 +909,81 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "denial records a normalized audit_log row, NO player_skills "
             "db_delta"),
     ),
+    # ---------------------------------------------- mining WRITE-PARITY (WP-6)
+    # The structure-build PORT (the FINAL slice): the forge/home 🔥 Build panel
+    # terminals were live D-0043 pendings (no write leg). WP-6 ports the oracle
+    # services/mining_workflow.py::build_structure onto the audited one-leg
+    # one-txn seam (mining.build -> record_build), flips the forge/home Build
+    # terminals to live handlers (forge_build_route / home_build_route), and
+    # drives the forge build here. The oracle `!build`/`!craft` COMMAND routes to
+    # mining_workflow.craft (mining_inventory product, already covered), NOT to
+    # build_structure — the mining_structures write is panel-button-driven per the
+    # oracle (forge/home 🔥 Build), so the golden drives the 🔥 Build click on the
+    # session forge panel (the stash_all component_index precedent). Same personas
+    # as WP-1..5: member = 900000000000000102, guild = 700000000000000001.
+    # economy_balances keys user_id as BIGINT (no quotes); mining_inventory keys
+    # user_id as TEXT (quoted). Each fixture row is seeded BEFORE the
+    # before-snapshot, so only the build's own audited write lands in db_delta.
+    # Success copy is byte-identical to the oracle (build_structure). The success
+    # capture is row-bearing on mining_structures -> retires its
+    # guard-only-capture exemption (the LAST mining exemption — lane complete).
+    GoldenCase(
+        id="mining.build_forge_write",
+        subsystem="mining",
+        # Fund the balance (3500 -> 500 after the 3000 debit) and own the forge-I
+        # materials (iron 30 -> 5, stone 20 -> 5 after the 25/15 consume). The
+        # level read + affordability guards are pure reads gated out before the
+        # leg; only a funded+stocked build runs the audited debit+consume+bump.
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 3500)",
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'iron', 30), "
+            "('900000000000000102', 700000000000000001, 'stone', 20)",
+        ),
+        steps=(
+            # !forge mints the 🔥 Forge session panel; the 🔥 Build button is
+            # flattened component index 0 (build 0, workshop 1, help 2, games 3 —
+            # goldens/mining/sweep_forge pins the order). The session-minted
+            # custom_id normalizes to <cid:N>; component_index reconstructs it.
+            Step(kind="command", content="!forge", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "!forge then the 🔥 Build click (funded 3500 🪙 + iron 30 / stone 20 "
+            "fixture) drives mining.build -> record_build (the ported "
+            "mining_workflow.build_structure): advisory-fenced "
+            "(lock_structure_slot), it debits the 3000 🪙 cost via "
+            "wager.debit_in_txn, consumes 25× iron + 15× stone, and raises the "
+            "mining_structures forge level 0->1 in one txn, and replies "
+            "`<@u> Forge built to **Forge I** for 25× iron, 15× stone + 3000 🪙. "
+            "Now crafts **gold-tier** gear. Balance: **500** 🪙.` — the first "
+            "row-bearing structure-build capture (retires the LAST mining "
+            "guard-only-capture exemption, mining_structures; build_structure "
+            "copy verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.build_forge_insufficient",
+        subsystem="mining",
+        # No fixture: a fresh player has no materials, so the 🔥 Build click hits
+        # the short-on-materials refusal (a PURE READ in forge_build_route,
+        # BEFORE the op runs) — no coin ledger / mining_structures write.
+        steps=(
+            Step(kind="command", content="!forge", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "!forge then the 🔥 Build click with an empty pack drives "
+            "forge_build_route, which refuses as a PURE READ before the "
+            "mining.build op runs: replies `<@u> Building the Forge needs 25× "
+            "iron, 15× stone plus 3000 🪙 — you're short on materials.` — the "
+            "short-on-materials error face (build_structure copy verbatim); NO "
+            "mining_structures db_delta (the failed click writes no audit/ledger "
+            "row, exactly as the oracle's pre-txn material check returns)"),
+    ),
     # ------------------------------------------- mining ENERGY (slice 2)
     # Argful !use / !cook writes over the energy lane (docs/scoping/
     # energy-system-scope.md slice 2; oracle copy: disbot/services/

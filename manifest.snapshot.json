@@ -11308,8 +11308,8 @@
       "handler:mining.fastmine_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.forge_build_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.forge_build_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.gear_view": {
         "module": "sb.domain.mining.service"
@@ -11332,8 +11332,8 @@
       "handler:mining.gr_west": {
         "module": "sb.domain.mining.panels"
       },
-      "handler:mining.home_build_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.home_build_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.inventory_view": {
         "module": "sb.domain.mining.service"
@@ -14650,6 +14650,9 @@
       "workflow:mining.ascend": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.build": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.buy": {
         "module": "sb.domain.mining.ops"
       },
@@ -14708,6 +14711,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_ascend": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_build": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_buy": {
@@ -49917,7 +49923,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.forge_build_pending"
+                "$ref": "handler:mining.forge_build_route"
               },
               "label": "🔥 Build",
               "modal": null,
@@ -50440,7 +50446,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.home_build_pending"
+                "$ref": "handler:mining.home_build_route"
               },
               "label": "🏠 Build",
               "modal": null,

@@ -214,6 +214,18 @@ source:
   # player_skills upsert (retiring its guard-only-capture row);
   # mining_skill_bad_branch pins the bad-branch refusal (a denied audit_log row,
   # no player_skills db_delta).
+  # WP-6 mining WRITE-PARITY minted TWO more (2026-07-13) via the same
+  # capture_case procedure — the structure-build PORT write goldens (the FINAL
+  # slice): goldens/mining/mining_build_forge_write.json +
+  # mining_build_forge_insufficient.json. The forge/home 🔥 Build panel terminals
+  # were live D-0043 pendings (no write leg); WP-6 ports the oracle
+  # mining_workflow.build_structure onto the audited mining.build -> record_build
+  # op and flips the forge/home Build terminals (forge_build_route /
+  # home_build_route). mining_build_forge_write DRIVES the mining_structures
+  # upsert (forge -> level 1) via the !forge -> 🔥 Build click, retiring the LAST
+  # mining guard-only-capture row (mining_structures) — the write-parity lane is
+  # COMPLETE; mining_build_forge_insufficient pins the short-on-materials refusal
+  # (a pure read, no mining_structures db_delta).
   # +1 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
   # same D-0073 capture_case + kernel-spine-strip procedure):
   # goldens/mining/mining_fastmine_out_of_energy_refusal.json — !fastmine
@@ -253,10 +265,10 @@ source:
   # deliberate enforcement change re-minted in-PR, not a regression;
   # counts unchanged. The 4 slice-1 timing goldens replay clean under
   # the flip (their clicks were already in-window/premature by design).
-  minted_goldens: 48
+  minted_goldens: 50
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 510). The first retirement (2026-07-12
+  # imported + minted − retired = 512). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -1003,24 +1015,24 @@ depth:
       # stash-all add), so the table is COVERED, not exempt — the D-0069
       # class's own exit ("the first row-bearing golden lands with an argful
       # capture").
-      # Slice-4 forge/workshop port (this PR): the per-player built structure
-      # levels are a declared mining surface, but the imported sweep drove only
-      # the bare `!forge` — which renders the not-built card off the store's
-      # no-row level 0 — so no golden carries a mining_structures row. The
-      # row-bearing build write (🔥 Build / `!build`) rides the deferred
-      # structures BUILD system (the `!build` command stays a pending terminal).
-      - surface: "table:mining_structures"
-        reason: "guard-only-capture: the structure build write lane IS
-          corpus-expressible (`!forge` 🔥 Build / `!build campfire`) but the
-          imported sweep drove only the bare !forge, which renders the not-built
-          card off the store's no-row default level 0
-          (goldens/mining/sweep_forge.json — \"**(not built)** (0/2)\", the
-          Forge I next-cost 25× iron, 15× stone + 3000 🪙) with no row; the
-          row-bearing build rides the deferred structures BUILD system (the
-          !build command stays a D-0043 pending terminal this slice), so it
-          exists in no imported golden — goldens pin the write-free render path
-          only, so the table cannot be covered until a build capture lands
-          (D-0069 class)"
+      # table:mining_structures is NO LONGER exempt — WP-6 mining WRITE-PARITY
+      # (this PR, the FINAL slice) RETIRED it. The structure BUILD write (🔥
+      # Build / 🏠 Build on the forge/home panels) was a live D-0043 pending
+      # terminal (the forge/home Build buttons returned the BLOCKED successor
+      # copy, NO write leg); WP-6 PORTS the oracle services/mining_workflow.py::
+      # build_structure onto the audited one-leg one-txn seam (mining.build ->
+      # record_build), flips the forge/home Build terminals to live handlers
+      # (forge_build_route / home_build_route), and the funded `!forge` -> 🔥
+      # Build click capture (goldens/mining/mining_build_forge_write.json) drives
+      # set_structure_level, which upserts a row-bearing db_delta on
+      # mining_structures (forge -> level 1), so the table is COVERED, not exempt
+      # — the D-0069 class's own exit ("the first row-bearing golden lands with an
+      # argful capture"). The build is advisory-fenced (lock_structure_slot)
+      # against a concurrent double-build. The oracle `!build`/`!craft` COMMAND
+      # routes to mining_workflow.craft (a mining_inventory product, already
+      # covered), NOT to build_structure, so it stays a D-0043 pending terminal
+      # (no exemption rides on it). With mining_structures retired, ALL mining
+      # guard-only-capture rows are gone — the write-parity lane is COMPLETE.
     proof_channel:
       # proof_channel's five goldens (the re-homed prize sweeps
       # included) all pin the shipped "#proof not found" guard — the
@@ -1263,7 +1275,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
-    mining: {events: 4, tables: 16, settings: 0}
+    mining: {events: 4, tables: 17, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}

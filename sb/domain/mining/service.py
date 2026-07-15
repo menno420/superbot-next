@@ -953,6 +953,80 @@ def _register() -> None:
             return blocked
         return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
 
+    async def _build_route(req, structure: str) -> Reply:
+        """Shared 🔥/🏠 Build panel-button handler (slice 6 PORT): build/upgrade
+        *structure* one level (services/mining_workflow.py ``build_structure``).
+        The maxed / insufficient-materials / insufficient-funds refusals are
+        computed as PURE READS here (get_structures + get_mining_inventory +
+        get_coins) so a failed click writes no coin ledger / audit row — exactly
+        as the oracle's txn rolls back — mirroring ``vaultupgrade_route``. Only an
+        affordable build runs the audited ``mining.build`` op (record_build:
+        coin debit + material consume + mining_structures level raise in one
+        advisory-fenced txn). The reply prefixes the invoker mention on both
+        faces (the target's mining panel-write-button convention —
+        ``stash_all_route`` / ``vaultupgrade_route``). Copy is oracle-verbatim
+        (build_structure's TradeResult messages). goldens/mining/
+        mining_build_forge_write drives the funded forge build (retires the LAST
+        mining exemption, mining_structures); mining_build_forge_insufficient
+        pins the short-on-materials refusal."""
+        from sb.domain.economy.store import get_coins
+        from sb.domain.mining import market, store, structures, workshop
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        display = structures.display_name(structure)
+        built = await store.get_structures(uid, gid)
+        level = built.get(structure, 0)
+        cost = structures.build_cost(structure, level)
+        if cost is None:
+            name = structures.level_name(structure, level)
+            return Reply(BLOCKED,
+                         f"<@{uid}> Your {display} is already at its maximum "
+                         f"level (**{name}**).")
+        inventory = await store.get_mining_inventory(uid, gid)
+        for mat, qty in cost.materials.items():
+            if inventory.get(mat, 0) < qty:
+                return Reply(BLOCKED,
+                             f"<@{uid}> Building the {display} needs "
+                             f"{workshop.describe_materials(cost.materials)} "
+                             f"plus {cost.coins} 🪙 — you're short on materials.")
+        balance = await get_coins(uid, gid)
+        if balance < cost.coins:
+            return Reply(BLOCKED,
+                         f"<@{uid}> Building the {display} costs "
+                         f"**{cost.coins}** 🪙 — you only have "
+                         f"**{balance}** 🪙.")
+        # market is imported for symmetry with the leg's audit reason; the tag
+        # itself is applied inside record_build (structure_build_reason).
+        _ = market.structure_build_reason(structure)
+        blocked, after = await _op_after(
+            req, "mining.build", {"structure": structure})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.forge_build_route")
+    async def forge_build_route(req) -> Reply:
+        """The 🔥 Forge panel's 🔥 Build button — build/upgrade the Forge
+        (structures.FORGE) one level. Was a live D-0043 pending terminal
+        (`_forge_button_handlers`); slice 6 flips it to the audited build op.
+        See ``_build_route``."""
+        from sb.domain.mining import structures
+
+        return await _build_route(req, structures.FORGE)
+
+    @handler("mining.home_build_route")
+    async def home_build_route(req) -> Reply:
+        """The 🏠 Home panel's 🏠 Build button — build/upgrade the Home
+        (structures.HOME) one level. Was a live D-0043 pending terminal
+        (`_home_button_handlers`); slice 6 flips it to the audited build op (the
+        same registry-driven leg as the forge, a different structure key). See
+        ``_build_route``. No golden drives the home click (the forge capture
+        already retires mining_structures); the home lane is unit-tested."""
+        from sb.domain.mining import structures
+
+        return await _build_route(req, structures.HOME)
+
     @handler("mining.cook_route")
     async def cook_route(req) -> Reply:
         """`!cook [amount] [fish]` — cook caught fish into food at a built
@@ -1098,8 +1172,10 @@ PENDING: dict[str, str] = {
     # (the argful `!build <item>` / craft write stays a D-0043 pending
     # terminal). home / workshop are LIVE (slice 6 port): the mining.home +
     # mining.workshop session PanelSpecs carry the not-built Home card + the
-    # Workshop craft/repair panel bytes (the 🏠 Build structure write, the
-    # craft-select write, and the ↩ Workshop sub-hub stay deferred).
+    # Workshop craft/repair panel bytes. The 🔥 Build / 🏠 Build structure writes
+    # are LIVE (WP-6 PORT: forge_build_route / home_build_route -> mining.build ->
+    # record_build, the ported mining_workflow.build_structure); the craft-select
+    # write and the ↩ Workshop sub-hub stay deferred.
     # This EMPTIES the mining deep-system PENDING roster — all 26 original
     # deep-system commands are ported (the D-0043 ladder is complete).
     # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
@@ -1119,8 +1195,8 @@ PENDING: dict[str, str] = {
     # forge not-built card + the repair/cook/use usage guards + the quickcraft
     # "nothing broken" pure read). The argful cook/use energy lanes went LIVE
     # in energy-lane slice 2 (mining.cook / mining.use one-txn ops over the
-    # slice-1 get_energy/set_energy pair); the structures BUILD write
-    # (🔥 Build) stays deferred (a D-0043 pending terminal).
+    # slice-1 get_energy/set_energy pair); the structures BUILD write (🔥 Build
+    # / 🏠 Build) is LIVE as of WP-6 (forge_build_route / home_build_route).
     # skills / skill / titles are LIVE (slice 5 port): the mining.skills +
     # mining.titles session PanelSpecs carry the skill-tree + earned-title
     # render bytes, and skill_route carries the `!skill` branch-picker guard AND

@@ -43,6 +43,9 @@ class TestImportedCorpus:
         # depth/world/workshop write-parity goldens (descend/ascend/
         # reseed-world/repair/quickcraft) + 2 minted WP-5 mining skill-spend
         # write-parity goldens (skill_write/skill_bad_branch, 2026-07-13)
+        # + 2 minted WP-6 mining structure-build write-parity goldens
+        # (build_forge_write/build_forge_insufficient, 2026-07-13 — the
+        # FINAL slice)
         # + 1 minted paid-tournament conservation golden
         # + 2 minted creature picker/bot-guard goldens (D-0081) + 3 minted
         # fishing cast-leg reel write goldens + 4 minted energy-slice-2
@@ -62,7 +65,7 @@ class TestImportedCorpus:
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 510
+        assert len(goldens) == 512
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -93,6 +96,9 @@ class TestImportedCorpus:
         # (descend/ascend/reseed-world/repair/quickcraft)
         # + 2 WP-5 mining skill-spend write-parity mints
         # (skill_write/skill_bad_branch, 2026-07-13)
+        # + 2 WP-6 mining structure-build PORT write-parity mints
+        # (build_forge_write/build_forge_insufficient, 2026-07-13 — the
+        # FINAL slice)
         # + 1 paid-tournament conservation mint (2026-07-12)
         # + 2 creature picker/bot-guard mints (D-0081)
         # + 3 fishing cast-leg reel write mints (2026-07-13)
@@ -103,7 +109,7 @@ class TestImportedCorpus:
         # + 1 fishing howtofish rules-card mint (2026-07-13)
         # + 1 cleanup policies-open mint (2026-07-13)
         # + 4 fishing minigame-timing slice-1 mints (2026-07-14)
-        assert source["minted_goldens"] == 48
+        assert source["minted_goldens"] == 50
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -631,7 +637,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "full-corpus parity report" in out
-        assert "510 goldens" in out
+        assert "512 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):
