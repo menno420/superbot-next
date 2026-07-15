@@ -16,6 +16,14 @@
     "ideas",
     "archive"
   ],
+  "branch_sweep": {
+    "branch_patterns": [
+      "claude/*",
+      "codex/*",
+      "bot/*"
+    ],
+    "cron": "17 3 * * *"
+  },
   "cadence": {
     "compaction_sessions": 20,
     "critical_slot_grace_sessions": 3,
@@ -44,7 +52,7 @@
   ],
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
-  "kit_version": "1.16.0",
+  "kit_version": "1.17.0",
   "namespace": {
     "reserved": {
       "AIGateway": "kernel/ai/gateway.py",
