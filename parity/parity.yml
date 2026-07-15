@@ -226,6 +226,20 @@ source:
   # mining guard-only-capture row (mining_structures) — the write-parity lane is
   # COMPLETE; mining_build_forge_insufficient pins the short-on-materials refusal
   # (a pure read, no mining_structures db_delta).
+  # WP-7 mining WRITE-PARITY minted FOUR more (2026-07-13) via the same
+  # capture_case procedure — the residual non-energy pending legs (respec +
+  # argful !craft): goldens/mining/mining_{craft_write,craft_no_recipe,
+  # respec_write,respec_insufficient}.json. The argful !craft <item> and the
+  # skills-panel ♻ Respec button were live D-0043 pending terminals (no write
+  # leg); WP-7 ports mining_workflow.craft onto mining.craft -> record_craft
+  # (flipping build_route's argful branch) and skill_service.respec onto
+  # mining.respec -> record_respec (flipping the ♻ Respec button live).
+  # mining_craft_write DRIVES the mining_inventory consume+product and
+  # mining_respec_write the player_skills wipe + coin debit — both tables were
+  # ALREADY covered (mine/sell + WP-5), so WP-7 retires NO exemption; the
+  # craft_no_recipe / respec_insufficient captures pin the error faces (denied
+  # audit_log rows, no product/skills db_delta). title-equip stays honest-pending
+  # (select-driven, no command form — scope PART C).
   # +1 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
   # same D-0073 capture_case + kernel-spine-strip procedure):
   # goldens/mining/mining_fastmine_out_of_energy_refusal.json — !fastmine
@@ -265,10 +279,10 @@ source:
   # deliberate enforcement change re-minted in-PR, not a regression;
   # counts unchanged. The 4 slice-1 timing goldens replay clean under
   # the flip (their clicks were already in-window/premature by design).
-  minted_goldens: 50
+  minted_goldens: 54
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 512). The first retirement (2026-07-12
+  # imported + minted − retired = 516). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

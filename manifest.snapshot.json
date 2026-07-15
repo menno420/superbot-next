@@ -11395,8 +11395,8 @@
       "handler:mining.sellall_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.skill_respec_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.skill_respec_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.skill_route": {
         "module": "sb.domain.mining.service"
@@ -14659,6 +14659,9 @@
       "workflow:mining.cook": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.craft": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.delete_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -14722,6 +14725,9 @@
       "workflow:mining.record_cook": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_craft": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_delete_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -14753,6 +14759,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_reset_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_respec": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_save_loadout": {
@@ -14792,6 +14801,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.reset_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.respec": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.save_loadout": {
@@ -50121,7 +50133,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.skill_respec_pending"
+                "$ref": "handler:mining.skill_respec_route"
               },
               "label": "♻ Respec",
               "modal": null,

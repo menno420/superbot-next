@@ -984,6 +984,139 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "mining_structures db_delta (the failed click writes no audit/ledger "
             "row, exactly as the oracle's pre-txn material check returns)"),
     ),
+    # ---------------------------------------------- mining WRITE-PARITY (WP-7)
+    # The residual non-energy pending legs the lane left honest-pending. WP-7
+    # ports two of them onto the audited one-leg one-txn seam and drives them
+    # here; title-equip is DROPPED (kept honest-pending — no command form,
+    # select-driven, and the target titles panel renders no earned-title Select).
+    # (a) craft: the argful !craft <item> / !build <item> was a live D-0043
+    # pending terminal (no leg). WP-7 ports the oracle
+    # services/mining_workflow.py::craft onto mining.craft -> record_craft and
+    # flips build_route's argful branch to run it. (b) respec: the skills-panel
+    # ♻ Respec button was a live D-0043 pending. WP-7 ports the oracle
+    # services/skill_service.py::respec onto mining.respec -> record_respec and
+    # flips the sk_respec button to a live route driven by the session-panel
+    # click (the WP-6 forge 🔥 Build component_index precedent). Same personas as
+    # WP-1..6: member = 900000000000000102, guild = 700000000000000001.
+    # mining_inventory keys user_id as TEXT (quoted); player_skills / game_xp /
+    # economy_balances key user_id as BIGINT (no quotes). Each fixture row is
+    # seeded BEFORE the before-snapshot, so only the terminal's own write lands in
+    # db_delta. Copy is byte-identical to the oracle (mining_workflow.craft /
+    # skill_service.respec). Neither table is newly covered — mining_inventory
+    # (mine/sell), player_skills (WP-5) and economy_balances (WP-2..6) are already
+    # golden-covered — so WP-7 retires NO exemption; these captures freeze the
+    # ported handlers as their own contract.
+    GoldenCase(
+        id="mining.craft_write",
+        subsystem="mining",
+        # Own 5× wood; crafting a torch (recipe {wood: 2}, forge-free) consumes
+        # 2 wood (-> 3) and adds 1 torch. The recipe resolve + forge gate +
+        # material check are the leg's own reads; only a stocked craft runs the
+        # consume + product-add + crafting game-XP award in one advisory-fenced
+        # (lock_workshop_slot) txn.
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'wood', 5)",
+        ),
+        steps=(
+            Step(kind="command", content="!craft torch", persona="member"),
+        ),
+        notes=(
+            "argful !craft torch (5× wood fixture) drives build_route -> "
+            "mining.craft -> record_craft (the ported mining_workflow.craft): "
+            "advisory-fenced (lock_workshop_slot), it resolves the recipe "
+            "({wood: 2}), passes the forge gate (torch is forge-free) and the "
+            "material check, consumes 2× wood (5 -> 3), adds 1× torch to "
+            "mining_inventory, and awards crafting game-XP — all in one txn — "
+            "then replies `<@u> Crafted **torch**!` (mining_workflow.craft copy "
+            "verbatim; mining_inventory already covered, so no exemption is "
+            "retired — the capture freezes the ported craft handler)"),
+    ),
+    GoldenCase(
+        id="mining.craft_no_recipe",
+        subsystem="mining",
+        # No fixture: `dragon` is neither a recipe nor a GEAR_SHOP item, so the
+        # no-recipe refusal is raised inside record_craft BEFORE any DB read (the
+        # oracle _resolve_recipe ordering) — no mining_inventory write; the
+        # audited seam records the denial (a normalized audit_log row).
+        steps=(
+            Step(kind="command", content="!craft dragon", persona="member"),
+        ),
+        notes=(
+            "argful !craft dragon (not a recipe, not a shop item) drives "
+            "mining.craft -> record_craft and is refused inside the ported craft "
+            "before any inventory write: replies `<@u> No recipe for **dragon**. "
+            "Use `!buildlist` to see available recipes.` — the no-recipe error "
+            "face (mining_workflow.craft copy verbatim; the buildlist hint, since "
+            "dragon has no GEAR_SHOP buy price); the denial records a normalized "
+            "audit_log row, NO mining_inventory db_delta"),
+    ),
+    GoldenCase(
+        id="mining.respec_write",
+        subsystem="mining",
+        # Allocate 2 points into mining, seed 300 game XP (level_progress(300) =
+        # level 2 -> respec_cost = 200 + 50*2 = 300 🪙), fund 500 🪙 (-> 200 after
+        # the debit). The ♻ Respec click runs mining.respec -> record_respec:
+        # debit 300 🪙 via wager.debit_in_txn, then zero the mining branch row —
+        # both in one advisory-fenced (lock_skill_slot) txn.
+        fixture_sql=(
+            "INSERT INTO player_skills (user_id, guild_id, branch, points) "
+            "VALUES (900000000000000102, 700000000000000001, 'mining', 2)",
+            "INSERT INTO game_xp (user_id, guild_id, game, xp) VALUES "
+            "(900000000000000102, 700000000000000001, 'mining', 300)",
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 500)",
+        ),
+        steps=(
+            # !skills mints the 🌳 Skill Tree session panel; the ♻ Respec button
+            # is flattened component index 4 (mining 0, combat 1, fortune 2,
+            # crafting 3, respec 4, titles 5, hub 6 — goldens/mining/sweep_skills
+            # pins the order). The session-minted custom_id normalizes to
+            # <cid:N>; component_index reconstructs it (the WP-6 forge precedent).
+            Step(kind="command", content="!skills", persona="member"),
+            Step(kind="click", target_message=1, component_index=4,
+                 persona="member"),
+        ),
+        notes=(
+            "!skills then the ♻ Respec click (mining=2 allocation + 300 game-XP "
+            "level-2 fixture + funded 500 🪙) drives mining.respec -> "
+            "record_respec (the ported skill_service.respec): advisory-fenced "
+            "(lock_skill_slot), it debits the level-scaled 300 🪙 respec fee via "
+            "wager.debit_in_txn and zeroes the player_skills mining branch (2 -> "
+            "0) in one txn, then replies `<@u> Respec complete — all points "
+            "refunded for **300** 🪙. Balance: **200** 🪙.` (skill_service.respec "
+            "copy verbatim; player_skills already covered by WP-5, so no "
+            "exemption is retired — the capture freezes the ported respec "
+            "handler)"),
+    ),
+    GoldenCase(
+        id="mining.respec_insufficient",
+        subsystem="mining",
+        # Allocate 2 points but seed NO coins (and no game XP -> level 0 ->
+        # respec_cost = 200 🪙). The ♻ Respec click runs record_respec: the
+        # alloc read passes (non-empty), but wager.debit_in_txn raises
+        # InsufficientFundsError, so the whole txn rolls back — no coin ledger /
+        # player_skills write.
+        fixture_sql=(
+            "INSERT INTO player_skills (user_id, guild_id, branch, points) "
+            "VALUES (900000000000000102, 700000000000000001, 'mining', 2)",
+        ),
+        steps=(
+            Step(kind="command", content="!skills", persona="member"),
+            Step(kind="click", target_message=1, component_index=4,
+                 persona="member"),
+        ),
+        notes=(
+            "!skills then the ♻ Respec click (mining=2 allocation, NO coins, "
+            "level 0 -> 200 🪙 fee) drives mining.respec -> record_respec and is "
+            "refused inside the leg when wager.debit_in_txn raises "
+            "InsufficientFundsError: replies `<@u> Respec costs **200** 🪙 — you "
+            "only have **0** 🪙.` — the insufficient-funds error face "
+            "(skill_service.respec copy verbatim); the txn rolls back so there is "
+            "NO player_skills / economy_balances db_delta (only the normalized "
+            "denial audit_log row)"),
+    ),
     # ------------------------------------------- mining ENERGY (slice 2)
     # Argful !use / !cook writes over the energy lane (docs/scoping/
     # energy-system-scope.md slice 2; oracle copy: disbot/services/

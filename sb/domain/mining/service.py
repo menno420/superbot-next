@@ -477,17 +477,25 @@ def _register() -> None:
         (mining_cog.py ``build(self, ctx, *, structure: str = None)``): with NO
         structure it invokes `!buildlist` (the Available Structures embed —
         goldens/mining/sweep_build pins the identical bytes); an argful
-        `!build <item>` runs the shared atomic craft write (materials → product)
-        which rides the deferred structures/craft port — no golden drives it —
-        so it stays an honest D-0043 pending terminal (the argful skill-spend
-        precedent)."""
+        `!build <item>` / `!craft <item>` runs the audited ``mining.craft`` op
+        (WP-7 PORT: record_craft — the ported ``mining_workflow.craft``: recipe
+        materials consume + `+1` product into mining_inventory + crafting game-XP
+        in ONE advisory-fenced txn) and prefixes the invoker mention on BOTH the
+        success and the business-refusal face — the shipped
+        ``ctx.send(f"{mention} {result.message}")`` lane. Constants/copy are
+        oracle-verbatim (mining_workflow.craft). goldens/mining/mining_craft_write
+        drives the success craft, mining_craft_no_recipe pins the no-recipe
+        refusal (a pure read)."""
         if _no_args(req):
             return await _buildlist_card(req)
-        return Reply(BLOCKED,
-                     "🏗️ `!build <item>` / `!craft` crafting rides the mining "
-                     "structures/craft build lane — the deep mining port is "
-                     "named successor work (D-0043); the core loop "
-                     "(mine/chop/explore/sell/buy) is live.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.craft", {"argv": argv, "values": values})
+        if blocked is not None:
+            return Reply(blocked.outcome, f"<@{uid}> {blocked.user_message}")
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
 
     @handler("mining.buildlist_route")
     async def buildlist_route(req) -> Reply:
@@ -1027,6 +1035,29 @@ def _register() -> None:
 
         return await _build_route(req, structures.HOME)
 
+    @handler("mining.skill_respec_route")
+    async def skill_respec_route(req) -> Reply:
+        """The 🌳 Skill Tree panel's ♻ Respec button — clear every skill
+        allocation for a level-scaled coin fee (services/skill_service.py
+        ``respec``). Was a live D-0043 pending terminal
+        (``mining.skill_respec_pending``); WP-7 flips it to the audited
+        ``mining.respec`` op (record_respec: coin debit + player_skills wipe in
+        ONE advisory-fenced txn — the ported skill_service.respec). The
+        no-allocation / insufficient-funds refusals raise inside the leg and
+        surface as the mention-prefixed business-refusal (the whole txn rolls
+        back, so a refused click writes no coin ledger / audit row — the
+        skill_route precedent); a funded respec runs the op. Reply prefixes the
+        invoker mention on both faces (the mining panel-write-button convention —
+        forge_build_route). Copy is oracle-verbatim (skill_service.respec).
+        goldens/mining/mining_respec_write drives the funded respec (via the
+        ♻ Respec click on the session skills panel), mining_respec_insufficient
+        pins the insufficient-funds refusal (a pure read)."""
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        blocked, after = await _op_after(req, "mining.respec")
+        if blocked is not None:
+            return Reply(blocked.outcome, f"<@{uid}> {blocked.user_message}")
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
     @handler("mining.cook_route")
     async def cook_route(req) -> Reply:
         """`!cook [amount] [fish]` — cook caught fish into food at a built
@@ -1168,14 +1199,16 @@ def _register() -> None:
 PENDING: dict[str, str] = {
     # build / buildlist / buildable are LIVE (slice 6 port): build_route /
     # buildlist_route / buildable_view in _register() carry the Available
-    # Structures recipe embed + the fresh-player "not enough resources" guard
-    # (the argful `!build <item>` / craft write stays a D-0043 pending
-    # terminal). home / workshop are LIVE (slice 6 port): the mining.home +
+    # Structures recipe embed + the fresh-player "not enough resources" guard.
+    # The argful `!build <item>` / `!craft <item>` write is LIVE as of WP-7
+    # (build_route -> mining.craft -> record_craft, the ported
+    # mining_workflow.craft — recipe materials consume + mining_inventory
+    # product). home / workshop are LIVE (slice 6 port): the mining.home +
     # mining.workshop session PanelSpecs carry the not-built Home card + the
     # Workshop craft/repair panel bytes. The 🔥 Build / 🏠 Build structure writes
     # are LIVE (WP-6 PORT: forge_build_route / home_build_route -> mining.build ->
-    # record_build, the ported mining_workflow.build_structure); the craft-select
-    # write and the ↩ Workshop sub-hub stay deferred.
+    # record_build, the ported mining_workflow.build_structure); the recipe-browser
+    # craft-select write and the ↩ Workshop sub-hub stay deferred.
     # This EMPTIES the mining deep-system PENDING roster — all 26 original
     # deep-system commands are ported (the D-0043 ladder is complete).
     # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
@@ -1202,9 +1235,14 @@ PENDING: dict[str, str] = {
     # render bytes, and skill_route carries the `!skill` branch-picker guard AND
     # the argful `!skill <branch>` spend (WP-5 PORT: mining.skill -> record_skill,
     # the ported skill_service.allocate — goldens/mining/mining_skill_write drives
-    # the player_skills upsert). The skills-panel respec button (no command form —
-    # a panel-button coin sink) and the titles select-menu equip (select-driven)
-    # stay deferred (D-0043 pending terminals — no golden drives those writes).
+    # the player_skills upsert). The skills-panel ♻ Respec button is LIVE as of
+    # WP-7 (skill_respec_route -> mining.respec -> record_respec, the ported
+    # skill_service.respec — coin debit + player_skills wipe;
+    # goldens/mining/mining_respec_write drives the funded respec click). The
+    # titles select-menu equip stays deferred (select-driven — the target titles
+    # panel renders no earned-title Select; porting means building new dynamic
+    # state-derived Select UI, so per scope PART C it stays an honest D-0043
+    # pending, not forced — no golden drives that write).
 }
 
 
