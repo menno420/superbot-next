@@ -1,10 +1,9 @@
 """Mining K7 lanes (band 6) — the CORE loop (mine / chop / explore / sell
 / sellall / buy) as one-leg one-txn ops over the shipped math, plus the
 ported deep-system write lanes (equip/loadout, descend/ascend, vault,
-repair/quickcraft, the energy-lane cook/use consumables, and the grid dig
+repair/quickcraft, the energy-lane cook/use consumables, the grid dig
 ``mining.dig`` — the navigator's move+mine+wear+XP txn, curation rework
-rows 45/59). Still unported: the fastmine energy spend (energy-lane
-slice 3, owner-gated) rides its named successor slice."""
+rows 45/59 — and the slice-3 fastmine dig energy spend)."""
 
 from __future__ import annotations
 
@@ -105,7 +104,30 @@ def _rest_from(ctx: WorkflowContext) -> str:
 
 @workflow("mining.record_mine")
 async def _record_mine(conn, ctx: WorkflowContext) -> LegOutcome:
+    """One quick swing (`!fastmine`) — loot roll + grant + game XP, and
+    (energy-lane slice 3, Option A) the dig energy spend: settle →
+    ``can_dig`` gate → spend ``DIG_COST`` → ``set_energy``, the oracle
+    ``dig()`` energy bracket grafted onto the fastmine leg
+    (services/mining_workflow.py ``dig`` @ 87bbe1d — the shipped ``mine()``
+    predates the energy brake; Option A is the owner's chosen successor
+    shape). The route pre-checks the same gate as a PURE READ so the
+    refusal bytes stay oracle-plain (the slice-2 ValidatorError-envelope
+    trap); this in-txn re-check is the race fence — a raced dig refuses
+    (wrapped) rather than digging below zero. The energy upsert keeps the
+    slice-1 lockless plain posture (game pacing, never money)."""
+    from sb.domain.mining import energy
+
     uid, gid, now = _ids(ctx)
+    e_state = energy.EnergyState(*await store.get_energy(uid, gid, conn=conn))
+    if not energy.can_dig(e_state, now):
+        wait = energy.seconds_until(e_state, now, energy.DIG_COST)
+        raise ValidatorError(
+            "⚡ You're out of energy — rest a moment "
+            f"(~{wait}s until your next dig) or eat a **ration** / "
+            "**energy drink** (`!use ration`).")
+    spent = energy.spend(e_state, now)
+    await store.set_energy(uid, gid, spent.current, spent.updated_at,
+                           conn=conn)
     inventory = await store.get_mining_inventory(uid, gid, conn=conn)
     depth = await store.get_depth(uid, gid, conn=conn)
     found, amount = rewards.roll_mine_loot(

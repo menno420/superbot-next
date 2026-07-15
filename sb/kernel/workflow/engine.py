@@ -331,6 +331,7 @@ async def _run_effect_legs(spec: CompoundOpSpec, ctx: WorkflowContext,
     steps = list(result.steps)
     degraded = False
     copy_lines: list[str] = []
+    compensator_copy: list[str] = []
     for leg in spec.legs:
         if leg.kind is not LegKind.EFFECT:
             continue
@@ -345,7 +346,18 @@ async def _run_effect_legs(spec: CompoundOpSpec, ctx: WorkflowContext,
             steps.append(StepResult(0, leg.leg_id, False, str(exc)))
             if leg.compensator is not None:
                 try:
-                    await resolve(leg.compensator)(None, ctx)
+                    comp_out = await resolve(leg.compensator)(None, ctx)
+                    # A compensator that SPEAKS owns the op's copy: its line
+                    # REPLACES the accumulated success copy — a withdrawn
+                    # row's ack must never reach the invoker (band-5 live
+                    # class: grant_access PARTIAL echoed "<@w> has access …"
+                    # after compensate_lock dropped the deadline row). A
+                    # SILENT compensator leaves the copy untouched — the
+                    # warn ladder's D-0058 partial ack (count kept,
+                    # escalation withdrawn) still speaks its truthful line.
+                    comp_copy = getattr(comp_out, "user_message", None)
+                    if comp_copy:
+                        compensator_copy.append(str(comp_copy))
                 except Exception as comp_exc:  # noqa: BLE001
                     _record_finding(spec, leg.leg_id, f"compensator failed: {comp_exc}")
             else:
@@ -356,6 +368,8 @@ async def _run_effect_legs(spec: CompoundOpSpec, ctx: WorkflowContext,
     user_message = result.user_message
     if copy_lines:
         user_message = "\n".join(filter(None, [user_message, *copy_lines]))
+    if compensator_copy:
+        user_message = "\n".join(compensator_copy)
     return replace(result, steps=tuple(steps), outcome=outcome,
                    user_message=user_message)
 
