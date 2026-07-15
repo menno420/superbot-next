@@ -205,6 +205,21 @@ source:
   # mining_gear_wear (remove face) / mining_inventory / mining_equipment
   # row-level db_delta (retiring the mining_world + mining_gear_wear
   # depth.exemptions.mining guard-only-capture rows).
+  # +1 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
+  # same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/mining/mining_fastmine_out_of_energy_refusal.json — !fastmine
+  # on an empty bar refuses PLAIN with the oracle dig() hint (route-level
+  # pure read; the ~5s wait rides a fixture stamped 5s before the case's
+  # logical clock). The dig SPEND itself rides the RE-MINTED
+  # sweep_fastmine (fresh player settles full → digs → the
+  # mining_player_state energy 60→59 write joins its db_delta — a
+  # deliberate behaviour change re-minted in-PR, the creature
+  # battle-accept precedent; re-mints never move this count). The four
+  # WP-2/WP-3 mining_player_state row goldens
+  # (descend/ascend/quick_craft/vault_upgrade) were re-minted in the same
+  # slice: minted before migration 0052 widened the table, their pinned
+  # rows gain the energy/energy_updated_at column defaults (0, 0) on the
+  # merged schema — the post-WP-3 contract reconcile, replies unchanged.
   # +4 minted the fishing MINIGAME-TIMING slice-1 goldens (2026-07-14,
   # D-0043 timing rung — the first goldens that drive the Step.advance_s
   # clock grammar; oracle disbot/views/fishing/cast_view.py @ bbc524e):
@@ -229,10 +244,10 @@ source:
   # deliberate enforcement change re-minted in-PR, not a regression;
   # counts unchanged. The 4 slice-1 timing goldens replay clean under
   # the flip (their clicks were already in-window/premature by design).
-  minted_goldens: 45
+  minted_goldens: 46
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 507). The first retirement (2026-07-12
+  # imported + minted − retired = 508). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

@@ -31,7 +31,7 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (507/507) — curated
+    """Every golden on disk yields a replayable case (508/508) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
@@ -42,6 +42,7 @@ def test_full_corpus_reconstructs():
     minted cases + the 1 minted paid-tournament
     conservation case + the 2 D-0081 creature picker/bot-guard cases
     + the 4 energy-slice-2 mining cook/use minted cases
+    + the 1 energy-slice-3 fastmine out-of-energy refusal case
     + the 3 fishing cast-leg reel write cases (2026-07-13 — curated typed
     cases: `!fish` + a Reel click by component_index)
     + the 1 cleanup anti-evasion toggle write case (2026-07-13 —
@@ -77,6 +78,7 @@ def test_full_corpus_reconstructs():
     # writes, 2026-07-13)
     # + 4 (energy-slice-2 mining cook/use: ration restore / full refusal /
     # cook campfire / torch flavour, 2026-07-13)
+    # + 1 (energy-slice-3 fastmine out-of-energy refusal, 2026-07-13)
     # + 1 (cleanup anti-evasion toggle write — the completeness-remainders
     # residue port, 2026-07-13)
     # + 1 (fishing howtofish rules card, 2026-07-13)
@@ -85,7 +87,7 @@ def test_full_corpus_reconstructs():
     # grace / trophy fight land / trophy fight escape, 2026-07-14)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 507
+    assert golden_count == 508
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 
