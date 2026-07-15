@@ -313,11 +313,39 @@
     },
     {
      "args": {
-      "webhook_id": "<@bot>"
+      "channel_id": "<#general>"
      },
-     "method": "followup_send",
+     "method": "send_message",
      "payload": {
-      "content": "🏆 Trophy landed!\nYou reeled in 🐠 a **Lancetfish**!  (size #6 of 11 deepwater)\n⚖️ It weighs **5.2 kg**. 🏅 **New personal best!**"
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🎣"
+          },
+          "label": "Cast again",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "You reeled in 🐠 a **Lancetfish**!  (size #6 of 11 deepwater)\n⚖️ It weighs **5.2 kg**. 🏅 **New personal best!**",
+        "flags": 0,
+        "title": "🏆 Trophy landed!",
+        "type": "rich"
+       }
+      ],
+      "tts": false
      }
     }
    ],

@@ -279,10 +279,28 @@ source:
   # deliberate enforcement change re-minted in-PR, not a regression;
   # counts unchanged. The 4 slice-1 timing goldens replay clean under
   # the flip (their clicks were already in-window/premature by design).
-  minted_goldens: 54
+  # +1 minted the fishing CAST-AGAIN continuation golden (2026-07-14,
+  # review-doc gap 3 — the oracle _FishingDoneView @ bbc524e, doc-pinned
+  # cast_view.py:545/:562): goldens/fishing/
+  # fishing_cast_again_continuation.json — `!fish` → in-window Reel
+  # (the cast_reel_write 5.0 s timing) commits the catch and opens the
+  # fishing.cast_result card (SUCCESS-green result embed over the
+  # single 🎣 Cast again button; CHANNEL_ANCHOR so the click-opened
+  # card is a fresh, click-targetable channel message — the blackjack
+  # tournament presenter seam) → the Cast again click re-runs the FULL
+  # cast path (second energy spend 58→56, a fresh waiting panel).
+  # Seeded storm in CAPTURE_WORLD_WEATHER before the mint. The same
+  # slice RE-MINTED the 6 cast terminal goldens (the 3 reel writes +
+  # spook + the trophy-fight pair): their catch/click-failure terminals
+  # now answer the result card instead of a bare text reply — the
+  # pinned species/weight/delta trajectories are unchanged (same seeds,
+  # same draws; only the terminal reply's wire shape moved).
+  # fishing_cast_premature_grace replays clean untouched (a forgiven
+  # slip is not a terminal). Counts move by exactly the +1 new case.
+  minted_goldens: 55
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 516). The first retirement (2026-07-12
+  # imported + minted − retired = 517). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

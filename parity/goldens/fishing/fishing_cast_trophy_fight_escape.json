@@ -212,11 +212,38 @@
     },
     {
      "args": {
-      "webhook_id": "<@bot>"
+      "channel_id": "<#general>"
      },
-     "method": "followup_send",
+     "method": "send_message",
      "payload": {
-      "content": "💥 It gave one last thrash, **snapped the line**, and bolted!\n💭 *...it looked like a real **Lancetfish**, too.*"
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🎣"
+          },
+          "label": "Cast again",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 15158332,
+        "description": "💥 It gave one last thrash, **snapped the line**, and bolted!\n💭 *...it looked like a real **Lancetfish**, too.*",
+        "flags": 0,
+        "type": "rich"
+       }
+      ],
+      "tts": false
      }
     }
    ],
