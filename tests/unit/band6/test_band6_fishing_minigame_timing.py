@@ -106,6 +106,21 @@ def _no_commit(monkeypatch):
     monkeypatch.setattr(engine, "run", fake_run)
 
 
+def _capture_result_panel(monkeypatch):
+    """Capture the terminals' open_panel (the cast-result card) — the
+    wiring-file _capture_open_panel shape, kept local so the recorded
+    (ref, args) pairs read as the result-card contract."""
+    from sb.kernel.panels import engine as panels_engine
+
+    opened: list = []
+
+    async def _open_panel(ref, req):
+        opened.append((ref.name, dict(req.args)))
+
+    monkeypatch.setattr(panels_engine, "open_panel", _open_panel)
+    return opened
+
+
 def _commit_spy(monkeypatch):
     from sb.kernel.workflow import engine
     from sb.spec.outcomes import SUCCESS
@@ -194,14 +209,18 @@ def test_cast_open_rolls_timing_after_the_catch_on_the_cast_rng(
 def test_premature_reel_on_a_bare_rod_spooks_with_no_draw(monkeypatch):
     """A pre-bite click with grace 0 answers the oracle 🌀 spook terminal
     (verbatim; NO trophy clue — the oracle never wraps the premature
-    spook in _got_away), pops the paid cast, writes nothing, and
-    consumes NO rng draw (roll_premature_grace short-circuits ≤ 0)."""
+    spook in _got_away) on the ERROR-tone result card (the Cast-again
+    continuation — a click failure attaches _FishingDoneView), pops the
+    paid cast, writes nothing, and consumes NO rng draw
+    (roll_premature_grace short-circuits ≤ 0)."""
     from sb.domain.fishing import service
-    from sb.spec.outcomes import BLOCKED
+    from sb.domain.fishing.panels import CAST_RESULT_PANEL_ID
+    from sb.spec.outcomes import SUCCESS
 
     route = _route()
     _freeze_clock(monkeypatch, NOW + 0.5)      # bite at NOW+4.0 — early
     _no_commit(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = _entry(
         species="sardine", trophy=True, taps_required=2)  # even a trophy
     rng = ScriptRng()
@@ -210,10 +229,12 @@ def test_premature_reel_on_a_bare_rod_spooks_with_no_draw(monkeypatch):
         reply = run(route(_reel_req()))
     finally:
         _disarm_rng()
-    assert reply.outcome is BLOCKED
-    assert reply.user_message == (
-        "🌀 You reeled too early — the fish darted off. "
-        "*Hold your nerve!*")
+    assert reply.outcome is SUCCESS and reply.user_message is None
+    assert opened == [(CAST_RESULT_PANEL_ID, {
+        "result_title": "",
+        "result_desc": ("🌀 You reeled too early — the fish darted off. "
+                        "*Hold your nerve!*"),
+        "result_style": "red"})]
     assert rng.calls == []                      # grace 0 ⇒ no draw
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
@@ -224,11 +245,12 @@ def test_premature_grace_forgives_once_then_spooks(monkeypatch):
     😅 edit, rod-name-interpolated; the cast stays parked, grace spent),
     and the SECOND slip spooks even when the roll would forgive again."""
     from sb.domain.fishing import service
-    from sb.spec.outcomes import BLOCKED, SUCCESS
+    from sb.spec.outcomes import SUCCESS
 
     route = _route()
     _freeze_clock(monkeypatch, NOW + 0.5)
     _no_commit(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     entry = _entry(grace=0.6, rod_name="Diamond Rod")
     service._PENDING_CASTS[(P1, GID)] = entry
     rng = ScriptRng(randoms=[0.59, 0.0])       # both under 0.6
@@ -240,16 +262,18 @@ def test_premature_grace_forgives_once_then_spooks(monkeypatch):
         _disarm_rng()
     assert first.outcome is SUCCESS
     # no live panel session in this harness → the degrade text reply
-    # carries the oracle grace copy verbatim
+    # carries the oracle grace copy verbatim; a forgiven slip is NOT a
+    # terminal — no result card opens for it.
     assert first.user_message == (
         "😅 *You twitch the rod too soon — but the Diamond Rod steadies "
         "it. The line's still in the water… hold your nerve.*")
     assert entry["grace_used"] is True
     assert rng.calls == ["random"]             # the second slip never rolls
-    assert second.outcome is BLOCKED
-    assert second.user_message == (
+    assert second.outcome is SUCCESS and second.user_message is None
+    assert [args["result_desc"] for _, args in opened] == [
         "🌀 You reeled too early — the fish darted off. "
-        "*Hold your nerve!*")
+        "*Hold your nerve!*"]
+    assert opened[0][1]["result_style"] == "red"
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -259,18 +283,27 @@ def test_premature_grace_forgives_once_then_spooks(monkeypatch):
 
 def test_in_window_ordinary_fish_commits_unchanged(monkeypatch):
     """bite_at ≤ now ≤ bite_at + window, non-trophy → the existing
-    audited commit path with the parked params, entry popped."""
+    audited commit path with the parked params, entry popped; the
+    committed catch opens the SUCCESS-tone result card (the Cast-again
+    continuation) instead of a bare text reply."""
     from sb.domain.fishing import service
+    from sb.domain.fishing.panels import CAST_RESULT_PANEL_ID
     from sb.spec.outcomes import SUCCESS
 
     route = _route()
     _freeze_clock(monkeypatch, NOW + 5.0)      # bite 4.0, window 2.5
     seen = _commit_spy(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = _entry()
     reply = run(route(_reel_req()))
-    assert reply.outcome is SUCCESS and reply.user_message == "landed"
+    assert reply.outcome is SUCCESS and reply.user_message is None
     assert seen == [{"species": "minnow", "weight": 0.2, "venue": "shore",
                      "double_catch_chance": 0.10, "level_before": 1}]
+    # the leg's after["message"] splits title-line / description onto
+    # the result card, success tone.
+    assert opened == [(CAST_RESULT_PANEL_ID, {
+        "result_title": "landed", "result_desc": "",
+        "result_style": "green"})]
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -278,17 +311,24 @@ def test_in_window_ordinary_fish_commits_unchanged(monkeypatch):
 def test_late_reel_past_the_window_is_too_slow(monkeypatch):
     """D-0043 slice 2 — the enforcement flip: now past bite_at + window
     answers the oracle too-slow got-away terminal (an ordinary fish
-    carries no clue), pops the paid cast, writes nothing."""
+    carries no clue) on the ERROR-tone result card (a CLICK failure —
+    the Cast-again continuation attaches), pops the paid cast, writes
+    nothing."""
     from sb.domain.fishing import service
-    from sb.spec.outcomes import BLOCKED
+    from sb.domain.fishing.panels import CAST_RESULT_PANEL_ID
+    from sb.spec.outcomes import SUCCESS
 
     route = _route()
     _freeze_clock(monkeypatch, NOW + 30.0)     # the parity 30 s click
     _no_commit(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = _entry()
     reply = run(route(_reel_req()))
-    assert reply.outcome is BLOCKED
-    assert reply.user_message == "🌊 *...too slow. The fish got away.*"
+    assert reply.outcome is SUCCESS and reply.user_message is None
+    assert opened == [(CAST_RESULT_PANEL_ID, {
+        "result_title": "",
+        "result_desc": "🌊 *...too slow. The fish got away.*",
+        "result_style": "red"})]
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -297,20 +337,21 @@ def test_late_reel_on_a_trophy_appends_the_clue(monkeypatch):
     """A too-slow trophy rides the oracle _got_away wrapper — the 💭
     tease appends (unlike the premature spook, which never gets one)."""
     from sb.domain.fishing import service
-    from sb.spec.outcomes import BLOCKED
+    from sb.spec.outcomes import SUCCESS
 
     route = _route()
     # bite 4.0 + window 2.5 = 6.5; 6.51 is JUST past it (the boundary
     # 6.5 itself is in-time — reel_is_in_time is inclusive).
     _freeze_clock(monkeypatch, NOW + 6.51)
     _no_commit(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = _entry(
         species="sardine", trophy=True, taps_required=2)
     reply = run(route(_reel_req()))
-    assert reply.outcome is BLOCKED
-    assert reply.user_message == (
+    assert reply.outcome is SUCCESS and reply.user_message is None
+    assert [args["result_desc"] for _, args in opened] == [
         "🌊 *...too slow. The fish got away.*\n"
-        "💭 *...it looked like a real **Sardine**, too.*")
+        "💭 *...it looked like a real **Sardine**, too.*"]
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -324,6 +365,7 @@ def test_window_boundary_click_is_still_in_time(monkeypatch):
     route = _route()
     _freeze_clock(monkeypatch, NOW + 6.5)      # bite 4.0 + window 2.5
     seen = _commit_spy(monkeypatch)
+    _capture_result_panel(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = _entry()
     reply = run(route(_reel_req()))
     assert reply.outcome is SUCCESS
@@ -346,6 +388,7 @@ def test_trophy_hook_starts_the_fight_and_taps_land_it(monkeypatch):
     route = _route()
     _freeze_clock(monkeypatch, NOW + 5.0)
     seen = _commit_spy(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     # sardine (#3) IS a trophy at level 1 (shore cap 3, threshold 2)
     entry = _entry(species="sardine", weight=1.0, trophy=True,
                    taps_required=2)
@@ -376,9 +419,12 @@ def test_trophy_hook_starts_the_fight_and_taps_land_it(monkeypatch):
     finally:
         _disarm_rng()
     assert rng.calls == ["random", "random"]   # one escape roll per tap
-    assert tap2.outcome is SUCCESS and tap2.user_message == "landed"
+    assert tap2.outcome is SUCCESS and tap2.user_message is None
     assert seen == [{"species": "sardine", "weight": 1.0, "venue": "shore",
                      "double_catch_chance": 0.10, "level_before": 1}]
+    # the landing tap opens the success-tone result card
+    assert [args["result_style"] for _, args in opened] == ["green"]
+    assert opened[0][1]["result_title"] == "landed"
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -411,15 +457,16 @@ def test_click_between_fight_rounds_is_the_mash_ignore(monkeypatch):
 
 def test_late_fight_tap_past_the_round_window_is_too_slow(monkeypatch):
     """A tap past the round's window answers the oracle too-slow
-    terminal + the trophy clue (a fight IS a trophy) — no draw, no
-    write, the paid cast is gone."""
+    terminal + the trophy clue (a fight IS a trophy) on the ERROR-tone
+    result card — no draw, no write, the paid cast is gone."""
     from sb.domain.fishing import service
-    from sb.spec.outcomes import BLOCKED
+    from sb.spec.outcomes import SUCCESS
 
     route = _route()
     # round opened at 5.8, window 2.5 ⇒ closes 8.3; click at 8.4.
     _freeze_clock(monkeypatch, NOW + 8.4)
     _no_commit(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     entry = _entry(species="sardine", trophy=True, taps_required=2,
                    fight=True, fight_round_open_f=NOW + 5.8)
     service._PENDING_CASTS[(P1, GID)] = entry
@@ -429,10 +476,11 @@ def test_late_fight_tap_past_the_round_window_is_too_slow(monkeypatch):
         reply = run(route(_reel_req()))
     finally:
         _disarm_rng()
-    assert reply.outcome is BLOCKED
-    assert reply.user_message == (
+    assert reply.outcome is SUCCESS and reply.user_message is None
+    assert [args["result_desc"] for _, args in opened] == [
         "🌊 *...too slow. The fish got away.*\n"
-        "💭 *...it looked like a real **Sardine**, too.*")
+        "💭 *...it looked like a real **Sardine**, too.*"]
+    assert opened[0][1]["result_style"] == "red"
     assert rng.calls == []                     # a late tap never rolls
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
@@ -445,11 +493,12 @@ def test_trophy_tap_escape_snaps_the_line_with_the_clue(monkeypatch):
     roll: sardine rank 3 ⇒ chance = 0.22·(0.6+3/21)·(1−0.5) ≈ 0.0817."""
     from sb.domain.fishing import minigame, service
     from sb.domain.fishing import catalog
-    from sb.spec.outcomes import BLOCKED
+    from sb.spec.outcomes import SUCCESS
 
     route = _route()
     _freeze_clock(monkeypatch, NOW + 5.0)
     _no_commit(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     entry = _entry(species="sardine", trophy=True, taps_required=3,
                    fight=True, base_escape=0.22, escape_resist=0.5)
     service._PENDING_CASTS[(P1, GID)] = entry
@@ -461,10 +510,11 @@ def test_trophy_tap_escape_snaps_the_line_with_the_clue(monkeypatch):
         reply = run(route(_reel_req()))
     finally:
         _disarm_rng()
-    assert reply.outcome is BLOCKED
-    assert reply.user_message == (
+    assert reply.outcome is SUCCESS and reply.user_message is None
+    assert [args["result_desc"] for _, args in opened] == [
         "💥 It gave one last thrash, **snapped the line**, and bolted!\n"
-        "💭 *...it looked like a real **Sardine**, too.*")
+        "💭 *...it looked like a real **Sardine**, too.*"]
+    assert opened[0][1]["result_style"] == "red"
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -472,13 +522,16 @@ def test_trophy_tap_escape_snaps_the_line_with_the_clue(monkeypatch):
 def test_fight_outlives_nothing_past_the_45s_sweep(monkeypatch):
     """The 45 s pending sweep stays the OUTER bound around the whole
     ladder — a fight click past the oracle view timeout answers the
-    got-away terminal, never a tap."""
+    got-away terminal, never a tap. A TIMED-OUT line is the ignored
+    window: the oracle attached NO done view there, so no result card
+    opens (the Cast-again continuation is click-failure-only)."""
     from sb.domain.fishing import service
     from sb.spec.outcomes import BLOCKED
 
     route = _route()
     _freeze_clock(monkeypatch, NOW + 46.0)
     _no_commit(monkeypatch)
+    opened = _capture_result_panel(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = _entry(
         species="sardine", trophy=True, taps_required=2, fight=True)
     reply = run(route(_reel_req()))
@@ -486,6 +539,7 @@ def test_fight_outlives_nothing_past_the_45s_sweep(monkeypatch):
     assert reply.user_message == (
         "🌊 *...the line goes slack. The fish got away.*\n"
         "💭 *...it looked like a real **Sardine**, too.*")
+    assert opened == []                        # no continuation card
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -499,6 +553,7 @@ def test_pre_slice_entry_shape_resolves_as_in_time(monkeypatch):
     route = _route()
     _freeze_clock(monkeypatch, NOW)
     seen = _commit_spy(monkeypatch)
+    _capture_result_panel(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = {
         "rolled_at": NOW, "token": 1, "species": "minnow", "weight": 0.2,
         "venue": "shore", "double_catch_chance": 0.10, "level_before": 1}
@@ -665,17 +720,18 @@ def test_terminal_paths_cancel_the_armed_timers(monkeypatch):
     """A premature spook disarms the cast's live cues (and the test
     reset does too) — no orphaned timer outlives its entry."""
     from sb.domain.fishing import service
-    from sb.spec.outcomes import BLOCKED
+    from sb.spec.outcomes import SUCCESS
 
     route = _route()
     _freeze_clock(monkeypatch, NOW + 0.5)
     _no_commit(monkeypatch)
+    _capture_result_panel(monkeypatch)
     entry = _entry()
     spook_handle = _FakeHandle()
     entry["timers"] = [spook_handle]
     service._PENDING_CASTS[(P1, GID)] = entry
     reply = run(route(_reel_req()))
-    assert reply.outcome is BLOCKED
+    assert reply.outcome is SUCCESS
     assert spook_handle.cancelled
 
     reset_handle = _FakeHandle()

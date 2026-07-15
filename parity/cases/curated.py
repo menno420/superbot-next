@@ -1533,6 +1533,41 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "db_delta pins ONLY the energy spend — no catch-log row, no "
             "fish, no xp movement on the fixture row"),
     ),
+    # --------------------------------------- fishing Cast-again continuation
+    # The first golden that clicks THROUGH a cast terminal: the committed
+    # catch opens the fishing.cast_result card (the oracle _FishingDoneView
+    # @bbc524e — green 🎣 Cast again, never pre-disabled) and clicking it
+    # re-runs the FULL cast path with fresh randomness — a second energy
+    # spend, a second catch roll on the continuing seed-42 stream, and a
+    # brand-new waiting-for-a-bite panel.
+    GoldenCase(
+        id="fishing.cast_again_continuation",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # in-window reel (the cast_reel_write timing: seed-42 storm
+            # bite ~4.28 s, window 2.5 — 5.0 s sits inside
+            # [4.28 … 6.78]) — the catch commits and the result card
+            # (message 2) opens with the Cast again button.
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=5.0),
+            # …the continuation: Cast again on the result card re-runs
+            # cast_open — the second cast spends 2 more energy (58→56)
+            # and opens a fresh cast panel (message 3).
+            Step(kind="click", target_message=2, component_index=0,
+                 persona="member", advance_s=2.0),
+        ),
+        notes=(
+            "the Cast-again continuation (review-doc gap 3): the committed "
+            "catch answers the fishing.cast_result card — the oracle "
+            "result copy split title/description onto a SUCCESS-green "
+            "embed over the single 🎣 Cast again button "
+            "(_FishingDoneView @bbc524e) — and clicking it re-runs the "
+            "full cast path: db_delta pins the first catch's commit "
+            "(catch-log row + fish grant + game XP) AND the second "
+            "cast's energy spend (60→58→56), with a brand-new waiting "
+            "panel as the final message"),
+    ),
     GoldenCase(
         id="fishing.howtofish_rules_card",
         subsystem="fishing",
