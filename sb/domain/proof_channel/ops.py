@@ -114,10 +114,16 @@ async def _compensate_lock(conn, ctx: WorkflowContext) -> LegOutcome:
     a NEWER row for the same guild+channel before this compensator fires —
     a key-only delete would destroy that legitimate grant. Only the exact
     row this grant wrote (winner_id + unlock_at match) is withdrawn."""
+    # The compensator SPEAKS (engine seam: its line REPLACES the record
+    # leg's success ack) — a rolled-back grant must never render
+    # "<@w> has access …" (band-5 partial-honesty class).
+    refused = ("Could not grant proof-channel access — Discord refused "
+               "the channel-permission change.")
     unlock_iso = ctx.params.get("_unlock_at")
     if not unlock_iso:
         return LegOutcome(step=StepResult(0, "compensate_lock", True),
-                          before={}, after={"compensated": "nothing"})
+                          before={}, after={"compensated": "nothing"},
+                          user_message=refused)
     removed = await store.delete_lock_if_match(
         conn, guild_id=int(ctx.guild_id or 0),
         channel_id=int(ctx.params.get("channel_id", 0) or 0),
@@ -125,7 +131,10 @@ async def _compensate_lock(conn, ctx: WorkflowContext) -> LegOutcome:
         unlock_at=datetime.fromisoformat(str(unlock_iso)))
     return LegOutcome(step=StepResult(0, "compensate_lock", True),
                       before={}, after={"compensated": "lock",
-                                        "removed": removed})
+                                        "removed": removed},
+                      user_message=(refused + " The pending auto-unlock "
+                                    "was rolled back." if removed
+                                    else refused))
 
 
 @workflow("proof_channel.record_unlock")
@@ -176,10 +185,16 @@ async def _compensate_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
     is empty; otherwise the newer grant wins and its own deadline governs.
     (GRANT_PRIZE's _compensate_lock is the delete-if-match twin of this
     same class.)"""
+    # The compensator SPEAKS (engine seam: its line REPLACES the record
+    # leg's "is now read-only for everyone." ack) — a Discord-refused
+    # unlock must never render as ended (band-5 partial-honesty class).
+    refused = ("Could not end the prize session — Discord refused the "
+               "channel-permission change.")
     deleted = ctx.params.get("_deleted_lock")
     if not deleted:
         return LegOutcome(step=StepResult(0, "compensate_unlock", True),
-                          before={}, after={"compensated": "nothing"})
+                          before={}, after={"compensated": "nothing"},
+                          user_message=refused)
     gid = int(ctx.guild_id or 0)
     cid = int(ctx.params.get("channel_id", 0) or 0)
     restored = await store.insert_lock_if_absent(
@@ -201,7 +216,10 @@ async def _compensate_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
     return LegOutcome(step=StepResult(0, "compensate_unlock", True),
                       before={}, after={"compensated": "unlock",
                                         "restored": restored,
-                                        "restored_channel_id": cid})
+                                        "restored_channel_id": cid},
+                      user_message=(refused + " The timed lock was "
+                                    "restored; the sweep will retry."
+                                    if restored else refused))
 
 
 @workflow("proof_channel.erase_subject_locks")
