@@ -1,0 +1,321 @@
+{
+ "case_id": "mining.respec_insufficient",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1941948953,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "!skills then the ♻ Respec click (mining=2 allocation, NO coins, level 0 -> 200 🪙 fee) drives mining.respec -> record_respec and is refused inside the leg when wager.debit_in_txn raises InsufficientFundsError: replies `<@u> Respec costs **200** 🪙 — you only have **0** 🪙.` — the insufficient-funds error face (skill_service.respec copy verbatim); the txn rolls back so there is NO player_skills / economy_balances db_delta (only the normalized denial audit_log row)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "⛏️ Mining",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "label": "⚔️ Combat",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "label": "🍀 Fortune",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "label": "🛠️ Crafting",
+          "style": 1,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "label": "♻ Respec",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "label": "🏆 Titles",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "label": "↩ Mining Hub",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 6323595,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Points",
+          "value": "**0** available · 2 spent\nGame level **0** (points cap at **20** — you can't max every branch, so specialize)."
+         },
+         {
+          "inline": false,
+          "name": "⛏️ Mining — raw digging power  (2/10)",
+          "value": "+2 Mining power"
+         },
+         {
+          "inline": false,
+          "name": "⚔️ Combat — duel damage & health  (0/10)",
+          "value": "—"
+         },
+         {
+          "inline": false,
+          "name": "🍀 Fortune — luck & loot  (0/10)",
+          "value": "—"
+         },
+         {
+          "inline": false,
+          "name": "🛠️ Crafting — loot yield  (0/10)",
+          "value": "—"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Tap a branch to spend a point  •  ♻ Respec refunds all for 200 🪙"
+        },
+        "title": "🌳 Skill Tree",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "skills",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!skills",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "<@<@member>> Respec costs **200** 🪙 — you only have **0** 🪙."
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "mining.skills.sk_respec",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "blocked",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "component"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:5>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "mining"
+}

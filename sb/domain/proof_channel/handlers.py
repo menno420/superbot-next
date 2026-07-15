@@ -46,7 +46,9 @@ def _register() -> None:
             return Reply(result.outcome,
                          result.user_message or
                          "Could not grant proof-channel access.")
-        after = (result.after or {}).get("record", {})
+        # result.after keys by the leg's StepResult target_name (band-5
+        # live class: "record" was the LegSpec id, never the after key)
+        after = (result.after or {}).get("record_lock", {})
         return Reply(SUCCESS, f"<@{winner}> has been granted access to "
                               f"<#{after.get('channel_id', 0)}>!")
 
@@ -73,7 +75,7 @@ def _register() -> None:
             return Reply(result.outcome,
                          result.user_message or
                          "Could not grant timed access.")
-        after = (result.after or {}).get("record", {})
+        after = (result.after or {}).get("record_lock", {})
         return Reply(SUCCESS,
                      f"<@{winner}> has access to "
                      f"<#{after.get('channel_id', 0)}> for {minutes} "
@@ -93,7 +95,7 @@ def _register() -> None:
             return Reply(result.outcome,
                          result.user_message or
                          "Could not end the prize session.")
-        after = (result.after or {}).get("record", {})
+        after = (result.after or {}).get("record_unlock", {})
         return Reply(SUCCESS, f"<#{after.get('channel_id', 0)}> is now "
                               "read-only for everyone.")
 

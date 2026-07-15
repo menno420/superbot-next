@@ -38,13 +38,28 @@ class TestImportedCorpus:
         # golden (D-0073 procedure) + 4 minted browse-interaction goldens
         # (2026-07-12) + 2 minted multi-step tournament-flow goldens + 5 minted
         # WP-1 mining write-parity goldens (equip/unequip/loadout
-        # save·apply·delete) + 1 minted paid-tournament conservation golden
+        # save·apply·delete) + 4 minted WP-2 mining vault write-parity goldens
+        # (stash/unstash/stash-all/vaultupgrade) + 5 minted WP-3 mining
+        # depth/world/workshop write-parity goldens (descend/ascend/
+        # reseed-world/repair/quickcraft) + 2 minted WP-5 mining skill-spend
+        # write-parity goldens (skill_write/skill_bad_branch, 2026-07-13)
+        # + 2 minted WP-6 mining structure-build write-parity goldens
+        # (build_forge_write/build_forge_insufficient, 2026-07-13 — the
+        # FINAL slice)
+        # + 4 minted WP-7 mining craft/respec write-parity goldens
+        # (craft_write/craft_no_recipe/respec_write/respec_insufficient,
+        # 2026-07-13)
+        # + 1 minted paid-tournament conservation golden
         # + 2 minted creature picker/bot-guard goldens (D-0081) + 3 minted
         # fishing cast-leg reel write goldens + 4 minted energy-slice-2
-        # mining cook/use goldens (2026-07-13) + 1 minted cleanup
+        # mining cook/use goldens (2026-07-13) + 1 minted energy-slice-3
+        # fastmine out-of-energy refusal golden (2026-07-13; the dig-spend
+        # behaviour change rides the RE-MINTED sweep_fastmine — re-mints
+        # never move counts) + 1 minted cleanup
         # anti-evasion toggle write golden (completeness-remainders residue
         # port, 2026-07-13) + 1 minted fishing howtofish rules-card golden
-        # (completeness-remainders fishing row, 2026-07-13) + 4 minted
+        # (completeness-remainders fishing row, 2026-07-13) + 1 minted
+        # cleanup policies-open golden (2026-07-13) + 4 minted
         # fishing minigame-timing slice-1 goldens (premature spook/grace +
         # trophy fight land/escape — the first Step.advance_s cases,
         # 2026-07-14) (parity.yml
@@ -53,7 +68,7 @@ class TestImportedCorpus:
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 500
+        assert len(goldens) == 518
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -78,16 +93,30 @@ class TestImportedCorpus:
         # (D-0073 procedure) + 4 browse-interaction mints (2026-07-12)
         # + 2 multi-step tournament-flow mints
         # + 5 WP-1 mining write-parity mints (equip/unequip/loadout)
+        # + 4 WP-2 mining vault write-parity mints (stash/unstash/
+        # stash-all/vaultupgrade)
+        # + 5 WP-3 mining depth/world/workshop write-parity mints
+        # (descend/ascend/reseed-world/repair/quickcraft)
+        # + 2 WP-5 mining skill-spend write-parity mints
+        # (skill_write/skill_bad_branch, 2026-07-13)
+        # + 2 WP-6 mining structure-build PORT write-parity mints
+        # (build_forge_write/build_forge_insufficient, 2026-07-13 — the
+        # FINAL slice)
+        # + 4 WP-7 mining residual-pending PORT write-parity mints (respec + craft:
+        # craft_write/craft_no_recipe/respec_write/respec_insufficient) — retires
+        # NO exemption (mining_inventory + player_skills already covered)
         # + 1 paid-tournament conservation mint (2026-07-12)
         # + 2 creature picker/bot-guard mints (D-0081)
         # + 3 fishing cast-leg reel write mints (2026-07-13)
         # + 4 energy-slice-2 mining cook/use mints (2026-07-13)
+        # + 1 energy-slice-3 fastmine out-of-energy refusal mint (2026-07-13)
         # + 1 cleanup anti-evasion toggle write mint (completeness-remainders
         # residue port, 2026-07-13)
         # + 1 fishing howtofish rules-card mint (2026-07-13)
+        # + 1 cleanup policies-open mint (2026-07-13)
         # + 4 fishing minigame-timing slice-1 mints (2026-07-14)
         # + 2 mining title-equip write mints (2026-07-14)
-        assert source["minted_goldens"] == 38
+        assert source["minted_goldens"] == 56
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -615,7 +644,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "full-corpus parity report" in out
-        assert "500 goldens" in out
+        assert "518 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

@@ -306,3 +306,16 @@ provenance: relayed by the Fleet Manager seat, coordinator dispatch 2026-07-14, 
   (b) WALKTHROUGH — land docs/eap-closeout-walkthrough-2026-07-14.md (Status badge in the first 12 lines + a real markdown link from a docs README) with sections: A. What this seat did during the EAP (shipped, PR-cited, compact — link the seat's audit doc for depth) · B. Current state + how to run/verify (exact commands) · C. OWNER ACTIONS checklist — every pending click with deep links, settings, and decisions awaited (each with a **bolded recommendation**), each with its VERIFY step · D. a 5-minute verify-it-yourself tour · E. handoff notes (batons, what the next phase needs). Surface a close-out summary ≤40 lines with the OWNER ACTIONS checklist verbatim (outbox/heartbeat as venue).
 - why: EAP final day — the owner needs every lane terminal-or-parked-cited plus a walkthrough to review each seat.
 - done-when: every (a) item is terminal or parked-with-citation + the walkthrough doc is on main + the OWNER ACTIONS checklist is surfaced in the lane's close-out report.
+
+## ORDER 022 · 2026-07-14T16:42:23Z · status: reissued
+priority: P1
+do: grammar-clean reissue of ORDER 022 (2026-07-14T09:36:47Z, above) — execute that order as written; its four required fields were bulleted ("- priority:" / "- do:" / "- why:" / "- done-when:"), which the `[inbox-order-grammar]` enforcer (bootstrap.py `ORDER_REQUIRED_FIELDS` + `_validate_block`, `ln.lstrip().startswith(field)`) cannot parse, and the append-only law (`inbox-not-append`, `check_inbox_append`: the base must stay a byte-prefix) rejects an in-place repair of the original block — so this bare-field restatement is the canonical machine-parseable copy. Field values: unchanged from the original; the paste-ready de-bulleted block lives in control/outbox.md § lane→manager ask (PR #484), byte-identical to the original minus the "- " prefixes.
+why: the inbox must stay grammar-clean per control/README.md § order format (bare field lines); the in-place fix is checker-forbidden, so the repair ships in the one shape the checker accepts — a pure append of a well-formed ORDER block (fm dispatch 2026-07-14, serving PR #484's lane→manager ask).
+done-when: this append validates green through the inbox gate (zero `[inbox-order-grammar]` / `inbox-not-append` findings) on this PR's `substrate-gate` and `checkers` runs.
+
+## ORDER 023 · 2026-07-15T03:36:56Z · status: new
+priority: P2
+do: EAP EXTENDED through 2026-07-21 (Anthropic mail, Diana Liu, 2026-07-14T23:07:44Z — 'Claude Code Projects EAP: Extending to Tues 7/21'; metadata reference only). The 2026-07-14 dormancy orders are superseded pending the owner's per-project reboot review — do NOT re-arm routines yet; wait for the owner's per-seat go (the v3.6 reboot prompt IS that go). New features to test during the extension: overview panel, add_repo, Artifact tool (coming), coordinator-comms improvements (coming). fleet-manager and websites are the fleet's source-of-truth homes; see fm docs/pre-reboot-review-2026-07-15.md.
+why: the seat's dormancy record predates the extension; without this note a rebooted session would treat dormancy as current
+done-when: seat acknowledges on its first rebooted wake
+provenance: relayed by the Fleet Manager coordinator on live owner directives, 2026-07-15

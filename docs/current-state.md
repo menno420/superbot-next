@@ -25,23 +25,24 @@ signal to investigate (README-first.md), no longer red-by-design.
 ## In flight
 
 (Verify against live source control — this section is a dated snapshot,
-2026-07-10.) Band-5 build + replay legs are landed (#95, #97); the current
-lane is band-5 **live-drive** (testing ladder step 7's live leg), then band-6.
-The live guild-effect adapters (moderation / role / channel) are driven by a
-human operator per the runbook
-[`docs/operations/live-drive-guild-effects.md`](operations/live-drive-guild-effects.md)
-— there is no automated CI live-drive (no gateway token in CI).
-The game-plugin contract's live seam (install the plugin dist → boot with
-token+guild → slash-sync → dispatch `/hello`) has the same human-operator
-runbook [`docs/operations/plugin-proof-live-drive.md`](operations/plugin-proof-live-drive.md);
-its headless half (a REAL external plugin boots against the committed pin and
-its panel registers) IS proven in CI —
-`tests/unit/app/test_plugin_boot_real_exemplar.py` + `tools/check_runtime_smoke.py`.
-Local verification (Postgres roles/DBs + env, CI-derived) is one command —
+2026-07-14, EAP close-out day.) The seven-band port plus the ORDER 017/019
+finalization sweep are complete — per-subsystem ground truth:
+[`docs/status/completeness-table-2026-07-13.md`](status/completeness-table-2026-07-13.md);
+week-in-review: [`docs/audits/eap-project-audit-2026-07-14.md`](audits/eap-project-audit-2026-07-14.md);
+owner walkthrough: [`docs/eap-closeout-walkthrough-2026-07-14.md`](eap-closeout-walkthrough-2026-07-14.md).
+The current lane is EAP close-out (ORDER 022): finishing the remaining
+agent-completable items and parking the rest cited. Owner-side queue (the
+heartbeat's ⚑ needs-owner list): sweep-merge the WP stack
+#312→#317→#335→#344→#371 (then #392 auto-retargets), mineverse #2058/#2061
+flips, DROP-list ratification, plugin-hello PR #2 merge. Live-testing beyond
+bands 1–4 stays parked owner-side (test-bot token — ORDER 001); the
+guild-effect and plugin live-drive legs remain human-operator runbooks
+([`docs/operations/live-drive-guild-effects.md`](operations/live-drive-guild-effects.md),
+[`docs/operations/plugin-proof-live-drive.md`](operations/plugin-proof-live-drive.md))
+— no gateway token in CI. Local verification (Postgres roles/DBs + env,
+CI-derived) is one command —
 [`docs/operations/local-verification.md`](operations/local-verification.md)
 + `tools/setup_local_env.py`.
-The flag-13 ruling landed (ORDER 009): the corpus-red dispositions are
-applied at replay-diff time per `docs/parity/flag-13-disposition-2026-07-10.md`.
 
 ## Recently shipped (newest first)
 

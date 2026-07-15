@@ -64,6 +64,7 @@ __all__ = [
     "delete_loadout",
     "get_skills",
     "set_skill_points",
+    "lock_skill_slot",
 ]
 
 MINING_INVENTORY_STORE = register_store(StoreSpec(
@@ -332,6 +333,27 @@ async def set_skill_points(conn: Any, *, user_id: int, guild_id: int,
         "VALUES ($1,$2,$3,GREATEST(0,$4)) ON CONFLICT "
         "(user_id, guild_id, branch) DO UPDATE SET points=GREATEST(0,$4)",
         (int(user_id), guild_id, branch, points), conn=conn)
+
+
+async def lock_skill_slot(conn: Any, *, user_id: int, guild_id: int) -> None:
+    """Fence concurrent `!skill <branch>` spends for one (user, guild) against a
+    read-then-settle over-allocation of the SHARED available-points budget (the
+    #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). ``allocate``
+    reads the current allocation + the game-XP level to size the available pool
+    (``min(level, SOFT_TOTAL_CAP) − total_spent``), checks ``n <= avail``, then
+    upserts the branch's absolute point total — a read-then-settle over a
+    cross-branch budget: two racing spends into DIFFERENT branches both read
+    ``total_spent=0``, both pass the budget check, and both commit, so the pool
+    is overspent (a same-branch race is a lost update, since ``set_skill_points``
+    writes an absolute value). No coins move and the budget is spread across
+    per-branch rows that may not exist yet, so FOR UPDATE alone can fence
+    nothing. A transaction-scoped advisory lock keyed on the (guild, user) pair
+    serializes two racing spends: the loser blocks here until the winner's txn
+    commits, then re-reads the winner's committed allocation and its budget check
+    is sized against the reduced pool. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:skill:{guild_id}:{user_id}",), conn=conn)
 
 
 async def get_mining_inventory(user_id: int, guild_id: int,
@@ -668,6 +690,26 @@ async def lock_workshop_slot(conn: Any, *, user_id: int,
     await execute(
         "SELECT pg_advisory_xact_lock(hashtext($1))",
         (f"mining:workshop:{guild_id}:{user_id}",), conn=conn)
+
+
+async def lock_structure_slot(conn: Any, *, user_id: int,
+                              guild_id: int) -> None:
+    """Fence concurrent structure BUILD settles (🔥 Build / 🏠 Build) for one
+    (user, guild) against a read-then-settle double-charge / skipped-level (the
+    #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). ``build_structure``
+    reads the current built level (to size the coin + material cost) then debits +
+    consumes + raises the level — a read-then-settle over a natural-key row that
+    may not exist yet (a fresh player has no ``mining_structures`` row), so FOR
+    UPDATE alone can lock nothing. Two racing builds both read level L, both pass
+    the affordability check, and both debit + bump, so the player is
+    double-charged for one net level (or a level is skipped). A
+    transaction-scoped advisory lock keyed on the (guild, user) pair serializes
+    two racing builds: the loser blocks here until the winner's txn commits, then
+    re-reads the winner's committed level and its cost/affordability check is
+    sized against the raised level. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:structure:{guild_id}:{user_id}",), conn=conn)
 
 
 async def get_last_broken(user_id: int, guild_id: int,
