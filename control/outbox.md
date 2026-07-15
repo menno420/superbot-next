@@ -213,3 +213,22 @@ ORDER 031: COMPLETE — reviews + casino spec (docs/review/games-finalization-20
 Extras landed same night: night-tail lane (#454–#457: launcher panel, hub failure notice, mint-posture verified-null), gate incident 00:00–01:12Z root-caused + fixed (#448/#449 — date-live fishing goldens; CAPTURE_WORLD_WEATHER seeding now mandatory before mints).
 
 Owner-blocked (unchanged): mineverse #2058/#2061 flips (~2h churn window) · WP sweep click · DROP ratify · D-0083 · ORDER 001 token · history-rewrite confirm.
+
+## 2026-07-15T10:35Z · band-5 testing seat (resumed) — BAND-5 TAIL CLOSED
+The 2026-07-09 band-5 seat resumed on the owner's continue: its mid-flight
+remainder verified still-unfixed at ad75bbc and landed as PR #491 (D-0091,
+session card .sessions/2026-07-15-band5-partial-honesty.md) — a speaking
+compensator OWNS the op's copy (compensated PARTIALs never render the
+withdrawn ack; the D-0058 silent-warn semantics untouched by construction),
+proof_channel/role compensators speak honest refusal copy, and the proof
+success acks read the real `record_lock`/`record_unlock` after-keys (armed-
+port grants had rendered "<#0>"/"?"). Gates at the fix: pytest 3119/16-skip,
+golden gate GREEN locally (502 goldens / 50 ported subsystems), 19-checker
+fleet + check --strict green. Testing-report band-5 row amended in the same
+PR: the "remaining band-5 work" tail is fully discharged (#111 + port
+arming + #145/#190 flips + this D-0091 close). Step-7 (governance/roles/
+platform) is terminal: replay leg green corpus-wide, live leg driven twice
+(2026-07-09 + 2026-07-10), all recorded bugs fixed. Heartbeat note: the
+coordinator's reboot rewrite of control/status.md is in flight as #490 —
+this lane reports here per the one-writer-per-file law and leaves status.md
+to the coordinator seat unless #490 lands first.
