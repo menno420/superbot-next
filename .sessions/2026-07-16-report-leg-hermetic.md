@@ -1,6 +1,6 @@
 # 2026-07-16 — report-leg banner test made hermetic (sever live-Postgres dependence)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Fable · high effort · test-hermeticity slice
 - **Born:** 2026-07-16T02:23:51Z (born-red first commit)
@@ -43,15 +43,51 @@ Claim: `control/claims/claude-report-leg-hermetic.md` (branch
 
 ## Verification
 
-- Repro (pre-fix, Postgres 16 cluster up, superbot role/db created):
-  [[fill:repro-evidence]]
-- Single test with DB UP (post-fix): [[fill:single-test-evidence]]
-- Full suite (DB stopped): [[fill:full-suite-evidence]]
+Closed out 2026-07-16T02:28:06Z. PR #501 (READY at open), commits
+4d1fec0 (born-red card + claim) → 3d9a4ed (fix) → this flip.
+
+- Repro (pre-fix, Postgres 16 cluster up via `pg_ctlcluster 16 main
+  start`, superbot role/db created, `psql "$DATABASE_URL" -c "SELECT 1"`
+  → 1): the single test ran until killed at the 150s cap —
+  `timeout 150 python3 -m pytest …::test_report_leg_prints_full_corpus_banner -x -q`
+  → `Terminated` (exit 143); a second run with `-s` printed NOTHING for
+  60s before its kill. Direct probe:
+  `rgp._replay_binding()` → `binding: BOUND | reason: ''` — the leg
+  binds and replays instead of exiting 1 in <1s, exactly the #457 card's
+  diagnosis.
+- Single test with DB UP (post-fix):
+  `1 passed in 0.13s` (wall 0.392s, same live cluster).
+- Cluster stopped (`pg_ctlcluster 16 main stop` → exit 0; connect now
+  refused). Full suite, the CI invocation (`python3 -m pytest tests/
+  -q`): `3160 passed, 29 skipped, 1 warning in 66.92s (0:01:06)`.
+  (Bare `python3 -m pytest -q` from the repo root additionally collects
+  `examples/superbot-plugin-hello/tests/`, which import-errors on the
+  uninstalled example package — environmental, outside every CI job's
+  path; all three workflows run `pytest tests/`.)
 
 ## 💡 Session idea
 
-[[fill:session-idea]]
+`run_report`'s replay phase is a silent black box: during the repro,
+`pytest -s` printed zero bytes for a full 60 seconds — `_replay_corpus`
+(tools/run_golden_parity.py) accumulates all 523 results inside one
+`asyncio.run(...)` and every per-case line prints only after the whole
+corpus finishes, so a bound-in-the-wrong-env run is indistinguishable
+from a hang until ~7 min elapse. Guard recipe: a one-line
+per-subsystem progress print inside `_replay_corpus` (or a
+`--progress` flag on tools/run_golden_parity.py) would make any future
+mis-bound invocation self-diagnosing in seconds; pin with a capsys
+test in tests/unit/parity_gate/test_check_parity_depth.py asserting
+the progress line renders under a stubbed `_replay_corpus`.
 
 ## ⟲ Previous-session review
 
-[[fill:previous-session review]]
+Reviewed `.sessions/2026-07-16-conform-sweep-457.md` @
+`claude/conform-sweep-457` (PR #500). Model discipline: it hit this
+live-DB footgun mid-sweep (had to stop its own cluster to get the
+CI-shaped pytest result), and instead of scope-creeping a test fix into
+a 31-golden re-mint PR it filed a precise guard recipe — function,
+file, line, the sibling monkeypatch idiom, the exact stub tuple — in
+its 💡 section. This session executed that recipe in minutes with zero
+re-derivation: the anchors were all correct on first read. That is the
+.sessions/README.md guard-recipe doctrine working exactly as designed;
+symptom-only would have cost a grep pass through the parity driver.
