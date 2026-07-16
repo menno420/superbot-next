@@ -1,1 +1,0 @@
-- `claude/report-leg-hermetic` · **make test_report_leg_prints_full_corpus_banner hermetic (monkeypatch _replay_binding)** · tests/unit/parity_gate/test_check_parity_depth.py · 2026-07-16
