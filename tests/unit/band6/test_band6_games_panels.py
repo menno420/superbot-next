@@ -1,6 +1,7 @@
 """The GAMES parity-flip surfaces: the shipped 🎮 Games Hub (persistent
-``games:open:<key>`` ids, the 🏆/🎲 catalog fields, the invoker-lock
-footer literal, the row-3 📚 Help slot), the 🗺️ Explore world hub
+``games:open:<key>`` ids, the 🎰/🕹️/🌍 catalog fields — the
+casino-section spec §2 taxonomy, docs/specs/casino-section-spec.md —
+the invoker-lock footer literal, the row-3 📚 Help slot), the 🗺️ Explore world hub
 (``explore:open:<key>`` + ``explore:world_card``), and the 🪪 world card
 (display-name title + avatar thumbnail + the zero-XP empty-state field).
 
@@ -58,7 +59,9 @@ def test_hub_spec_shape_matches_the_golden():
     assert by_id["ga_blackjack"].emoji == ""
     assert by_id["ga_rps_tournament"].label == "✂️ Rock Paper Scissors"
     assert by_id["ga_chain"].custom_id_override == "games:open:chain"
-    # Competitive primary (wire 1), Activities success (wire 3).
+    # The SHIPPED style split survives the section regroup (spec §5.4
+    # restyle skipped): card games + duels primary (wire 1), the
+    # channel/world games success (wire 3).
     for key in ("ga_blackjack", "ga_casino", "ga_deathmatch",
                 "ga_rps_tournament"):
         assert by_id[key].style is ActionStyle.PRIMARY
@@ -126,22 +129,23 @@ def test_hub_render_matches_the_golden_bytes():
         "Pick a game below to open it. "
         "Typed shortcuts (e.g. `!blackjack`, `!mine`) still work.")
     assert rendered.embed.fields == (
-        ("🏆 Competitive",
+        ("🎰 Casino",
          "🃏 **Blackjack** — Blackjack card game\n"
-         "🎰 **Casino** — Group card games like multiplayer poker\n"
+         "🎰 **Casino** — Group card games like multiplayer poker"),
+        ("🕹️ Arcade",
          "⚔️ **Deathmatch** — 1v1 duel battles\n"
          "✂️ **Rock Paper Scissors** — Rock Paper Scissors: quick play, "
-         "PvP, bot matches, tournaments"),
-        ("🎲 Activities",
+         "PvP, bot matches, tournaments\n"
+         "🔢 **Counting** — Collaborative counting game\n"
+         "🔗 **Word Chain** — Word-chaining game"),
+        ("🌍 World",
          "⛏️ **Mining** — Mining minigame and resource collection\n"
          "🎣 **Fishing** — Fishing minigame — cast a line, build your "
          "collection\n"
          "🐾 **Creatures** — Catch original creatures and build your "
          "collection dex\n"
          "🐔 **Chicken Farm** — Idle egg farm — hens lay eggs over time; "
-         "collect, sell, grow\n"
-         "🔢 **Counting** — Collaborative counting game\n"
-         "🔗 **Word Chain** — Word-chaining game"),
+         "collect, sell, grow"),
     )
     assert rendered.embed.footer == (
         "Only you can interact with this panel.")
