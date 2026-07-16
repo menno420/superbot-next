@@ -232,3 +232,16 @@ platform) is terminal: replay leg green corpus-wide, live leg driven twice
 coordinator's reboot rewrite of control/status.md is in flight as #490 —
 this lane reports here per the one-writer-per-file law and leaves status.md
 to the coordinator seat unless #490 lands first.
+
+## 2026-07-16T01:14Z · coordinator seat — TRIGGER-REGISTRY AUDIT OBSERVATIONS
+Registry observations from an exhaustive list_triggers audit 2026-07-16T00:56–01:02Z
+(1953 triggers). Not this seat's triggers — manager arbitrates.
+(a) Duplicate ENABLED failsafes, same name + cron, different bound sessions —
+"SuperBot World failsafe wake" trig_01B32hfwxfA67orKfBzQVdmU +
+trig_01RwQK2cBpgvY2xc2LZPSNtQ (cron `15 1-23/2 * * *`); "Venture Lab failsafe wake"
+trig_01Er6TUtwybs9D9EuHCH32qX + trig_01GeQiMM3nHMQTyuLMsWj7q3 (cron `45 1-23/2 * * *`)
+— each pair double-fires its slot.
+(b) kit-lab daily trig_01Jm57GAjNCFrYJn1oLMiYGE is absent from the full registry,
+though prior heartbeats record it live.
+(c) superbot-next predecessor failsafe trig_01UC7wiV3n5Vgs3RpSQt4gWz pending owner
+deletion (platform denial at this seat; verbatim in the heartbeat PR body).
