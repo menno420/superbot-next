@@ -644,10 +644,17 @@ class TestGateDriver:
         assert "vacuously" not in out
         assert "flipped `ported` but no replay is possible" in out
 
-    def test_report_leg_prints_full_corpus_banner(self, capsys):
-        # No replay binding in the unit env, so the leg exits nonzero;
-        # the banner is the neutral full-corpus report wording (the leg
-        # is live-green in CI since 2026-07-13).
+    def test_report_leg_prints_full_corpus_banner(self, capsys, monkeypatch):
+        # Binding stubbed absent so the test is hermetic wrt a live local
+        # Postgres — the real probe would bind and replay the full corpus
+        # (~7 min) whenever the CAPABILITIES-recipe cluster is up. The leg
+        # exits nonzero; the banner is the neutral full-corpus report
+        # wording (the leg is live-green in CI since 2026-07-13).
+        import tools.run_golden_parity as rgp
+
+        monkeypatch.setattr(
+            rgp, "_replay_binding",
+            lambda: (None, "no bot-under-test binding (unit env)"))
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "full-corpus parity report" in out
