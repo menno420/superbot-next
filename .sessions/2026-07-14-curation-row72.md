@@ -1,8 +1,8 @@
 # 2026-07-14 — parity: curation row 72 + farm goldens (ORDER 022 (a)4)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** Claude (Fable family)
+- **📊 Model:** fable-5
 
 ## Scope
 
