@@ -62,12 +62,43 @@ deletion diff check catches any date-derived byte that would drift.
 
 ## Verification
 
-(filled at close-out — pytest full suite, check_parity_depth 49/49 +
-523 goldens + ratchet OK, per-golden pure-deletion diff audit)
+- Per-golden strip audit: all 31 re-mints verified `new ==
+  apply_dispositions(old)` (sb/adapters/parity/dispositions.py) and each
+  a fixed point of `apply_dispositions` — zero drift, zero set-asides;
+  `git diff` across the 31 files: 4835 deletions, 0 insertions.
+- `python3.11 -m pytest tests/ -q` → `3160 passed, 29 skipped` (cluster
+  stopped for the run — see the 💡 below).
+- `python3.11 tools/check_parity_depth.py` → `OK — 49 subsystems (49
+  ported), kernel ported, 523 goldens`.
+- Local gate (docs/CAPABILITIES.md recipe via `tools/setup_local_env.py`,
+  Postgres 16): `gate: GREEN — all 523 golden(s) across 50 ported
+  subsystem(s) replay clean`.
+- Corpus on disk: 523 files, composition pins unchanged
+  (523 = 465 imported + 61 minted − 3 retired, re-summed by
+  `mint_golden` `compute_counts` on every mint).
+- CAPTURE_WORLD_WEATHER doctrine: checked — the registry and
+  `seed_weather_for_replay` seam are fishing-scoped
+  (sb/adapters/parity/runner.py:139, seeded-or-cleared per case); none
+  of the 31 targets is weather-bearing, and the strip-only byte audit
+  above would have caught any date-derived drift.
 
 ## 💡 Session idea
 
-(filled at close-out)
+`TestGateDriver::test_report_leg_prints_full_corpus_banner`
+(tests/unit/parity_gate/test_check_parity_depth.py:647) asserts
+`run_report() == 1` on the assumption "no replay binding in the unit
+env" — but `_replay_binding` (tools/run_golden_parity.py:57) probes a
+live `Harness.start()`, so on any box where the CAPABILITIES-recipe
+Postgres is still up the report leg binds, replays the full corpus for
+~7 minutes inside a unit test, returns 0, and the test fails. The unit
+suite silently changes meaning based on whether a sibling verification
+step left the cluster running (this session had to stop the cluster to
+get the CI-shaped result). Guard recipe: monkeypatch `_replay_binding`
+to return `(None, reason)` in that test (its siblings already
+monkeypatch it), keeping the banner assertion while severing the
+live-DB dependence — file
+tests/unit/parity_gate/test_check_parity_depth.py, target
+`TestGateDriver.test_report_leg_prints_full_corpus_banner`.
 
 ## ⟲ Previous-session review
 
