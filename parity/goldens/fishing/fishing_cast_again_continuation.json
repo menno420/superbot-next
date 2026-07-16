@@ -1,14 +1,14 @@
 {
- "case_id": "fishing.cast_reel_write",
+ "case_id": "fishing.cast_again_continuation",
  "db_delta": {
   "fishing_catch_log": {
    "added": [
     {
      "best_weight": 0.3799999952316284,
      "count": 1,
-     "first_caught": 2071528553,
+     "first_caught": 1873926097,
      "guild_id": "<guild>",
-     "last_caught": 2071528553,
+     "last_caught": 1873926097,
      "species": "guppy",
      "total_value": 0,
      "user_id": "<@member>"
@@ -18,8 +18,8 @@
   "fishing_energy": {
    "added": [
     {
-     "energy": 58,
-     "energy_updated_at": 2071528548,
+     "energy": 56,
+     "energy_updated_at": 1873926092,
      "guild_id": "<guild>",
      "user_id": "<@member>"
     }
@@ -52,7 +52,7 @@
    "added": [
     {
      "guild_id": "<guild>",
-     "last_xp": 2071528548,
+     "last_xp": 1873926092,
      "level": 0,
      "messages": 1,
      "user_id": "<@member>",
@@ -62,7 +62,7 @@
   }
  },
  "harness_version": 1,
- "notes": "fresh player, shore profile — every knob reads exactly neutral (no-row venue → shore, rod tier 0, no bait, unbuilt structures, fresh gear): `!fish` spends 2 energy off the fresh full bar (fishing_energy row 58) and the in-window Reel click drives the audited fishing.cast leg — the FIRST row-bearing fishing_catch_log capture (dex row + the caught fish in mining_inventory + the fishing game-XP award) with the oracle result-card copy (retires the fishing_catch_log guard-only-capture exemption)",
+ "notes": "the Cast-again continuation (review-doc gap 3): the committed catch answers the fishing.cast_result card — the oracle result copy split title/description onto a SUCCESS-green embed over the single 🎣 Cast again button (_FishingDoneView @bbc524e) — and clicking it re-runs the full cast path: db_delta pins the first catch's commit (catch-log row + fish grant + game XP) AND the second cast's energy spend (60→58→56), with a brand-new waiting panel as the final message",
  "seed": 42,
  "steps": [
   {
@@ -198,6 +198,69 @@
     "kind": "click",
     "persona": "member",
     "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "You cast a line from the shoreline… 🏖️\n*Watch the water — hit **Reel** the moment it bites, but not before!*",
+        "fields": [
+         {
+          "inline": false,
+          "name": "⛈️ Storm",
+          "value": "*Storm's up — choppy and slow, but the big, rare ones are running.* (slower bites · rarer fish)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "🏖️ Shore · ⚡ 56/60 [▰▰▰▰▰▰▰▰▰▱]"
+        },
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 2.0,
+    "custom_id": "<cid:2>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 2
    }
   }
  ],

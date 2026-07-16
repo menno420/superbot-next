@@ -777,8 +777,15 @@ def test_fish_route_pops_the_pending_cast_into_the_op(monkeypatch):
             after={"cast": {"message": "ok"}}, user_message=None)
 
     monkeypatch.setattr(engine, "run", fake_run)
+    opened = _capture_open_panel(monkeypatch)
     reply = run(route(_req()))
-    assert reply.outcome is SUCCESS and reply.user_message == "ok"
+    # the commit terminal now answers with the cast-result card (the
+    # Cast-again continuation) — the reply itself is the open_panel
+    # SUCCESS/None shape and the leg copy rides the card params.
+    assert reply.outcome is SUCCESS and reply.user_message is None
+    assert opened[0][0].name == "fishing.cast_result"
+    assert opened[0][1].args == {"result_title": "ok", "result_desc": "",
+                                 "result_style": "green"}
     assert seen == [{"species": "lanternfish", "weight": 3.5,
                      "venue": "deepwater", "double_catch_chance": 0.20,
                      "level_before": 1}]
@@ -886,6 +893,7 @@ def test_fish_route_restores_the_paid_cast_on_a_failed_commit(
             user_message="db hiccup" if outcome is BLOCKED else None)
 
     monkeypatch.setattr(engine, "run", fake_run)
+    _capture_open_panel(monkeypatch)
     reply = run(route(_reel_req(token=3)))
     assert reply.outcome is BLOCKED
     assert service._PENDING_CASTS[(P1, GID)] is entry   # restored

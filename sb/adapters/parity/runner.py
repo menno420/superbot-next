@@ -170,6 +170,10 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     "fishing.cast_premature_grace": "storm",
     "fishing.cast_trophy_fight_land": "storm",
     "fishing.cast_trophy_fight_escape": "storm",
+    # the Cast-again continuation case (2026-07-14): registered BEFORE
+    # its mint per the post-07-13 date-live-outage doctrine; storm
+    # matches the cast-write rows whose in-window timings it reuses.
+    "fishing.cast_again_continuation": "storm",
     # the curation row-72 + farm-goldens batch (2026-07-14): registered
     # BEFORE their mint per the post-07-13 date-live-outage doctrine
     # (control/status.md — every golden registers its capture-world

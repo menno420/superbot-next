@@ -240,6 +240,21 @@ source:
   # craft_no_recipe / respec_insufficient captures pin the error faces (denied
   # audit_log rows, no product/skills db_delta). title-equip stays honest-pending
   # (select-driven, no command form — scope PART C).
+  # +1 minted the mining ENERGY-LANE slice-3 refusal golden (2026-07-13,
+  # same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/mining/mining_fastmine_out_of_energy_refusal.json — !fastmine
+  # on an empty bar refuses PLAIN with the oracle dig() hint (route-level
+  # pure read; the ~5s wait rides a fixture stamped 5s before the case's
+  # logical clock). The dig SPEND itself rides the RE-MINTED
+  # sweep_fastmine (fresh player settles full → digs → the
+  # mining_player_state energy 60→59 write joins its db_delta — a
+  # deliberate behaviour change re-minted in-PR, the creature
+  # battle-accept precedent; re-mints never move this count). The four
+  # WP-2/WP-3 mining_player_state row goldens
+  # (descend/ascend/quick_craft/vault_upgrade) were re-minted in the same
+  # slice: minted before migration 0052 widened the table, their pinned
+  # rows gain the energy/energy_updated_at column defaults (0, 0) on the
+  # merged schema — the post-WP-3 contract reconcile, replies unchanged.
   # +4 minted the fishing MINIGAME-TIMING slice-1 goldens (2026-07-14,
   # D-0043 timing rung — the first goldens that drive the Step.advance_s
   # clock grammar; oracle disbot/views/fishing/cast_view.py @ bbc524e):
@@ -264,6 +279,37 @@ source:
   # deliberate enforcement change re-minted in-PR, not a regression;
   # counts unchanged. The 4 slice-1 timing goldens replay clean under
   # the flip (their clicks were already in-window/premature by design).
+  # +1 minted the fishing CAST-AGAIN continuation golden (2026-07-14,
+  # review-doc gap 3 — the oracle _FishingDoneView @ bbc524e, doc-pinned
+  # cast_view.py:545/:562): goldens/fishing/
+  # fishing_cast_again_continuation.json — `!fish` → in-window Reel
+  # (the cast_reel_write 5.0 s timing) commits the catch and opens the
+  # fishing.cast_result card (SUCCESS-green result embed over the
+  # single 🎣 Cast again button; CHANNEL_ANCHOR so the click-opened
+  # card is a fresh, click-targetable channel message — the blackjack
+  # tournament presenter seam) → the Cast again click re-runs the FULL
+  # cast path (second energy spend 58→56, a fresh waiting panel).
+  # Seeded storm in CAPTURE_WORLD_WEATHER before the mint. The same
+  # slice RE-MINTED the 6 cast terminal goldens (the 3 reel writes +
+  # spook + the trophy-fight pair): their catch/click-failure terminals
+  # now answer the result card instead of a bare text reply — the
+  # pinned species/weight/delta trajectories are unchanged (same seeds,
+  # same draws; only the terminal reply's wire shape moved).
+  # fishing_cast_premature_grace replays clean untouched (a forgiven
+  # slip is not a terminal). Counts move by exactly the +1 new case.
+  # The title-equip write slice (2026-07-14, ORDER 022 (a)3) minted 2:
+  # goldens/mining/mining_title_equip_write.json (the 🏆 Titles panel's
+  # state-derived earned-title select — fixture max_depth=1 earns 🪨 the
+  # Spelunker — picked through mining.titles_pick → the audited
+  # mining.equip_title op: the one equipped_title upsert + the ✅ green
+  # in-place re-render, title_service.equip verbatim @ bbc524e) and
+  # mining_title_equip_unearned_refusal.json (a forged un-earned value
+  # refuses through the leg's live earn-check — ❌ red re-render, NO
+  # write; the D-0060 two-arg ValidatorError verbatim-copy form).
+  # mining_player_state was already covered (the ration golden), so no
+  # exemption/ratchet movement. Weather-free surface: no
+  # CAPTURE_WORLD_WEATHER rows needed (checked before mint — the
+  # post-07-13 date-live doctrine).
   # +4 minted the CURATION ROW-72 + FARM-GOLDENS batch (2026-07-14,
   # ORDER 022 (a)4 — curation bundle 3, docs/review/
   # curation-report-2026-07-13.md row 72 + the "(c) Backlog" farm line;
@@ -293,10 +339,10 @@ source:
   # farm-row drift check: NO drift @ corpus sha 7f7628e1); rps solo copy
   # is the shipped views/rps/solo_play.py contract (sb/domain/rps/
   # ops.py module docstring, @7f7628e1).
-  minted_goldens: 57
+  minted_goldens: 61
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 519). The first retirement (2026-07-12
+  # imported + minted − retired = 523). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -1276,7 +1322,7 @@ depth:
     casino: {events: 1, tables: 2, settings: 0}
     chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 3, tables: 2, settings: 0}
-    cleanup: {events: 1, tables: 3, settings: 0}
+    cleanup: {events: 2, tables: 6, settings: 0}
     community: {events: 1, tables: 2, settings: 0}
     community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}

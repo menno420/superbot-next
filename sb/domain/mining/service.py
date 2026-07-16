@@ -2,11 +2,11 @@
 bytes verbatim (goldens/mining pin them), the reads, the inventory merge
 source, the LIVE deep-system lanes (equipment/loadouts, depth traversal,
 vault, workshop repair/quickcraft, the energy-lane cook/use consumables,
-and — since the rows-45/59/60 rework — the grid Mine navigator + How-to
-guide, live behind the hub buttons over the audited ``mining.dig`` op
-with its wear ticks), and honest pending terminals for what still rides
-named successor work (structure builds, skill spends — the D-0043 tail;
-the fastmine energy spend is energy-lane slice 3, owner-gated).
+the slice-3 fastmine dig energy spend, and — since the rows-45/59/60
+rework — the grid Mine navigator + How-to guide, live behind the hub
+buttons over the audited ``mining.dig`` op with its wear ticks), and
+honest pending terminals for what still rides named successor work
+(structure builds, skill spends — the D-0043 tail).
 
 Shipped command mapping (disbot/cogs/mining_cog.py, oracle-verbatim):
 
@@ -243,9 +243,31 @@ def _register() -> None:
 
     @handler("mining.fastmine_route")
     async def fastmine_route(req) -> Reply:
+        """`!fastmine` — one quick swing, now dig-energy-gated
+        (energy-lane slice 3, Option A: the oracle `dig()` energy
+        bracket grafted onto the fastmine lane). The out-of-energy
+        refusal is a PRE-TXN pure read computed HERE so the bytes stay
+        oracle-plain — an in-leg raise wraps as the kernel's
+        ValidatorError envelope (the slice-2 flip-playbook trap); the
+        op leg re-checks in-txn (race fence). `_time.time()` is the one
+        wall-clock seam the parity harness pins, so the `~{wait}s` hint
+        replays against the logical capture clock."""
+        import time as _time
+
+        from sb.domain.mining import energy
+        from sb.domain.mining.store import get_energy
         from sb.domain.mining.world import describe_position
 
         uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        now = int(_time.time())
+        state = energy.EnergyState(*await get_energy(uid, gid))
+        if not energy.can_dig(state, now):
+            wait = energy.seconds_until(state, now, energy.DIG_COST)
+            return Reply(BLOCKED,
+                         "⚡ You're out of energy — rest a moment "
+                         f"(~{wait}s until your next dig) or eat a "
+                         "**ration** / **energy drink** (`!use ration`).")
         blocked, after = await _op_after(req, "mining.mine")
         if blocked is not None:
             return blocked
@@ -1217,10 +1239,11 @@ PENDING: dict[str, str] = {
     # WP-7 (skill_respec_route -> mining.respec -> record_respec, the ported
     # skill_service.respec — coin debit + player_skills wipe;
     # goldens/mining/mining_respec_write drives the funded respec click). The
-    # titles select-menu equip stays deferred (select-driven — the target titles
-    # panel renders no earned-title Select; porting means building new dynamic
-    # state-derived Select UI, so per scope PART C it stays an honest D-0043
-    # pending, not forced — no golden drives that write).
+    # titles select-menu equip went LIVE with the title-equip write slice
+    # (mining.titles_pick → the audited mining.equip_title /
+    # mining.unequip_title ops; goldens/mining/mining_title_equip_write.json
+    # drives the write) — this EMPTIES the mining deep-system PENDING roster
+    # of its last non-energy write lane.
 }
 
 

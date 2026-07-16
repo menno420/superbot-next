@@ -544,6 +544,66 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "the mining_equipment tool-slot row and replies `<@u> cleared the "
             "**tool** slot.` — the remove face of mining_equipment"),
     ),
+    # title-equip write slice: the 🏆 Titles panel's earned-title select is
+    # the ONLY equip ingress (no command form — oracle mining_cog.titles_cmd
+    # opens the panel only; title_service.equip is called solely from
+    # views/mining/titles_panel.py::MiningTitlesView @ bbc524e). Earned
+    # titles are DERIVED (max_depth=1 ⇒ 🪨 the Spelunker), so the fixture
+    # seeds only progression — the equip write is the case's own db_delta
+    # (mining_player_state.equipped_title, a table already covered by the
+    # energy-slice ration golden; no exemption/ratchet change).
+    GoldenCase(
+        id="mining.title_equip_write",
+        subsystem="mining",
+        # reached-the-Cavern progression (read pre-req, seeded before the
+        # snapshot): earns exactly one title, so the panel renders the
+        # 1+1-option select ((none) + 🪨 the Spelunker).
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, "
+            "max_depth) VALUES "
+            "('900000000000000102', 700000000000000001, 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!titles", persona="member"),
+            # the earned-title select (component 0, wire type 3, session
+            # <cid:N> id — resolved by index, the blackjack precedent):
+            # pick the Spelunker.
+            Step(kind="click", target_message=1, component_index=0,
+                 component_type=3, persona="member",
+                 values=("spelunker",)),
+        ),
+        notes=(
+            "the titles-panel select drives mining.titles_pick → the "
+            "audited mining.equip_title op (record_equip_title: live "
+            "earn-check + the one equipped_title upsert), then the panel "
+            "re-renders in place with `✅ Title set to 🪨 the Spelunker.` "
+            "and the SUCCESS green frame — the first equipped_title "
+            "write-bearing golden (title_service.equip verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.title_equip_unearned_refusal",
+        subsystem="mining",
+        # same one-earned-title progression; the click FORGES an unearned
+        # value (legend needs game level 25) — the leg's earn-check must
+        # refuse row-less with the oracle copy.
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, "
+            "max_depth) VALUES "
+            "('900000000000000102', 700000000000000001, 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!titles", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 component_type=3, persona="member",
+                 values=("legend",)),
+        ),
+        notes=(
+            "a forged un-earned pick refuses through the leg's live "
+            "earn-check (txn-aborting ValidatorError — NO equipped_title "
+            "write): the panel re-renders with `❌ You haven't earned "
+            "**the Legend** yet — Reach game level 25.` and the ERROR red "
+            "frame (title_service.equip's is_earned refusal verbatim)"),
+    ),
     GoldenCase(
         id="mining.loadout_save_write",
         subsystem="mining",
@@ -1215,6 +1275,41 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "and replies `<@u> You light a torch and peer into the "
             "darkness...` — no energy movement, no mining_player_state row"),
     ),
+    # ------------------------------------------- mining ENERGY (slice 3)
+    # The fastmine dig energy-spend (docs/scoping/energy-system-scope.md
+    # slice 3, Option A; oracle copy: disbot/services/mining_workflow.py
+    # dig() @ 87bbe1d — the energy bracket grafted onto the fastmine
+    # lane). The spend itself is pinned by the RE-MINTED sweep_fastmine
+    # (fresh player settles full → digs → energy 60→59 joins its
+    # db_delta); this case pins the out-of-energy REFUSAL, a route-level
+    # pure read replying PLAIN (the slice-2 ValidatorError-envelope
+    # trap: an in-leg raise would wrap as the kernel envelope).
+    GoldenCase(
+        id="mining.fastmine_out_of_energy_refusal",
+        subsystem="mining",
+        # An EMPTY bar that stays empty: energy=0 stamped 5s before the
+        # case's logical clock (the harness pins time.time to the
+        # case-id-derived logical timeline, so the stamp is a pure
+        # function of the case id — computed by probe capture). settle()
+        # gains 0 units over 5s (<REGEN_SECONDS), the gate refuses, and
+        # seconds_until lands the hint at exactly ~5s. Any harness
+        # clock-pacing change re-lands here loudly (the xp.last_xp
+        # absolute-stamp class).
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, energy, "
+            "energy_updated_at) VALUES "
+            "('900000000000000102', 700000000000000001, 0, 1877604670)",
+        ),
+        steps=(
+            Step(kind="command", content="!fastmine", persona="member"),
+        ),
+        notes=(
+            "!fastmine on an empty bar refuses PLAIN with the oracle dig() "
+            "hint (`⚡ You're out of energy — rest a moment (~{wait}s until "
+            "your next dig) or eat a **ration** / **energy drink** (`!use "
+            "ration`).`) — a pre-txn pure read: no loot, no energy write, "
+            "no game XP, no mining db_delta"),
+    ),
     # ------------------------------------------------ fishing cast-leg WRITES
     # The first goldens that ever CLICK Reel (the imported sweeps only pinned
     # the waiting panel — parity.yml's own fishing_catch_log exemption text
@@ -1437,6 +1532,41 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "clue (a fight IS a trophy), the paid cast is gone, and "
             "db_delta pins ONLY the energy spend — no catch-log row, no "
             "fish, no xp movement on the fixture row"),
+    ),
+    # --------------------------------------- fishing Cast-again continuation
+    # The first golden that clicks THROUGH a cast terminal: the committed
+    # catch opens the fishing.cast_result card (the oracle _FishingDoneView
+    # @bbc524e — green 🎣 Cast again, never pre-disabled) and clicking it
+    # re-runs the FULL cast path with fresh randomness — a second energy
+    # spend, a second catch roll on the continuing seed-42 stream, and a
+    # brand-new waiting-for-a-bite panel.
+    GoldenCase(
+        id="fishing.cast_again_continuation",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # in-window reel (the cast_reel_write timing: seed-42 storm
+            # bite ~4.28 s, window 2.5 — 5.0 s sits inside
+            # [4.28 … 6.78]) — the catch commits and the result card
+            # (message 2) opens with the Cast again button.
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=5.0),
+            # …the continuation: Cast again on the result card re-runs
+            # cast_open — the second cast spends 2 more energy (58→56)
+            # and opens a fresh cast panel (message 3).
+            Step(kind="click", target_message=2, component_index=0,
+                 persona="member", advance_s=2.0),
+        ),
+        notes=(
+            "the Cast-again continuation (review-doc gap 3): the committed "
+            "catch answers the fishing.cast_result card — the oracle "
+            "result copy split title/description onto a SUCCESS-green "
+            "embed over the single 🎣 Cast again button "
+            "(_FishingDoneView @bbc524e) — and clicking it re-runs the "
+            "full cast path: db_delta pins the first catch's commit "
+            "(catch-log row + fish grant + game XP) AND the second "
+            "cast's energy spend (60→58→56), with a brand-new waiting "
+            "panel as the final message"),
     ),
     GoldenCase(
         id="fishing.howtofish_rules_card",

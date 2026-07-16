@@ -1,10 +1,9 @@
 """Mining K7 lanes (band 6) — the CORE loop (mine / chop / explore / sell
 / sellall / buy) as one-leg one-txn ops over the shipped math, plus the
 ported deep-system write lanes (equip/loadout, descend/ascend, vault,
-repair/quickcraft, the energy-lane cook/use consumables, and the grid dig
+repair/quickcraft, the energy-lane cook/use consumables, the grid dig
 ``mining.dig`` — the navigator's move+mine+wear+XP txn, curation rework
-rows 45/59). Still unported: the fastmine energy spend (energy-lane
-slice 3, owner-gated) rides its named successor slice."""
+rows 45/59 — and the slice-3 fastmine dig energy spend)."""
 
 from __future__ import annotations
 
@@ -105,7 +104,30 @@ def _rest_from(ctx: WorkflowContext) -> str:
 
 @workflow("mining.record_mine")
 async def _record_mine(conn, ctx: WorkflowContext) -> LegOutcome:
+    """One quick swing (`!fastmine`) — loot roll + grant + game XP, and
+    (energy-lane slice 3, Option A) the dig energy spend: settle →
+    ``can_dig`` gate → spend ``DIG_COST`` → ``set_energy``, the oracle
+    ``dig()`` energy bracket grafted onto the fastmine leg
+    (services/mining_workflow.py ``dig`` @ 87bbe1d — the shipped ``mine()``
+    predates the energy brake; Option A is the owner's chosen successor
+    shape). The route pre-checks the same gate as a PURE READ so the
+    refusal bytes stay oracle-plain (the slice-2 ValidatorError-envelope
+    trap); this in-txn re-check is the race fence — a raced dig refuses
+    (wrapped) rather than digging below zero. The energy upsert keeps the
+    slice-1 lockless plain posture (game pacing, never money)."""
+    from sb.domain.mining import energy
+
     uid, gid, now = _ids(ctx)
+    e_state = energy.EnergyState(*await store.get_energy(uid, gid, conn=conn))
+    if not energy.can_dig(e_state, now):
+        wait = energy.seconds_until(e_state, now, energy.DIG_COST)
+        raise ValidatorError(
+            "⚡ You're out of energy — rest a moment "
+            f"(~{wait}s until your next dig) or eat a **ration** / "
+            "**energy drink** (`!use ration`).")
+    spent = energy.spend(e_state, now)
+    await store.set_energy(uid, gid, spent.current, spent.updated_at,
+                           conn=conn)
     inventory = await store.get_mining_inventory(uid, gid, conn=conn)
     depth = await store.get_depth(uid, gid, conn=conn)
     found, amount = rewards.roll_mine_loot(
@@ -311,6 +333,56 @@ async def _record_unequip(conn, ctx: WorkflowContext) -> LegOutcome:
     return LegOutcome(
         step=StepResult(uid, "unequip", True), before={},
         after={"slot": slot, "message": f"cleared the **{slot}** slot."})
+
+
+@workflow("mining.record_equip_title")
+async def _record_equip_title(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The 🏆 Titles panel select's equip write — oracle
+    ``disbot/services/title_service.py::equip`` verbatim: validate the id is
+    a real title, gate on the LIVE earn-check (skills / max-depth / level —
+    earned titles are DERIVED, so this write grants nothing), then persist
+    the one ``equipped_title`` choice. Refusal copy byte-for-byte; a refusal
+    aborts the txn row-less (the use_ration full-bar posture). No lock — a
+    lost race is last-write-wins on one self-service column (the
+    record_equip gear posture; no resource is consumed)."""
+    from sb.domain.mining import titles
+
+    uid, gid, _ = _ids(ctx)
+    raw = str(ctx.params.get("title_id", "") or "")
+    title = titles.get_title(raw.strip().lower())
+    if title is None:
+        # two-arg D-0060 form: the raise site owns the sentence VERBATIM
+        # (title_service.equip copy) — never the missing-argument wrap.
+        raise ValidatorError(
+            "title_id",
+            "That isn't a real title — open the 🏆 Titles panel to see "
+            "yours.")
+    alloc = await store.get_skills(uid, gid, conn=conn)
+    max_depth = await store.get_max_depth(uid, gid, conn=conn)
+    level, _total = await game_xp.shared_level(uid, gid)
+    tctx = titles.TitleContext(skills=alloc, max_depth=max_depth,
+                               level=level)
+    if not titles.is_earned(title.id, tctx):
+        raise ValidatorError(
+            "title_id",
+            f"You haven't earned **{title.label}** yet — "
+            f"{title.requirement}.")
+    await store.set_equipped_title(uid, gid, title.id, conn=conn)
+    return LegOutcome(
+        step=StepResult(uid, "equip_title", True), before={},
+        after={"title_id": title.id,
+               "message": f"Title set to {titles.display(title)}."})
+
+
+@workflow("mining.record_unequip_title")
+async def _record_unequip_title(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The select's ``(none)`` pick — oracle ``title_service.unequip``
+    verbatim: clear the stored choice (no-op-safe, always succeeds)."""
+    uid, gid, _ = _ids(ctx)
+    await store.set_equipped_title(uid, gid, None, conn=conn)
+    return LegOutcome(
+        step=StepResult(uid, "unequip_title", True), before={},
+        after={"message": "Title cleared — none displayed."})
 
 
 @workflow("mining.record_save_loadout")
@@ -1441,6 +1513,10 @@ RESET_INVENTORY = _op("mining.reset_inventory", "mining_inventory_reset",
 EQUIP = _op("mining.equip", "mining_equipped", "mining.record_equip", ())
 UNEQUIP = _op("mining.unequip", "mining_unequipped",
               "mining.record_unequip", ())
+EQUIP_TITLE = _op("mining.equip_title", "mining_title_equipped",
+                  "mining.record_equip_title", ())
+UNEQUIP_TITLE = _op("mining.unequip_title", "mining_title_unequipped",
+                    "mining.record_unequip_title", ())
 SAVE_LOADOUT = _op("mining.save_loadout", "mining_loadout_saved",
                    "mining.record_save_loadout", ())
 APPLY_LOADOUT = _op("mining.apply_loadout", "mining_loadout_applied",
@@ -1475,7 +1551,8 @@ USE_ITEM = _op("mining.use", "mining_item_used",
 COOK = _op("mining.cook", "mining_cooked", "mining.record_cook", ())
 
 _OPS = (MINE, DIG, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
-        EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
+        EQUIP, UNEQUIP, EQUIP_TITLE, UNEQUIP_TITLE,
+        SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
         STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
         REPAIR, QUICK_CRAFT, SKILL, BUILD, CRAFT, RESPEC, USE_ITEM, COOK)
@@ -1491,6 +1568,8 @@ _REF_TABLE = (
     ("mining.record_reset_inventory", _record_reset_inventory),
     ("mining.record_equip", _record_equip),
     ("mining.record_unequip", _record_unequip),
+    ("mining.record_equip_title", _record_equip_title),
+    ("mining.record_unequip_title", _record_unequip_title),
     ("mining.record_save_loadout", _record_save_loadout),
     ("mining.record_apply_loadout", _record_apply_loadout),
     ("mining.record_delete_loadout", _record_delete_loadout),

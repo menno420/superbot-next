@@ -864,18 +864,80 @@ async def _render_skills(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed)
 
 
+#: the oracle's clear-choice sentinel (views/mining/titles_panel.py
+#: ``_NONE_VALUE`` verbatim) — the select's "(none)" option value.
+_TITLE_NONE_VALUE = "__none__"
+
+#: the earned-title select options provider id (registered at import in
+#: _register_refs).
+_TITLES_SELECT_OPTIONS = "mining.titles_select_options"
+
+
+def _ensure_titles_select_provider() -> ProviderRef:
+    """The 🏆 Titles panel select's rich options — the shipped
+    ``views/mining/titles_panel.py`` ``_TitleSelect`` rows verbatim: the
+    leading ``(none)`` clear option (description "Display no title",
+    default when nothing is equipped), then the player's EARNED titles in
+    catalogue order (label / value / emoji, default on the equipped one).
+    Earned titles are DERIVED from skills / max-depth / level; a player
+    with NO earned titles returns () and the renderer override drops the
+    component entirely (the shipped view only adds ``_TitleSelect`` when
+    ``earned`` is non-empty — goldens/mining/sweep_titles.json pins the
+    fresh-player selectless bytes). Max 1 + 9 = 10 options (9-title
+    catalogue), under Discord's 25 cap — plain select, no windowing."""
+    ref = ProviderRef(_TITLES_SELECT_OPTIONS)
+    if not is_registered(ref):
+        @provider(_TITLES_SELECT_OPTIONS)
+        async def titles_select_options(ctx: object):
+            from sb.domain.games.xp import shared_level
+            from sb.domain.mining import store, titles
+
+            uid = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
+                      or 0)
+            gid = int(getattr(ctx, "guild_id", 0) or 0)
+            alloc = await store.get_skills(uid, gid)
+            max_depth = await store.get_max_depth(uid, gid)
+            level, _ = await shared_level(uid, gid)
+            tctx = titles.TitleContext(skills=alloc, max_depth=max_depth,
+                                       level=level)
+            earned = titles.earned_titles(tctx)
+            if not earned:
+                return ()
+            equipped = titles.get_title(
+                await store.get_equipped_title(uid, gid))
+            equipped_id = (equipped.id if equipped is not None
+                           and titles.is_earned(equipped.id, tctx)
+                           else None)
+            options: list[dict] = [{
+                "label": "(none)", "value": _TITLE_NONE_VALUE,
+                "description": "Display no title",
+                "default": equipped_id is None,
+            }]
+            for t in earned:
+                options.append({"label": t.label, "value": t.id,
+                                "emoji": t.emoji,
+                                "default": t.id == equipped_id})
+            return tuple(options)
+    return ref
+
+
 def mining_titles_spec() -> PanelSpec:
     """The shipped 🏆 Titles panel (views/mining/titles_panel.py
     ``MiningTitlesView`` + ``build_titles_embed``) — an ephemeral (session)
-    child of the skill-tree panel: the single ↩ Mining Hub button mints a session
-    `<cid:N>` id, and the live equipped/earned/locked embed rides a renderer
-    override (goldens/mining/sweep_titles.json pins every byte: the MINING_COLOR
+    child of the skill-tree panel: the earned-title display select +
+    ↩ Mining Hub button mint session `<cid:N>` ids, and the live
+    equipped/earned/locked embed rides a renderer override
+    (goldens/mining/sweep_titles.json pins every byte: the MINING_COLOR
     dark-grey frame, the Equipped + 🔒 Locked (9) fields, the earn-guidance footer,
     the single ↩ Mining Hub button and the standard nav row 📚 Help + ↩ Games).
 
     A fresh player has NO earned titles, so the earned-title display Select (the
-    equip WRITE lane) is absent from the view — the equipped-title write rides the
-    deferred panel port (D-0043); no golden drives it. Below the 4-action
+    equip WRITE lane) is ABSENT from the view — the shipped ``create`` only adds
+    ``_TitleSelect`` when ``earned`` is non-empty; the renderer override drops
+    the empty-provider component to keep that shape (the fresh-player golden
+    stays byte-identical). A pick routes through ``mining.titles_pick`` into
+    the audited ``mining.equip_title`` / ``mining.unequip_title`` ops
+    (title-equip write slice — the D-0043 pending retired). Below the 4-action
     auto-exempt sim floor (1 action), so no legacy-seed overlay is needed."""
     return PanelSpec(
         panel_id=TITLES_PANEL_ID,
@@ -889,6 +951,17 @@ def mining_titles_spec() -> PanelSpec:
         # ephemeral child → session-minted <cid:N> ids (no custom_id_override,
         # so no panel_anchors row — the shipped HubView child send).
         session_lifecycle=True,
+        selectors=(
+            # the shipped _TitleSelect (row 0): pick an earned title to
+            # display, or clear it — placeholder verbatim.
+            SelectorSpec(
+                selector_id="ti_select", kind=SelectorKind.ENTITY,
+                on_select=HandlerRef("mining.titles_pick"),
+                options_source=_ensure_titles_select_provider(),
+                placeholder="Choose a title to display…",
+                empty_state="Choose a title to display…",
+                audience_tier="user"),
+        ),
         actions=(
             PanelActionSpec(
                 action_id="ti_hub", label="↩ Mining Hub",
@@ -912,9 +985,54 @@ def mining_titles_spec() -> PanelSpec:
             "vocabulary (the mining hub / skills-panel live-overview precedent). "
             "Every component stays grammar-rendered."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("ti_select",),
             ("ti_hub",),
         )),)),
     )
+
+
+async def _titles_pick(req):
+    """`mining.titles_pick` — the shipped ``_TitleSelect.callback``: the
+    ``(none)`` sentinel clears via the audited ``mining.unequip_title`` op,
+    any other value equips via ``mining.equip_title`` (validation + copy
+    live in the leg, title_service verbatim), then the panel re-renders IN
+    PLACE with the oracle note composition — ``("✅ " if ok else "❌ ") +
+    message`` as the embed description, SUCCESS green / ERROR red frame
+    (the `build_titles_embed(note=…)` + `embed.color` bytes). A refresh
+    miss (restart/eviction) degrades to an honest text reply (the grid
+    `_grid_note` posture)."""
+    from sb.kernel.interaction.handler_kit import Reply, ctx_from_request
+    from sb.kernel.panels.engine import refresh_session_view
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import SUCCESS
+    from sb.spec.refs import WorkflowRef
+
+    values = tuple(req.args.get("values", ()) or ())
+    choice = str(values[0]) if values else ""
+    if choice == _TITLE_NONE_VALUE:
+        result = await engine.run(WorkflowRef("mining.unequip_title"),
+                                  ctx_from_request(req, {}))
+    else:
+        result = await engine.run(WorkflowRef("mining.equip_title"),
+                                  ctx_from_request(req,
+                                                   {"title_id": choice}))
+    if result.outcome == SUCCESS:
+        after = next(iter((result.after or {}).values()), {})
+        note = "✅ " + str(after.get("message", ""))
+        tone = "success"
+    else:
+        note = "❌ " + str(result.user_message or "")
+        tone = "error"
+    key = _message_key(req)
+    if key:
+        try:
+            if await refresh_session_view(
+                    req, message_key=key,
+                    params={"titles_note": note, "titles_tone": tone}):
+                return Reply(SUCCESS, None)  # the edit IS the ack
+        except Exception:  # noqa: BLE001 — degrade to the text reply
+            pass
+    return Reply(SUCCESS, note)
 
 
 async def _render_titles(spec: PanelSpec, ctx) -> object:
@@ -923,8 +1041,14 @@ async def _render_titles(spec: PanelSpec, ctx) -> object:
     see justification). Earned titles are DERIVED from the player's skills /
     max-depth / level (sb/domain/mining/titles.py) — a fresh player earns none →
     Equipped `— none —` + all 9 locked, the bytes goldens/mining/sweep_titles.json
-    pins. The equipped title is gated on still being earned (a post-respec choice
-    silently un-displays)."""
+    pins — and the earned-title select is DROPPED entirely (the shipped
+    ``create`` adds ``_TitleSelect`` only when ``earned`` is non-empty; the
+    drop happens BEFORE session-id minting, so the fresh-player `<cid:N>`
+    numbering is unchanged). The equipped title is gated on still being earned
+    (a post-respec choice silently un-displays). An equip re-render carries
+    its note + color in the params (``titles_note``/``titles_tone`` — the
+    refresh_session_view lane, the grid ``grid_note`` recipe; the shipped
+    ``build_titles_embed(note=…)`` description + SUCCESS/ERROR color)."""
     from sb.domain.games.xp import shared_level
     from sb.domain.mining import store, titles
     from sb.kernel.panels.render import render_panel
@@ -932,6 +1056,8 @@ async def _render_titles(spec: PanelSpec, ctx) -> object:
     rendered = await render_panel(spec, ctx)
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(getattr(ctx, "guild_id", 0) or 0)
+    note = str(ctx.params.get("titles_note", "") or "")
+    tone = str(ctx.params.get("titles_tone", "") or "")
     alloc = await store.get_skills(uid, gid)
     max_depth = await store.get_max_depth(uid, gid)
     level, _ = await shared_level(uid, gid)
@@ -956,9 +1082,21 @@ async def _render_titles(spec: PanelSpec, ctx) -> object:
             False))
     footer = ("Earn titles by mastering skill branches, descending, and "
               "levelling up.")
-    embed = _dc_replace(rendered.embed, title="🏆 Titles",
-                        fields=tuple(fields), footer=footer)
-    return _dc_replace(rendered, embed=embed)
+    embed = _dc_replace(
+        rendered.embed, title="🏆 Titles",
+        description=note or rendered.embed.description,
+        fields=tuple(fields), footer=footer,
+        # the shipped note colors: SUCCESS green / ERROR red on an equip
+        # result edit, MINING dark grey on the open (build_titles_embed).
+        style_token={"success": "green",
+                     "error": "red"}.get(tone, "dark_grey"))
+    components = rendered.components
+    if not earned:
+        # no earned titles ⇒ no select AT ALL (the shipped view shape;
+        # goldens/mining/sweep_titles.json pins the selectless bytes).
+        components = tuple(c for c in components
+                           if getattr(c, "kind", "") != "selector")
+    return _dc_replace(rendered, embed=embed, components=components)
 
 
 #: the craft-select options provider id (registered at import in _register_refs).
@@ -1537,6 +1675,9 @@ def _register_refs() -> None:
     _skills_button_handlers()
     _workshop_button_handlers()
     _ensure_workshop_craft_provider()
+    _ensure_titles_select_provider()
+    if not is_registered(HandlerRef("mining.titles_pick")):
+        handler("mining.titles_pick")(_titles_pick)
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
     if not is_registered(HandlerRef("mining.render_grid")):

@@ -31,7 +31,7 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (519/519) — curated
+    """Every golden on disk yields a replayable case (523/523) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
@@ -45,6 +45,7 @@ def test_full_corpus_reconstructs():
     cases + the 1 minted paid-tournament
     conservation case + the 2 D-0081 creature picker/bot-guard cases
     + the 4 energy-slice-2 mining cook/use minted cases
+    + the 1 energy-slice-3 fastmine out-of-energy refusal case
     + the 3 fishing cast-leg reel write cases (2026-07-13 — curated typed
     cases: `!fish` + a Reel click by component_index)
     + the 1 cleanup anti-evasion toggle write case (2026-07-13 —
@@ -56,6 +57,9 @@ def test_full_corpus_reconstructs():
     + the 4 fishing minigame-timing slice-1 cases (2026-07-14, D-0043 —
     premature spook/grace + trophy fight land/escape; the first cases
     driving Step.advance_s clicks)
+    + the 1 fishing cast-again continuation case (2026-07-14, gap 3 —
+    reel a catch → click 🎣 Cast again on the CHANNEL_ANCHOR result
+    card → a fresh cast panel opens)
     + the 4 curation row-72 + farm-goldens cases (2026-07-14, ORDER 022
     (a)4 — the `!rps 10` quickplay bet-settle click + the farm
     collect/buy-hen/upgrade-coop money-path clicks; the shop-hop cases
@@ -90,15 +94,22 @@ def test_full_corpus_reconstructs():
     # writes, 2026-07-13)
     # + 4 (energy-slice-2 mining cook/use: ration restore / full refusal /
     # cook campfire / torch flavour, 2026-07-13)
+    # + 1 (energy-slice-3 fastmine out-of-energy refusal, 2026-07-13)
     # + 1 (cleanup anti-evasion toggle write — the completeness-remainders
     # residue port, 2026-07-13)
     # + 1 (fishing howtofish rules card, 2026-07-13)
     # + 1 (cleanup policies open, 2026-07-13)
     # + 4 (fishing minigame timing slice 1: premature spook / premature
     # grace / trophy fight land / trophy fight escape, 2026-07-14)
+    # + 1 (fishing cast-again continuation, 2026-07-14)
+    # + 2 (mining title-equip write slice: title_equip_write /
+    # title_equip_unearned_refusal, 2026-07-14)
+    # + 4 (curation row-72 + farm-goldens: rps_tournament_quickplay_bet_
+    # settle_write / farm_collect_write / farm_buy_hen_write /
+    # farm_upgrade_coop_write, 2026-07-14)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 519
+    assert golden_count == 523
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 

@@ -5027,6 +5027,11 @@
         {
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
+          "value": "fishing_cast_again"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
           "value": "rs_upgrade"
         },
         {
@@ -7542,6 +7547,11 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.cast_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.cast_result"
         },
         {
           "source": "sb/manifest/fishing.py",
@@ -10981,6 +10991,9 @@
       "handler:fishing.render_cast": {
         "module": "sb.domain.fishing.panels"
       },
+      "handler:fishing.render_cast_result": {
+        "module": "sb.domain.fishing.panels"
+      },
       "handler:fishing.render_dk_structure": {
         "module": "sb.domain.fishing.panels"
       },
@@ -11412,6 +11425,9 @@
       },
       "handler:mining.stats_view": {
         "module": "sb.domain.mining.service"
+      },
+      "handler:mining.titles_pick": {
+        "module": "sb.domain.mining.panels"
       },
       "handler:mining.unequip_route": {
         "module": "sb.domain.mining.service"
@@ -12910,6 +12926,9 @@
       "panel:fishing.cast_panel": {
         "module": "sb.domain.fishing.panels"
       },
+      "panel:fishing.cast_result": {
+        "module": "sb.domain.fishing.panels"
+      },
       "panel:fishing.dock_panel": {
         "module": "sb.domain.fishing.panels"
       },
@@ -13728,6 +13747,9 @@
       },
       "provider:leaderboard.category_options": {
         "module": "sb.domain.community.panels"
+      },
+      "provider:mining.titles_select_options": {
+        "module": "sb.domain.mining.panels"
       },
       "provider:mining.workshop_craft_options": {
         "module": "sb.domain.mining.panels"
@@ -14674,6 +14696,9 @@
       "workflow:mining.equip": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.equip_title": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.erase_subject_equipment": {
         "module": "sb.domain.mining.ops"
       },
@@ -14740,6 +14765,9 @@
       "workflow:mining.record_equip": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_equip_title": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_explore": {
         "module": "sb.domain.mining.ops"
       },
@@ -14785,6 +14813,9 @@
       "workflow:mining.record_unequip": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_unequip_title": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_unstash": {
         "module": "sb.domain.mining.ops"
       },
@@ -14825,6 +14856,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.unequip": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.unequip_title": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.unstash": {
@@ -37803,6 +37837,78 @@
           "usage_weight": 1.0
         },
         {
+          "actions": [
+            {
+              "action_id": "fishing_cast_again",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎣",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.cast_open"
+              },
+              "label": "Cast again",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "channel_anchor",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped result card is handler-composed end to end (cast_view.py _finish_caught L398-456 / the terminal _terminate_interaction edits @bbc524e): the TITLE is the commit-time trophy judgement ('🏆 Trophy landed!' / '🎣 Caught it!'), the description interpolates the live catch (species/weight/personal-best/pearl/coral/level-up lines built inside the audited fishing.cast leg), and the COLOR is the terminal's tone (SUCCESS green catch / ERROR red got-away) — all outside the static grammar vocabulary. The 🎣 Cast again component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "fishing_cast_again"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.cast_result",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_cast_result"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
           "actions": [],
           "anchor_policy": "reply",
           "audience": "invoker",
@@ -50294,6 +50400,9 @@
               {
                 "rows": [
                   [
+                    "ti_select"
+                  ],
+                  [
                     "ti_hub"
                   ]
                 ]
@@ -50313,7 +50422,29 @@
           "renderer_override": {
             "$ref": "handler:mining.render_titles"
           },
-          "selectors": [],
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "Choose a title to display…",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:mining.titles_pick"
+              },
+              "options_source": {
+                "$ref": "provider:mining.titles_select_options"
+              },
+              "page_size": 25,
+              "placeholder": "Choose a title to display…",
+              "selector_id": "ti_select",
+              "slash_common": false,
+              "usage_weight": 1.0,
+              "windowed": false
+            }
+          ],
           "session_lifecycle": true,
           "subsystem": "mining",
           "timeout_s": 180,
