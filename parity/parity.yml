@@ -1313,6 +1313,23 @@ depth:
   # captures, seam-seeded weather, canonical stripped D-0073 flavor)
   # drops exactly those spine surfaces — which stay pinned in the
   # `kernel` coverage home — not any fishing-owned surface.
+  #
+  # mining 4/17 → 3/14, cleanup 2/6 → 1/4, creature 3/6 → 2/4 — the same
+  # deliberate downward correction, applied corpus-wide (2026-07-16
+  # conform sweep #457, the #449 precedent above): the 31 remaining
+  # raw-posture non-kernel goldens (28 mining WP/energy-lane mints +
+  # cleanup_anti_evasion_toggle_write + the two creature mints) were
+  # re-minted to the canonical stripped D-0073 flavor, dropping only the
+  # ruled disposition surfaces (verified per golden: each new file ==
+  # apply_dispositions(old file), a fixed point) — audit_log/event_outbox
+  # tables + the command.dispatched event (kernel-surface drift; pinned
+  # in the `kernel` coverage home) and, for mining, economy_balances
+  # (the xp-coins-alias new-home table; balance behavior stays pinned via
+  # economy_audit_log's delta/new_balance bytes). No subsystem-owned
+  # surface left any floor; replay never diffed the dropped bytes
+  # (apply_dispositions runs on BOTH docs — runner.py replay_case).
+  # Hand-set because --write-ratchet is one-way (max of computed and
+  # committed) by design.
   ratchet:
     admin: {events: 1, tables: 2, settings: 0}
     ai: {events: 2, tables: 4, settings: 1}
@@ -1322,12 +1339,12 @@ depth:
     casino: {events: 1, tables: 2, settings: 0}
     chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 3, tables: 2, settings: 0}
-    cleanup: {events: 2, tables: 6, settings: 0}
+    cleanup: {events: 1, tables: 4, settings: 0}
     community: {events: 1, tables: 2, settings: 0}
     community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
     counting: {events: 1, tables: 2, settings: 0}
-    creature: {events: 3, tables: 6, settings: 0}
+    creature: {events: 2, tables: 4, settings: 0}
     deathmatch: {events: 1, tables: 2, settings: 0}
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
@@ -1344,7 +1361,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
-    mining: {events: 4, tables: 17, settings: 0}
+    mining: {events: 3, tables: 14, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
