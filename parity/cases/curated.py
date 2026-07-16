@@ -1640,4 +1640,137 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "persistent cleanup_policy:build/remove/refresh trio — a pure "
             "read (no cleanup_policies db_delta)"),
     ),
+    # -------------------------------------- rps quickplay bet settle (row 72)
+    # Curation backlog row 72 (docs/review/curation-report-2026-07-13.md:1177
+    # — "the coin-bet click path has no golden; sweep_rps.json is the bare
+    # open"): the FIRST golden that ever clicks a quickplay move button and
+    # the first row-bearing rps_players capture (retires that time-driven
+    # exemption's ground). The bot's move draws from the module-private
+    # solo-play RNG (sb/domain/rps/ops._rng), RE-ARMED at every case head by
+    # the runner (random.Random(case.seed) — the fishing cast-RNG posture),
+    # so the seed-42 first draw is scissors and the Rock click wins
+    # deterministically. member persona = 900000000000000102, guild =
+    # 700000000000000001; economy_balances keys user_id as BIGINT.
+    GoldenCase(
+        id="rps_tournament.quickplay_bet_settle_write",
+        subsystem="rps_tournament",
+        # fund the bet: `!rps 10` balance-gates BEFORE the view opens
+        # (rps.play's shipped pre-check refusal face).
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 40)",
+        ),
+        steps=(
+            Step(kind="command", content="!rps 10", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "the coin-bet quickplay settle: `!rps 10` opens the shipped "
+            "solo-play view with the bet line (`Bet: **10** 🪙`) and the "
+            "invoker's 🪨 Rock click drives the audited rps.solo_play op — "
+            "seed-42's armed bot draw is scissors, so the win branch "
+            "credits the bet (`🎉 You win! +10 🪙`, reason rps:solo_win, "
+            "balance 40→50) and the shipped update_player_stats site "
+            "writes the FIRST row-bearing rps_players capture (1 win, "
+            "display name captured at game time) — the shipped "
+            "views/rps/solo_play.py + _helpers.py copy verbatim "
+            "(sb/domain/rps/ops.py module contract)"),
+    ),
+    # ------------------------------------------------- farm money paths
+    # The curation report's farm-goldens backlog line (docs/review/
+    # curation-report-2026-07-13.md § "(c) Backlog"): click-golden batch for
+    # the three K7 money lanes behind the hub's run-minted buttons —
+    # the first row-bearing chicken_farm captures (the parity.yml
+    # `table:chicken_farm` exemption's own promised retirement: "the first
+    # row-bearing golden lands with a button-driving capture"). Copy is the
+    # shipped disbot/views/farm/menu.py + farm_workflow semantics verbatim
+    # (sb/domain/farm/ops.py module contract). member persona =
+    # 900000000000000102, guild = 700000000000000001; chicken_farm and
+    # economy_balances key user_id as BIGINT. Hub flatten order (pinned by
+    # goldens/farm/sweep_farm.json): 0=Collect · 1=Shop · 2=Refresh ·
+    # 3=nav:help · 4=nav:hub:games; the Shop click opens the shop panel as
+    # a FRESH send (message 2), whose order is 0=Buy hen · 1=Upgrade coop ·
+    # 2=Back · 3/4=nav.
+    GoldenCase(
+        id="farm.collect_write",
+        subsystem="farm",
+        # a FULL coop (eggs == coop_capacity(0) == 20): settle
+        # short-circuits at the cap regardless of elapsed time, so the
+        # pinned bytes are clock-independent by construction (the hub
+        # renders the `**full!**` fill line, no duration math) —
+        # eggs_updated_at 0 is the uninitialized epoch the store defaults.
+        fixture_sql=(
+            "INSERT INTO chicken_farm (user_id, guild_id, chickens, eggs, "
+            "eggs_updated_at, coop_level) VALUES "
+            "(900000000000000102, 700000000000000001, 1, 20, 0, 0)",
+        ),
+        steps=(
+            Step(kind="command", content="!farm", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "the Collect payout: `!farm` renders the hub at a full coop "
+            "(`🥚 20/20`, `Worth **40** 🪙 · **full!**`) and the 🥚 Collect "
+            "click drives the audited farm.collect op — ONE txn credits "
+            "collect_value(20)=40 🪙 (reason farm:collect), zeroes the "
+            "eggs on the chicken_farm row and awards the farm game-XP "
+            "(`🥚 Collected **20** egg(s) for **40** 🪙! Balance: **40** "
+            "🪙.` — the shipped farm_workflow collect copy verbatim); the "
+            "FIRST row-bearing chicken_farm capture"),
+    ),
+    GoldenCase(
+        id="farm.buy_hen_write",
+        subsystem="farm",
+        # a funded fresh farmer: no chicken_farm row (starter defaults —
+        # 1 hen, 0 eggs) + 100 🪙; chicken_price(1) = 40.
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 100)",
+        ),
+        steps=(
+            Step(kind="command", content="!farm", persona="member"),
+            Step(kind="click", target_message=1, component_index=1,
+                 persona="member"),
+            Step(kind="click", target_message=2, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "the Buy-hen debit: `!farm` → 🛒 Shop (a fresh send — the "
+            "shipped `🐔 Next hen — **40** 🪙 (own 1)` price field over "
+            "the funded `Balance: 100 🪙` footer) → the 🐔 Buy hen click "
+            "drives the audited farm.buy_chicken op — ONE txn debits 40 🪙 "
+            "(reason farm:buy_chicken, balance 100→60) and upserts the "
+            "flock to 2 (`🐔 Bought a hen for **40** 🪙! Your flock is "
+            "now **2** strong. Balance: **60** 🪙.` — the shipped "
+            "farm_workflow buy copy verbatim; buying settles at the OLD "
+            "flock size first, the shipped no-retroactive-rate subtlety)"),
+    ),
+    GoldenCase(
+        id="farm.upgrade_coop_write",
+        subsystem="farm",
+        # a funded fresh farmer: coop_upgrade_price(0) = 100.
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 250)",
+        ),
+        steps=(
+            Step(kind="command", content="!farm", persona="member"),
+            Step(kind="click", target_message=1, component_index=1,
+                 persona="member"),
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),
+        ),
+        notes=(
+            "the Upgrade-coop debit: `!farm` → 🛒 Shop (the shipped `🏠 "
+            "Coop upgrade — **100** 🪙 → holds 35` price field) → the 🏠 "
+            "Upgrade coop click drives the audited farm.upgrade_coop op — "
+            "ONE txn debits 100 🪙 (reason farm:upgrade_coop, balance "
+            "250→150) and raises the coop to level 1 (`🏠 Upgraded your "
+            "coop to level **1** for **100** 🪙 — it now holds **35** "
+            "eggs! Balance: **150** 🪙.` — the shipped farm_workflow "
+            "upgrade copy verbatim, the dropped holds-clause restored "
+            "for this mint)"),
+    ),
 )

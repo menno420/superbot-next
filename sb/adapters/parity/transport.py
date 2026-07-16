@@ -455,8 +455,23 @@ class ParityResponder:
                     {"interaction_id": self._interaction_id},
                     {"type": 4, "data": data})
                 return None
-            self._transport.record(
-                "followup_send", _followup_args(), _followup_payload(data))
+            # a PANEL followup (components ride along) mints a
+            # click-targetable message id — a real Webhook.send returns
+            # the created message, so a child panel opened off a click
+            # (the farm hub → Shop hop) is clickable on the live surface
+            # and must be drivable here too (`target_message` addressing
+            # in capture_case counts every response_id-bearing call).
+            # Component-LESS followups (result cards, plain replies) stay
+            # id-less: nothing can be clicked on them, and the old
+            # capture never minted ids for interaction responses.
+            body = _followup_payload(data)
+            if body.get("components"):
+                message_id = self._transport._ids.allocate()
+                self._transport.calls.append(OutboundCall(
+                    method="followup_send", args=_followup_args(),
+                    payload=body, response_id=message_id))
+                return message_id
+            self._transport.record("followup_send", _followup_args(), body)
             return None
         if self._channel_id is None:
             self._transport.gap("ParityResponder.present_panel: no channel")

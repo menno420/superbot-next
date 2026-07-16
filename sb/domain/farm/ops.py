@@ -68,12 +68,19 @@ async def _record_collect(conn, ctx: WorkflowContext) -> LegOutcome:
     ctx.params["_balance_changes"] = [(uid, payout, balance,
                                        COLLECT_REASON)]
     ctx.params["_gxp"] = award
+    message = (f"🥚 Collected **{settled.eggs}** egg(s) for **{payout}** "
+               f"🪙! Balance: **{balance}** 🪙.")
     return LegOutcome(step=StepResult(uid, "collect", True), before={},
                       after={"eggs_collected": settled.eggs,
                              "coins_earned": payout, "balance": balance,
-                             "message": f"🥚 Collected **{settled.eggs}** "
-                                        f"egg(s) for **{payout}** 🪙! "
-                                        f"Balance: **{balance}** 🪙."})
+                             "message": message},
+                      # the success copy line — the hub's Collect click
+                      # dispatches this op directly (no handler composes
+                      # a Reply), so the leg speaks its own result: the
+                      # rps.record_solo_play precedent. Without it the
+                      # money click committed SILENTLY (the copy sat in
+                      # after["message"], which no surface reads).
+                      user_message=message)
 
 
 @workflow("farm.record_buy_chicken")
@@ -105,14 +112,15 @@ async def _record_buy_chicken(conn, ctx: WorkflowContext) -> LegOutcome:
                          now=now, coop_level=settled.coop_level)
     ctx.params["_balance_changes"] = [(uid, -price, balance,
                                        BUY_CHICKEN_REASON)]
+    message = (f"🐔 Bought a hen for **{price}** 🪙! Your flock is now "
+               f"**{settled.chickens + 1}** strong. Balance: "
+               f"**{balance}** 🪙.")
     return LegOutcome(step=StepResult(uid, "buy_chicken", True), before={},
                       after={"price": price, "balance": balance,
                              "chickens": settled.chickens + 1,
-                             "message": f"🐔 Bought a hen for **{price}** "
-                                        f"🪙! Your flock is now "
-                                        f"**{settled.chickens + 1}** "
-                                        f"strong. Balance: "
-                                        f"**{balance}** 🪙."})
+                             "message": message},
+                      # leg-spoken success copy — see _record_collect.
+                      user_message=message)
 
 
 @workflow("farm.record_upgrade_coop")
@@ -145,14 +153,21 @@ async def _record_upgrade_coop(conn, ctx: WorkflowContext) -> LegOutcome:
                          now=now, coop_level=settled.coop_level + 1)
     ctx.params["_balance_changes"] = [(uid, -price, balance,
                                        UPGRADE_COOP_REASON)]
+    # the shipped farm_workflow.upgrade_coop copy VERBATIM (oracle
+    # disbot/services/farm_workflow.py @7f7628e1, re-read 2026-07-14 for
+    # the row-72 mint): the port had dropped the "— it now holds **N**
+    # eggs!" clause; restored before the first golden pinned the byte.
+    message = (f"🏠 Upgraded your coop to level "
+               f"**{settled.coop_level + 1}** for **{price}** 🪙 — it now "
+               f"holds **{core.coop_capacity(settled.coop_level + 1)}** "
+               f"eggs! Balance: **{balance}** 🪙.")
     return LegOutcome(step=StepResult(uid, "upgrade_coop", True),
                       before={},
                       after={"price": price, "balance": balance,
                              "coop_level": settled.coop_level + 1,
-                             "message": f"🏠 Upgraded your coop to level "
-                                        f"**{settled.coop_level + 1}** for "
-                                        f"**{price}** 🪙! Balance: "
-                                        f"**{balance}** 🪙."})
+                             "message": message},
+                      # leg-spoken success copy — see _record_collect.
+                      user_message=message)
 
 
 @workflow("farm.erase_subject_farm")

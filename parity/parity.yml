@@ -310,10 +310,39 @@ source:
   # exemption/ratchet movement. Weather-free surface: no
   # CAPTURE_WORLD_WEATHER rows needed (checked before mint — the
   # post-07-13 date-live doctrine).
-  minted_goldens: 57
+  # +4 minted the CURATION ROW-72 + FARM-GOLDENS batch (2026-07-14,
+  # ORDER 022 (a)4 — curation bundle 3, docs/review/
+  # curation-report-2026-07-13.md row 72 + the "(c) Backlog" farm line;
+  # tools/mint_golden.py, canonical stripped flavor; all four case ids
+  # registered in CAPTURE_WORLD_WEATHER before the mint per the
+  # post-07-13 doctrine — none renders a forecast, the seed is the
+  # defensive pin): goldens/rps_tournament/
+  # rps_tournament_quickplay_bet_settle_write.json (`!rps 10` → the 🪨
+  # Rock click vs the runner-armed seed-42 scissors draw — the coin-bet
+  # win settle `🎉 You win! +10 🪙`, reason rps:solo_win, and the FIRST
+  # row-bearing rps_players capture — its time-driven exemption row
+  # retires below), goldens/farm/farm_collect_write.json (a full coop's
+  # 🥚 Collect — 40 🪙 at reason farm:collect + the farm game-XP award;
+  # the FIRST row-bearing chicken_farm capture — the exemption row's own
+  # promised retirement), farm_buy_hen_write.json (hub → 🛒 Shop →
+  # 🐔 Buy hen: the 40 🪙 debit at farm:buy_chicken, flock 1→2) and
+  # farm_upgrade_coop_write.json (hub → 🛒 Shop → 🏠 Upgrade coop: the
+  # 100 🪙 debit at farm:upgrade_coop, coop 0→1). The shop-hop cases are
+  # the first to CLICK a followup-presented child panel — the parity
+  # transport now mints a click-targetable message id for
+  # component-bearing panel followups (sb/adapters/parity/transport.py;
+  # a real Webhook.send returns the created message), and the farm legs
+  # now speak their success copy through LegOutcome.user_message (the
+  # rps.record_solo_play precedent — the money click previously
+  # committed SILENTLY, its copy dead in after["message"]). Farm copy is
+  # the shipped farm_workflow/menu.py verbatim (the panels.py trap-24
+  # farm-row drift check: NO drift @ corpus sha 7f7628e1); rps solo copy
+  # is the shipped views/rps/solo_play.py contract (sb/domain/rps/
+  # ops.py module docstring, @7f7628e1).
+  minted_goldens: 61
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 519). The first retirement (2026-07-12
+  # imported + minted − retired = 523). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -815,20 +844,14 @@ depth:
       # rendered from the row-less starter defaults) and mints no
       # chicken_farm row; none of the three K7 money lanes ever ran in
       # the capture world.
-      - surface: "table:chicken_farm"
-        reason: "time-driven: chicken_farm rows are written only at
-          interactive-session resolution — the three audited K7 lanes
-          (farm.collect / farm.buy_chicken / farm.upgrade_coop) sit
-          behind the hub's run-minted Collect/Shop buttons (session
-          <cid:N> ids no imported click step can reconstruct;
-          disbot/views/farm/menu.py FarmMenuView/FarmShopView — the
-          creature_battle_record / rps_players precedent: writes inside
-          an interactive session view are out of capture scope for the
-          sweep corpus); the read surface IS golden-pinned
-          (goldens/farm/sweep_farm.json pins the fresh-farmer
-          starter-defaults read — 1 hen · 0/20 eggs · level-0 coop, no
-          row), so no imported golden can carry a chicken_farm row; the
-          first row-bearing golden lands with a button-driving capture"
+      # RETIRED 2026-07-14 (curation row-72 + farm-goldens batch): the
+      # `table:chicken_farm` time-driven row — its own text promised
+      # "the first row-bearing golden lands with a button-driving
+      # capture", and that capture landed: goldens/farm/
+      # farm_{collect,buy_hen,upgrade_coop}_write drive `!farm` → the
+      # hub's Collect / Shop → Buy-hen / Upgrade-coop buttons by
+      # component_index and pin the three K7 money legs' chicken_farm
+      # row-level db_delta (the fishing_catch_log retirement precedent).
     fishing:
       # RETIRED 2026-07-13 (the cast-depth lane's PR-B): the
       # `table:fishing_catch_log` session-resolution row — its own text
@@ -1099,13 +1122,14 @@ depth:
           live golden lands with a #proof-provisioned capture alongside
           the channel-ops slice"
     rps_tournament:
-      - surface: "table:rps_players"
-        reason: "time-driven: rps_players stats rows are written at match
-          completion inside the shipped tournament/bot-match orchestration
-          (reaction sign-up + stage loops + no-prefix moves in match
-          channels) — out of capture scope for the sweep corpus; the
-          subsystem's only golden opens the quick-play picker and finishes
-          no match"
+      # RETIRED 2026-07-14 (curation row-72 batch): the
+      # `table:rps_players` time-driven row — its ground ("the
+      # subsystem's only golden opens the quick-play picker and finishes
+      # no match") vanished when goldens/rps_tournament/
+      # rps_tournament_quickplay_bet_settle_write landed: the `!rps 10`
+      # → Rock click finishes a solo match and pins the shipped
+      # update_player_stats site's first row-bearing rps_players delta
+      # (the chicken_farm / fishing_catch_log retirement precedent).
     role:
       # role's goldens are the hub opens + the re-homed sweep family
       # (the #155-lane re-home: sweep_setrole / sweep_reactroles now
@@ -1307,7 +1331,7 @@ depth:
     deathmatch: {events: 1, tables: 2, settings: 0}
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
-    farm: {events: 1, tables: 2, settings: 0}
+    farm: {events: 3, tables: 5, settings: 0}
     fishing: {events: 2, tables: 8, settings: 0}
     four_twenty: {events: 1, tables: 2, settings: 0}
     games: {events: 1, tables: 2, settings: 0}
@@ -1327,7 +1351,7 @@ depth:
     proof_channel: {events: 1, tables: 2, settings: 0}
     quicksetup: {events: 0, tables: 0, settings: 0}
     role: {events: 3, tables: 5, settings: 0}
-    rps_tournament: {events: 1, tables: 3, settings: 1}
+    rps_tournament: {events: 2, tables: 5, settings: 1}
     security: {events: 1, tables: 2, settings: 0}
     server_management: {events: 1, tables: 3, settings: 0}
     settings: {events: 1, tables: 2, settings: 0}
