@@ -5217,12 +5217,17 @@
         {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
-          "value": "enable_all_competitive"
+          "value": "enable_all_casino"
         },
         {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
-          "value": "enable_all_activities"
+          "value": "enable_all_arcade"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "enable_all_world"
         },
         {
           "source": "sb/manifest/general.py",
@@ -11060,16 +11065,22 @@
       "handler:games.render_world_card": {
         "module": "sb.domain.games.panels"
       },
-      "handler:games.sections_enable_all_activities": {
+      "handler:games.sections_enable_all_arcade": {
         "module": "sb.domain.games.sections_panel"
       },
-      "handler:games.sections_enable_all_competitive": {
+      "handler:games.sections_enable_all_casino": {
         "module": "sb.domain.games.sections_panel"
       },
-      "handler:games.sections_pick_activities": {
+      "handler:games.sections_enable_all_world": {
         "module": "sb.domain.games.sections_panel"
       },
-      "handler:games.sections_pick_competitive": {
+      "handler:games.sections_pick_arcade": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_pick_casino": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_pick_world": {
         "module": "sb.domain.games.sections_panel"
       },
       "handler:games.session_gc_fire": {
@@ -13691,10 +13702,13 @@
       "provider:games.sections_fields": {
         "module": "sb.domain.games.sections_panel"
       },
-      "provider:games.sections_options_activities": {
+      "provider:games.sections_options_arcade": {
         "module": "sb.domain.games.sections_panel"
       },
-      "provider:games.sections_options_competitive": {
+      "provider:games.sections_options_casino": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "provider:games.sections_options_world": {
         "module": "sb.domain.games.sections_panel"
       },
       "provider:games.world_fields": {
@@ -40118,7 +40132,7 @@
         {
           "actions": [
             {
-              "action_id": "enable_all_competitive",
+              "action_id": "enable_all_casino",
               "audience_tier": "administrator",
               "audit": "",
               "capability_required": "",
@@ -40127,12 +40141,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🏆",
+              "emoji": "🎰",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:games.sections_enable_all_competitive"
+                "$ref": "handler:games.sections_enable_all_casino"
               },
-              "label": "Enable all — Competitive",
+              "label": "Enable all — Casino",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -40143,7 +40157,7 @@
               "visible_when": ""
             },
             {
-              "action_id": "enable_all_activities",
+              "action_id": "enable_all_arcade",
               "audience_tier": "administrator",
               "audit": "",
               "capability_required": "",
@@ -40152,12 +40166,37 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🎲",
+              "emoji": "🕹️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:games.sections_enable_all_activities"
+                "$ref": "handler:games.sections_enable_all_arcade"
               },
-              "label": "Enable all — Activities",
+              "label": "Enable all — Arcade",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "enable_all_world",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🌍",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:games.sections_enable_all_world"
+              },
+              "label": "Enable all — World",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -40195,14 +40234,18 @@
               {
                 "rows": [
                   [
-                    "pick_competitive"
+                    "pick_casino"
                   ],
                   [
-                    "pick_activities"
+                    "pick_arcade"
                   ],
                   [
-                    "enable_all_competitive",
-                    "enable_all_activities"
+                    "pick_world"
+                  ],
+                  [
+                    "enable_all_casino",
+                    "enable_all_arcade",
+                    "enable_all_world"
                   ]
                 ]
               }
@@ -40228,17 +40271,17 @@
               "custom_id_override": "",
               "empty_state": "No options available.",
               "kind": "enum",
-              "max_values": 4,
+              "max_values": 2,
               "min_values": 0,
               "on_select": {
-                "$ref": "handler:games.sections_pick_competitive"
+                "$ref": "handler:games.sections_pick_casino"
               },
               "options_source": {
-                "$ref": "provider:games.sections_options_competitive"
+                "$ref": "provider:games.sections_options_casino"
               },
               "page_size": 25,
-              "placeholder": "🏆 Competitive — pick the enabled games…",
-              "selector_id": "pick_competitive",
+              "placeholder": "🎰 Casino — pick the enabled games…",
+              "selector_id": "pick_casino",
               "slash_common": false,
               "usage_weight": 1.0,
               "windowed": false
@@ -40249,17 +40292,38 @@
               "custom_id_override": "",
               "empty_state": "No options available.",
               "kind": "enum",
-              "max_values": 6,
+              "max_values": 4,
               "min_values": 0,
               "on_select": {
-                "$ref": "handler:games.sections_pick_activities"
+                "$ref": "handler:games.sections_pick_arcade"
               },
               "options_source": {
-                "$ref": "provider:games.sections_options_activities"
+                "$ref": "provider:games.sections_options_arcade"
               },
               "page_size": 25,
-              "placeholder": "🎲 Activities — pick the enabled games…",
-              "selector_id": "pick_activities",
+              "placeholder": "🕹️ Arcade — pick the enabled games…",
+              "selector_id": "pick_arcade",
+              "slash_common": false,
+              "usage_weight": 1.0,
+              "windowed": false
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 4,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:games.sections_pick_world"
+              },
+              "options_source": {
+                "$ref": "provider:games.sections_options_world"
+              },
+              "page_size": 25,
+              "placeholder": "🌍 World — pick the enabled games…",
+              "selector_id": "pick_world",
               "slash_common": false,
               "usage_weight": 1.0,
               "windowed": false

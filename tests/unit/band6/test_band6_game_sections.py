@@ -1,6 +1,7 @@
-"""Game sections slice 1 (D-0082, docs/design/game-sections.md §3/§4):
-the DEFAULT inventory declared in ``sb/manifest/games.py`` (drift-guarded
-against the shipped hub roster in ``sb/domain/games/panels.py``) and the
+"""Game sections (D-0082, docs/design/game-sections.md §3/§4 + the
+casino-section spec swap, docs/specs/casino-section-spec.md §2/§7): the
+DEFAULT inventory declared in ``sb/manifest/games.py`` (drift-guarded
+against the hub roster in ``sb/domain/games/panels.py``) and the
 per-guild enablement read seam ``sb/domain/games/sections.py`` riding
 governance ``subsystem_enabled``."""
 
@@ -15,8 +16,10 @@ run = asyncio.run
 
 GID = 1
 
-_COMPETITIVE = ("blackjack", "casino", "deathmatch", "rps_tournament")
-_ACTIVITIES = ("mining", "fishing", "creature", "farm", "counting", "chain")
+_CASINO = ("blackjack", "casino")
+_ARCADE = ("deathmatch", "rps_tournament", "counting", "chain")
+_WORLD = ("mining", "fishing", "creature", "farm")
+_ALL_GAMES = _CASINO + _ARCADE + _WORLD
 
 
 @pytest.fixture(autouse=True)
@@ -50,24 +53,28 @@ def _install_enabled(monkeypatch, enabled: set[str]):
     return calls
 
 
-# --- the DEFAULT inventory: drift-guard against the shipped hub roster -------
+# --- the DEFAULT inventory: drift-guard against the hub roster ---------------
 
 
 def test_default_inventory_matches_the_shipped_hub_roster():
     # The design-card idea landed: the sections constant is hand-derived
     # from the hub roster — pin the agreement (keys/emoji/labels/hub refs,
     # both directions, order included) so neither can drift silently.
+    # Taxonomy: the casino-section spec §2 three-way split.
     from sb.domain.games import panels
     from sb.manifest.games import GAME_SECTIONS
 
     by_key = {s.key: s for s in GAME_SECTIONS}
-    assert tuple(by_key) == ("competitive", "activities")
-    assert (by_key["competitive"].title, by_key["competitive"].emoji) == \
-        ("Competitive", "🏆")
-    assert (by_key["activities"].title, by_key["activities"].emoji) == \
-        ("Activities", "🎲")
-    for section_key, roster in (("competitive", panels.GAMES_COMPETITIVE),
-                                ("activities", panels.GAMES_ACTIVITIES)):
+    assert tuple(by_key) == ("casino", "arcade", "world")
+    assert (by_key["casino"].title, by_key["casino"].emoji) == \
+        ("Casino", "🎰")
+    assert (by_key["arcade"].title, by_key["arcade"].emoji) == \
+        ("Arcade", "🕹️")
+    assert (by_key["world"].title, by_key["world"].emoji) == \
+        ("World", "🌍")
+    for section_key, roster in (("casino", panels.GAMES_CASINO),
+                                ("arcade", panels.GAMES_ARCADE),
+                                ("world", panels.GAMES_WORLD)):
         assert [(e.key, e.emoji, e.label, e.hub)
                 for e in by_key[section_key].games] == \
             [(key, emoji, display, ref)
@@ -79,8 +86,9 @@ def test_manifest_sections_registered_in_declaration_order():
     from sb.spec.sections import all_sections, get_section
 
     assert all_sections() == manifest.GAME_SECTIONS
-    assert get_section("competitive") == manifest.GAME_SECTIONS[0]
-    assert get_section("activities") == manifest.GAME_SECTIONS[1]
+    assert get_section("casino") == manifest.GAME_SECTIONS[0]
+    assert get_section("arcade") == manifest.GAME_SECTIONS[1]
+    assert get_section("world") == manifest.GAME_SECTIONS[2]
     # re-registration (module re-import / ENSURE_REFS discipline): no-op.
     manifest._register_sections()
     assert all_sections() == manifest.GAME_SECTIONS
@@ -92,16 +100,17 @@ def test_manifest_sections_registered_in_declaration_order():
 def test_enabled_games_all_enabled_is_the_full_roster(monkeypatch):
     from sb.domain.games.sections import enabled_games
 
-    calls = _install_enabled(monkeypatch, set(_COMPETITIVE + _ACTIVITIES))
+    calls = _install_enabled(monkeypatch, set(_ALL_GAMES))
     views = run(enabled_games(GID))
 
-    assert [v.key for v in views] == ["competitive", "activities"]
-    assert [e.key for e in views[0].games] == list(_COMPETITIVE)
-    assert [e.key for e in views[1].games] == list(_ACTIVITIES)
+    assert [v.key for v in views] == ["casino", "arcade", "world"]
+    assert [e.key for e in views[0].games] == list(_CASINO)
+    assert [e.key for e in views[1].games] == list(_ARCADE)
+    assert [e.key for e in views[2].games] == list(_WORLD)
     # the view carries the section frame verbatim
-    assert (views[0].title, views[0].emoji) == ("Competitive", "🏆")
+    assert (views[0].title, views[0].emoji) == ("Casino", "🎰")
     # one governance read per game key, guild-scoped
-    assert set(calls) == {(GID, k) for k in _COMPETITIVE + _ACTIVITIES}
+    assert set(calls) == {(GID, k) for k in _ALL_GAMES}
 
 
 def test_enabled_games_pick_a_few_filters_in_order(monkeypatch):
@@ -110,19 +119,21 @@ def test_enabled_games_pick_a_few_filters_in_order(monkeypatch):
     _install_enabled(monkeypatch, {"blackjack", "fishing", "counting"})
     views = run(enabled_games(GID))
 
-    assert [v.key for v in views] == ["competitive", "activities"]
+    assert [v.key for v in views] == ["casino", "arcade", "world"]
     assert [e.key for e in views[0].games] == ["blackjack"]
-    assert [e.key for e in views[1].games] == ["fishing", "counting"]
+    assert [e.key for e in views[1].games] == ["counting"]
+    assert [e.key for e in views[2].games] == ["fishing"]
 
 
 def test_enabled_games_drops_a_fully_disabled_section(monkeypatch):
     from sb.domain.games.sections import enabled_games
 
-    _install_enabled(monkeypatch, set(_ACTIVITIES))
+    _install_enabled(monkeypatch, set(_ARCADE + _WORLD))
     views = run(enabled_games(GID))
 
-    assert [v.key for v in views] == ["activities"]
-    assert [e.key for e in views[0].games] == list(_ACTIVITIES)
+    assert [v.key for v in views] == ["arcade", "world"]
+    assert [e.key for e in views[0].games] == list(_ARCADE)
+    assert [e.key for e in views[1].games] == list(_WORLD)
 
 
 def test_enabled_games_empty_when_nothing_is_enabled(monkeypatch):
@@ -162,7 +173,8 @@ def test_fail_open_unknown_key_through_the_real_governance_read(monkeypatch):
 
     views = run(enabled_games(GID))
     by_key = {v.key: v for v in views}
-    assert [e.key for e in by_key["competitive"].games] == \
-        ["casino", "deathmatch", "rps_tournament"]      # blackjack overridden off
-    assert [e.key for e in by_key["activities"].games] == list(_ACTIVITIES)
+    assert [e.key for e in by_key["casino"].games] == \
+        ["casino"]                                  # blackjack overridden off
+    assert [e.key for e in by_key["arcade"].games] == list(_ARCADE)
+    assert [e.key for e in by_key["world"].games] == list(_WORLD)
     assert [e.key for e in by_key["lab"].games] == ["not_a_subsystem"]  # fail-open

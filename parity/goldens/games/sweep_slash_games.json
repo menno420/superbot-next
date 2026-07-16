@@ -121,13 +121,18 @@
          "fields": [
           {
            "inline": false,
-           "name": "🏆 Competitive",
-           "value": "🃏 **Blackjack** — Blackjack card game\n🎰 **Casino** — Group card games like multiplayer poker\n⚔️ **Deathmatch** — 1v1 duel battles\n✂️ **Rock Paper Scissors** — Rock Paper Scissors: quick play, PvP, bot matches, tournaments"
+           "name": "🎰 Casino",
+           "value": "🃏 **Blackjack** — Blackjack card game\n🎰 **Casino** — Group card games like multiplayer poker"
           },
           {
            "inline": false,
-           "name": "🎲 Activities",
-           "value": "⛏️ **Mining** — Mining minigame and resource collection\n🎣 **Fishing** — Fishing minigame — cast a line, build your collection\n🐾 **Creatures** — Catch original creatures and build your collection dex\n🐔 **Chicken Farm** — Idle egg farm — hens lay eggs over time; collect, sell, grow\n🔢 **Counting** — Collaborative counting game\n🔗 **Word Chain** — Word-chaining game"
+           "name": "🕹️ Arcade",
+           "value": "⚔️ **Deathmatch** — 1v1 duel battles\n✂️ **Rock Paper Scissors** — Rock Paper Scissors: quick play, PvP, bot matches, tournaments\n🔢 **Counting** — Collaborative counting game\n🔗 **Word Chain** — Word-chaining game"
+          },
+          {
+           "inline": false,
+           "name": "🌍 World",
+           "value": "⛏️ **Mining** — Mining minigame and resource collection\n🎣 **Fishing** — Fishing minigame — cast a line, build your collection\n🐾 **Creatures** — Catch original creatures and build your collection dex\n🐔 **Chicken Farm** — Idle egg farm — hens lay eggs over time; collect, sell, grow"
           }
          ],
          "flags": 0,

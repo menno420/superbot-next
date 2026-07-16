@@ -68,36 +68,39 @@ SESSION_GC_TASK = declare_task(ManagedTaskSpec(
 
 # --- game sections (D-0082, docs/design/game-sections.md §3) --------------------
 #
-# The DEFAULT section inventory, derived from the shipped games-hub roster
-# (sb/domain/games/panels.py GAMES_COMPETITIVE / GAMES_ACTIVITIES — the
-# drift-guard test pins the agreement). This constant is the SINGLE SBW-spec
-# REPLACEMENT SLOT (design §7): when the SBW inventory+consolidation spec
-# lands (outbox SIM-REQUEST 2026-07-13T00:55Z, PR #325), replace THIS tuple
-# (+ extend GameSectionSpec if the spec adds fields); no engine changes, no
-# store changes.
+# The DEFAULT section inventory — the docs/specs/casino-section-spec.md §2
+# taxonomy (🎰 casino / 🕹️ arcade / 🌍 world), landed through design §7's
+# SINGLE REPLACEMENT SLOT (this constant; drift-guarded against the hub
+# roster in sb/domain/games/panels.py). Spec expansion slots: a new
+# standalone minigame adds ONE GameEntry to the fitting section (default
+# `arcade`; persistent progression → `world`; wagers/cards → `casino`);
+# roulette + the multiplayer blackjack table dock INSIDE the casino
+# subsystem (spec §6). No engine changes, no store changes.
 GAME_SECTIONS: tuple[GameSectionSpec, ...] = (
     GameSectionSpec(
-        key="competitive", title="Competitive", emoji="🏆",
+        key="casino", title="Casino", emoji="🎰",
         games=(
-            GameEntry("blackjack", "Blackjack", "🃏",
-                      PanelRef("blackjack.hub")),
+            GameEntry("blackjack", "Blackjack", "🃏", PanelRef("blackjack.hub")),
             GameEntry("casino", "Casino", "🎰", PanelRef("casino.hub")),
-            GameEntry("deathmatch", "Deathmatch", "⚔️",
-                      PanelRef("deathmatch.hub")),
-            GameEntry("rps_tournament", "Rock Paper Scissors", "✂️",
-                      PanelRef("rps_tournament.hub")),
+            # expansion slot: roulette / multiplayer blackjack table dock
+            # INSIDE the casino subsystem (see §6 granularity note)
         )),
     GameSectionSpec(
-        key="activities", title="Activities", emoji="🎲",
+        key="arcade", title="Arcade", emoji="🕹️",
+        games=(
+            GameEntry("deathmatch", "Deathmatch", "⚔️", PanelRef("deathmatch.hub")),
+            GameEntry("rps_tournament", "Rock Paper Scissors", "✂️",
+                      PanelRef("rps_tournament.hub")),
+            GameEntry("counting", "Counting", "🔢", PanelRef("counting.hub")),
+            GameEntry("chain", "Word Chain", "🔗", PanelRef("chain.hub")),
+        )),
+    GameSectionSpec(
+        key="world", title="World", emoji="🌍",
         games=(
             GameEntry("mining", "Mining", "⛏️", PanelRef("mining.hub")),
             GameEntry("fishing", "Fishing", "🎣", PanelRef("fishing.hub")),
-            GameEntry("creature", "Creatures", "🐾",
-                      PanelRef("creature.hub")),
+            GameEntry("creature", "Creatures", "🐾", PanelRef("creature.hub")),
             GameEntry("farm", "Chicken Farm", "🐔", PanelRef("farm.hub")),
-            GameEntry("counting", "Counting", "🔢",
-                      PanelRef("counting.hub")),
-            GameEntry("chain", "Word Chain", "🔗", PanelRef("chain.hub")),
         )),
 )
 

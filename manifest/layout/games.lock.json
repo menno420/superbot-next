@@ -2,7 +2,7 @@
  "entries": {
   "games:games.hub:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     {
@@ -29,7 +29,7 @@
   },
   "games:games.hub:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     [
@@ -52,7 +52,7 @@
   },
   "games:games.hub:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": {
     "pages": [
@@ -79,27 +79,100 @@
     ]
    }
   },
+  "games:games.sections:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed continuation: the casino-section spec swap (docs/specs/casino-section-spec.md \u00a72, ORDER 022 (a)2) grew the registry-driven games.sections settings panel from 2 to 3 sections, crossing the below-threshold floor; the arrangement is the SAME mechanical registry-order derivation (one select row per section + one shared enable-all row) the below-floor shape carried \u2014 no new arrangement choice to simulate (telemetry sidecar seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "pick_casino"
+      ],
+      [
+       "pick_arcade"
+      ],
+      [
+       "pick_world"
+      ],
+      [
+       "enable_all_casino",
+       "enable_all_arcade",
+       "enable_all_world"
+      ]
+     ]
+    }
+   ]
+  },
+  "games:games.sections:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed continuation: the casino-section spec swap (docs/specs/casino-section-spec.md \u00a72, ORDER 022 (a)2) grew the registry-driven games.sections settings panel from 2 to 3 sections, crossing the below-threshold floor; the arrangement is the SAME mechanical registry-order derivation (one select row per section + one shared enable-all row) the below-floor shape carried \u2014 no new arrangement choice to simulate (telemetry sidecar seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "pick_casino"
+    ],
+    [
+     "pick_arcade"
+    ],
+    [
+     "pick_world"
+    ],
+    [
+     "enable_all_casino",
+     "enable_all_arcade",
+     "enable_all_world"
+    ]
+   ]
+  },
+  "games:games.sections:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed continuation: the casino-section spec swap (docs/specs/casino-section-spec.md \u00a72, ORDER 022 (a)2) grew the registry-driven games.sections settings panel from 2 to 3 sections, crossing the below-threshold floor; the arrangement is the SAME mechanical registry-order derivation (one select row per section + one shared enable-all row) the below-floor shape carried \u2014 no new arrangement choice to simulate (telemetry sidecar seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "pick_casino"
+       ],
+       [
+        "pick_arcade"
+       ],
+       [
+        "pick_world"
+       ],
+       [
+        "enable_all_casino",
+        "enable_all_arcade",
+        "enable_all_world"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "games:games:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "games:games:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "games:world:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "games:worldcard:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   }
