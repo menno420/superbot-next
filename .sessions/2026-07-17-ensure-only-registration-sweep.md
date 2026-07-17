@@ -1,8 +1,8 @@
 # 2026-07-17 — ensure-only registration sweep: retire the last burn-down entry (`panel:role.hub`)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** Opus 4.8 · worker session · composition-parity burn-down
+- **📊 Model:** opus-4.8 · medium · mechanical refactor
 
 ## Scope
 
@@ -48,10 +48,16 @@ No behavior change beyond making the ref resolve at import time.
 
 ## Verification
 
-- `python3 -m pytest tests/ -q` → see close-out.
-- `python3 tools/check_parity_depth.py`, guard scripts
-  (check_symbol_shadowing / check_namespace / check_no_skip /
-  check_config_usage), and the composition-probe re-run → see close-out.
+- `python3 -m pytest tests/ -q` → 3160 passed, 29 skipped.
+- `python3 -m pytest tests/unit/invariants/test_composition_parity.py -q`
+  → 3 passed (`test_no_new_ensure_only_refs` /
+  `test_burn_down_entries_are_still_real` green with `_KNOWN_ENSURE_ONLY`
+  now empty).
+- `python3 tools/check_parity_depth.py` → OK, 49 subsystems (49 ported),
+  523 goldens; guard scripts (check_symbol_shadowing / check_namespace /
+  check_no_skip / check_config_usage) → all clean.
+- `python3 bootstrap.py check --strict` → all checks passed (only
+  pre-existing advisories; this card carries no model-line advisory).
 
 ## 💡 Session idea
 
@@ -65,9 +71,16 @@ tests/unit/invariants/test_composition_parity.py, target
 
 ## ⟲ Previous-session review
 
-Reviewed `.sessions/2026-07-16-conform-sweep-457.md` (#457 conform
-sweep). Its discipline of deriving the target list by a structural marker
-scan AT HEAD rather than trusting an inherited count is exactly what this
-session needed: the 2026-07-10 ledger claimed 99 refs, but the live probe
-found one. Adopted that "re-derive from the tree, never from the doc"
-rule as STEP 1 here.
+Reviewed the predecessor #506 coordinator close-out
+(`.sessions/2026-07-17-coordinator-closeout.md`), which cleared the
+fleet-wide PR backlog to 0 open (#499 / #500 / #503 / #505 landed on main
+at `0df7ac8`), and its follow-on fresh-start cleanup #507
+(`.sessions/2026-07-17-fresh-start-cleanup.md`), which retired the
+`control/` message bus (inbox / outbox / status wound down) and stood up
+`docs/NEXT-TASKS.md` as the forward ledger. The message-bus retirement
+reads clean: `control/` scaffolding is deprecation-bannered (not silently
+deleted), the append-only inbox gate is honored, and `docs/NEXT-TASKS.md`
+is the correct source of "what to build next" — this session's task
+(NEXT-TASKS build-backlog item 3, the ensure-only-registration-gaps
+class) was picked straight from that ledger, confirming the handoff works
+as intended.
