@@ -1,6 +1,6 @@
 # 2026-07-17 — port-backlog recon + ledger notes
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 A ledger/upkeep slice landed while the substantive port backlog (NEXT-TASKS
 #1/#2) is blocked on the port oracle this session. Carries two
@@ -49,4 +49,16 @@ python3 -m pytest tests/unit/invariants/test_composition_parity.py -q →
 3 passed in 1.04s. Full unit suite `python3 -m pytest tests/unit -q` →
 3158 passed, 2 skipped. Doc/docstring-only changes; six named gates unaffected.
 
-<!-- ender (added at flip): badge -> complete · 💡 idea · model line · prev-session review -->
+---
+
+> ✅ **Complete** — Status flipped `in-progress` → `complete` as the deliberate LAST commit (per `.sessions/README.md`).
+
+- **📊 Model:** Opus 4.8 · high · ledger/upkeep slice + backlog recon
+
+## 💡 Session idea
+
+💡 Idea — a pre-mint weather-pin guard for `tools/mint_golden.py`. The 2026-07-14 fleet-wide golden-parity gate rot (fixed by #449) came from minting fishing goldens that embedded that day's live-derived forecast; the tool silently allows minting a weather-touching case (fishing / howtofish / cast) whose case id isn't pinned in `CAPTURE_WORLD_WEATHER` (sb/adapters/parity/runner.py), so the golden replays green only on its mint date and rots at the next UTC midnight. A one-check guard that fails the mint when a weather-touching subsystem's case id is absent from that dict turns a recurring silent incident into a mint-time error. Pure-tool, unit-testable, no oracle needed.
+
+## ⟲ Previous-session review
+
+🔎 Prev-session review (#508 / coordinator close-out): the ensure-only registration sweep correctly registered `panel:role.hub` at module import and emptied `_KNOWN_ENSURE_ONLY` to zero; the empty-vehicle check on merge commit 08add0e confirms the real +104/−9 payload landed (not an empty vehicle), and this card's docstring rider makes that retirement explicit in the invariant that guards it. No regression noted.
