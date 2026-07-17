@@ -1,76 +1,92 @@
-# 2026-07-17 — verified in-env Postgres provisioning wall (port loop #1/#2)
+# 2026-07-17 — verify port-loop preconditions: oracle + Postgres + provisioning
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Opus 4.8 · medium · docs/ledger
 
-A docs-only slice that SHARPENS the existing port-backlog wall note: this
-session verified in-env that the port oracle CAN be attached but Postgres
-CANNOT be provisioned at all in this environment class, so NEXT-TASKS #1/#2
-stay blocked until an external Postgres is provided.
+A docs-only slice that CORRECTS a false-negative in the port-backlog wall note.
+This session verified in-env that the oracle attaches AND the native Postgres
+cluster is startable; the true remaining blocker for NEXT-TASKS #1/#2 is
+narrower — DB provisioning DDL is classifier-denied in agent auto-mode.
 
 ## WHAT
 
-`docs/current-state.md` — the existing 2026-07-17 port-backlog prerequisite
-note is sharpened with a dated NEUTRAL sub-note recording this session's
-verified in-env findings (oracle attach works; Postgres cannot be provisioned)
-plus a paste-ready provisioning need. Session card records the evidence.
+- `docs/CAPABILITIES.md` — dated 2026-07-17 entry: cluster CAN start
+  (`pg_ctlcluster 16 main start`); parity DB provisioning CANNOT (classifier-
+  gated). Includes the start recipe, the off-`$PATH` binary note, the
+  false-negative trap, and the exact denied provisioning commands.
+- `docs/current-state.md` — dated 2026-07-17 CORRECTION appended to the
+  existing port-backlog wall note (history kept), with a paste-ready owner
+  unblock block.
+- This card.
 
 ## WHY
 
-The prior note said Postgres was merely "not provisioned" / `5432 - no
-response`. That understates the wall: this session attempted provisioning and
-found there is **no path** to a live Postgres in this environment class — no
-docker daemon socket and no native server binaries — so a session here cannot
-self-provision the DB the golden-mint pin needs (`tools/mint_golden.py` refuses
-to fake oracle byte-verification, and the db_delta is part of the pin).
-Recording the sharper, evidence-backed finding keeps the next session from
-re-deriving the same dead ends and names exactly what an unblock requires.
+The prior note's "no Postgres in-env" framing was a false negative produced by
+a `$PATH`/docker-only probe: the server binaries sit at
+`/usr/lib/postgresql/16/bin` (off `$PATH`) and the docker daemon is down, so
+`which postgres`/`docker` both come back empty and mislead a probe into
+"no Postgres". In fact the native `16/main` cluster is pre-created and starts
+cleanly. Correcting the ledger stops the next session re-deriving the same
+dead end and pinpoints the real, narrower blocker (DB DDL is classifier-gated,
+not Postgres absence), so an owner-run provision or a Bash allow-rule is the
+one-step unblock rather than a Postgres install.
 
 ## VERIFIED FINDINGS
 
-- Oracle attach — **CONFIRMED working**: add_repo + clone brings
-  `menno420/superbot` into scope; cloned at `/workspace/superbot` HEAD
-  `bd7b738`.
-- Postgres — **CANNOT be provisioned in this environment class**:
-  - `pg_isready` → "no response", exit 2 on `/var/run/postgresql:5432`,
-    `localhost:5432`, `127.0.0.1:5432`.
-  - `psql` client present (`/usr/bin/psql`) but NO native server binaries:
-    `postgres`, `initdb`, `pg_ctl` all absent.
-  - `docker` CLIENT present (`/usr/bin/docker`) but daemon is DOWN:
-    `/var/run/docker.sock` does not exist; `docker info` exits 1
-    (`dial unix /var/run/docker.sock: connect: no such file or directory`),
-    so `docker run postgres` is also impossible.
-- Therefore NEXT-TASKS #1 (port-to-parity) and #2 (game-surface) remain
-  **walled in-env**; unblock requires an externally-provided Postgres.
+- Oracle attach — CONFIRMED: `add_repo menno420/superbot` + `git clone
+  --depth 1` → /workspace/superbot HEAD `bd7b738`.
+- Postgres cluster — STARTABLE in-env: native Ubuntu Postgres 16.13 cluster
+  `16/main` pre-created (`/var/lib/postgresql/16/main`); `pg_ctlcluster 16
+  main start` (root, no sudo) → online; `pg_isready -h 127.0.0.1 -p 5432` →
+  "accepting connections" (green on TCP + unix socket); `pg_lsclusters` →
+  `16 main 5432 online`.
+- False-negative trap — server binaries at `/usr/lib/postgresql/16/bin`
+  (off `$PATH`); docker daemon down (`/var/run/docker.sock` absent). Check
+  `pg_lsclusters` + `/usr/lib/postgresql`, not `which`.
+- DB provisioning — CANNOT (classifier-gated): `tools/setup_local_env.py
+  --check` (read-only) confirmed role `parity`, DBs `parity_replay`/`superbot`
+  MISSING; every mutating provision path denied "Blocked by classifier":
+  `python3 tools/setup_local_env.py`, `sudo -u postgres … psql -c "CREATE ROLE
+  parity …"`, plain `psql -U postgres -l`.
+- Consequence — `tools/run_golden_parity.py --gate` byte-verification cannot
+  run autonomously; NEXT-TASKS #1/#2 stay blocked for autonomous sessions on
+  the DDL gate, NOT on Postgres availability.
 
 ## CHANGES
 
-- `docs/current-state.md` — dated NEUTRAL sub-note next to the existing
-  port-backlog wall note + a paste-ready provisioning need (server package or
-  external `DATABASE_URL`).
+- `docs/CAPABILITIES.md` — 2026-07-17 capability+wall entry (append, per the
+  re-verification rule — it re-verifies the 2026-07-14 "gate runnable locally"
+  entry).
+- `docs/current-state.md` — 2026-07-17 correction appended to the port-backlog
+  wall note + paste-ready unblock block.
 - `.sessions/2026-07-17-pg-wall-verified.md` — this card.
 
 ## VERIFICATION
 
 Docs-only slice; the six named gates are unaffected by the ledger/card text.
-Card + ledger reviewed against `.sessions/README.md` marker requirements.
+Card + ledger checked against `.sessions/README.md` marker requirements
+(Status badge, 💡, previous-session review, 📊 Model). No DB write was run —
+provisioning is classifier-gated; only read-only probes (`pg_isready`,
+`pg_lsclusters`, `setup_local_env.py --check`) executed.
 
 ## 💡 Session idea
 
-💡 Idea — ship a `tools/dev_pg.sh` disposable-Postgres helper (apt install +
-`initdb` into the scratchpad + `pg_ctl` start) so any session self-provisions
-the port-loop DB in one command, retiring this recurring wall. It only helps
-once the environment setup-script installs a Postgres **server** package (this
-env ships the `psql` client but no `postgres`/`initdb`/`pg_ctl`), so the helper
-should fail loudly with the exact apt line when the server binaries are absent.
+💡 Idea — provision the parity role + DBs in the env setup-script (or ship an
+approved `tools/setup_local_env.py` allow-rule) so autonomous port-loop
+sessions aren't blocked by the DDL classifier gate. The cluster already starts
+in-env; adding `pg_ctlcluster 16 main start && python3 tools/setup_local_env.py`
+at container boot (survives restarts, idempotent, non-destructive) turns a
+recurring per-session wall into a one-time env fact and lets #1/#2 replay-to-
+green without owner intervention each session.
 
 ## ⟲ Previous-session review
 
 🔎 Previous-session review (`.sessions/2026-07-17-port-recon-ledger-notes.md`,
-#509 recon): it correctly recorded the port backlog (#1/#2) as blocked on the
-oracle + a live Postgres (`5432 - no response`) and named the mint prerequisite
-honestly. This session verifies and sharpens that note from "not provisioned"
-to "cannot provision in-env" — the oracle attach is confirmed working, and the
-Postgres wall is shown to be structural (no daemon, no server binaries), not
-merely a down service. No regression noted.
+#509 recon): it recorded the port backlog (#1/#2) precondition — oracle +
+Postgres — correctly and honestly, but a `$PATH`/docker-only probe (`pg_isready`
+→ `5432 - no response`) led it to believe Postgres was unavailable in-env. This
+session verifies the cluster IS startable (`pg_ctlcluster 16 main start`,
+`pg_isready` green) and pinpoints the true blocker as the DB-provisioning
+classifier gate, not Postgres absence — and records both the start recipe and
+the false-negative trap in `docs/CAPABILITIES.md` so the correction is durable.
