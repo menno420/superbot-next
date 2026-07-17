@@ -1,6 +1,6 @@
 # 2026-07-16 — control hygiene: retire six terminal claims, file conform-sweep-457
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Fable 5 · default effort · control-hygiene slice
 
