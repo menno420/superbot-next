@@ -359,8 +359,21 @@ def _register_info_card_factory() -> None:
             return info_card_spec()
 
 
+def _register_hub_factory() -> None:
+    """Registered at MODULE IMPORT (#111 doctrine — the live root never
+    runs ENSURE_REFS with zero plugins)."""
+    from sb.spec.refs import PanelRef as _P
+    from sb.spec.refs import panel as _panel
+
+    if not is_registered(_P("role.hub")):
+        @_panel("role.hub")
+        def _factory():
+            return role_hub_spec()
+
+
 _register_hub_render()
 _register_info_card_factory()
+_register_hub_factory()
 # the live-count provider left the hub spec at the parity flip (the
 # shipped hub renders static blurbs) but stays a registered read
 # surface — at MODULE IMPORT, the composition-parity doctrine (#111).
@@ -368,14 +381,7 @@ _ensure_hub_provider()
 
 
 def ensure_panel_refs() -> None:
-    from sb.spec.refs import PanelRef as _P
-    from sb.spec.refs import is_registered as _is
-    from sb.spec.refs import panel as _panel
-
     _ensure_hub_provider()
     _register_hub_render()
-    if not _is(_P("role.hub")):
-        @_panel("role.hub")
-        def _factory():
-            return role_hub_spec()
+    _register_hub_factory()
     _register_info_card_factory()
