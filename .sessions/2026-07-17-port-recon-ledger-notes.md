@@ -46,7 +46,7 @@ claude/wp-stack-reconcile) each sat exactly at their merged PR head
 ## VERIFICATION
 
 python3 -m pytest tests/unit/invariants/test_composition_parity.py -q →
-(fill in the real result after you run it). Doc/docstring-only changes; six
-named gates unaffected.
+3 passed in 1.04s. Full unit suite `python3 -m pytest tests/unit -q` →
+3158 passed, 2 skipped. Doc/docstring-only changes; six named gates unaffected.
 
 <!-- ender (added at flip): badge -> complete · 💡 idea · model line · prev-session review -->

@@ -59,6 +59,25 @@ is one command —
 
 ## Recently shipped (newest first)
 
+- 2026-07-17 — trigger/routine reconciliation (NEUTRAL): the coordinator failsafe
+  wake is `trig_01GBaDCsMzgjwPbQCiKzyRDC` (cron `0 1-23/2 * * *`, bound to the
+  coordinator session). The two baton-named stale triggers
+  `trig_01E86nBnXqesQTwm6WA4mSUD` and `trig_01UC7wiV3n5Vgs3RpSQt4gWz` were
+  confirmed **ABSENT** from the account trigger registry on 2026-07-17 (already
+  removed — the baton note naming them is stale). Three other superbot-named
+  account triggers were observed live and left **untouched pending owner
+  review**: `trig_01MWHvQFnRF1dVdZFSP6SM5L` ("superbot night executor"),
+  `trig_018wP6XTPmf9DLnxrG4RpGVh` ("suberbot docs reconciliation"),
+  `trig_011XAWqPeksS8LBrS5G9RvVc` ("superbot autonomous dispatch").
+- 2026-07-17 — port-backlog prerequisite recorded (NEUTRAL): NEXT-TASKS #1
+  (finish the port to full parity) and #2 (game-surface backlog) are blocked for
+  any session without the port oracle. Minting/refreshing a golden requires BOTH
+  the `menno420/superbot` oracle clone (to oracle-verify the user-facing bytes —
+  `tools/mint_golden.py` refuses to fake this) AND a live Postgres (the db_delta
+  is part of the pin). A session with superbot out of scope and no local Postgres
+  (`pg_isready` → `5432 - no response`) can pass CI by inventing bytes, but that
+  is corpus corruption, not a verified port. To advance #1/#2 honestly: bring the
+  oracle into scope + provision Postgres, then port replay-to-green.
 - 2026-07-17 — fleet-wide PR backlog cleared; fresh-start cleanup (this
   wind-down pass): docs/instructions corrected, [`docs/NEXT-TASKS.md`](NEXT-TASKS.md)
   added, the `control/` message bus + wake-chain docs deprecation-bannered.

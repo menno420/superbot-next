@@ -136,7 +136,12 @@ def test_no_new_ensure_only_refs():
 
 def test_burn_down_entries_are_still_real():
     """A pruned defect must leave the list — a stale row hides a regression
-    of the same name (and blackjack/rps must never reappear)."""
+    of the same name (and blackjack/rps must never reappear).
+
+    The ensure-only burn-down (`_KNOWN_ENSURE_ONLY`) is fully retired as of the
+    2026-07-17 sweep (#508): the frozenset is empty, so there are no exemption
+    rows left and none should be re-added — a new ensure-only ref is a bug to
+    fix at its source (register at module import), never a burn-down entry."""
     _, ensure_only = _both_roots()
     stale = sorted(_KNOWN_ENSURE_ONLY - set(ensure_only))
     assert stale == [], (
