@@ -64,7 +64,10 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     # a LIVE home_build_route as of WP-6, registered at import in
     # service._register(); the workshop-craft and workshop-hub pending terminals
     # register at import in panels.py, so they are import-visible too).
-    "panel:role.hub",
+    # panel:role.hub pruned by the ensure-only registration sweep
+    # (2026-07-17) — its @panel("role.hub") factory now registers at
+    # module import via sb.domain.role.panels._register_hub_factory (the
+    # #111 _register_info_card_factory pattern). The burn-down is now EMPTY.
 })
 
 
