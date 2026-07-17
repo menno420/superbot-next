@@ -78,6 +78,33 @@ is one command —
   (`pg_isready` → `5432 - no response`) can pass CI by inventing bytes, but that
   is corpus corruption, not a verified port. To advance #1/#2 honestly: bring the
   oracle into scope + provision Postgres, then port replay-to-green.
+  - 2026-07-17 — CORRECTION to the note above (NEUTRAL, evidence-first): the
+    "no Postgres in-env" framing was a false negative. Verified this session
+    (`autonomous-project` venue): the oracle attaches (`add_repo
+    menno420/superbot` + `git clone --depth 1` → /workspace/superbot HEAD
+    `bd7b738`), AND the native Ubuntu Postgres 16.13 cluster `16/main` is
+    startable in-env — `pg_ctlcluster 16 main start` (root, no sudo) brings it
+    online, `pg_isready` green on 127.0.0.1:5432 + the unix socket. The earlier
+    "no response" reading came from a `$PATH`/docker-only probe (server binaries
+    are off `$PATH` at `/usr/lib/postgresql/16/bin`; docker daemon is down) — see
+    the recovery recipe + false-negative trap in
+    [`docs/CAPABILITIES.md`](CAPABILITIES.md) (2026-07-17 entry). The REAL
+    remaining blocker is narrower: DB provisioning DDL is **classifier-denied in
+    agent auto-mode** — `python3 tools/setup_local_env.py` (the canonical
+    idempotent provisioner), `sudo -u postgres psql … CREATE ROLE`, and plain
+    `psql` were all "Blocked by classifier", so an autonomous session cannot
+    create the parity role/DBs and `tools/run_golden_parity.py --gate`
+    byte-verification cannot run autonomously. Therefore NEXT-TASKS #1/#2 are
+    unblocked for a session that can provision — they need an owner-run provision
+    or a Bash allow-rule, not a Postgres install.
+    ```
+    # Unblock autonomous port loop — ONE of:
+    # (a) owner runs once (idempotent, non-destructive):
+    python3 tools/setup_local_env.py
+    # (b) add a Bash allow-rule for: psql, tools/setup_local_env.py, createuser, createdb
+    # (c) provision at container boot in the env setup-script (survives restarts):
+    pg_ctlcluster 16 main start && python3 tools/setup_local_env.py
+    ```
 - 2026-07-17 — fleet-wide PR backlog cleared; fresh-start cleanup (this
   wind-down pass): docs/instructions corrected, [`docs/NEXT-TASKS.md`](NEXT-TASKS.md)
   added, the `control/` message bus + wake-chain docs deprecation-bannered.
