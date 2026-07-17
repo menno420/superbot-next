@@ -1,6 +1,6 @@
 # 2026-07-16 — conform sweep #457: raw→stripped D-0073 re-mint of every non-kernel golden
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Fable 5 · default effort · parity-corpus conform sweep
 
