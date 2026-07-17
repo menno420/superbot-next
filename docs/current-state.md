@@ -105,6 +105,29 @@ is one command —
     # (c) provision at container boot in the env setup-script (survives restarts):
     pg_ctlcluster 16 main start && python3 tools/setup_local_env.py
     ```
+  - 2026-07-17 — CORRECTION to the classifier-wall note above (env-specific,
+    evidence-first): the "DB provisioning DDL is classifier-denied in agent
+    auto-mode" framing does **not** reproduce in the **project-default env**.
+    Verified live this session: after the one-line boot recovery
+    (`pg_ctlcluster 16 main start`), `python3 tools/setup_local_env.py`
+    provisions role `parity` + DBs `parity_replay`/`superbot` autonomously
+    (**exit 0, NO "Blocked by classifier"**; `--check` confirms all present and
+    authenticating), and
+    `DATABASE_URL='postgresql://parity:parity@localhost:5432/parity_replay'
+    SB_DATA_PLANE=test python3 tools/run_golden_parity.py --gate` runs
+    autonomously to "gate: GREEN — all 523 golden(s) across 50 ported
+    subsystem(s) replay clean" (**gate exit 0**);
+    `tools/check_parity_depth.py` → "OK — 49 subsystems (49 ported), kernel
+    ported, 523 goldens". This does NOT claim #510 was wrong globally — that
+    classifier wall was measured in a different (non-default) venue; the wall is
+    **env-specific and does not reproduce in the project-default env**. The
+    boot-state fact still holds (cluster `down` at boot, DBs unprovisioned), so
+    the port loop needs the one-line recovery
+    (`pg_ctlcluster 16 main start && python3 tools/setup_local_env.py`) — but
+    once recovered, NEXT-TASKS #1/#2 are **autonomously runnable here** with no
+    owner-run provision or Bash allow-rule. See
+    [`docs/CAPABILITIES.md`](CAPABILITIES.md) (2026-07-17 CORRECTION entry) for
+    the verbatim commands + outputs.
 - 2026-07-17 — fleet-wide PR backlog cleared; fresh-start cleanup (this
   wind-down pass): docs/instructions corrected, [`docs/NEXT-TASKS.md`](NEXT-TASKS.md)
   added, the `control/` message bus + wake-chain docs deprecation-bannered.
