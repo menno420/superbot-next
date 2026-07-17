@@ -107,6 +107,34 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-17 · capability (CORRECTION, supersedes the entry below for the
+  project-default env) · **Parity DB provisioning + golden-parity gate — RUN
+  AUTONOMOUSLY in the project-default env (NO classifier denial).** Re-verified
+  live this session (append, not edit): the "provisioning DDL is
+  classifier-denied in agent auto-mode" wall recorded in the entry immediately
+  below **does not reproduce in the project-default env** — it was env-specific,
+  measured in a different (non-default) venue. This is NOT a global refutation
+  of that finding; it records the env distinction. VERBATIM reproduction
+  (`date -u` Fri Jul 17 2026, project-default env): (1) `pg_ctlcluster 16 main
+  start` → exit 0, then `pg_isready` → `/var/run/postgresql:5432 - accepting
+  connections` (exit 0). (2) `python3 tools/setup_local_env.py` → exit 0,
+  provisions role `parity` + DBs `parity_replay`/`superbot` with **NO "Blocked
+  by classifier"**; `python3 tools/setup_local_env.py --check` → "OK — parity +
+  runtime targets provisioned and authenticating" (role `parity`, DBs
+  `parity_replay`/`superbot`, role `superbot` all present, exit 0). (3)
+  `DATABASE_URL='postgresql://parity:parity@localhost:5432/parity_replay'
+  SB_DATA_PLANE=test python3 tools/run_golden_parity.py --gate` → "gate: GREEN
+  — all 523 golden(s) across 50 ported subsystem(s) replay clean", **gate exit
+  0**. (4) `python3 tools/check_parity_depth.py` → "OK — 49 subsystems (49
+  ported), kernel ported, 523 goldens", exit 0. BOOT-STATE fact still holds:
+  pristine boot has the cluster `down` and DBs unprovisioned
+  (`DISCORD_TOKEN`/`PARITY_DATABASE_URL`/`POSTGRES_PASSWORD` unset,
+  `DATABASE_URL` set), so a one-line recovery is still required
+  (`pg_ctlcluster 16 main start && python3 tools/setup_local_env.py`) — but
+  after it, an autonomous session CAN provision the parity DBs and run the
+  byte-verification gate, so NEXT-TASKS #1/#2 are autonomously runnable here.
+  · workaround: none needed in this env beyond the one-line boot recovery
+  (or bake it into the env setup-script so it survives restarts).
 - 2026-07-17 · capability+wall · **Local Postgres cluster — CAN START
   (`pg_ctlcluster 16 main start`); parity DB provisioning — CANNOT (DDL is
   classifier-gated in agent auto-mode).** RE-VERIFICATION (append, not edit)
