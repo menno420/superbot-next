@@ -56,6 +56,16 @@ Run before every push:
 python3 -m pytest
 ```
 
+## Merging — owner / server-side, never agent-side
+
+Open your PR **ready** with green CI (the six required named gates in
+`.github/workflows/named-gates.yml`). **Do not merge it yourself:** merges land
+via the repo's server-side lander workflow on green, or by the owner. Agents do
+**not** arm GitHub auto-merge and do **not** merge via the REST/MCP API — that
+path is **classifier-denied since ~2026-07-15**. Full doctrine + rationale:
+`CONSTITUTION.md` § "Autonomy rails" and `docs/current-state.md` § "Review
+rhythm".
+
 ## How the maintainer works
 
 The owner designs, directs, and reviews outcomes; he does not code and relies on agents for complete end-to-end work, cross-checked by other agents. He thinks iteratively and in fragments — reason a partial ask forward to its fuller form and state that picture back inline before building (understand-and-reflect). Default to decide-and-flag autonomy (PL-001): act on contained reversible work, flag decisions with a one-line rationale instead of parking them; route only genuine product-intent ambiguity to docs/question-router.md. Reports concise and evidence-first

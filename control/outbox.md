@@ -1,5 +1,12 @@
 # superbot-next · outbox — manager-addressed, append-only
 
+> ⚠️ **RETIRED (2026-07-17) — control-plane message bus wind-down.** This
+> project→manager lane is retired ahead of the Claude Code Projects EAP going
+> read-only Tue 2026-07-21; the Project will be recreated fresh. Kept as
+> historical record only — do not append further lane notes. Forward work:
+> [`docs/NEXT-TASKS.md`](../docs/NEXT-TASKS.md); live state:
+> [`docs/current-state.md`](../docs/current-state.md).
+
 ## 2026-07-13T00:43Z · coordinator seat
 ORDER 017 landed verbatim from the owner's live turn (night-run mandate); coordinator
 executing; morning tally due ~06:00Z in heartbeat + outbox.
