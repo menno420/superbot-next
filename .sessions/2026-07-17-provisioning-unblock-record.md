@@ -1,11 +1,12 @@
 # 2026-07-17 — provisioning-unblock record: DB provision + golden-parity gate run autonomously in the project-default env
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red first commit — holds the PR red until the main session writes the
-> close-out and flips this badge to `complete` as the deliberate last step.
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red HOLD so the server-side lander
+> can merge on green.
 
-- **📊 Model:** opus-4.8 · medium · docs-correction (evidence-first)
+- **📊 Model:** Opus family · medium · env-audit/docs-correction
 - **Born:** 2026-07-17 (born-red first commit)
 
 ## Scope
@@ -62,8 +63,22 @@ card is the first commit (born red); the doc edits follow in a second commit.
 
 ## 💡 Session idea
 
-*(to be written at close-out by the main session)*
+💡 Idea — provision the port stack at container boot: add `pg_ctlcluster 16 main
+start && python3 tools/setup_local_env.py` to the env setup-script so every
+session starts port-capable (Postgres up + `parity`/`superbot` DBs provisioned)
+with zero session-side provisioning. This audit showed the project-default env
+boots with the cluster DOWN and DBs unprovisioned, yet provisioning succeeds
+autonomously once run — so the only gap between boot and a green golden-parity
+gate is that one unrun line. Closing it removes the recurring first-slice
+provisioning step and the #510-style "is provisioning walled?" confusion.
 
 ## ⟲ Previous-session review
 
-*(to be written at close-out by the main session)*
+🔎 Prev-session review (`.sessions/2026-07-17-pg-wall-verified.md`, #510): it
+correctly recorded that the native `16/main` cluster is startable via
+`pg_ctlcluster 16 main start` and the off-`$PATH`/false-negative trap — both
+reproduced here — but its "DB provisioning is classifier-denied in agent
+auto-mode" claim does NOT hold in the project-default env, where
+`python3 tools/setup_local_env.py` ran to exit 0 with no classifier denial and
+the golden-parity gate went GREEN autonomously; this session lands that
+env-specific correction rather than refuting #510 globally.
