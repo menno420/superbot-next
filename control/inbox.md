@@ -319,3 +319,9 @@ do: EAP EXTENDED through 2026-07-21 (Anthropic mail, Diana Liu, 2026-07-14T23:07
 why: the seat's dormancy record predates the extension; without this note a rebooted session would treat dormancy as current
 done-when: seat acknowledges on its first rebooted wake
 provenance: relayed by the Fleet Manager coordinator on live owner directives, 2026-07-15
+
+## ORDER 024 · 2026-07-17T12:00:00Z · status: new
+priority: P2
+do: RETIRE this control-plane message bus. The fleet-coordination apparatus (control/ inbox+outbox+status bus, self-wake/pacemaker routine chain) is wound down ahead of the Claude Code Projects EAP going read-only Tue 2026-07-21; the Project will be recreated fresh. This inbox is DEPRECATED — do not issue or execute further ORDERs through it. The owner-directed task list that replaces it is docs/NEXT-TASKS.md; live state is docs/current-state.md.
+why: EAP wind-down 2026-07-17 — the autonomous message bus + wake chain are retired; a plain owner-directed task list replaces them (appended as a well-formed ORDER because the inbox is append-only and cannot take a top banner).
+done-when: the recreated Project carries no control/ message bus; this file remains only as historical record.

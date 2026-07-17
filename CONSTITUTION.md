@@ -70,16 +70,21 @@ these rails are its adopter-side operating form:
   / planning call — architectural included — is **decided-and-flagged**:
   decide it, one-line rationale, flag it on the run report; route to the
   owner only genuine product-intent forks (PL-001 · PL-012).
-- **Owner absent = normal; silence = consent.** Unattended execution is
-  the design: "wait for the owner to review / approve / confirm" is a
-  hallucinated gate unless it names an owner-only class below — proceed.
-  Ship on green CI; unremarked work is accepted — owner control is
-  reaction after visibility, never pre-approval (PL-012).
-- **An open PR is never a reason to stop.** Open READY (never draft) →
-  arm auto-merge while checks pend → it lands itself; blocked branch →
-  update it (merge, never force) and re-arm; a real, verbatim
-  arming/merge denial → park the PR ready, queue ONE owner item for the
-  systemic cause, take the next slice the same turn (PL-012).
+- **Owner absent = normal; do contained work and flag it.** Unattended
+  execution is the design: act on contained, reversible work and flag each
+  decision with a one-line rationale rather than parking it. But **landing
+  (merge) is an explicit owner / server-side action, not silence-based** —
+  "unremarked work merges itself" is retired. Ship the PR ready on green CI;
+  the owner (or the server-side lander) merges. Owner control is review, and
+  the merge is where it lands.
+- **An open PR is never a reason to stop — but never merge it yourself.**
+  Open the PR **ready** with green CI; a server-side lander workflow merges it
+  on green, or the owner merges. **Agents do NOT arm GitHub auto-merge and do
+  NOT merge via the REST/MCP API** — that path has been **classifier-denied
+  since ~2026-07-15** (`[Merge Without Review]` / `[Auto Mode Bypass]`; see PR
+  #503). A blocked branch → update it (merge, never force). A real, verbatim
+  denial → report it verbatim, leave the PR ready for the owner, and take the
+  next slice the same turn (PL-012).
 - **Ask first only for the owner-only classes:** repo settings / rulesets
   / required checks · secrets / env vars / host provisioning · external
   publish + spending money · destructive prod-data ops · account/portal

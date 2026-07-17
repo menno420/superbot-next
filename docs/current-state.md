@@ -6,53 +6,81 @@
 > work always win over this file. Read it second (right after the working
 > agreement) and keep it current as the project moves.
 
-> **Live operational truth lives in [`control/status.md`](../control/status.md)**
-> (blockers, owner actions, next lane) and the testing ledger
-> (`docs/status/testing-report-2026-07-09.md`). This file stays a thin snapshot on
-> purpose — one source of truth, no second ledger to drift. Red-CI orientation:
+> **Program note (2026-07-17):** the `control/status.md` message-bus heartbeat is
+> being **retired** in the EAP wind-down (see "In flight" below). This file is now
+> the single "what is true right now?" ledger; the forward task list is
+> [`docs/NEXT-TASKS.md`](NEXT-TASKS.md). Red-CI orientation:
 > [`docs/status/README-first.md`](status/README-first.md).
 
 ## Stability baseline
 
-All seven port bands built (41 subsystems / 276 commands / 121 settings,
-hash-pinned `manifest.snapshot.json`); boots to RUNNING on real PostgreSQL
-(CUT-1 smoke PASS); unit suite ~1,125 green; the 22-checker fleet + six required
-named gates green on main. The `golden-parity` **report** leg reached
-full-corpus parity on 2026-07-13 (484/484 goldens, 51/51 subsystems; run
-29238825392) and is now live green — a red `report` is a real regression
-signal to investigate (README-first.md), no longer red-by-design.
+All seven port bands built (49 subsystems, hash-pinned
+`manifest.snapshot.json`); boots to RUNNING on real PostgreSQL (CUT-1 smoke
+PASS). The unit + integration suite is **3,160 passed / 29 skipped**
+(`python3 -m pytest tests/`, #501 close 2026-07-16). Golden parity is
+**full-corpus green — 523/523 goldens, 49/49 subsystems ported + kernel**
+(`tools/check_parity_depth.py`); the committed-checker fleet + the six required
+named gates (`.github/workflows/named-gates.yml`) are green on main. The
+`golden-parity` **report** leg reached full-corpus parity on 2026-07-13 and stays
+live green — a red `report` is a real regression signal to investigate
+(README-first.md), no longer red-by-design.
 
-## In flight
+## In flight — EAP wind-down (2026-07-17)
 
-(Verify against live source control — this section is a dated snapshot,
-2026-07-14, EAP close-out day.) The seven-band port plus the ORDER 017/019
-finalization sweep are complete — per-subsystem ground truth:
-[`docs/status/completeness-table-2026-07-13.md`](status/completeness-table-2026-07-13.md);
-week-in-review: [`docs/audits/eap-project-audit-2026-07-14.md`](audits/eap-project-audit-2026-07-14.md);
-owner walkthrough: [`docs/eap-closeout-walkthrough-2026-07-14.md`](eap-closeout-walkthrough-2026-07-14.md).
-The current lane is EAP close-out (ORDER 022): finishing the remaining
-agent-completable items and parking the rest cited. Owner-side queue (the
-heartbeat's ⚑ needs-owner list): sweep-merge the WP stack
-#312→#317→#335→#344→#371 (then #392 auto-retargets), mineverse #2058/#2061
-flips, DROP-list ratification, plugin-hello PR #2 merge. Live-testing beyond
-bands 1–4 stays parked owner-side (test-bot token — ORDER 001); the
-guild-effect and plugin live-drive legs remain human-operator runbooks
+(Verify against live source control — dated snapshot 2026-07-17.) The seven-band
+port is complete; per-subsystem ground truth:
+[`docs/status/completeness-table-2026-07-13.md`](status/completeness-table-2026-07-13.md).
+The EAP-era close-out record (what the seat shipped, the owner walkthrough + audit)
+is [`docs/eap-closeout-walkthrough-2026-07-14.md`](eap-closeout-walkthrough-2026-07-14.md).
+Remaining build work — port-to-full-parity, the scoped game-surface backlog, and
+the CUT-over + distribution path — is the owner-directed task list in
+[`docs/NEXT-TASKS.md`](NEXT-TASKS.md).
+
+**Program status.** The Claude Code Projects EAP goes **read-only on Tuesday
+2026-07-21** (extended from the earlier close date per Anthropic mail, ORDER 023) —
+not earlier. The fleet-wide PR backlog was **cleared on 2026-07-17**: every open PR
+was dispositioned; #499 (control-plane hygiene), #500 (conform sweep #457), #503
+(coordinator close-out) and #505 (terminal-claim retire) all landed, and the WP
+stack #312→#317→#335→#344→#371 is fully merged. The **autonomous apparatus is being
+wound down** — the `control/` message bus (inbox / outbox / status) and the
+self-wake / pacemaker routine chain are retired (deprecation-bannered in place, not
+deleted), and **no standing wake trigger should be re-armed**. **The Project will be
+recreated** fresh after the read-only window; this repo (the ground-up rebuild) and
+its `main` are the durable artifact that carries across.
+
+Live-testing beyond bands 1–4 and the guild-effect / plugin live-drive legs remain
+human-operator runbooks
 ([`docs/operations/live-drive-guild-effects.md`](operations/live-drive-guild-effects.md),
 [`docs/operations/plugin-proof-live-drive.md`](operations/plugin-proof-live-drive.md))
-— no gateway token in CI. Local verification (Postgres roles/DBs + env,
-CI-derived) is one command —
-[`docs/operations/local-verification.md`](operations/local-verification.md)
-+ `tools/setup_local_env.py`.
+— no gateway token in CI. Local verification (Postgres roles/DBs + env, CI-derived)
+is one command —
+[`docs/operations/local-verification.md`](operations/local-verification.md) +
+`tools/setup_local_env.py`.
 
 ## Recently shipped (newest first)
 
+- 2026-07-17 — fleet-wide PR backlog cleared; fresh-start cleanup (this
+  wind-down pass): docs/instructions corrected, [`docs/NEXT-TASKS.md`](NEXT-TASKS.md)
+  added, the `control/` message bus + wake-chain docs deprecation-bannered.
+- 2026-07-16/17 — conform sweep #457 (#500 — 31 non-kernel goldens re-minted to
+  the canonical stripped-golden flavor, parity-depth floors narrowed), control-claim
+  retirement (#499 / #505), coordinator close-out (#503). Suite 3,160 passed /
+  29 skipped; golden-parity 523/523.
 - 2026-07-09 (late) — band-5 seams (#95) + worldcard Reply-shape fix and
   red-orientation docs (#97).
-- 2026-07-09 — kit v1.6.0 upgrade (#96); gen-1 retro pair complete (#87
-  self-review, #92 project review); band-4 live-tested complete (#88, #94).
-- Full history: the append-only decision ledger (`docs/decisions.md`, 62
-  entries) and merged PRs are the record — this list stays shallow by design.
+- Full history: the append-only decision ledger (`docs/decisions.md`) and merged
+  PRs are the record — this list stays shallow by design.
 
 ## Review rhythm
 
-PRs open READY with a born-red .sessions/ card as the first commit and auto-merge (squash) the moment the six required named checks are green (code-quality, manifest-validate, architecture, sim-gate, golden-parity, check_compat_frozen — .github/workflows/named-gates.yml); the owner reviews reactively after merge, never-wait / silence = consent (PL-002). The card flips complete as the deliberate last step; control/status.md is overwritten every session as the heartbeat; a reconciliation pass runs every 30 PRs
+PRs open ready with a `.sessions/` card and must be green on the six required named
+checks (code-quality, manifest-validate, architecture, sim-gate, golden-parity,
+check_compat_frozen — `.github/workflows/named-gates.yml`) before they can land.
+**Merging is a server-side / owner action, never an agent action:** a PR lands via
+the repo's server-side lander workflow the moment CI is green, or the owner merges
+it. Agents do **not** arm GitHub auto-merge and do **not** merge via the REST/MCP
+API — that path has been **classifier-denied since ~2026-07-15** (PR #503's body
+records the resulting `[Merge Without Review]` / `[Auto Mode Bypass]` denials). In
+the recreated Project the plan is a plain owner-merge on green (retire
+`auto-merge-enabler.yml`); see [`docs/NEXT-TASKS.md`](NEXT-TASKS.md). A reconciliation
+pass runs periodically; `control/status.md` is retired (this ledger replaces it).

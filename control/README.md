@@ -1,5 +1,14 @@
 # Fleet coordination protocol — `control/`
 
+> ⚠️ **RETIRED (2026-07-17) — fleet-coordination apparatus wind-down.** The
+> `control/` message bus (inbox / outbox / status) and the self-wake / pacemaker
+> routine chain are being retired ahead of the Claude Code Projects EAP going
+> read-only on Tue 2026-07-21; the Project will be **recreated** fresh. This
+> directory is kept as historical record only — **do not issue/execute ORDERs
+> through it and do not re-arm any wake chain.** The owner-directed task list that
+> replaces the bus is [`docs/NEXT-TASKS.md`](../docs/NEXT-TASKS.md); live state is
+> [`docs/current-state.md`](../docs/current-state.md).
+
 > Local copy for this repo. Canonical spec: `menno420/superbot` →
 > `docs/planning/fleet-coordination-protocol-2026-07-09.md` (§1). Projects cannot talk to each
 > other directly — committed git files are the only shared medium; this directory is the bus.
