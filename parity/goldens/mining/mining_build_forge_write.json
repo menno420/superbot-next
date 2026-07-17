@@ -1,79 +1,6 @@
 {
  "case_id": "mining.build_forge_write",
  "db_delta": {
-  "audit_log": {
-   "added": [
-    {
-     "actor_id": "<@member>",
-     "actor_type": "user",
-     "correlation_id": null,
-     "detail": {
-      "changes": [],
-      "legs": [
-       {
-        "error": null,
-        "leg_id": "award",
-        "ok": true
-       }
-      ]
-     },
-     "guild_id": "<guild>",
-     "mutation_id": "<uuid>",
-     "mutation_type": "xp_awarded",
-     "new_value": {
-      "award": {
-       "delta": 25,
-       "leveled_up": false,
-       "new_level": 0,
-       "new_xp": 25,
-       "source": "chat"
-      }
-     },
-     "occurred_at": "<ts>",
-     "prev_value": {
-      "award": {
-       "xp": 0
-      }
-     },
-     "scope": "guild",
-     "subsystem": "xp",
-     "target": "xp.award"
-    },
-    {
-     "actor_id": "<@member>",
-     "actor_type": "user",
-     "correlation_id": null,
-     "detail": {
-      "changes": [],
-      "legs": [
-       {
-        "error": null,
-        "leg_id": "build",
-        "ok": true
-       }
-      ]
-     },
-     "guild_id": "<guild>",
-     "mutation_id": "<uuid>",
-     "mutation_type": "mining_structure_built",
-     "new_value": {
-      "build": {
-       "balance": 500,
-       "cost": 3000,
-       "message": "Forge built to **Forge I** for 25× iron, 15× stone + 3000 🪙. Now crafts **gold-tier** gear. Balance: **500** 🪙.",
-       "structure": "forge"
-      }
-     },
-     "occurred_at": "<ts>",
-     "prev_value": {
-      "build": {}
-     },
-     "scope": "guild",
-     "subsystem": "mining",
-     "target": "mining.build"
-    }
-   ]
-  },
   "economy_audit_log": {
    "added": [
     {
@@ -81,106 +8,10 @@
      "delta": -3000,
      "guild_id": "<guild>",
      "id": 1,
-     "mutation_id": "<uuid>",
      "new_balance": 500,
      "occurred_at": "<ts>",
      "reason": "mining:forge_build",
      "user_id": "<@member>"
-    }
-   ]
-  },
-  "economy_balances": {
-   "added": [
-    {
-     "coins": 500,
-     "guild_id": "<guild>",
-     "user_id": "<@member>"
-    }
-   ],
-   "removed": [
-    {
-     "coins": 3500,
-     "guild_id": "<guild>",
-     "user_id": "<@member>"
-    }
-   ]
-  },
-  "event_outbox": {
-   "added": [
-    {
-     "available_at": "<ts>",
-     "claims": 0,
-     "correlation_id": "<uuid>",
-     "created_at": "<ts>",
-     "dedup_key": "audit:<guild>:<uuid>",
-     "delivered_at": null,
-     "delivery_attempts": 0,
-     "event_name": "audit.action_recorded",
-     "guild_id": "<guild>",
-     "last_error": null,
-     "outbox_id": "<uuid>",
-     "payload": {
-      "actor_id": "<@member>",
-      "actor_type": "user",
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "mutation_type": "mining_structure_built",
-      "new_value": {
-       "build": {
-        "balance": 500,
-        "cost": 3000,
-        "message": "Forge built to **Forge I** for 25× iron, 15× stone + 3000 🪙. Now crafts **gold-tier** gear. Balance: **500** 🪙.",
-        "structure": "forge"
-       }
-      },
-      "occurred_at": "<ts>",
-      "prev_value": {
-       "build": {}
-      },
-      "scope": "guild",
-      "subsystem": "mining",
-      "target": "mining.build"
-     },
-     "status": "pending"
-    },
-    {
-     "available_at": "<ts>",
-     "claims": 0,
-     "correlation_id": "<uuid>",
-     "created_at": "<ts>",
-     "dedup_key": "audit:<guild>:<uuid>",
-     "delivered_at": null,
-     "delivery_attempts": 0,
-     "event_name": "audit.action_recorded",
-     "guild_id": "<guild>",
-     "last_error": null,
-     "outbox_id": "<uuid>",
-     "payload": {
-      "actor_id": "<@member>",
-      "actor_type": "user",
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "mutation_type": "xp_awarded",
-      "new_value": {
-       "award": {
-        "delta": 25,
-        "leveled_up": false,
-        "new_level": 0,
-        "new_xp": 25,
-        "source": "chat"
-       }
-      },
-      "occurred_at": "<ts>",
-      "prev_value": {
-       "award": {
-        "xp": 0
-       }
-      },
-      "scope": "guild",
-      "subsystem": "xp",
-      "target": "xp.award"
-     },
-     "status": "pending"
     }
    ]
   },
@@ -324,23 +155,6 @@
    ],
    "events": [
     {
-     "event": "command.dispatched",
-     "payload": {
-      "actor_id": "<@member>",
-      "authority_ref": "user",
-      "base_allowed": true,
-      "command_key": "forge",
-      "guild_id": "<guild>",
-      "lane": "tier",
-      "orchestration_id": null,
-      "outcome": "success",
-      "override_applied": false,
-      "reason": "allowed",
-      "request_id": "<uuid>",
-      "surface": "prefix"
-     }
-    },
-    {
      "event": "xp.awarded",
      "payload": {
       "delta": 25,
@@ -381,23 +195,6 @@
     }
    ],
    "events": [
-    {
-     "event": "command.dispatched",
-     "payload": {
-      "actor_id": "<@member>",
-      "authority_ref": "user",
-      "base_allowed": true,
-      "command_key": "mining.forge.fo_build",
-      "guild_id": "<guild>",
-      "lane": "tier",
-      "orchestration_id": null,
-      "outcome": "success",
-      "override_applied": false,
-      "reason": "allowed",
-      "request_id": "<uuid>",
-      "surface": "component"
-     }
-    },
     {
      "event": "economy.balance_changed",
      "payload": {
