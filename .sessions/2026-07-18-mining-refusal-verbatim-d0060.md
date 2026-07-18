@@ -1,6 +1,6 @@
 # Session — mining stash/unstash refusals render verbatim (D-0060) 2026-07-18
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Opus 4 family · high · fix
 
