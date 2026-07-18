@@ -1,6 +1,6 @@
 # 2026-07-18 — B8 ux_lab wings foundation-then-per-wing design doc
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · docs · B8 ux_lab wings foundation-then-per-wing design doc (born-red, holds substrate-gate)
 
