@@ -18,8 +18,10 @@ Land **Slice 1** of the D1 themed card renderer
 kernel render band the two placeholder card surfaces (and future cards) will
 later compose. Pure foundation — **no card surface changes, zero golden risk**.
 Authorized ahead of time by the render-band decision (bundle the permissive
-DejaVu TTFs + adopt `Pillow>=11,<12` as a hard runtime dep, both landing in
-this scaffold slice alongside their first import site, not ahead of it).
+DejaVu TTFs + adopt Pillow as a hard runtime dep, both landing in this scaffold
+slice alongside their first import site, not ahead of it). The `<12` bound the
+decision named was forced up to `>=12.3.0,<13` by the security gate — see the
+deviation ledger.
 
 ## Scope
 
@@ -51,8 +53,8 @@ golden-unpinned by construction — structural/behavioural assertions only).
 
 - `sb/kernel/render/__init__.py`, `fonts.py`, `themes.py`, `engine.py`
 - `sb/kernel/render/fonts/DejaVuSans-Bold.ttf`, `DejaVuSans.ttf`, `LICENSE`
-- `requirements.txt` (+ `Pillow>=11,<12`) + regenerated `requirements.lock`
-  (adds `pillow==11.3.0`, hash-pinned; a leaf — no transitive additions)
+- `requirements.txt` (+ `Pillow>=12.3.0,<13`) + regenerated `requirements.lock`
+  (adds `pillow==12.3.0`, hash-pinned; a leaf — no transitive additions)
 - `tests/unit/render_band/test_engine.py` — 36 cases
 
 ## Verification
@@ -67,9 +69,12 @@ golden-unpinned by construction — structural/behavioural assertions only).
   degradation + skin-typo + font-presence tests still assert. The
   None/text-embed degradation is pinned deterministically by blocking the PIL
   import at runtime, so it runs and passes in *both* environments.
-- `python3 tools/check_lockfile_fresh.py --regen` → `OK (34 pinned dists, 1121
+- `python3 tools/check_lockfile_fresh.py --regen` → `OK (34 pinned dists, 1102
   hashes, regen-verified)` — the lock is `pip-compile --generate-hashes
   --strip-extras` byte-for-byte reproducible.
+- `pip-audit -r requirements.lock --require-hashes --disable-pip` → **"No known
+  vulnerabilities found"** on `pillow==12.3.0` (the ci.yml security gate;
+  11.x's 14 advisories are why the bound was forced up — see deviation ledger).
 - Architecture + manifest gates clean: `check_symbol_shadowing`,
   `check_namespace`, `check_no_skip`, `check_config_usage`, `check_egress`,
   `check_escape_hatches`, `manifest_compile` (green, **no snapshot drift** —
@@ -95,6 +100,19 @@ golden-unpinned by construction — structural/behavioural assertions only).
   guard belongs in Slice 2, where providers gain `card_theme` (see idea).
 - **Fonts committed as real binaries** via git in the worktree (708 KB + 760
   KB TTFs) — no base64/MCP file API, per the task's binary-asset rule.
+- **Pillow bound raised `<12` → `>=12.3.0,<13`** (deviation from the authorized
+  render-band Pillow decision). The decision authorized `Pillow>=11,<12`, but
+  every 11.x release carries 14 PYSEC advisories fixed only in `>=12.3.0`, and
+  the mandatory `pip-audit -r requirements.lock --require-hashes` CI gate
+  (ci.yml) hard-blocks them with no allowlist configured. `>=12.3.0` is the
+  only bound that honors the decision's INTENT (adopt Pillow for the render
+  band) while passing the security gate. 12 is a major bump; the engine's
+  imaging surface (`Image.new/open/convert/resize`, `ImageDraw` primitives,
+  `ImageFont.truetype/load_default`, `textlength`, PNG/JPEG save) re-verified
+  green on 12.3.0 — no 11→12 API breakage. Fix landed as a follow-up commit
+  after the flip (card stays complete; substrate-gate only holds while
+  in-progress). Flag for the owner: the `<12` intent in the render-band
+  decision no longer holds; `>=12.3.0` is forced by security, not preference.
 
 ## 💡 Session idea
 
