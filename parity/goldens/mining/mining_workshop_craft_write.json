@@ -1,0 +1,551 @@
+{
+ "case_id": "mining.workshop_craft_write",
+ "db_delta": {
+  "game_xp": {
+   "added": [
+    {
+     "day": "<ts>",
+     "day_xp": 8,
+     "game": "crafting",
+     "guild_id": "<guild>",
+     "updated_at": "<ts>",
+     "user_id": "<@member>",
+     "xp": 8
+    }
+   ]
+  },
+  "mining_inventory": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "item_name": "bronze boots",
+     "quantity": 1,
+     "user_id": "<@member>"
+    },
+    {
+     "guild_id": "<guild>",
+     "item_name": "bronze",
+     "quantity": 0,
+     "user_id": "<@member>"
+    }
+   ],
+   "removed": [
+    {
+     "guild_id": "<guild>",
+     "item_name": "bronze",
+     "quantity": 2,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1883822757,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "!workshop then the gear-craft select pick (bronze 2 fixture) drives mining.workshop_craft_pick -> mining.craft -> record_craft (the ported mining_workflow.craft): advisory-fenced (lock_workshop_slot), it consumes 2× bronze, adds +1 bronze boots to mining_inventory, and awards crafting game-XP in one txn, then the panel re-renders IN PLACE with `✅ Crafted **bronze boots**!` and the SUCCESS green frame (the oracle _CraftSelect._rerender, mining_workflow.craft copy verbatim). Same op the command-lane mining.craft_write pins, driven from the session select — this freezes the ported workshop-craft select wire bytes",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "emoji": {
+             "id": null,
+             "name": "✅"
+            },
+            "label": "Bronze Boots — 2× bronze",
+            "value": "bronze boots"
+           },
+           {
+            "default": false,
+            "label": "Bronze Chestplate — 5× bronze",
+            "value": "bronze chestplate"
+           },
+           {
+            "default": false,
+            "label": "Bronze Helmet — 3× bronze",
+            "value": "bronze helmet"
+           },
+           {
+            "default": false,
+            "label": "Bronze Leggings — 4× bronze",
+            "value": "bronze leggings"
+           },
+           {
+            "default": false,
+            "label": "Bronze Shield — 2× bronze, 2× wood",
+            "value": "bronze shield"
+           },
+           {
+            "default": false,
+            "label": "Bronze Sword — 2× bronze, 1× wood",
+            "value": "bronze sword"
+           },
+           {
+            "default": false,
+            "label": "Diamond Boots — 2× diamond",
+            "value": "diamond boots"
+           },
+           {
+            "default": false,
+            "label": "Diamond Chestplate — 5× diamond",
+            "value": "diamond chestplate"
+           },
+           {
+            "default": false,
+            "label": "Diamond Helmet — 3× diamond",
+            "value": "diamond helmet"
+           },
+           {
+            "default": false,
+            "label": "Diamond Lantern — 2× diamond, 2× iron",
+            "value": "diamond lantern"
+           },
+           {
+            "default": false,
+            "label": "Diamond Leggings — 4× diamond",
+            "value": "diamond leggings"
+           },
+           {
+            "default": false,
+            "label": "Diamond Pickaxe — 3× diamond, 1× gold, 2× wood",
+            "value": "diamond pickaxe"
+           },
+           {
+            "default": false,
+            "label": "Diamond Shield — 2× diamond, 2× wood",
+            "value": "diamond shield"
+           },
+           {
+            "default": false,
+            "label": "Diamond Sword — 2× diamond, 1× wood",
+            "value": "diamond sword"
+           },
+           {
+            "default": false,
+            "label": "Gold Boots — 2× gold",
+            "value": "gold boots"
+           },
+           {
+            "default": false,
+            "label": "Gold Chestplate — 5× gold",
+            "value": "gold chestplate"
+           },
+           {
+            "default": false,
+            "label": "Gold Helmet — 3× gold",
+            "value": "gold helmet"
+           },
+           {
+            "default": false,
+            "label": "Gold Leggings — 4× gold",
+            "value": "gold leggings"
+           },
+           {
+            "default": false,
+            "label": "Gold Pickaxe — 4× gold, 2× wood",
+            "value": "gold pickaxe"
+           },
+           {
+            "default": false,
+            "label": "Gold Shield — 2× gold, 2× wood",
+            "value": "gold shield"
+           },
+           {
+            "default": false,
+            "label": "Gold Sword — 2× gold, 1× wood",
+            "value": "gold sword"
+           },
+           {
+            "default": false,
+            "label": "Iron Boots — 2× iron",
+            "value": "iron boots"
+           },
+           {
+            "default": false,
+            "label": "Iron Chestplate — 5× iron",
+            "value": "iron chestplate"
+           },
+           {
+            "default": false,
+            "label": "Iron Helmet — 3× iron",
+            "value": "iron helmet"
+           },
+           {
+            "default": false,
+            "label": "Iron Leggings — 4× iron",
+            "value": "iron leggings"
+           }
+          ],
+          "placeholder": "Craft gear from resources…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": true,
+          "label": "🔁 Quick-craft last broken",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "label": "↩ Workshop",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 6323595,
+        "fields": [
+         {
+          "inline": false,
+          "name": "🧰 Equipped gear",
+          "value": "Nothing equipped yet."
+         },
+         {
+          "inline": false,
+          "name": "🛠️ Craft gear",
+          "value": "✅ **Bronze Boots** — 2× bronze\n📖 All **39** gear recipes: the Recipe browser (`!recipes`)."
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Balance: 0 🪙  •  !repair <item> · !craft <item> · !quickcraft"
+        },
+        "title": "🔧 Workshop",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!workshop",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "label": "Bronze Boots — 2× bronze",
+            "value": "bronze boots"
+           },
+           {
+            "default": false,
+            "label": "Bronze Chestplate — 5× bronze",
+            "value": "bronze chestplate"
+           },
+           {
+            "default": false,
+            "label": "Bronze Helmet — 3× bronze",
+            "value": "bronze helmet"
+           },
+           {
+            "default": false,
+            "label": "Bronze Leggings — 4× bronze",
+            "value": "bronze leggings"
+           },
+           {
+            "default": false,
+            "label": "Bronze Shield — 2× bronze, 2× wood",
+            "value": "bronze shield"
+           },
+           {
+            "default": false,
+            "label": "Bronze Sword — 2× bronze, 1× wood",
+            "value": "bronze sword"
+           },
+           {
+            "default": false,
+            "label": "Diamond Boots — 2× diamond",
+            "value": "diamond boots"
+           },
+           {
+            "default": false,
+            "label": "Diamond Chestplate — 5× diamond",
+            "value": "diamond chestplate"
+           },
+           {
+            "default": false,
+            "label": "Diamond Helmet — 3× diamond",
+            "value": "diamond helmet"
+           },
+           {
+            "default": false,
+            "label": "Diamond Lantern — 2× diamond, 2× iron",
+            "value": "diamond lantern"
+           },
+           {
+            "default": false,
+            "label": "Diamond Leggings — 4× diamond",
+            "value": "diamond leggings"
+           },
+           {
+            "default": false,
+            "label": "Diamond Pickaxe — 3× diamond, 1× gold, 2× wood",
+            "value": "diamond pickaxe"
+           },
+           {
+            "default": false,
+            "label": "Diamond Shield — 2× diamond, 2× wood",
+            "value": "diamond shield"
+           },
+           {
+            "default": false,
+            "label": "Diamond Sword — 2× diamond, 1× wood",
+            "value": "diamond sword"
+           },
+           {
+            "default": false,
+            "label": "Gold Boots — 2× gold",
+            "value": "gold boots"
+           },
+           {
+            "default": false,
+            "label": "Gold Chestplate — 5× gold",
+            "value": "gold chestplate"
+           },
+           {
+            "default": false,
+            "label": "Gold Helmet — 3× gold",
+            "value": "gold helmet"
+           },
+           {
+            "default": false,
+            "label": "Gold Leggings — 4× gold",
+            "value": "gold leggings"
+           },
+           {
+            "default": false,
+            "label": "Gold Pickaxe — 4× gold, 2× wood",
+            "value": "gold pickaxe"
+           },
+           {
+            "default": false,
+            "label": "Gold Shield — 2× gold, 2× wood",
+            "value": "gold shield"
+           },
+           {
+            "default": false,
+            "label": "Gold Sword — 2× gold, 1× wood",
+            "value": "gold sword"
+           },
+           {
+            "default": false,
+            "label": "Iron Boots — 2× iron",
+            "value": "iron boots"
+           },
+           {
+            "default": false,
+            "label": "Iron Chestplate — 5× iron",
+            "value": "iron chestplate"
+           },
+           {
+            "default": false,
+            "label": "Iron Helmet — 3× iron",
+            "value": "iron helmet"
+           },
+           {
+            "default": false,
+            "label": "Iron Leggings — 4× iron",
+            "value": "iron leggings"
+           }
+          ],
+          "placeholder": "Craft gear from resources…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": true,
+          "label": "🔁 Quick-craft last broken",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "label": "↩ Workshop",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "✅ Crafted **bronze boots**!",
+        "fields": [
+         {
+          "inline": false,
+          "name": "🧰 Equipped gear",
+          "value": "Nothing equipped yet."
+         },
+         {
+          "inline": false,
+          "name": "🛠️ Craft gear",
+          "value": "▫️ Nothing craftable from your current resources.\n📖 All **39** gear recipes: the Recipe browser (`!recipes`)."
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Balance: 0 🪙  •  !repair <item> · !craft <item> · !quickcraft"
+        },
+        "title": "🔧 Workshop",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "game_xp.awarded",
+     "payload": {
+      "action": "craft",
+      "amount": 8,
+      "game": "crafting",
+      "guild_id": "<guild>",
+      "total": 8,
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1,
+    "values": [
+     "bronze boots"
+    ]
+   }
+  }
+ ],
+ "subsystem": "mining"
+}
