@@ -1,6 +1,6 @@
 # 2026-07-18 — B10 panel-engine route-origin back-button design doc
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · docs · B10 panel-engine route-origin back-button design doc (born-red, holds substrate-gate)
 
