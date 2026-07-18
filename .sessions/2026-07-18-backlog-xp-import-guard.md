@@ -1,10 +1,10 @@
 # Session — backlog capture: xp _record_import dead negative-level guard 2026-07-18
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red first commit (this card only) — HOLDs `substrate-gate` until the
-> docs line lands and this flips `complete` as the deliberate LAST commit
-> (per `.sessions/README.md`).
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red HOLD. First commit was this
+> card (born-red); the docs line landed second; this flip is last. PR #543.
 
 - **📊 Model:** opus-4.8 · low · docs-only
 
