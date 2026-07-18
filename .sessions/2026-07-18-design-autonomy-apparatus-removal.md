@@ -1,6 +1,6 @@
 # 2026-07-18 — D6 autonomy-apparatus removal design doc (safe removal sequence)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Opus 4 family · high · kernel/architecture design · D6 autonomy-apparatus-removal design doc (born-red, holds substrate-gate)
 
