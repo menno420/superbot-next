@@ -10015,6 +10015,9 @@
       "handler:automod.status_render": {
         "module": "sb.domain.automod.panels"
       },
+      "handler:blackjack.hub_solo": {
+        "module": "sb.domain.blackjack.handlers"
+      },
       "handler:blackjack.play": {
         "module": "sb.domain.blackjack.handlers"
       },
@@ -21913,7 +21916,7 @@
               "emoji": "🃏",
               "flow_stage": 0,
               "handler": {
-                "$ref": "workflow:blackjack.solo_start"
+                "$ref": "handler:blackjack.hub_solo"
               },
               "label": "Solo Free Play",
               "modal": null,
@@ -21938,7 +21941,7 @@
               "emoji": "🪙",
               "flow_stage": 0,
               "handler": {
-                "$ref": "workflow:blackjack.solo_start"
+                "$ref": "handler:blackjack.hub_solo"
               },
               "label": "Solo Bet",
               "modal": {
@@ -21956,7 +21959,7 @@
                 ],
                 "modal_id": "blackjack.solo_bet_form",
                 "on_submit": {
-                  "$ref": "workflow:blackjack.solo_start"
+                  "$ref": "handler:blackjack.hub_solo"
                 },
                 "title": "Blackjack — place your bet"
               },

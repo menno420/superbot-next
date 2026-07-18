@@ -10,6 +10,8 @@ from __future__ import annotations
 import asyncio
 import random
 import re
+from dataclasses import dataclass
+from dataclasses import field as dc_field
 from types import SimpleNamespace
 
 import pytest
@@ -103,6 +105,107 @@ def test_shipped_result_colors():
     assert STYLE_TOKEN_COLORS["green"] == 3066993     # SUCCESS_COLOR
     assert STYLE_TOKEN_COLORS["red"] == 15158332      # ERROR_COLOR
     assert STYLE_TOKEN_COLORS["gold"] == 15844367     # the daily card
+
+
+# --- item 5: the hub Solo buttons open the interactive table, not a card --------
+
+CH = 900
+
+
+@dataclass
+class _FakeReq:
+    """A component/modal-surface fake req for the hub Solo buttons — the
+    fields ctx_from_request threads (actor/guild/request_id/confirmed) plus
+    channel_id + args. A dataclass (not a SimpleNamespace) so
+    ``dataclasses.replace`` inside the deal→open-table body works."""
+
+    actor: object
+    guild_id: int = GID
+    channel_id: int = CH
+    request_id: str = "r1"
+    confirmed: bool = True
+    args: dict = dc_field(default_factory=dict)
+
+
+def _hub_req(args: dict | None = None, uid: int = UID):
+    return _FakeReq(actor=SimpleNamespace(user_id=uid),
+                    args=dict(args or {}))
+
+
+def _stub_deal(monkeypatch, dealt: dict):
+    """Stub blackjack.solo_start + open_panel so the hub_solo routing is
+    tested DB-free: capture the op run and the panel opened."""
+    from sb.kernel.panels import engine as panel_engine
+    from sb.kernel.workflow import engine as wf_engine
+    from sb.spec.outcomes import SUCCESS
+
+    seen: dict = {}
+
+    async def fake_run(ref, ctx):
+        seen["op"] = ref.name
+        seen["params"] = dict(ctx.params)
+        return SimpleNamespace(outcome=SUCCESS, user_message=None,
+                               after={"solo_start": dict(dealt)})
+
+    async def fake_open(ref, req):
+        seen["panel"] = ref.name
+        seen["panel_args"] = dict(req.args)
+        return "msg-1"
+
+    monkeypatch.setattr(wf_engine, "run", fake_run)
+    monkeypatch.setattr(panel_engine, "open_panel", fake_open)
+    return seen
+
+
+def test_hub_solo_actions_route_the_interactive_table_not_a_bare_op():
+    """The item-5 fix: both hub Solo buttons (and the bet modal's submit)
+    route the blackjack.hub_solo HANDLER — which opens the interactive
+    table view — instead of the bare blackjack.solo_start WORKFLOW (whose
+    RESULT_CARD gave a dead, unplayable deal)."""
+    from sb.domain.blackjack import handlers  # noqa: F401 — registers hub_solo
+    from sb.domain.blackjack.panels import SOLO_BET_MODAL, blackjack_hub_spec
+    from sb.spec.refs import HandlerRef
+
+    actions = {a.action_id: a for a in blackjack_hub_spec().actions}
+    hub_solo = HandlerRef("blackjack.hub_solo")
+    assert actions["bj_solo_free"].handler == hub_solo
+    assert actions["bj_solo_bet"].handler == hub_solo
+    assert SOLO_BET_MODAL.on_submit == hub_solo
+
+
+def test_hub_solo_free_play_deals_and_opens_the_table(monkeypatch):
+    from sb.domain.blackjack import handlers  # noqa: F401 — registers hub_solo
+    from sb.spec.outcomes import SUCCESS
+    from sb.spec.refs import HandlerRef
+    from sb.spec.refs import resolve as resolve_ref
+
+    seen = _stub_deal(monkeypatch, {
+        "player": ["K ♣", "K ♦"], "player_value": 20,
+        "dealer": ["K ♥", "?"], "bet": 0, "terminal": False})
+    reply = run(resolve_ref(HandlerRef("blackjack.hub_solo"))(_hub_req()))
+
+    assert (reply.outcome, reply.user_message) == (SUCCESS, None)
+    assert seen["op"] == "blackjack.solo_start"
+    assert seen["panel"] == "blackjack.table"       # the playable table view
+    assert seen["panel_args"]["player"] == ["K ♣", "K ♦"]
+    assert "bet" not in seen["params"]              # free play threads no bet
+
+
+def test_hub_solo_bet_threads_the_modal_bet_into_solo_start(monkeypatch):
+    from sb.domain.blackjack import handlers  # noqa: F401 — registers hub_solo
+    from sb.spec.refs import HandlerRef
+    from sb.spec.refs import resolve as resolve_ref
+
+    seen = _stub_deal(monkeypatch, {
+        "player": ["9 ♣", "7 ♦"], "player_value": 16,
+        "dealer": ["A ♥", "?"], "bet": 25, "terminal": False})
+    reply = run(resolve_ref(HandlerRef("blackjack.hub_solo"))(
+        _hub_req({"bet": "25"})))
+
+    assert reply.user_message is None
+    assert seen["op"] == "blackjack.solo_start"
+    assert seen["params"]["bet"] == "25"            # modal field → the op
+    assert seen["panel"] == "blackjack.table"
 
 
 # --- ORDER-004 walking skeleton: boot → !blackjack → hit → edited terminal ------

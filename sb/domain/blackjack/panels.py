@@ -34,7 +34,7 @@ from sb.spec.panels import (
     ResultRender,
     TextBlock,
 )
-from sb.spec.refs import HandlerRef, PanelRef, WorkflowRef, handler, is_registered, panel
+from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
 
 __all__ = [
     "PVP_PANEL_ID",
@@ -66,7 +66,7 @@ SOLO_BET_MODAL = ModalSpec(
         ModalFieldSpec(field_id="bet", label="Bet (coins)",
                        placeholder="e.g. 25", required=True, max_length=9),
     ),
-    on_submit=WorkflowRef("blackjack.solo_start"),
+    on_submit=HandlerRef("blackjack.hub_solo"),
 )
 
 
@@ -119,17 +119,20 @@ def blackjack_hub_spec() -> PanelSpec:
                       "when the challenge is accepted."),
         ),
         actions=(
+            # both Solo buttons OPEN the interactive table view (Hit/Stand/
+            # Double) via blackjack.hub_solo — the shipped !blackjack path —
+            # instead of the bare solo_start op with a dead RESULT_CARD deal
+            # (item-5 fix; the casino.poker_open command+button precedent).
             PanelActionSpec(
                 action_id="bj_solo_free", label="Solo Free Play",
                 emoji="🃏", style=ActionStyle.SUCCESS,
                 audience_tier="user",
-                handler=WorkflowRef("blackjack.solo_start"),
-                result_render=ResultRender.RESULT_CARD),
+                handler=HandlerRef("blackjack.hub_solo")),
             PanelActionSpec(
                 action_id="bj_solo_bet", label="Solo Bet", emoji="🪙",
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 defer_mode=DeferMode.MODAL, modal=SOLO_BET_MODAL,
-                handler=WorkflowRef("blackjack.solo_start")),
+                handler=HandlerRef("blackjack.hub_solo")),
             PanelActionSpec(
                 action_id="bj_status", label="Tournament Status",
                 emoji="🏆", audience_tier="user",
