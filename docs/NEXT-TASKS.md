@@ -21,12 +21,22 @@
    snapshot recommends a PLANNING-mode loop — the forward design proposals live in
    [`docs/design/README.md`](design/README.md) (the D1–D6 + B8/B10 design series).
 
-2. **Land the scoped game-surface backlog.** All three are already analyzed and
-   ready to become PRs behind the audited seams:
-   [`docs/ideas/blackjack-remaining-surface-2026-07-10.md`](ideas/blackjack-remaining-surface-2026-07-10.md),
-   [`docs/ideas/rps-tournament-remaining-surface-2026-07-10.md`](ideas/rps-tournament-remaining-surface-2026-07-10.md),
-   and the tournament open-flag TOCTOU fix
-   [`docs/ideas/tournament-open-flag-toctou-2026-07-12.md`](ideas/tournament-open-flag-toctou-2026-07-12.md).
+2. **Land the scoped game-surface backlog.** ✅ **Essentially complete** — all
+   three sub-items have either landed or are a settled do-not-fix:
+   - **Blackjack remaining surface** — ✅ **DONE** (PR #551, squash `70b8a8a`,
+     "blackjack: hub Solo buttons open the interactive table"). Scope doc:
+     [`docs/ideas/blackjack-remaining-surface-2026-07-10.md`](ideas/blackjack-remaining-surface-2026-07-10.md).
+   - **RPS remaining surface** — ✅ **DONE** (PR #552, squash `2804428`,
+     "rps(solo): edit the picker message in place into the result embed"). Note:
+     the `!rpsbot` bullet in
+     [`docs/ideas/rps-tournament-remaining-surface-2026-07-10.md`](ideas/rps-tournament-remaining-surface-2026-07-10.md)
+     was already built on main, so that idea doc is now stale.
+   - **Tournament open-flag TOCTOU** — ✂️ **Struck (do-not-fix).** Explicit owner
+     decision [`D-0092`](decisions.md) (decided 2026-07-18): keep the non-atomic
+     accepted-posture, no atomic fence; PR #517 pinned it with a characterization
+     test. Not pending work — see
+     [`docs/ideas/tournament-open-flag-toctou-2026-07-12.md`](ideas/tournament-open-flag-toctou-2026-07-12.md)
+     (`outcome: accepted-posture`).
 
 3. **Close the documented correctness gaps.** Robustness work behind the audited
    seams, both already scoped:
