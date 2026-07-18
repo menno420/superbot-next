@@ -28,6 +28,17 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 | [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
 | B8 | ux_lab 9-wing foundation-then-per-wing | planned |
 
+## Beyond D1–D6 — production-readiness tracks
+
+New production-readiness design topics opened outside the D1–D6 planning lanes.
+Same rules: **one doc per PR**, grounded evidence-first in real code with
+`file:line` citations. Future production-readiness design-doc PRs add their row
++ file here.
+
+| Doc | Topic | Status |
+|---|---|---|
+| [Security](S-security-rotation-and-least-privilege.md) | Secret rotation (zero-downtime) + startup fail-closed + least-privilege | plan |
+
 ## Index
 
 - [game-sections.md](game-sections.md) — per-guild minigame/casino
@@ -40,3 +51,13 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
   (owner-reviewable, no D-entry yet): the game-sections successor
   sweep that would edit anchored channel panels on enablement change;
   four design calls with options and costs.
+
+## Beyond D1–D6 — production-readiness tracks
+
+NEW design topics beyond the D1–D6 forward lanes: operational hardening the
+production cutover depends on. Each is a PLAN (`> **Status:** \`plan\``) the
+owner reacts to and prioritizes.
+
+| Track | Doc | What it proposes |
+|---|---|---|
+| Ops runbook | [Ops runbook](O-ops-migration-backup-restore-rollback.md) | The recoverability loop — migrate → backup → restore → rollback → deploy(Railway) — proven green end-to-end in CI: a restore-verify row-level-integrity leg, a rehearsed migrate+rollback drill on ephemeral Postgres, and a consolidated recovery runbook. |
