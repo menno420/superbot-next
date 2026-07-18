@@ -1,8 +1,8 @@
 # 2026-07-18 — setup-band count/list soft-fail boundary audit + characterization pins
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** opus-4.8 · test writing · fail-open audit + characterization pins
+- **📊 Model:** opus-4.8 · medium · test writing · fail-open audit + characterization pins
 
 ## Scope
 
@@ -56,7 +56,12 @@ moderation-except / settings-write harnesses.
 
 ## Verification
 
-- `pytest tests/unit/setup_band/ -q` → pasted verbatim in the PR body.
+- `pytest tests/unit/setup_band/ -q` → `437 passed in 3.66s` (the new
+  file alone: `9 passed in 0.57s`).
+- PR #519 CI: functional gates green (tests / checkers / code-quality /
+  architecture / sim-gate / manifest-validate / golden-parity + the
+  build/lockfile/pip-audit set); `substrate-gate` was the sole red — the
+  expected born-red hold, cleared by this card flip.
 
 ## 💡 Session idea
 
