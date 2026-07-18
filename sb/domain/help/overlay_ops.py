@@ -48,6 +48,7 @@ logger = logging.getLogger("sb.domain.help.overlay_ops")
 
 __all__ = [
     "RESET_OVERLAY",
+    "SET_HOME_MESSAGE",
     "SET_OVERLAY_FIELDS",
     "delete_guild_rows",
     "ensure_refs",
@@ -56,6 +57,9 @@ __all__ = [
 
 #: the editable override fields (the shipped mutation surface).
 _FIELDS = ("display_hidden", "display_name", "description")
+
+#: the Q-0059 Home-message fields (partial-edit surface).
+_HOME_FIELDS = ("title", "body", "color")
 
 
 def _reject(sentence: str):
@@ -174,6 +178,85 @@ async def _record_set_overlay_fields(conn, ctx: WorkflowContext) -> LegOutcome:
         after=after or {})
 
 
+async def _get_home_row(gid: int, conn: Any):
+    return await fetchone(
+        "SELECT home_title, home_body, home_color FROM help_overlay "
+        "WHERE guild_id=$1 AND entity_kind='home' AND entity_key='home'",
+        (gid,), conn=conn)
+
+
+@workflow("help.record_set_home_message")
+async def _record_set_home_message(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Set / reset the Q-0059 Help-Home message (partial edit — the shipped
+    ``set_home_message``; a field ABSENT from ``params['fields']`` is left
+    untouched, present-as-``None`` resets it to the default, present-with-
+    value overrides). An all-``None`` row is deleted (absence renders the
+    byte-identical default Home — "store only deviations")."""
+    from sb.domain.help.overlay import (
+        MAX_HOME_BODY_LEN,
+        MAX_HOME_COLOR,
+        MAX_HOME_TITLE_LEN,
+        HomeMessage,
+    )
+
+    gid = int(ctx.guild_id or 0)
+    fields = dict(ctx.params.get("fields") or {})
+    unknown = set(fields) - set(_HOME_FIELDS)
+    if unknown:
+        raise _reject("Pick a Home title, body, or color edit.")
+    if "title" in fields:
+        fields["title"] = _check_text(
+            "Home title", fields["title"], MAX_HOME_TITLE_LEN,
+            "♻️ Reset to default")
+    if "body" in fields:
+        fields["body"] = _check_text(
+            "Home body", fields["body"], MAX_HOME_BODY_LEN,
+            "♻️ Reset to default")
+    if "color" in fields and fields["color"] is not None:
+        color = fields["color"]
+        if not isinstance(color, int) or isinstance(color, bool):
+            raise _reject("Pick an embed color from the list.")
+        if not 0 <= color <= MAX_HOME_COLOR:
+            raise _reject("That embed color is out of range.")
+
+    current = await _get_home_row(gid, conn)
+    prev = HomeMessage(
+        title=current["home_title"] if current else None,
+        body=current["home_body"] if current else None,
+        color=current["home_color"] if current else None)
+    merged = HomeMessage(
+        title=fields.get("title", prev.title),
+        body=fields.get("body", prev.body),
+        color=fields.get("color", prev.color))
+
+    actor = int(getattr(getattr(ctx, "actor", None), "user_id", 0) or 0)
+    if merged.is_noop:
+        # store only deviations: an all-default home row is deleted.
+        await execute(
+            "DELETE FROM help_overlay WHERE guild_id=$1 AND "
+            "entity_kind='home' AND entity_key='home'", (gid,), conn=conn)
+        after: dict[str, Any] | None = None
+    else:
+        await execute(
+            "INSERT INTO help_overlay (guild_id, entity_kind, entity_key, "
+            "home_title, home_body, home_color, updated_by) "
+            "VALUES ($1, 'home', 'home', $2, $3, $4, $5) "
+            "ON CONFLICT (guild_id, entity_kind, entity_key) DO UPDATE SET "
+            "home_title = EXCLUDED.home_title, "
+            "home_body = EXCLUDED.home_body, "
+            "home_color = EXCLUDED.home_color, "
+            "updated_by = EXCLUDED.updated_by, updated_at = NOW()",
+            (gid, merged.title, merged.body, merged.color, actor or None),
+            conn=conn)
+        after = {"title": merged.title, "body": merged.body,
+                 "color": merged.color}
+    return LegOutcome(
+        step=StepResult(gid, "set_home_message", True),
+        before={"title": prev.title, "body": prev.body,
+                "color": prev.color} if current else {},
+        after=after or {})
+
+
 @workflow("help.record_reset_overlay")
 async def _record_reset_overlay(conn, ctx: WorkflowContext) -> LegOutcome:
     """Full reset: delete every overlay row for the guild (the shipped
@@ -201,13 +284,16 @@ def _op(op_key: str, verb: str, ref: str) -> CompoundOpSpec:
 
 SET_OVERLAY_FIELDS = _op("help.set_overlay_fields", "help_overlay_update",
                          "help.record_set_overlay_fields")
+SET_HOME_MESSAGE = _op("help.set_home_message", "help_overlay_update",
+                       "help.record_set_home_message")
 RESET_OVERLAY = _op("help.reset_overlay", "help_overlay_reset",
                     "help.record_reset_overlay")
 
-_OPS = (SET_OVERLAY_FIELDS, RESET_OVERLAY)
+_OPS = (SET_OVERLAY_FIELDS, SET_HOME_MESSAGE, RESET_OVERLAY)
 
 _REF_TABLE = (
     ("help.record_set_overlay_fields", _record_set_overlay_fields),
+    ("help.record_set_home_message", _record_set_home_message),
     ("help.record_reset_overlay", _record_reset_overlay),
 )
 

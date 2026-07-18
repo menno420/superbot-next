@@ -598,15 +598,19 @@ def test_help_manifest_declares_editor_panels_and_store():
 
 def test_pending_terminal_retired_and_teardown_registered():
     from sb.domain.platform.guild_teardown import registered_teardowns
-    from sb.spec.refs import HandlerRef, is_registered
+    from sb.spec.refs import HandlerRef, PanelRef, is_registered
 
     import sb.domain.help.overlay_ops as ops
     import sb.domain.server_management.handlers  # noqa: F401
 
     assert not is_registered(
         HandlerRef("server_management.help_editor_pending"))
-    # the Q-0059 home-message lane stays a declared pending terminal.
-    assert is_registered(HandlerRef("help.editor_home_message_pending"))
+    # the Q-0059 home-message lane is LIVE now (its own slice) — the pending
+    # terminal is retired and the builder panel + open handler are wired.
+    import sb.domain.help.editor as _ed  # noqa: F401
+    assert not is_registered(HandlerRef("help.editor_home_message_pending"))
+    assert is_registered(PanelRef("help.editor_home_message"))
+    assert is_registered(HandlerRef("help.editor_open_home_message"))
     # re-arm before asserting: a sibling test's reset_teardowns_for_tests
     # may have cleared the import-time registration (register_teardown is
     # idempotent by name).

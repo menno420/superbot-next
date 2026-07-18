@@ -32,12 +32,16 @@ Ledgered deviations (this slice's PR / D-0089):
 * the shipped picker was one view parameterized by kind; the grammar
   declares TWO panels (hubs / subsystems) so each carries its static
   title byte;
-* the shipped 🏠 Home message lane (the Q-0059 embed builder,
-  views/help/home_builder.py + oracle migration 067) is its own
-  successor slice — the button lands on a declared pending terminal;
-* the reset-confirm copy drops the shipped "and the custom Home
-  message" clause (no home row exists to remove yet — the copy would
-  lie).
+* the 🏠 Home message lane (the Q-0059 embed builder,
+  views/help/home_builder.py + oracle migration 067) folds the shipped
+  two-embed mandatory preview into ONE builder embed (the local
+  RenderedPanel carries a single embed — D1): the draft state renders as
+  fields + the renderer_override sets the embed accent to the staged
+  color, and 💾 Save renders DISABLED until the draft is previewed;
+* the per-guild Home accent rides the renderer_override's style_token
+  (D2 — the grammar style_token is static; the fishing/ticket override
+  precedent), with the discord named colors added to
+  render.STYLE_TOKEN_COLORS.
 
 State (kind pick, entity pick, picker page) is per (guild, invoker)
 in-memory view state (the cogmgr precedent); handlers register at
@@ -58,6 +62,7 @@ from sb.spec.panels import (
     FooterMode,
     LayoutSpec,
     ModalFieldSpec,
+    ModalFieldStyle,
     ModalSpec,
     NavigationSpec,
     PageSpec,
@@ -80,6 +85,7 @@ logger = logging.getLogger("sb.domain.help.editor")
 
 __all__ = [
     "editor_entity_spec",
+    "editor_home_message_spec",
     "editor_home_spec",
     "editor_panel_specs",
     "editor_pick_spec",
@@ -105,6 +111,17 @@ _KINDS = {"hub": "hubs", "subsystem": "subsystems"}
 _entity_pick: dict[tuple[int, int], tuple[str, str]] = {}
 _picker_page: dict[tuple[int, int, str], int] = {}
 
+#: the Q-0059 Home-message builder draft ({"title","body","color"}) + the
+#: mandatory-preview flag, per (guild, invoker) — mirrors the shipped
+#: HomeMessageBuilderView instance state (the cogmgr in-memory precedent).
+_home_draft: dict[tuple[int, int], dict] = {}
+_home_previewed: dict[tuple[int, int], bool] = {}
+
+#: the shipped builder footer copy (home_builder._PREVIEW_REQUIRED_NOTE and
+#: its previewed twin), byte for byte.
+_PREVIEW_REQUIRED_NOTE = "Preview the draft to enable Save."
+_PREVIEW_UNLOCKED_NOTE = "Previewed — Save is unlocked."
+
 
 def _mem_key(guild_id, user_id) -> tuple[int, int]:
     return (int(guild_id or 0), int(user_id or 0))
@@ -112,6 +129,46 @@ def _mem_key(guild_id, user_id) -> tuple[int, int]:
 
 def entity_pick_for(guild_id, user_id) -> tuple[str, str] | None:
     return _entity_pick.get(_mem_key(guild_id, user_id))
+
+
+def home_previewed_for(guild_id, user_id) -> bool:
+    return bool(_home_previewed.get(_mem_key(guild_id, user_id)))
+
+
+def _home_staged(guild_id, user_id, overlay) -> tuple:
+    """``(title, body, color)`` — the per-invoker draft, lazily seeded from
+    the guild's saved Home when the builder has not been touched (the
+    shipped ``HomeMessageBuilderView.from_current`` pre-stage)."""
+    draft = _home_draft.get(_mem_key(guild_id, user_id))
+    if draft is not None:
+        return draft.get("title"), draft.get("body"), draft.get("color")
+    home = getattr(overlay, "home", None)
+    if home is not None:
+        return home.title, home.body, home.color
+    return None, None, None
+
+
+def _home_stage(guild_id, user_id, overlay, **changes) -> None:
+    """Apply a draft change; any change invalidates the preview (the shipped
+    ``stage()`` — Save re-locks on every edit). Seeds the draft from the
+    current staged value (which falls back to the saved Home) first."""
+    title, body, color = _home_staged(guild_id, user_id, overlay)
+    draft = {"title": title, "body": body, "color": color}
+    draft.update(changes)
+    key = _mem_key(guild_id, user_id)
+    _home_draft[key] = draft
+    _home_previewed[key] = False
+
+
+def _home_color_label(color) -> str:
+    """The named-color label for a staged color (the shipped
+    ``build_builder_embed`` color-field copy)."""
+    from sb.domain.help.overlay import HOME_NAMED_COLORS
+
+    for label, value, _tok in HOME_NAMED_COLORS:
+        if value == color:
+            return label
+    return f"#{color:06x}" if color is not None else "Default"
 
 
 def picker_page_for(guild_id, user_id, kind: str) -> int:
@@ -239,6 +296,35 @@ def _picker_options_provider(kind: str):
     return _options
 
 
+async def _home_builder_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The builder's draft-state fields (the shipped ``build_builder_embed``
+    Draft title / Draft body / Draft color, copy verbatim)."""
+    gid, uid = _ctx_ids(ctx)
+    overlay = await _overlay(gid)
+    title, body, color = _home_staged(gid, uid, overlay)
+    return (
+        ("Draft title", (title or "*(default)*")[:1024]),
+        ("Draft body", (body or "*(default)*")[:1024]),
+        ("Draft color", _home_color_label(color)),
+    )
+
+
+async def _home_color_options(ctx) -> tuple[dict, ...]:
+    """The named-color select options; the staged color is marked default
+    (the shipped ``_ColorSelect`` options)."""
+    from sb.domain.help.overlay import HOME_NAMED_COLORS
+
+    gid, uid = _ctx_ids(ctx)
+    overlay = await _overlay(gid)
+    _title, _body, color = _home_staged(gid, uid, overlay)
+    return tuple(
+        {"label": label,
+         "value": "default" if value is None else str(value),
+         "default": value == color}
+        for label, value, _tok in HOME_NAMED_COLORS
+    )
+
+
 # --- the modals (G-10; text inputs only — shipped rule) ------------------------------
 
 RENAME_MODAL = ModalSpec(
@@ -261,6 +347,31 @@ REDESCRIBE_MODAL = ModalSpec(
                        required=True, min_length=1, max_length=100),
     ),
     on_submit=HandlerRef("help.editor_redescribe"),
+)
+
+# the Q-0059 Home-message modals (G-10; blank = default — the shipped
+# _TitleModal / _BodyModal, byte for byte).
+HOME_TITLE_MODAL = ModalSpec(
+    modal_id="help.home_title_form",
+    title="Home title",                           # shipped byte
+    fields=(
+        ModalFieldSpec(field_id="title",
+                       label="Custom Home title (blank = default)",  # shipped
+                       required=False, max_length=256),
+    ),
+    on_submit=HandlerRef("help.hb_edit_title"),
+)
+
+HOME_BODY_MODAL = ModalSpec(
+    modal_id="help.home_body_form",
+    title="Home body",                            # shipped byte
+    fields=(
+        ModalFieldSpec(field_id="body",
+                       label="Custom Home body (blank = default)",  # shipped
+                       style=ModalFieldStyle.PARAGRAPH,
+                       required=False, max_length=2000),
+    ),
+    on_submit=HandlerRef("help.hb_edit_body"),
 )
 
 
@@ -294,11 +405,13 @@ def editor_home_spec() -> PanelSpec:
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
                 handler=HandlerRef("help.editor_open_subs")),
             PanelActionSpec(
-                # the shipped 🏠 Home message lane (Q-0059 builder) is its
-                # own successor slice — a declared pending terminal.
+                # the shipped 🏠 Home message lane (Q-0059 builder) — opens
+                # the builder pre-staged from the guild's saved Home (the
+                # shipped from_current fresh-view: the open handler clears any
+                # stale draft so the seed always reflects the saved row).
                 action_id="eh_home_msg", label="🏠 Home message",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
-                handler=HandlerRef("help.editor_home_message_pending")),
+                handler=HandlerRef("help.editor_open_home_message")),
             PanelActionSpec(
                 action_id="eh_reset_all", label="🗑 Reset all…",
                 style=ActionStyle.DANGER, audience_tier="administrator",
@@ -455,12 +568,14 @@ def editor_reset_confirm_spec() -> PanelSpec:
         # the shipped confirm accent — discord.Color.red().
         frame=EmbedFrameSpec(style_token="red", footer_mode=FooterMode.NONE),
         body=(
-            # the shipped warning copy MINUS the home-message clause
-            # (module docstring: no home row exists to remove yet).
+            # the shipped warning copy, verbatim — the reset op deletes the
+            # 'home' row too, so the "and the custom Home message" clause is
+            # true again (the Q-0059 successor restored it).
             TextBlock(
-                "Every hide, rename, and re-description in this server "
-                "will be removed and Help returns to its defaults. This "
-                "cannot be undone (the audit log keeps the history)."),
+                "Every hide, rename, re-description, and the custom Home "
+                "message in this server will be removed and Help returns to "
+                "its defaults. This cannot be undone (the audit log keeps "
+                "the history)."),
         ),
         actions=(
             PanelActionSpec(
@@ -480,10 +595,82 @@ def editor_reset_confirm_spec() -> PanelSpec:
     )
 
 
+def editor_home_message_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="help.editor_home_message",
+        subsystem="help",
+        title="🏠 Home message builder",           # shipped byte
+        audience=Audience.INVOKER,
+        # the shipped builder control embed is UTILITY_COLOR (blue); the
+        # override re-accents it to the staged color (D1/D2).
+        frame=EmbedFrameSpec(style_token="blue", footer_mode=FooterMode.NONE),
+        body=(
+            # the shipped build_builder_embed description, verbatim.
+            TextBlock(
+                "Customize the Help Home frame (title, body text, color). "
+                "**Preview is mandatory** — Save unlocks after you've seen "
+                "the exact embed. Reset returns the byte-identical "
+                "default."),
+            FieldsBlock(provider=ProviderRef("help.home_builder_fields")),
+        ),
+        selectors=(
+            SelectorSpec(
+                selector_id="hb_color", kind=SelectorKind.ENUM,
+                options_source=ProviderRef("help.home_color_options"),
+                placeholder="Pick an embed color…",   # shipped byte
+                audience_tier="administrator",
+                on_select=HandlerRef("help.hb_color")),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="hb_title", label="✏️ Edit title…",   # shipped
+                style=ActionStyle.PRIMARY, audience_tier="administrator",
+                defer_mode=DeferMode.MODAL, modal=HOME_TITLE_MODAL,
+                handler=HandlerRef("help.hb_edit_title")),
+            PanelActionSpec(
+                action_id="hb_body", label="📝 Edit body…",     # shipped
+                style=ActionStyle.PRIMARY, audience_tier="administrator",
+                defer_mode=DeferMode.MODAL, modal=HOME_BODY_MODAL,
+                handler=HandlerRef("help.hb_edit_body")),
+            PanelActionSpec(
+                action_id="hb_preview", label="👁 Preview",      # shipped
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("help.hb_preview")),
+            PanelActionSpec(
+                action_id="hb_save", label="💾 Save",            # shipped
+                style=ActionStyle.SUCCESS, audience_tier="administrator",
+                handler=HandlerRef("help.hb_save")),
+            PanelActionSpec(
+                action_id="hb_reset", label="♻️ Reset to default",  # shipped
+                style=ActionStyle.DANGER, audience_tier="administrator",
+                handler=HandlerRef("help.hb_reset")),
+        ),
+        navigation=NavigationSpec(parent=PanelRef("help.editor_home"),
+                                  show_help=False, show_home=False),
+        renderer_override=HandlerRef("help.render_home_builder"),
+        justification=(
+            "the shipped Home builder folds the mandatory-preview into ONE "
+            "embed (the local RenderedPanel carries a single embed): the "
+            "footer flips between 'Preview the draft to enable Save.' and "
+            "'Previewed — Save is unlocked.', 💾 Save renders DISABLED until "
+            "the draft is previewed, and the embed accent is the staged "
+            "color (a per-guild dynamic color the static style_token cannot "
+            "carry — the fishing/ticket override precedent). The override "
+            "delegates to the grammar renderer and adjusts only those "
+            "surfaces; body, fields, the color select and the actions stay "
+            "declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("hb_title", "hb_body"),
+            ("hb_color",),
+            ("hb_preview", "hb_save", "hb_reset"),
+        )),)),
+    )
+
+
 def editor_panel_specs() -> tuple[PanelSpec, ...]:
     return (editor_home_spec(), editor_pick_spec("hub"),
             editor_pick_spec("subsystem"), editor_entity_spec(),
-            editor_reset_confirm_spec())
+            editor_reset_confirm_spec(), editor_home_message_spec())
 
 
 # --- renderer overrides -------------------------------------------------------------
@@ -570,11 +757,40 @@ async def _render_editor_entity(spec: PanelSpec, ctx) -> object:
             footer=f"{_FOOTER} · stable key: {key}"))          # shipped
 
 
+async def _render_home_builder(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the folded single-embed builder surfaces (D1 —
+    the shipped two-embed live preview folds into ONE control embed): the
+    embed accent re-tints to the staged color (D2), the footer flips the
+    preview note, and 💾 Save renders DISABLED until the current draft has
+    been previewed (any edit re-locks it — the shipped _rebuild_items)."""
+    from sb.domain.help.overlay import home_color_token
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    gid, uid = _ctx_ids(ctx)
+    overlay = await _overlay(gid)
+    _title, _body, color = _home_staged(gid, uid, overlay)
+    previewed = home_previewed_for(gid, uid)
+    note = _PREVIEW_UNLOCKED_NOTE if previewed else _PREVIEW_REQUIRED_NOTE
+    components = []
+    for c in rendered.components:
+        leaf = c.custom_id.rsplit(".", 1)[-1].rsplit(":", 1)[-1]
+        if leaf == "hb_save":
+            # Save stays disabled until the draft has been previewed.
+            c = _dc_replace(c, disabled=not previewed)
+        components.append(c)
+    return _dc_replace(
+        rendered,
+        components=tuple(components),
+        embed=_dc_replace(rendered.embed,
+                          style_token=home_color_token(color),
+                          footer=note))
+
+
 # --- handlers ----------------------------------------------------------------------
 
 
 def _register_refs() -> None:
-    from sb.domain.operator_spine import pending_handler
     from sb.kernel.interaction.handler_kit import Reply, ctx_from_request
     from sb.spec.outcomes import SUCCESS
     from sb.spec.refs import handler
@@ -585,6 +801,7 @@ def _register_refs() -> None:
         ("help.editor_pick_sub", lambda: editor_pick_spec("subsystem")),
         ("help.editor_entity", editor_entity_spec),
         ("help.editor_reset_confirm", editor_reset_confirm_spec),
+        ("help.editor_home_message", editor_home_message_spec),
     ):
         if not is_registered(PanelRef(pid)):
             panel(pid)(factory)
@@ -595,6 +812,8 @@ def _register_refs() -> None:
         ("help.editor_hub_options", _picker_options_provider("hub")),
         ("help.editor_subsystem_options",
          _picker_options_provider("subsystem")),
+        ("help.home_builder_fields", _home_builder_fields),
+        ("help.home_color_options", _home_color_options),
     ):
         if not is_registered(ProviderRef(name)):
             provider(name)(fn)
@@ -605,14 +824,10 @@ def _register_refs() -> None:
         ("help.render_editor_pick_subsystem",
          _render_editor_pick("subsystem")),
         ("help.render_editor_entity", _render_editor_entity),
+        ("help.render_home_builder", _render_home_builder),
     ):
         if not is_registered(HandlerRef(name)):
             handler(name)(fn)
-
-    pending_handler(
-        "help.editor_home_message_pending",
-        "🏠 The Help Home-message builder (the Q-0059 embed builder) "
-        "ports with its own slice.")
 
     if is_registered(HandlerRef("help.editor_open_hubs")):
         return
@@ -760,6 +975,94 @@ def _register_refs() -> None:
         if failed is not None:
             return failed
         await _open(req, "help.editor_home")
+        return Reply(SUCCESS, None)
+
+    # --- the Q-0059 Home-message builder lane -----------------------------
+
+    async def _hb_stage(req, **changes) -> Reply:
+        """Apply a draft change → re-render the builder (any edit re-locks
+        Save; the shipped stage() + rerender)."""
+        gid, uid = _req_key(req)
+        overlay = await _overlay(gid)
+        _home_stage(gid, uid, overlay, **changes)
+        await _open(req, "help.editor_home_message")
+        return Reply(SUCCESS, None)
+
+    @handler("help.editor_open_home_message")
+    async def editor_open_home_message(req):
+        """🏠 Home message — open the builder pre-staged from the saved
+        Home (the shipped from_current: clear any stale draft so the lazy
+        seed reflects the current row, preview starts locked)."""
+        key = _req_key(req)
+        _home_draft.pop(key, None)
+        _home_previewed.pop(key, None)
+        await _open(req, "help.editor_home_message")
+        return Reply(SUCCESS, None)
+
+    @handler("help.hb_edit_title")
+    async def hb_edit_title(req):
+        """✏️ Edit title… (modal submit) — blank = default (the shipped
+        _TitleModal)."""
+        raw = str(req.args.get("title") or "").strip()
+        return await _hb_stage(req, title=raw or None)
+
+    @handler("help.hb_edit_body")
+    async def hb_edit_body(req):
+        """📝 Edit body… (modal submit) — blank = default (the shipped
+        _BodyModal)."""
+        raw = str(req.args.get("body") or "").strip()
+        return await _hb_stage(req, body=raw or None)
+
+    @handler("help.hb_color")
+    async def hb_color(req):
+        """The named-color select (the shipped _ColorSelect) — "default"
+        clears the accent to the Help blue."""
+        values = tuple(req.args.get("values") or ())
+        raw = str(values[0]) if values else "default"
+        color = None if raw == "default" else int(raw)
+        return await _hb_stage(req, color=color)
+
+    @handler("help.hb_preview")
+    async def hb_preview(req):
+        """👁 Preview — the mandatory preview unlocks Save (the fold: the
+        builder embed already renders the staged accent, so the click
+        flips the footer note + Save's disabled state)."""
+        _home_previewed[_req_key(req)] = True
+        await _open(req, "help.editor_home_message")
+        return Reply(SUCCESS, None)
+
+    @handler("help.hb_save")
+    async def hb_save(req):
+        """💾 Save — one audited set_home_message; Save is disabled until
+        previewed, this guard is defense in depth (the shipped _SaveButton).
+        On success returns to the editor home (the shipped flow)."""
+        gid, uid = _req_key(req)
+        if not _home_previewed.get((gid, uid)):
+            return Reply(SUCCESS, _PREVIEW_REQUIRED_NOTE)
+        overlay = await _overlay(gid)
+        title, body, color = _home_staged(gid, uid, overlay)
+        failed = await _run_op(req, "help.set_home_message", {
+            "fields": {"title": title, "body": body, "color": color}})
+        if failed is not None:
+            return failed
+        _home_draft.pop((gid, uid), None)
+        _home_previewed.pop((gid, uid), None)
+        await _open(req, "help.editor_home")
+        return Reply(SUCCESS, None)
+
+    @handler("help.hb_reset")
+    async def hb_reset(req):
+        """♻️ Reset to default — write all-None (the row is deleted; the
+        default Home is byte-identical) and clear the draft (the shipped
+        _ResetButton, which stays on the builder)."""
+        failed = await _run_op(req, "help.set_home_message", {
+            "fields": {"title": None, "body": None, "color": None}})
+        if failed is not None:
+            return failed
+        gid, uid = _req_key(req)
+        _home_draft.pop((gid, uid), None)
+        _home_previewed.pop((gid, uid), None)
+        await _open(req, "help.editor_home_message")
         return Reply(SUCCESS, None)
 
 

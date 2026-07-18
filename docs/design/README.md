@@ -21,12 +21,24 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 |---|---|---|
 | [D4](D4-observability-surface.md) | Observability surface (metrics / readiness / structured logs) | **this PR** |
 | [D5](D5-e2e-test-harness.md) | End-to-end / live-guild test harness | planned |
-| D2 | Real-time minigame framework | planned |
+| [D2](D2-realtime-minigame-framework.md) | Real-time minigame framework | planned |
 | D1 | Themed renderer | planned |
 | D3 | Access-matrix / audit dashboard | planned |
 | D6 | Autonomy-apparatus removal | planned |
-| B10 | Role-hub route-origin back-button (panel-engine signal) | planned |
+| [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
 | B8 | ux_lab 9-wing foundation-then-per-wing | planned |
+
+## Beyond D1–D6 — production-readiness tracks
+
+New production-readiness design topics opened outside the D1–D6 planning lanes.
+Same rules: **one doc per PR**, grounded evidence-first in real code with
+`file:line` citations. Future production-readiness design-doc PRs add their row
++ file here.
+
+| Doc | Topic | Status |
+|---|---|---|
+| [OWNER DECISIONS (2026-07-18)](OWNER-DECISIONS-2026-07-18.md) | Consolidated morning agenda — every design-doc owner-question + standing gates, prioritized by leverage | owner-guidance |
+| [Security](S-security-rotation-and-least-privilege.md) | Secret rotation (zero-downtime) + startup fail-closed + least-privilege | plan |
 
 ## Index
 
@@ -40,3 +52,13 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
   (owner-reviewable, no D-entry yet): the game-sections successor
   sweep that would edit anchored channel panels on enablement change;
   four design calls with options and costs.
+
+## Beyond D1–D6 — production-readiness tracks
+
+NEW design topics beyond the D1–D6 forward lanes: operational hardening the
+production cutover depends on. Each is a PLAN (`> **Status:** \`plan\``) the
+owner reacts to and prioritizes.
+
+| Track | Doc | What it proposes |
+|---|---|---|
+| Ops runbook | [Ops runbook](O-ops-migration-backup-restore-rollback.md) | The recoverability loop — migrate → backup → restore → rollback → deploy(Railway) — proven green end-to-end in CI: a restore-verify row-level-integrity leg, a rehearsed migrate+rollback drill on ephemeral Postgres, and a consolidated recovery runbook. |
