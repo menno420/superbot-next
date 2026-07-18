@@ -761,23 +761,14 @@ async def _render_forge(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed)
 
 
-def _skills_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminal for the skill-tree panel's per-branch spend button — the
-    point spend rides the deferred panel port (D-0043); the LIVE command lane
-    `!skill <branch>` is the named successor for the audited allocate. The ♻
-    Respec button is LIVE as of WP-7 (``mining.skill_respec_route`` ->
-    mining.respec -> record_respec, the ported skill_service.respec), so its
-    pending registration is retired (the forge/home 🔥 Build precedent).
-    Registered at IMPORT (module bottom), never ensure-only (#111 doctrine)."""
-    from sb.domain.operator_spine import pending_handler
-
-    return {
-        "spend": pending_handler(
-            "mining.skill_spend_pending",
-            "🌳 Spending a skill point from the panel rides the deep-system "
-            "panel port (D-0043) — spend now with `!skill <branch>` (mining, "
-            "combat, fortune, crafting)."),
-    }
+# The 🌳 Skill Tree panel's per-branch spend buttons are LIVE (skill-spend PORT):
+# each ⛏️/⚔️/🍀/🛠️ button routes to ``mining.skill_spend_route`` -> mining.skill ->
+# record_skill (the ported skill_service.allocate, spend ONE point into the clicked
+# branch — the SAME leg the LIVE `!skill <branch>` command lane runs, byte-pinned by
+# goldens/mining/mining_skill_write via that lane). This RETIRES the last skills-panel
+# pending terminal (``mining.skill_spend_pending``); the ♻ Respec button went LIVE at
+# WP-7 (``mining.skill_respec_route``). Both handlers are the service's @handler
+# methods (ensure-registered via ensure_handler_refs()), the skill_respec precedent.
 
 
 def mining_skills_spec() -> PanelSpec:
@@ -805,19 +796,19 @@ def mining_skills_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="sk_mining", label="⛏️ Mining",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_combat", label="⚔️ Combat",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_fortune", label="🍀 Fortune",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_crafting", label="🛠️ Crafting",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_respec", label="♻ Respec",
                 style=ActionStyle.DANGER, audience_tier="user",
@@ -1702,7 +1693,6 @@ def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _grid_button_handlers()
-    _skills_button_handlers()
     _workshop_button_handlers()
     _ensure_workshop_craft_provider()
     _ensure_titles_select_provider()

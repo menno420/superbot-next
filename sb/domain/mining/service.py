@@ -1110,6 +1110,39 @@ def _register() -> None:
             return Reply(blocked.outcome, f"<@{uid}> {blocked.user_message}")
         return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
 
+    @handler("mining.skill_spend_route")
+    async def skill_spend_route(req) -> Reply:
+        """The 🌳 Skill Tree panel's per-branch spend button (⛏️/⚔️/🍀/🛠️) —
+        spend ONE point into the clicked branch (views/mining/skills_panel.py
+        ``MiningSkillsView._spend`` → services/skill_service.py ``allocate`` with
+        the default ``n=1``). Was a live D-0043 pending terminal
+        (``mining.skill_spend_pending``); this flips it to the audited
+        ``mining.skill`` op (record_skill: the ported allocate, self-service
+        player_skills upsert, advisory-fenced against the shared-budget race) —
+        the SAME leg the LIVE `!skill <branch>` command lane runs (already
+        byte-pinned by goldens/mining/mining_skill_write via that lane). The
+        clicked branch rides ``session_action`` (``sk_<branch>`` → the branch
+        token, sk_mining/sk_combat/sk_fortune/sk_crafting); the op takes amount 1
+        (no numeric token), so a session button always spends a single point.
+        Mirrors the stash_all / vault_deposit panel-button posture: reply
+        `<@u> {message}` as a RESULT_CARD (the accepted sb divergence from the
+        oracle's in-place panel re-render), mention-prefixed on BOTH the success
+        and the business-refusal face (the bad-branch / over-cap / no-points
+        refusals raise inside record_skill and surface verbatim, D-0060). No
+        golden drives this session-button spend — the parity harness would capture
+        the oracle's in-place edit, which sb diverges from; unit-tested (the
+        vault_deposit_route precedent)."""
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        action = str(req.args.get("session_action") or "")
+        # ``sk_<branch>`` → the branch token (sk_mining → mining, …); an
+        # unexpected id falls through to the op's verbatim bad-branch refusal.
+        branch = action[len("sk_"):] if action.startswith("sk_") else action
+        blocked, after = await _op_after(
+            req, "mining.skill", {"argv": (branch,), "values": ()})
+        if blocked is not None:
+            return Reply(blocked.outcome, f"<@{uid}> {blocked.user_message}")
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
     @handler("mining.cook_route")
     async def cook_route(req) -> Reply:
         """`!cook [amount] [fish]` — cook caught fish into food at a built
