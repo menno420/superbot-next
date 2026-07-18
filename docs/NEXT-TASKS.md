@@ -31,10 +31,11 @@
      the `!rpsbot` bullet in
      [`docs/ideas/rps-tournament-remaining-surface-2026-07-10.md`](ideas/rps-tournament-remaining-surface-2026-07-10.md)
      was already built on main, so that idea doc is now stale.
-   - **Tournament open-flag TOCTOU** — ✂️ **Struck (do-not-fix).** Explicit owner
-     decision [`D-0092`](decisions.md) (decided 2026-07-18): keep the non-atomic
+   - **Tournament open-flag TOCTOU** — ✂️ **Struck (do-not-fix).** Settled by an
+     explicit owner decision (decided 2026-07-18): keep the non-atomic
      accepted-posture, no atomic fence; PR #517 pinned it with a characterization
-     test. Not pending work — see
+     test. Not pending work — the decision's canonical home is
+     [`docs/decisions.md`](decisions.md); scope context lives in
      [`docs/ideas/tournament-open-flag-toctou-2026-07-12.md`](ideas/tournament-open-flag-toctou-2026-07-12.md)
      (`outcome: accepted-posture`).
 
