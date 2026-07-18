@@ -107,6 +107,20 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-18 · capability · **Full golden-parity `--gate` does not complete
+  inside a session/container window — mint per-case locally, verify the full
+  corpus in CI.** (`autonomous-project` venue.) `tools/run_golden_parity.py
+  --gate` replays the whole corpus serially and does not finish within a single
+  session/container window: it runs into the ~300s command/container timeout
+  mid-run (progress is roughly 10 of ~50 items per 5 min, and some handler
+  classes stall 60s+), so the full parity gate verifies ONLY in CI.
+  `tools/mint_golden.py <case_id>` is the only local granular oracle check —
+  a per-case mint/verify. · evidence: 2026-07-18 timing observation — the full
+  `--gate` sweep exceeds the ~300s window (~10/50 items per 5 min; handler-class
+  stalls 60s+), whereas per-case `mint_golden.py` returns promptly. · workaround
+  / practical consequence: oracle-port work should mint per-case locally and
+  lean on CI for full-corpus parity — do not block a session on `--gate`.
+  — LAST-VERIFIED: 2026-07-18
 - 2026-07-17 · capability (CORRECTION, supersedes the entry below for the
   project-default env) · **Parity DB provisioning + golden-parity gate — RUN
   AUTONOMOUSLY in the project-default env (NO classifier denial).** Re-verified
