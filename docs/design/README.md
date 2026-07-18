@@ -17,16 +17,24 @@ couple of decision-sized backlog items) into fuller design docs the owner reacts
 to and prioritizes. **One doc per PR**; each is grounded in the completeness
 snapshot and cites real code. Future design-doc PRs add their row + file here.
 
-| Doc | Topic | Status |
-|---|---|---|
-| [D4](D4-observability-surface.md) | Observability surface (metrics / readiness / structured logs) | **this PR** |
-| [D5](D5-e2e-test-harness.md) | End-to-end / live-guild test harness | planned |
-| [D2](D2-realtime-minigame-framework.md) | Real-time minigame framework | planned |
-| [D1](D1-themed-card-renderer.md) | Themed card renderer (rank / profile hero cards) | **this PR** |
-| [D3](D3-access-audit-model.md) | Access-control + audit-log data model (access-matrix / audit dashboard) | **this PR** |
-| [D6](D6-autonomy-apparatus-removal.md) | Autonomy-apparatus removal (safe removal sequence) | **this PR** |
-| [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
-| [B8](B8-ux-lab-wings.md) | ux_lab 9-wing foundation-then-per-wing | planned |
+All 8 docs are written and committed (each carries a `plan` Status badge); the
+Status column below now mirrors that badge, with landed per-doc slice progress
+noted inline.
+
+| Doc | Topic | Status | Staged questions settled |
+|---|---|---|---|
+| [D4](D4-observability-surface.md) | Observability surface (metrics / readiness / structured logs) | plan · P1 outbox metric families armed (#562) | — |
+| [D5](D5-e2e-test-harness.md) | End-to-end / live-guild test harness | plan | — |
+| [D2](D2-realtime-minigame-framework.md) | Real-time minigame framework | plan | — |
+| [D1](D1-themed-card-renderer.md) | Themed card renderer (rank / profile hero cards) | plan · Slice 1 (render band) landed (#560/#561) | Q1/Q2 — bundle DejaVu fonts + adopt Pillow as a hard runtime dep (the render-band Pillow decision; NOTE Pillow shipped at `>=12.3.0`, not `<12`, per the #561 security bump) |
+| [D3](D3-access-audit-model.md) | Access-control + audit-log data model (access-matrix / audit dashboard) | plan | Q2 — audit-log retention stays permanent; Q3 — M1 access granularity is per-channel (per-command deferred) |
+| [D6](D6-autonomy-apparatus-removal.md) | Autonomy-apparatus removal (safe removal sequence) | plan | Q1 — destructive removal deferred to the recreated Project (post-2026-07-21) |
+| [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan | — |
+| [B8](B8-ux-lab-wings.md) | ux_lab 9-wing foundation-then-per-wing | plan | — |
+
+Decision provenance lives in `docs/decisions.md`; each doc's own footer pins its
+settling entries (D1, D3, D6), so the questions above are cited here in prose
+only, not re-stamped.
 
 ## Beyond D1–D6 — production-readiness tracks
 
