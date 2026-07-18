@@ -41,6 +41,10 @@
 - `parity/parity.yml` — the port dashboard (49 subsystem rows).
 - `docs/status/completeness-table-2026-07-13.md` — per-subsystem completeness
   inventory (core/admin/setup × every subsystem, ORDER 017 item 1).
+- `docs/status/prod-readiness-backlog-2026-07-17.md` — the prioritized,
+  cold-pickup-ready production-readiness backlog (owner-only ops cutover +
+  the remaining declared-honest pending terminals, from the full-tree survey
+  @ `1893d32`).
 - `docs/decisions.md` — append-only decision ledger (D-entries).
 
 The report leg is green (2026-07-13, run 29238825392) — a red there is no
