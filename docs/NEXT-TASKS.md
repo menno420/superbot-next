@@ -48,11 +48,19 @@
    runbook: [`docs/operations/rollback-playbook.md`](operations/rollback-playbook.md).
    (Owner action: the repo secret + variable + retention setting are owner-only.)
 
-6. **Replace the retired autonomy apparatus with a plain owner-directed flow.**
+6. **Replace the still-live autonomy apparatus with a plain owner-directed flow.**
    Keep the six named CI gates (`.github/workflows/named-gates.yml`) as the merge
    bar, but **merge by owner action** (or a simple server-side lander on green) —
-   remove `.github/workflows/auto-merge-enabler.yml` and drop the `control/`
-   message bus + wake-chain so nothing self-arms auto-merge or self-fires a wake.
+   remove `.github/workflows/auto-merge-enabler.yml` and retire the `control/`
+   order-bus + wake-chain so nothing self-arms auto-merge or self-fires a wake.
+   **Correction (2026-07-18):** the enabler is currently **LIVE** (fires
+   `on: pull_request`, no deprecation banner — the sole in-repo merge automation),
+   NOT already retired; and `control/` is only **partially** removable — the
+   `control/status.md` heartbeat + `control/claims` stay **load-bearing** (gated by
+   the required `substrate-gate.yml --status-only`; `substrate.config.json` points
+   `claims_dir` → `control/claims`), so only the inbox/outbox **order-bus** was
+   retired. Naive `control/` deletion would RED a required gate — removal is
+   owner-sequenced, with the kit-config migration first (per the D6 #548 plan).
    Agent-side auto-merge / REST-merge is classifier-denied since ~2026-07-15, so
    the doctrine is now: open a ready PR on green CI, the owner merges. This is a
    next-Project (recreation) change — the workflow files are left untouched by the
