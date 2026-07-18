@@ -302,3 +302,55 @@ def test_verify_import_report_stop_codes(env):
     assert not report.clean
     assert "invariant_violation" in report.stop_codes
     assert report.invariant_violations_by_id == {"economy.coins_reconcile": 1}
+
+
+# --- the ON_BOOT reconciliation entry (the boot ready-gate) -------------------
+
+def test_reconcile_on_boot_runs_on_boot_only_and_crash_loop_guards(env):
+    idem, db, _ = env
+    _register_check([violation()])
+    # An ON_BOOT invariant (reconcile_on_boot's sole scope) alongside a DAILY
+    # one that reconcile_on_boot must SKIP (steady-state tick's scope).
+    boot_spec = inv(invariant_id="xp.boot_check", kind=InvariantKind.UNIQUENESS,
+                    stores=("xp_ledger",), severity=Severity.QUARANTINE_ONLY,
+                    bears_value=False, baseline_ref=None,
+                    cadence=SweepCadence.ON_BOOT,
+                    check_ref=ProviderRef("economy.coins_check"))
+    declare_invariant(boot_spec)
+    declare_invariant(inv())        # default cadence DAILY — must be skipped
+    lane = sw.InvariantSweepLane(clock=lambda: T0)
+
+    run(lane.reconcile_on_boot(T0))
+    assert len(db.sweep_logs) == 1                      # ONLY the ON_BOOT invariant
+    assert db.sweep_logs[0].invariant_id == "xp.boot_check"
+    assert db.sweep_logs[0].violations_found == 1
+
+    # Crash-loop guard: a second boot within the SAME hour (epoch = ts//3600)
+    # is deduped by the once() epoch key — a restart never re-sweeps.
+    run(lane.reconcile_on_boot(datetime(2026, 7, 8, 12, 30, tzinfo=timezone.utc)))
+    assert len(db.sweep_logs) == 1                      # no re-sweep this hour
+
+    # A boot in a LATER hour is a new epoch — reconciliation runs again.
+    run(lane.reconcile_on_boot(datetime(2026, 7, 8, 14, 0, tzinfo=timezone.utc)))
+    assert len(db.sweep_logs) == 2
+
+
+# --- the ALERT_ONLY dispatch branch (metric/finding, no state change) --------
+
+def test_alert_only_dispatch_records_finding_never_mutates(env):
+    idem, db, ran = env
+    _register_check([violation()])
+    spec = inv(invariant_id="xp.alerting", kind=InvariantKind.UNIQUENESS,
+               stores=("xp_ledger",), severity=Severity.ALERT_ONLY,
+               bears_value=False, baseline_ref=None,
+               check_ref=ProviderRef("economy.coins_check"))
+    declare_invariant(spec)
+    sw.register_enforce_setting(spec)
+    # ALERT_ONLY still needs enforce=True to leave the report-only path.
+    async def reader(guild_id, key):
+        return True if key == "invariants.enforce.xp.alerting" else settings_mod.UNSET
+    settings_mod.install_settings_reader(reader)
+    lane = sw.InvariantSweepLane(clock=lambda: T0)
+    run(lane.tick(T0))
+    assert db.quarantined == [] and ran == []           # metric/finding only
+    assert db.sweep_logs[0].alerts == 1
