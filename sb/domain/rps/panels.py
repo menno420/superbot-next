@@ -159,8 +159,13 @@ def rps_quickplay_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id=move, label=move.title(), emoji=_QP_EMOJI[move],
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=WorkflowRef("rps.solo_play"),
-                result_render=ResultRender.RESULT_CARD)
+                # the shipped _RpsView EDITED the picker message in place;
+                # route through rps.solo_click (run the op, then
+                # refresh_session_view) instead of a RESULT_CARD followup —
+                # DeferMode.NONE so the refresh owns the type-6 edit ack
+                # (the blackjack solo table_click precedent).
+                defer_mode=DeferMode.NONE,
+                handler=HandlerRef("rps.solo_click"))
             for move in GAME_MODES["classic"]),
         navigation=NavigationSpec(show_help=False, show_home=False),
         layout=LayoutSpec(pages=(
@@ -285,9 +290,15 @@ async def _render_pvp(spec: PanelSpec, ctx) -> object:
 
 
 async def _render_quickplay(spec: PanelSpec, ctx) -> object:
-    """renderer_override — the shipped embed shape verbatim (title,
-    ``Bet: …\\nChoose your move!``, GAME_COLOR) over the DECLARED move
-    buttons (canonical ids; the engine mints the session ids)."""
+    """renderer_override — two stages on the ONE picker message (the shipped
+    views/rps/solo_play._RpsView edit loop): the OPEN picker (title,
+    ``Bet: …\\nChoose your move!``, GAME_COLOR + the three move buttons) and,
+    after the audited throw resolves, the TERMINAL result frame (the leg's
+    own ``{emoji} vs {bot_emoji} (bot)\\n{text}`` copy verbatim, move buttons
+    disabled — refresh_session_view rewrites them back onto the session's
+    minted ids). The buttons stay DECLARED (canonical ids; the engine mints
+    the session ids); the frame color stays GAME_COLOR across both stages
+    (the shipped view kept its accent)."""
     from sb.domain.rps.ops import FREE_WIN
     from sb.kernel.panels.render import (
         RenderedComponent,
@@ -296,6 +307,28 @@ async def _render_quickplay(spec: PanelSpec, ctx) -> object:
     )
 
     params = getattr(ctx, "params", {}) or {}
+    if params.get("terminal") or params.get("result"):
+        # the resolved throw (refresh_session_view passes the solo_play
+        # leg's `after`): the shipped result line, buttons disabled.
+        emoji = str(params.get("emoji") or "")
+        bot_emoji = str(params.get("bot_emoji") or "")
+        text = str(params.get("result") or "")
+        embed = RenderedEmbed(
+            title=spec.title,
+            description=f"{emoji} vs {bot_emoji} (bot)\n{text}",
+            style_token=spec.frame.style_token)
+        components = tuple(
+            RenderedComponent(
+                kind="button",
+                custom_id=f"{spec.panel_id}.{action.action_id}",
+                label=action.label, row=0, style=action.style.value,
+                emoji=action.emoji, disabled=True)
+            for action in spec.actions)
+        return RenderedPanel(
+            panel_id=spec.panel_id, embed=embed, components=components,
+            invoker_lock=getattr(ctx.actor, "user_id", None),
+            timeout_s=spec.timeout_s, audience=spec.audience.value,
+            anchor_policy=spec.anchor_policy.value)
     bet = params.get("bet")
     if bet is None:
         argv = tuple(params.get("argv", ()) or ())

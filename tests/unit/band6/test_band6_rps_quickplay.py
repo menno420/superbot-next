@@ -53,6 +53,24 @@ def test_quickplay_render_bet_line():
     assert rendered.embed.description == "Bet: **25** 🪙\nChoose your move!"
 
 
+def test_quickplay_render_result_stage_edits_in_place():
+    """The terminal result frame — refresh_session_view passes the
+    solo_play leg's `after`, and the renderer edits the SAME picker message
+    into the shipped result line (`{emoji} vs {bot_emoji} (bot)\\n{text}`)
+    with GAME_COLOR held and the move buttons disabled in place."""
+    from sb.domain.rps.panels import _render_quickplay, rps_quickplay_spec
+
+    after = {"move": "rock", "bot_move": "scissors",
+             "result": "🎉 You win! +30 🪙", "emoji": "🪨",
+             "bot_emoji": "✂️", "terminal": True}
+    rendered = run(_render_quickplay(rps_quickplay_spec(), _panel_ctx(after)))
+    assert rendered.embed.description == "🪨 vs ✂️ (bot)\n🎉 You win! +30 🪙"
+    assert rendered.embed.style_token == "purple"      # GAME_COLOR held
+    assert [c.label for c in rendered.components] == ["Rock", "Paper",
+                                                      "Scissors"]
+    assert all(c.disabled for c in rendered.components)
+
+
 def test_purple_style_token_is_shipped_game_color():
     from sb.kernel.panels.render import STYLE_TOKEN_COLORS
 
@@ -194,7 +212,21 @@ def test_walking_skeleton_rps_quickplay_end_to_end(skeleton):
     run(harness.click(message_id=message_id,
                       custom_id=buttons[0]["custom_id"], persona="admin"))
     clicked = harness.take_calls()
-    texts = [str(c.payload) for c in clicked if c.payload]
-    assert any("🎉 You win! +30 🪙" in t for t in texts), texts
+    # edit-in-place (item 2): the invoker's click EDITS the picker message
+    # into the result embed (interaction_response type 6 + edit), never a
+    # followup text card — the shipped views/rps/solo_play._RpsView loop.
+    assert [c.method for c in clicked] == ["interaction_response",
+                                           "edit_followup"], clicked
+    assert clicked[0].payload["type"] == 6              # deferred-update ack
+    edit = clicked[1].payload
+    (embed,) = edit["embeds"]
+    assert embed["description"] == "🪨 vs ✂️ (bot)\n🎉 You win! +30 🪙"
+    assert embed["color"] == 10181046                   # GAME_COLOR held
+    (row,) = edit["components"]
+    edited = row["components"]
+    # the move buttons keep their minted ids across the edit and disable
+    assert [b["custom_id"] for b in edited] == [
+        b["custom_id"] for b in buttons]
+    assert all(b["disabled"] for b in edited)
     # the free-play win credited the wallet through the fake economy seam
     assert 30 in list(economy.balances.values())

@@ -183,6 +183,36 @@ def _register() -> None:
             return Reply(SUCCESS, fallback)
         return Reply(SUCCESS, None)
 
+    @handler("rps.solo_click")
+    async def solo_click(req) -> Reply:
+        """A quick-play move button (session-lifecycle binding → resolve()
+        → here): run the audited rps.solo_play op, then EDIT the picker
+        message IN PLACE into the result embed (the shipped
+        views/rps/solo_play._RpsView safe_defer + safe_edit loop — the
+        blackjack table_click precedent). The single throw is terminal, so
+        the session expires with the move buttons disabled — the shipped
+        'play again' button is the ledgered deferral (hub re-entry stays one
+        !rps away, item 1(b)'s PvP-terminal posture). A vanished live session
+        (restart/eviction) degrades to the leg's own result text — the op
+        already settled the money/stats."""
+        from sb.kernel.panels.engine import refresh_session_view
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        result = await engine.run(WorkflowRef("rps.solo_play"),
+                                  _ctx_from_req(req, dict(req.args)))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Could not play.")
+        after = (result.after or {}).get("solo_play", {})
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        refreshed = await refresh_session_view(
+            req, message_key=message_key, params=after, expire=True)
+        if not refreshed:
+            return Reply(SUCCESS, result.user_message or "")
+        return Reply(SUCCESS, None)
+
     @handler("rps.help_view")
     async def help_view(req) -> Reply:
         return Reply(SUCCESS, _HELP_TEXT)
