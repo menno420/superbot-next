@@ -25,6 +25,7 @@ Three declared fences + the Q-D24 session-concurrency rule:
 
 from __future__ import annotations
 
+import functools
 import inspect
 from dataclasses import replace
 
@@ -35,7 +36,7 @@ from sb.kernel.workflow.spec import (
     LegKind,
 )
 from sb.spec.events import DeliveryClass
-from sb.spec.refs import resolve
+from sb.spec.refs import RefUnresolved, resolve
 
 __all__ = [
     "check_atomic_db_only",
@@ -125,8 +126,30 @@ def check_atomic_db_only(spec: CompoundOpSpec) -> list[str]:
             problems.append(f"external-conn op {spec.op_key!r}: EFFECT leg {leg.leg_id!r}")
             continue
         try:
-            source = inspect.getsource(resolve(leg.handler))
-        except Exception:
+            handler = resolve(leg.handler)
+        except RefUnresolved:
+            # An unresolved ref is boot's OWN failure surface
+            # (ref_unresolved_at_boot / FAILED_STARTUP), not this fence's —
+            # the same principle the invariant compiler applies to the op-level
+            # resolve ("an unresolved ref is boot's failure surface, not this
+            # fence's"). Hijacking it into a banned-I/O verdict is a false
+            # positive: e.g. a test that cleared the ref table before the
+            # invariant compile fires (the xp.repair_level_consistency abort).
+            # Leave it for the resolver's own boot gate; do not flag here.
+            continue
+        # Scan the REAL implementation: follow functools.partial layers to the
+        # underlying function, then strip __wrapped__ decorator layers, so a
+        # legitimately-wrapped handler is inspected on its true body rather than
+        # a non-inspectable shim. Only a genuinely un-inspectable target (no
+        # on-disk source — e.g. exec-defined) then fails CLOSED (the A-5
+        # hardening: never treat an unverifiable source as clean).
+        target = handler
+        while isinstance(target, functools.partial):
+            target = target.func
+        target = inspect.unwrap(target)
+        try:
+            source = inspect.getsource(target)
+        except (OSError, TypeError):
             problems.append(
                 f"external-conn op {spec.op_key!r}: DB leg {leg.leg_id!r} "
                 "handler source could not be inspected — banned-I/O fence cannot be verified")
