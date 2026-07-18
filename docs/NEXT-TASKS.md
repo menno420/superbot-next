@@ -11,7 +11,9 @@
 ## Build backlog
 
 1. **Finish the port to full parity.** Work down
-   [`docs/status/completeness-table-2026-07-13.md`](status/completeness-table-2026-07-13.md)
+   [`docs/status/completeness-table-2026-07-18.md`](status/completeness-table-2026-07-18.md)
+   (verify-first reconciliation; supersedes the
+   [07-13 table](status/completeness-table-2026-07-13.md))
    and [`docs/ideas/port-the-small-four-2026-07-10.md`](ideas/port-the-small-four-2026-07-10.md)
    to close the gap from ~49 ported subsystems to the full corpus. The harness is
    ready — 523 goldens are green today (`tools/check_parity_depth.py`), so each new

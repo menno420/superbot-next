@@ -1,5 +1,10 @@
 # Per-subsystem completeness table — 2026-07-13
 
+> **Superseded by** [`docs/status/completeness-table-2026-07-18.md`](completeness-table-2026-07-18.md)
+> (verify-first reconciliation, oracle `69a061d` vs HEAD `782ca2d`) — several rows
+> below have since landed or were mis-scoped. Kept for history; read the 07-18
+> snapshot for current truth.
+
 > **Status:** `audit` — ORDER 017 item 1 (owner NIGHT-RUN mandate, PR #323).
 > Point-in-time inventory @ main `b8fcdb7`; drives the night's fix slices via
 > the "Top gaps" ranking at the bottom. Regenerate rather than amend.
