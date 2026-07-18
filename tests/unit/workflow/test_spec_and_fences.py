@@ -137,6 +137,31 @@ def test_atomic_db_only_external_conn_fence():
     assert any("headless" in p for p in check_atomic_db_only(confirmy))
 
 
+def test_atomic_db_only_fails_closed_on_uninspectable_handler():
+    # A normal module-level def (source readable) passes cleanly.
+    @workflow("x.readable")
+    async def _readable(conn, ctx):
+        return None
+
+    readable = _spec(legs=(LegSpec("a", LegKind.DB, WorkflowRef("x.readable"), "reversible"),))
+    assert check_atomic_db_only(readable) == []
+
+    # A handler built dynamically has no on-disk source, so inspect.getsource
+    # raises — the fence must FAIL-CLOSED and record a problem rather than
+    # silently treating the un-inspectable source as clean (fail-open).
+    ns: dict = {}
+    exec("async def _dyn(conn, ctx):\n    return None", ns)
+    workflow("x.uninspectable")(ns["_dyn"])
+    with pytest.raises(OSError):
+        import inspect
+        inspect.getsource(ns["_dyn"])          # guard: source truly un-inspectable
+
+    uninspectable = _spec(legs=(
+        LegSpec("u", LegKind.DB, WorkflowRef("x.uninspectable"), "reversible"),))
+    problems = check_atomic_db_only(uninspectable)
+    assert any("could not be inspected" in p for p in problems)
+
+
 def test_workflow_result_is_the_shipped_superset():
     r = WorkflowResult(
         mutation_id="m", guild_id=1, domain="economy", operation="economy.op",

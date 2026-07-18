@@ -127,7 +127,10 @@ def check_atomic_db_only(spec: CompoundOpSpec) -> list[str]:
         try:
             source = inspect.getsource(resolve(leg.handler))
         except Exception:
-            source = ""
+            problems.append(
+                f"external-conn op {spec.op_key!r}: DB leg {leg.leg_id!r} "
+                "handler source could not be inspected — banned-I/O fence cannot be verified")
+            continue
         for token in _DB_LEG_BANNED_TOKENS:
             if token in source:
                 problems.append(
