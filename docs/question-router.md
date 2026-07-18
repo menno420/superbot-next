@@ -26,8 +26,9 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(One unanswered block below — the **B10 route-origin go/no-go** (appended
-2026-07-18) awaits the owner's cost/benefit ruling. The settings per-group
+(Two unanswered blocks below — the **B10 route-origin go/no-go** and the
+**D5 LIVE-guild tier go/no-go** (both appended 2026-07-18) await owner rulings.
+The settings per-group
 edit-page group-routing decision, appended 2026-07-18, was answered 2026-07-18
 (option A) and moved to Answered below. The six S11/S13/S14/S15/V-5/K10 blocks
 were resolved 2026-07-08 by the owner via the directing session's question panel
@@ -80,6 +81,55 @@ were resolved 2026-07-08 by the owner via the directing session's question panel
 - **Routing result:** _(pending owner ruling — on GO, the plan's slice order
   executes and a `docs/decisions.md` entry cites this block when slice 1 lands;
   on NO-GO, B10 closes as "considered, declined" and the plan doc is shelved.)_
+
+### Q: D5 LIVE-guild tier — provision a real test-bot token + guild for a live e2e sweep now, or defer until there's a token and a reason? (e2e harness, owner-gated)
+
+- **Area / Type / Priority / Status:** e2e test harness (tooling/CI) /
+  product-intent cost-benefit + secret provisioning / gates the D5.2 LIVE tier
+  only (D5.1 is agent-decidable and unblocked) / **OPEN** (pending owner,
+  appended 2026-07-18).
+- **Question:** D5 ([design/D5-e2e-test-harness.md](design/D5-e2e-test-harness.md))
+  proposes an optional **LIVE tier (D5.2)** that boots the real bot with a real
+  token against the private **MineSnakeBotTest** guild (Galaxy Bot) and asserts
+  real responses — the last mile golden-parity and the in-process tier
+  structurally cannot reach. It cannot run in headless CI (discord + a token +
+  outbound network are all absent there by design,
+  `sb/adapters/discord/gateway.py:8,20-31`). Standing it up needs owner-only
+  inputs: (a) provision `DISCORD_BOT_TOKEN_PRODUCTION` as a CI **secret** on a
+  network-capable runner (or bless an owner-local runbook run); (b) pick a
+  **cadence + cost budget** — the container/session window is too tight for long
+  serial live work (`docs/CAPABILITIES.md:110-122`); (c) rule the **signer
+  identity** for any auto-minted `verified_live` record — V2 requires a signer +
+  `signed_at` + `build_sha` (`tools/check_verified_live.py:9-12`), so "may a bot
+  identity sign?" is a trust call. Do we invest in the LIVE tier now, or defer?
+- **Why agents need this:** it is a secret-provisioning + cost + trust call, not
+  a worker decision. The *design* picks around it are already resolved as flagged
+  decide-and-flag defaults in the doc's "Decision-ready refinement" section (Q1
+  in-process discord dependency → discord-installed first; Q3 command set →
+  minimal CUT-1 shape; Q4 thresholds → non-blocking degraded-health; Q5 →
+  structural assertions; Q7 → fixed tolerated channel). Only the token/cadence/
+  cost/signer bundle above is owner-gated — and it gates the LIVE tier alone; the
+  in-process adapter tier (D5.1) is buildable now with no owner input (see the
+  doc's executable-follow-up flag).
+- **Options:** (a) **DEFER (recommended)** — build/land the **in-process adapter
+  tier now** (agent-decidable, no owner input, closes the P1 adapter blind spot);
+  hold the LIVE tier until there is both a token AND a concrete reason (a
+  gateway/real-Discord-boundary regression the in-process tier can't reach). (b)
+  **GO** — provision the token + a `workflow_dispatch` (or owner-local) runner
+  now and script the minimal CUT-1 live sweep as a non-blocking degraded-health
+  signal. (c) **NEVER** — accept manual live-drive (the P3 status quo) as
+  sufficient and drop D5.2 from the roadmap.
+- **Safe default:** **in-process tier now; LIVE tier deferred until there's a
+  token + a reason.** The in-process tier delivers the bulk of D5's value (the
+  ~19 un-driven adapter modules → a required gate) with zero owner cost; the LIVE
+  tier's marginal coverage (the gateway + real-Discord boundary) is real but its
+  cost (a secret, a runner, a budget, a signer ruling) only earns out against a
+  concrete need.
+- **Maintainer answer:** _(pending)_
+- **Routing result:** _(pending owner ruling — on GO/DEFER-then-build, a
+  `docs/decisions.md` entry cites this block when the LIVE tier lands and the
+  answer routes into `docs/design/D5-e2e-test-harness.md`; on NEVER, D5.2 closes
+  as "considered, declined" and only the in-process tier survives.)_
 
 ## Answered
 
