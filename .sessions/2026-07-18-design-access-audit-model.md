@@ -1,6 +1,6 @@
 # 2026-07-18 — D3 access-control + audit-log data-model design doc
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Opus 4 family · high · kernel/architecture design — D3 access/audit data-model design doc (born-red, holds substrate-gate)
 
