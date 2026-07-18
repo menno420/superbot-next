@@ -1,6 +1,6 @@
 # 2026-07-18 — Resilience design doc (outbox delivery + DB pool)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · docs · resilience design doc — outbox retry/dead-letter reach + DB reconnect/fail-closed (born-red, holds substrate-gate)
 
