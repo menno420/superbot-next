@@ -1,6 +1,6 @@
 # 2026-07-18 — setup-band except-boundary tests: pin the moderation-flow swallows (backlog C1)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · additive test slice (born-red, holds substrate-gate)
 
