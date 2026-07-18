@@ -26,10 +26,60 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(No unanswered blocks — the settings per-group edit-page group-routing
-decision, appended 2026-07-18, was answered 2026-07-18 (option A) and moved to
-Answered below. The six S11/S13/S14/S15/V-5/K10 blocks were resolved 2026-07-08
-by the owner via the directing session's question panel — see Answered below.)
+(One unanswered block below — the **B10 route-origin go/no-go** (appended
+2026-07-18) awaits the owner's cost/benefit ruling. The settings per-group
+edit-page group-routing decision, appended 2026-07-18, was answered 2026-07-18
+(option A) and moved to Answered below. The six S11/S13/S14/S15/V-5/K10 blocks
+were resolved 2026-07-08 by the owner via the directing session's question panel
+— see Answered below.)
+
+### Q: B10 route-origin — add a kernel nav-mode seam to fix dynamic back-button labels, or keep static FOLLOW_PARENT and accept the cosmetic gap? (panel engine, owner-gated)
+
+- **Area / Type / Priority / Status:** panel engine (kernel) / product-intent
+  cost-benefit / gates a 2-slice engine build / **OPEN** (pending owner,
+  appended 2026-07-18).
+- **Question:** B10 ([design/B10-panel-route-origin.md](design/B10-panel-route-origin.md))
+  proposes adding a **session-scoped route-origin signal** (an `opened_from`
+  field on the in-memory `PanelSession`, `sb/kernel/panels/engine.py:254-271`)
+  plus a **`BACK_TO_ORIGIN`** NavigationSpec mode (`sb/spec/panels.py:172-183`)
+  so a panel's back button can point to *where the user navigated from* instead
+  of its static `home_hub`. The concrete symptom is one label: `role.hub` opened
+  through the Server-Management hub renders "↩ Community" (its static
+  `home_hub`, `sb/domain/role/panels.py:172-173`) instead of "↩ Server
+  Management". Is a KERNEL grammar + engine + session-state + golden-harness
+  change worth fixing that (mostly cosmetic) back-button label — or keep the
+  static `FOLLOW_PARENT`/`home_hub` grammar and accept the gap?
+- **Why agents need this:** it is a genuine cost/benefit product call, not a
+  worker decision — it gates a 2-slice engine build
+  ([design/B10-route-origin-implementation-plan.md](design/B10-route-origin-implementation-plan.md),
+  this PR) and adds a permanent **origin dimension** to the golden parity
+  harness (the same panel renders different bytes by origin). The mechanical
+  design details (B10 Q2–Q6 — scope, depth, golden strategy, back-id minting,
+  label source) are already resolved as flagged decide-and-flag defaults in the
+  plan; only this yes/no is owner-only.
+- **Options:** (a) **GO** — build the engine seam (slice 1, zero golden churn) +
+  opt `role.hub` in (slice 2, origin golden); dynamic back labels become
+  expressible grammar, reusable by any future route-origin need. (b) **NO-GO** —
+  keep static `FOLLOW_PARENT`; accept the wrong-back-label cosmetic gap, or take
+  the cheaper fix (role.hub declares `parent=server_management.hub` for a static
+  "↩ Back", losing its direct-open "↩ Community"). (c) DEFER — shelve until a
+  second consumer needs route-origin, so the kernel surface is justified by more
+  than one label.
+- **Recommended default (my read):** **(c) DEFER, leaning (a)-when-a-second-need-appears.**
+  Honest recommendation: the seam is clean, additive, opt-in, and layer-safe
+  (kernel imports spec only; no domain edge), and slice 1 ships **zero** golden
+  churn — so the engineering cost is real but bounded. But the *payoff today* is
+  one cosmetic label, and it permanently adds an origin dimension to every future
+  golden. A kernel grammar addition earns its keep when ≥2 surfaces need it; on a
+  single mostly-cosmetic label it is over-built. So: **don't build it for
+  role.hub alone** — but the moment a second route-origin need appears (another
+  routed manager, a breadcrumb ask), build slice 1 first (it is free of churn)
+  and opt consumers in together. If the owner values exact oracle parity on this
+  label now, (a) is a clean, reversible yes.
+- **Maintainer answer:** _(pending)_
+- **Routing result:** _(pending owner ruling — on GO, the plan's slice order
+  executes and a `docs/decisions.md` entry cites this block when slice 1 lands;
+  on NO-GO, B10 closes as "considered, declined" and the plan doc is shelved.)_
 
 ## Answered
 
