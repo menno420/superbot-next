@@ -42,11 +42,16 @@ not earlier. The fleet-wide PR backlog was **cleared on 2026-07-17**: every open
 was dispositioned; #499 (control-plane hygiene), #500 (conform sweep #457), #503
 (coordinator close-out) and #505 (terminal-claim retire) all landed, and the WP
 stack #312→#317→#335→#344→#371 is fully merged. The **autonomous apparatus is being
-wound down** — the `control/` message bus (inbox / outbox / status) and the
-self-wake / pacemaker routine chain are retired (deprecation-bannered in place, not
-deleted), and **no standing wake trigger should be re-armed**. **The Project will be
-recreated** fresh after the read-only window; this repo (the ground-up rebuild) and
-its `main` are the durable artifact that carries across.
+wound down** — the `control/` **order-bus** (inbox / outbox as an order channel) and
+the self-wake / pacemaker routine chain are retired (deprecation-bannered in place,
+not deleted), and **no standing wake trigger should be re-armed**. The
+`control/status.md` heartbeat + `control/claims` stay **load-bearing**, though: the
+required `substrate-gate.yml` runs `bootstrap.py check --strict --status-only`
+against them (L52) and `substrate.config.json` still points `claims_dir` →
+`control/claims` (L35), so naive `control/` deletion would RED a required gate — its
+removal is owner-sequenced with the kit-config migration first (per the D6 #548
+plan). **The Project will be recreated** fresh after the read-only window; this repo
+(the ground-up rebuild) and its `main` are the durable artifact that carries across.
 
 Live-testing beyond bands 1–4 and the guild-effect / plugin live-drive legs remain
 human-operator runbooks
@@ -145,11 +150,16 @@ is one command —
 PRs open ready with a `.sessions/` card and must be green on the six required named
 checks (code-quality, manifest-validate, architecture, sim-gate, golden-parity,
 check_compat_frozen — `.github/workflows/named-gates.yml`) before they can land.
-**Merging is a server-side / owner action, never an agent action:** a PR lands via
-the repo's server-side lander workflow the moment CI is green, or the owner merges
-it. Agents do **not** arm GitHub auto-merge and do **not** merge via the REST/MCP
-API — that path has been **classifier-denied since ~2026-07-15** (PR #503's body
-records the resulting `[Merge Without Review]` / `[Auto Mode Bypass]` denials). In
-the recreated Project the plan is a plain owner-merge on green (retire
-`auto-merge-enabler.yml`); see [`docs/NEXT-TASKS.md`](NEXT-TASKS.md). A reconciliation
-pass runs periodically; `control/status.md` is retired (this ledger replaces it).
+**Merging is a server-side / owner action, never an agent action:** a PR lands when
+its required checks go green — GitHub-native squash auto-merge is armed at PR-open by
+the in-repo `auto-merge-enabler.yml` (LIVE — fires `on: pull_request`, no deprecation
+banner; the SOLE in-repo merge automation), or the owner merges it directly. Any
+"server-side lander" is external / owner-side — there is no separate in-repo lander
+workflow. Agents do **not** manually arm GitHub auto-merge and do **not** merge via
+the REST/MCP API — that path has been **classifier-denied since ~2026-07-15** (PR
+#503's body records the resulting `[Merge Without Review]` / `[Auto Mode Bypass]`
+denials). Retiring `auto-merge-enabler.yml` for a plain owner-merge on green is a
+*next-Project* plan, not yet done — the enabler stays live meanwhile; see
+[`docs/NEXT-TASKS.md`](NEXT-TASKS.md). A reconciliation pass runs periodically;
+`control/status.md` stays load-bearing (the required `substrate-gate.yml` runs
+`--status-only` against it), so this ledger complements rather than replaces it.
