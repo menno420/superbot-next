@@ -259,6 +259,8 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
     from sb.kernel import lifecycle
     from sb.kernel.observability.metrics import build_registry
+    from sb.kernel.outbox.metrics import OUTBOX_METRICS
+    from sb.spec.observability import METRICS
 
     health_task: asyncio.Task | None = None
     supervisor_task: asyncio.Task | None = None
@@ -266,7 +268,11 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
     bot = None
     try:
         # 5. metrics registry (the /metrics families, lifecycle mirrors).
-        build_registry()
+        #    Union the outbox families in so the durability spine is observable
+        #    (the same union tools/check_metric_cardinality validates); without
+        #    it the relay's guarded counter bumps hit an unregistered-family
+        #    KeyError that the guard silently discards.
+        build_registry(METRICS + OUTBOX_METRICS)
 
         # 6. health server — /ready serves gateway_not_ready until connect.
         from sb.adapters.http.health import start_health_server
