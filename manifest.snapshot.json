@@ -11425,8 +11425,8 @@
       "handler:mining.skill_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.skill_spend_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.skill_spend_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.stash_all_route": {
         "module": "sb.domain.mining.service"
@@ -50259,7 +50259,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.skill_spend_pending"
+                "$ref": "handler:mining.skill_spend_route"
               },
               "label": "⛏️ Mining",
               "modal": null,
@@ -50284,7 +50284,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.skill_spend_pending"
+                "$ref": "handler:mining.skill_spend_route"
               },
               "label": "⚔️ Combat",
               "modal": null,
@@ -50309,7 +50309,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.skill_spend_pending"
+                "$ref": "handler:mining.skill_spend_route"
               },
               "label": "🍀 Fortune",
               "modal": null,
@@ -50334,7 +50334,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.skill_spend_pending"
+                "$ref": "handler:mining.skill_spend_route"
               },
               "label": "🛠️ Crafting",
               "modal": null,
