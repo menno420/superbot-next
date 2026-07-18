@@ -1010,6 +1010,52 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "driven from the session button — this freezes the ported skill-spend "
             "button wire bytes"),
     ),
+    # backlog B3 — the 🔧 Workshop panel's gear-craft SELECT: the D-0043 pending
+    # terminal (workshop_craft_pending) flips to the live mining.workshop_craft_pick
+    # -> mining.craft -> record_craft (the ported mining_workflow.craft with the
+    # picked recipe). Drives the SAME op the command-lane mining.craft_write pins,
+    # but from the session-panel select — a SELECT (wire type 3, values-bearing),
+    # so unlike the skill-spend BUTTON this re-renders the panel IN PLACE with the
+    # oracle's ✅/❌ note + SUCCESS/ERROR frame (the mining.title_equip_write select
+    # precedent — the FAITHFUL reproduction of the oracle _CraftSelect._rerender,
+    # NOT the RESULT_CARD divergence). This freezes the ported select's in-place
+    # re-render wire bytes. mining_inventory is already covered (mine/sell/craft),
+    # so NO exemption retires. Persona member = 900000000000000102, guild =
+    # 700000000000000001; mining_inventory keys user_id as TEXT (quoted).
+    GoldenCase(
+        id="mining.workshop_craft_write",
+        subsystem="mining",
+        # Own exactly the bronze-boots recipe materials (bronze 2 -> 0 after the
+        # 2× consume, + 1 bronze boots). bronze boots is forge-free gear
+        # ({bronze: 2}), so the click crafts cleanly with no structures read.
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'bronze', 2)",
+        ),
+        steps=(
+            # !workshop mints the 🔧 Workshop session panel; the gear-craft
+            # select is flattened component index 0 (craft 0, quickcraft 1,
+            # back 2, help 3, games 4 — goldens/mining/sweep_workshop pins the
+            # order). The session-minted custom_id normalizes to <cid:N>;
+            # component_index reconstructs it (the title_equip select precedent).
+            Step(kind="command", content="!workshop", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 component_type=3, persona="member",
+                 values=("bronze boots",)),
+        ),
+        notes=(
+            "!workshop then the gear-craft select pick (bronze 2 fixture) drives "
+            "mining.workshop_craft_pick -> mining.craft -> record_craft (the "
+            "ported mining_workflow.craft): advisory-fenced (lock_workshop_slot), "
+            "it consumes 2× bronze, adds +1 bronze boots to mining_inventory, and "
+            "awards crafting game-XP in one txn, then the panel re-renders IN "
+            "PLACE with `✅ Crafted **bronze boots**!` and the SUCCESS green frame "
+            "(the oracle _CraftSelect._rerender, mining_workflow.craft copy "
+            "verbatim). Same op the command-lane mining.craft_write pins, driven "
+            "from the session select — this freezes the ported workshop-craft "
+            "select wire bytes"),
+    ),
     # ---------------------------------------------- mining WRITE-PARITY (WP-6)
     # The structure-build PORT (the FINAL slice): the forge/home 🔥 Build panel
     # terminals were live D-0043 pendings (no write leg). WP-6 ports the oracle
