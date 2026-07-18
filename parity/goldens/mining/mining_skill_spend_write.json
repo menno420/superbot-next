@@ -1,0 +1,212 @@
+{
+ "case_id": "mining.skill_spend_write",
+ "db_delta": {
+  "player_skills": {
+   "added": [
+    {
+     "branch": "mining",
+     "guild_id": "<guild>",
+     "points": 1,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1968690077,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "!skills then the ⛏️ Mining branch click (300 game-XP level-2 fixture → 2 available points) drives mining.skill_spend_route → mining.skill → record_skill (the ported skill_service.allocate with the panel's default n=1): advisory-fenced (lock_skill_slot), it validates the branch + the per-branch cap + the available-points budget, then upserts the player_skills row (mining → 1) in one txn, then replies `<@u> Spent **1** point into **mining** (now 1/10). **1** point left.` as a RESULT_CARD (the accepted sb divergence from the oracle MiningSkillsView._spend in-place panel re-render — the mining.respec_write button-click precedent; skill_service.allocate copy verbatim). Same op the command-lane mining.skill_write pins, driven from the session button — this freezes the ported skill-spend button wire bytes",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "⛏️ Mining",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "label": "⚔️ Combat",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "label": "🍀 Fortune",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "label": "🛠️ Crafting",
+          "style": 1,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "label": "♻ Respec",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "label": "🏆 Titles",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "label": "↩ Mining Hub",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 6323595,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Points",
+          "value": "**2** available · 0 spent\nGame level **2** (points cap at **20** — you can't max every branch, so specialize)."
+         },
+         {
+          "inline": false,
+          "name": "⛏️ Mining — raw digging power  (0/10)",
+          "value": "—"
+         },
+         {
+          "inline": false,
+          "name": "⚔️ Combat — duel damage & health  (0/10)",
+          "value": "—"
+         },
+         {
+          "inline": false,
+          "name": "🍀 Fortune — luck & loot  (0/10)",
+          "value": "—"
+         },
+         {
+          "inline": false,
+          "name": "🛠️ Crafting — loot yield  (0/10)",
+          "value": "—"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Tap a branch to spend a point  •  ♻ Respec refunds all for 300 🪙"
+        },
+        "title": "🌳 Skill Tree",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!skills",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "<@<@member>> Spent **1** point into **mining** (now 1/10). **1** point left."
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "mining"
+}

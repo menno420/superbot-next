@@ -969,6 +969,47 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "denial records a normalized audit_log row, NO player_skills "
             "db_delta"),
     ),
+    # backlog B2 — the 🌳 Skill Tree panel's per-branch spend button (⛏️ Mining):
+    # the D-0043 pending terminal (skill_spend_pending) flips to the live
+    # mining.skill_spend_route -> mining.skill -> record_skill (the ported
+    # skill_service.allocate with the panel's default n=1). Drives the SAME op the
+    # command-lane mining.skill_write pins, but from the session-panel button, so
+    # this freezes the ported button's wire bytes (interaction defer + the
+    # RESULT_CARD followup — the mining.respec_write / stash_all_write click
+    # precedent). Seed is byte-identical to mining.skill_write: 300 game XP ->
+    # level 2 -> min(2,20)-0 = 2 available points; the click spends 1 into mining.
+    GoldenCase(
+        id="mining.skill_spend_write",
+        subsystem="mining",
+        # !skills mints the 🌳 Skill Tree session panel; the ⛏️ Mining branch
+        # button is flattened component index 0 (mining 0, combat 1, fortune 2,
+        # crafting 3, respec 4, titles 5, hub 6 — the mining.respec_write order).
+        # The session-minted custom_id normalizes to <cid:N>; component_index
+        # reconstructs it (the respec_write / forge-build precedent).
+        fixture_sql=(
+            "INSERT INTO game_xp (user_id, guild_id, game, xp) VALUES "
+            "(900000000000000102, 700000000000000001, 'mining', 300)",
+        ),
+        steps=(
+            Step(kind="command", content="!skills", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "!skills then the ⛏️ Mining branch click (300 game-XP level-2 fixture "
+            "→ 2 available points) drives mining.skill_spend_route → mining.skill "
+            "→ record_skill (the ported skill_service.allocate with the panel's "
+            "default n=1): advisory-fenced (lock_skill_slot), it validates the "
+            "branch + the per-branch cap + the available-points budget, then "
+            "upserts the player_skills row (mining → 1) in one txn, then replies "
+            "`<@u> Spent **1** point into **mining** (now 1/10). **1** point "
+            "left.` as a RESULT_CARD (the accepted sb divergence from the oracle "
+            "MiningSkillsView._spend in-place panel re-render — the "
+            "mining.respec_write button-click precedent; skill_service.allocate "
+            "copy verbatim). Same op the command-lane mining.skill_write pins, "
+            "driven from the session button — this freezes the ported skill-spend "
+            "button wire bytes"),
+    ),
     # ---------------------------------------------- mining WRITE-PARITY (WP-6)
     # The structure-build PORT (the FINAL slice): the forge/home 🔥 Build panel
     # terminals were live D-0043 pendings (no write leg). WP-6 ports the oracle
