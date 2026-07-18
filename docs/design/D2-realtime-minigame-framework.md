@@ -305,7 +305,96 @@ the working fishing code is real (its determinism is byte-pinned across the
 D-0090 goldens), so the design deliberately keeps the refactor of fishing
 **out of the critical path**.
 
+## Decision-ready refinement
+
+> Added 2026-07-18 to make this proposal **decision-ready** — one owner
+> go/no-go away from executable. Triages the six open questions below into
+> **one** load-bearing owner call (routed to `docs/question-router.md`) and
+> **five-and-a-half** mechanical shape decisions resolved here as flagged
+> decide-and-flag defaults (PL-001) the owner can override with a word.
+
+### The single owner call (routed, not decided here)
+
+Every one of the six questions below *presupposes we are building the
+primitive* — they are all shape questions. The load-bearing call sits **above**
+them: **should the reusable primitive be built at all / now?** Today fishing is
+the *only* real-time minigame, so the extracted primitive would ship with
+exactly **one consumer**, and a reusable framework earns its keep at **≥2**.
+This yes/no is genuine product intent (build-cost vs speculative-reuse) and is
+routed to `docs/question-router.md` as an OPEN owner go/no-go —
+**build now / defer until a 2nd real-time minigame needs it / never** — with a
+recommended **DEFER-until-2nd-consumer** default. Rationale lives there; the
+five-and-a-half defaults below apply *if/when* the answer is GO.
+
+### Recommended framework shape (grounded in the fishing code it lifts)
+
+The shape is already specified above (§ "Proposed framework", F1–F4); the
+recommendation is to build it **exactly as F1–F4 describe** — no larger. The
+reusable kernel leaf `sb/kernel/panels/minigame.py` exposes a `RealtimeRound`
+primitive that lifts, verbatim in behaviour, the determinism-critical machinery
+that is hand-rolled today in `sb/domain/fishing/service.py`:
+
+- the parked-entry registry + TOCTOU-safe reservation + per-round identity
+  token (`_next_cast_token`/`_cast_token_counter`, `service.py:349-357`);
+- declarative cue-timer arming that **auto-wraps** each callback in the identity
+  guard + the logical-clock due-guard (`_timer_due`, `service.py:131-143`) — the
+  two guards a hand-rolled game most easily forgets (`_arm_bite_timers`,
+  `service.py:213-278`; `_arm_fight_timers`, `service.py:281-324`);
+- built-in cancel/sweep/reset (`_cancel_cast_timers` `service.py:124-128`,
+  `_sweep_expired_casts` `service.py:360-368`, `reset_pending_casts_for_tests`
+  `service.py:371-376`);
+- a **two-surface** call shape making the enforcement/cosmetic split structural
+  (cue callbacks reach only the cosmetic `push_session_refresh` channel; the
+  resolve entrypoint is the only path that returns a verdict and never touches a
+  timer — F2).
+
+A new game supplies only the pure, stdlib-only leaves that
+`sb/domain/fishing/minigame.py` is the template for: `roll_timing` (fishing's
+`roll_bite_delay`, `minigame.py:94-110`, on the runner-armable `cast_rng()`
+seam, `ops.py:115-124`) and `resolve` (fishing's `reel_is_in_time`,
+`minigame.py:202-205`) plus cue copy and terminal handlers. **The two kernel
+seams it composes stay unchanged** — the one-shot timer
+(`sb/kernel/panels/timers.py:58-79`) and the push-edit (`engine.py:541-584`),
+both minted under the D-0090 ruling.
+
+### The five-and-a-half shape defaults (decide-and-flag — owner may override any)
+
+| # | Shape question | **Flagged default** | Override lever |
+|---|---|---|---|
+| Q1 | Proving ground for D2.2 | A **reflex/timing casino minigame** in `sb/domain/games/` — new code, no goldens to protect, squarely arm-window → resolve-on-click; it validates the API end-to-end without touching fishing. | Owner names a specific roadmap minigame to design the API against instead. |
+| Q2 (shape half) | Fishing adoption timing | **Leave fishing as the reference impl**; D2.3 (fishing adopts the primitive) stays OPTIONAL, out of the critical path, and only ever as a byte-identical golden-gated swap. "Fishing is the reference, new games use the primitive" is an acceptable **permanent** end state. | Owner schedules the golden-gated swap once the primitive is proven green elsewhere. *(The "eventually consolidate fishing y/n?" preference stays flagged to the owner — the half-question.)* |
+| Q3 | Window / refresh budget | Expose the reaction window as a **per-game knob** AND carry a **platform-wide floor** (inherit fishing's `REACTION_WINDOW = 2.5`, `minigame.py:64`) so no game ships an unwinnable sub-second window; default the live-cue **edit ceiling** to fishing's proven ~3-per-round budget (`service.py:271-277`). | Owner lifts/lowers the floor or the per-round edit cap. |
+| Q4 | Multi-round vs single-shot | Ship **single-shot first-class**; model multi-round via a **re-arm hook** (the fishing fight-round pattern, `_arm_fight_timers` + re-arm at `service.py:849-851`) rather than a full round-sequence abstraction, until a consumer needs the richer model. | The proving-ground game needs native multi-round → build the sequence abstraction in D2.2. |
+| Q5 | Band home | **`sb/kernel/panels/minigame.py`** (K8 panels band, beside the seams it composes) — matches where D-0090 minted the seams "beside their only consumer", lowest friction, layer-safe (kernel imports no domain). | Promote to a dedicated `sb/kernel/minigame/` band once a 2nd panels-adjacent seam accretes. |
+| Q6 | Turn-timeout consumers (blackjack/rps) | **Out of scope.** Keep the primitive focused on the sub-second reflex shape; leave whole-turn timeouts on the existing panel `timeout_s` mechanism (`blackjack/panels.py:155,205`, `rps/panels.py:155,192`). Name them a stretch consumer only. | Extend the arm/expire/logical-clock spine to a "N seconds left on your move" countdown cue later. |
+
+### What building it costs, and what it unblocks
+
+- **Cost:** D2.1 (**M**) is a *pure addition* — lift the ~250 lines of generic
+  machinery (`service.py:112-376`) into the kernel leaf with unit tests
+  mirroring `tests/unit/panels/test_oneshot_timers.py` /
+  `test_push_session_refresh.py`; **zero behaviour change anywhere** (fishing is
+  not touched). D2.2 (**M–L**) builds the proving-ground game on it.
+- **Unblocks:** every future real-time minigame writes only its pure
+  `roll_timing`/`resolve` leaves + cue copy (a few dozen lines) instead of
+  re-deriving the determinism-critical boilerplate by hand — and gets **mintable
+  goldens for free** (the primitive owns the armed-RNG hook, the due-guard, and
+  the per-case reset). The inversion P4 describes (boilerplate dwarfs the game,
+  and the boilerplate is the part that must be *exactly* right) is retired.
+- **Refactors onto it:** exactly **one existing** minigame — fishing — and only
+  optionally (D2.3, byte-gated, owner-scheduled). **Zero** other existing
+  consumers today: that one-consumer fact is precisely why the go/no-go leans
+  DEFER.
+
 ## Open questions for the owner
+
+> **Decision-ready status (2026-07-18):** the six questions below are now
+> triaged in § "Decision-ready refinement" above. Q1 and Q3–Q6 (and the shape
+> half of Q2) are resolved as **flagged decide-and-flag defaults** the owner can
+> override; the single load-bearing call that sits above all six — *build the
+> reusable primitive now vs defer vs never* — is routed to
+> `docs/question-router.md`. The originals are kept verbatim below for
+> provenance.
 
 1. **Which games to target first?** Is a reflex/timing casino minigame the
    right proving ground for D2.2, or is there a specific minigame on the roadmap

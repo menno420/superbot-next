@@ -26,8 +26,9 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(One unanswered block below — the **B10 route-origin go/no-go** (appended
-2026-07-18) awaits the owner's cost/benefit ruling. The settings per-group
+(Two unanswered blocks below — the **B10 route-origin go/no-go** and the **D2
+real-time minigame-framework go/no-go** (both appended 2026-07-18) await the
+owner's cost/benefit ruling. The settings per-group
 edit-page group-routing decision, appended 2026-07-18, was answered 2026-07-18
 (option A) and moved to Answered below. The six S11/S13/S14/S15/V-5/K10 blocks
 were resolved 2026-07-08 by the owner via the directing session's question panel
@@ -80,6 +81,61 @@ were resolved 2026-07-08 by the owner via the directing session's question panel
 - **Routing result:** _(pending owner ruling — on GO, the plan's slice order
   executes and a `docs/decisions.md` entry cites this block when slice 1 lands;
   on NO-GO, B10 closes as "considered, declined" and the plan doc is shelved.)_
+
+### Q: D2 real-time minigame framework — extract fishing's timer+guard orchestration into a reusable kernel minigame primitive now, or defer until a 2nd real-time minigame needs it? (panels band, owner-gated)
+
+- **Area / Type / Priority / Status:** kernel / panels band / product-intent
+  cost-benefit / gates a 2-slice additive build / **OPEN** (pending owner,
+  appended 2026-07-18).
+- **Question:** D2
+  ([design/D2-realtime-minigame-framework.md](design/D2-realtime-minigame-framework.md))
+  proposes lifting fishing's proven real-time-minigame orchestration — the
+  windowed-round registry, one-shot cue timers, identity + logical-clock
+  due-guards, and cancel/sweep/reset, all hand-rolled today in
+  `sb/domain/fishing/service.py:112-376` — into a reusable **`RealtimeRound`
+  kernel primitive** (`sb/kernel/panels/minigame.py`) that future minigames
+  reuse by supplying only their pure `roll_timing`/`resolve` leaves (the
+  `sb/domain/fishing/minigame.py` template) + cue copy. The primitive composes
+  the two existing panels seams (the one-shot timer + `push_session_refresh`)
+  and imports no domain. Should this be built **now**, or deferred until a
+  second real-time minigame actually needs it? Fishing is the **only** real-time
+  minigame today, so the extracted primitive would ship with **exactly one
+  consumer**.
+- **Why agents need this:** it is a genuine build-cost vs speculative-reuse
+  product call, not a worker decision — it gates a 2-slice additive build
+  (D2.1 extract the primitive; D2.2 prove it on a new proving-ground minigame).
+  The mechanical shape details (D2's six open questions — proving ground,
+  fishing-adoption timing, window/refresh budget, multi-round modelling, band
+  home, turn-timeout scope) are already resolved as flagged decide-and-flag
+  defaults in the § "Decision-ready refinement" of the design doc; only this
+  build-now/defer/never yes-no is owner-only.
+- **Options:** (a) **GO now** — build D2.1 (pure addition, zero behaviour change,
+  fishing untouched) + D2.2 (a reflex/timing proving-ground game on the
+  primitive); future minigames become a few pure leaves each. (b) **DEFER** —
+  shelve until a second real-time minigame is on the roadmap, so the kernel
+  primitive is justified by more than a single consumer; fishing stays the
+  reference impl. (c) **NEVER** — accept "fishing is the reference, each future
+  real-time minigame re-derives the orchestration" as a permanent state.
+- **Recommended default (my read):** **(b) DEFER-until-a-2nd-consumer, then GO
+  D2.1-first.** Same one-consumer logic as the B10 recommendation above: a
+  reusable kernel primitive earns its keep at ≥2 consumers, and today there is
+  exactly one (fishing), so building it now is speculative. But the honest read
+  differs from B10 in one way that matters: B10's extraction buys one *cosmetic*
+  label, whereas D2's ~250 lines are **determinism-critical** boilerplate a
+  second minigame *will* re-derive by hand and can silently get wrong (a missing
+  due-guard pops a round the goldens own; a missing staleness guard false-fails a
+  replaced round — bugs CI cannot catch). So the moment a second real-time
+  minigame is *actually* on the roadmap, build D2.1 **first** (it is a pure,
+  zero-churn addition) and grow the new game onto it — do not let a second game
+  hand-roll the machinery, and do not build the primitive speculatively for
+  fishing alone. If the owner already has a second real-time minigame planned,
+  (a) GO-now is the clean answer.
+- **Maintainer answer:** _(pending)_
+- **Routing result:** _(pending owner ruling — on GO, D2.1→D2.2 execute and a
+  `docs/decisions.md` entry cites this block when D2.1 lands; on DEFER, D2 stays
+  a parked `plan` re-triggered by the next real-time-minigame ask; on NEVER, D2
+  closes as "considered, declined" and fishing remains the standalone reference
+  impl.)_
 
 ## Answered
 
