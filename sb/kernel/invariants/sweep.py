@@ -290,6 +290,16 @@ async def run_verify_import(*, now: datetime | None = None) -> VerifyImportRepor
     by_id: dict[str, int] = {}
     for spec in declared_invariants():
         check = resolve_ref(spec.check_ref)
+        # DELIBERATE asymmetry with the live sweep's `targets = guilds or
+        # (None,)` (_run_sweep): there the trailing `(None,)` is a bookkeeping
+        # heartbeat so a zero-guild tick still writes ONE SweepRun row — this
+        # read-off writes no log, so an empty *installed* source correctly
+        # scans nothing. It stays inert because every declared invariant is
+        # scope=GUILD (checks are `WHERE guild_id=$1`, so a None target matches
+        # zero rows anyway); GLOBAL scan is a deferred band (see
+        # sb/spec/invariants.py `scope`) that reworks BOTH paths when it ships.
+        # The `else (None,)` below covers only the *uninstalled* source (tests /
+        # pre-gateway boot), mirroring _run_sweep's zero-guild degenerate pass.
         guilds = tuple(_guild_source()) if _guild_source else (None,)
         count = 0
         for guild_id in guilds:

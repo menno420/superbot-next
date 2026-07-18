@@ -304,6 +304,37 @@ def test_verify_import_report_stop_codes(env):
     assert report.invariant_violations_by_id == {"economy.coins_reconcile": 1}
 
 
+def test_empty_installed_guild_source_diverges_between_sweep_and_verify_import(env):
+    """Characterization: with an *installed but empty* guild source the live
+    sweep and verify-import intentionally diverge on their scan targets.
+
+    `_run_sweep` uses `targets = guilds or (None,)` — the trailing `(None,)`
+    is a bookkeeping heartbeat so a zero-guild tick still writes ONE SweepRun
+    row. `run_verify_import` omits that fallback (it writes no log), so an empty
+    installed source scans nothing. A guild-agnostic check (returns a violation
+    regardless of guild_id) makes the divergence observable; in production every
+    invariant is scope=GUILD (`WHERE guild_id=$1`), so the None target matches
+    zero rows and the divergence is inert. Pin it: aligning the two paths (e.g.
+    adding `or (None,)` to verify-import) must consciously update this test.
+    """
+    idem, db, _ = env
+    _register_check([violation()])          # returns the violation for ANY guild_id
+    declare_invariant(inv())
+    sw.install_guild_source(lambda: ())     # installed, but zero guilds
+
+    # live sweep: the (None,) heartbeat pass still runs the check once.
+    lane = sw.InvariantSweepLane(clock=lambda: T0)
+    run(lane.tick(T0))
+    assert db.sweep_logs[0].guilds_scanned == 1
+    assert db.sweep_logs[0].violations_found == 1
+
+    # verify-import: empty tuple ⇒ no pass ⇒ scans nothing ⇒ clean.
+    report = run(sw.run_verify_import(now=T0))
+    assert report.clean
+    assert report.invariant_violations_by_id == {}
+    assert report.stop_codes == ()
+
+
 # --- the ON_BOOT reconciliation entry (the boot ready-gate) -------------------
 
 def test_reconcile_on_boot_runs_on_boot_only_and_crash_loop_guards(env):
