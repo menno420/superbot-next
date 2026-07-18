@@ -1,11 +1,15 @@
 # Session — consolidated owner-decision agenda (2026-07-18)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red first commit (this card ALONE) — holds `substrate-gate` red while the
-> agenda doc + README row land in the second commit. Flips `in-progress` →
-> `complete` as the deliberate LAST commit (per `.sessions/README.md`), releasing
-> the HOLD so the server-side lander can merge on green. No `sb/` code touched.
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red `substrate-gate` HOLD so the
+> server-side lander can merge on green. The born-red first commit (this card
+> alone) held the gate red; the agenda doc + README row landed in the second
+> commit; this flip is the last. The five functional named gates (code-quality,
+> manifest-validate, architecture, sim-gate, check_compat_frozen) were green with
+> golden-parity deterministic-green on the docs-only diff (zero goldens touched)
+> when the flip was taken. No `sb/` code touched.
 
 - **📊 Model:** Opus 4 family · high · docs-only
 
