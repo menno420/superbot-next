@@ -37,6 +37,7 @@ Same rules: **one doc per PR**, grounded evidence-first in real code with
 
 | Doc | Topic | Status |
 |---|---|---|
+| [OWNER DECISIONS (2026-07-18)](OWNER-DECISIONS-2026-07-18.md) | Consolidated morning agenda — every design-doc owner-question + standing gates, prioritized by leverage | owner-guidance |
 | [Security](S-security-rotation-and-least-privilege.md) | Secret rotation (zero-downtime) + startup fail-closed + least-privilege | plan |
 
 ## Index
