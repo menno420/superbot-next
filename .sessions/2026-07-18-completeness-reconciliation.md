@@ -1,6 +1,6 @@
 # 2026-07-18 — verify-first completeness reconciliation snapshot: supersede the stale 07-13 table
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · review/verify · dated completeness reconciliation snapshot (born-red, holds substrate-gate)
 
