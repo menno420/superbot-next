@@ -1,6 +1,8 @@
 # Session — D5.1 in-process e2e adapter test tier (initial slice)
 
-**Status:** in-progress
+> **Status:** `complete`
+
+- **📊 Model:** opus-4.8 · high · test writing
 
 ## Order
 
@@ -52,4 +54,45 @@ An exemplar command is then driven end-to-end through real
 
 ## Verification
 
-(to be filled at close-out)
+- `python3 -m pytest -q --ignore=examples` (Postgres + discord present) →
+  **3527 passed, 2 skipped** (the 2 skips are pre-existing inverse-path guards:
+  `test_db_pool` / `test_misfire` — unrelated). All 4 new `tests/e2e/` tests
+  PASS by name, not skip.
+- `tests/e2e -q` alone → **4 passed**.
+- Guards clean (0 fires): `check_namespace`, `check_symbol_shadowing`,
+  `check_config_usage`, `check_no_skip`.
+- No dependency change — `requirements.lock` untouched, so pip-audit gate n/a.
+- Postgres provisioned the CI-shaped way: `pg_ctlcluster 16 main start` +
+  `python3 tools/setup_local_env.py` (parity role/DB, DATABASE_URL/SB_DATA_PLANE
+  /SB_TEST_DB_HOSTS). discord-py 2.7.1 already in the runtime lock.
+
+## ⟲ Previous-session review
+
+Predecessor in this thread: the D5 decision-ready refinement (#571) that
+resolved the tier-A pick as agent-decidable = discord-installed and flagged the
+in-process tier as "buildable now with no owner input." That call held up under
+build: `requirements.lock` already ships `discord-py==2.7.1` and
+`tests/integration/conftest.py` already boots the same `Harness.start()` against
+a service Postgres, so the tier landed with **zero `sb/` source edits** and no
+owner input, exactly as flagged. One honest gap the refinement didn't surface:
+the parity `Harness` bypasses the adapter at the *presenter/emitter* seam, so the
+real exercise had to be wired by re-installing those two ports — a clean swap,
+but worth naming for the next slice.
+
+## ⟲ This-session review
+
+The recorder drives the real `panel_view.build_embed`/`build_view` (the real
+`discord.Embed`/`ui.View` construction — P1's "real panel-view render") and the
+real `DiscordChannelEmitter` (S11 mass-ping fence), which is the highest-signal
+initial exercise of the un-driven adapter band. It does NOT yet drive the
+`DiscordPanelPresenter` dispatch *branches* (channel_anchor vs interaction-reply
+vs followup) — that needs a discord-shaped recording `origin` threaded through
+the harness dispatch, a natural next slice. Kept the exemplar count at 3 to make
+the tier legible rather than chasing breadth; per-domain coverage is follow-up.
+
+## 💡 Idea
+
+A `--record` bridge (D5.3): have the e2e recorder dump each captured
+`(RenderedPanel → real discord objects)` pair into a fixture the next hermetic
+run replays — turning an e2e exercise into a cheap adapter-surface regression,
+the convergence point with golden-parity the D5 doc sketches.

@@ -2,8 +2,8 @@
 
 Service-initiated sends route through ONE `ChannelEmitter.send`; the real
 `sb/adapters/discord/egress.py:DiscordChannelEmitter` is the ONLY module that
-constructs `discord.AllowedMentions` (the default-deny mass-ping fence, D-0021
-S11). The golden-parity `ParityChannelEmitter` re-implements the neutralization
+constructs `discord.AllowedMentions` (the S11 default-deny mass-ping fence).
+The golden-parity `ParityChannelEmitter` re-implements the neutralization
 but never builds the real `discord.AllowedMentions`/`discord.Object` — so this
 policy is byte-invisible to parity (D5 doc P1). Here the e2e recorder installs
 the REAL emitter, and we drive the real send seam end-to-end, asserting on the
