@@ -39,6 +39,7 @@ Same rules: **one doc per PR**, grounded evidence-first in real code with
 |---|---|---|
 | [OWNER DECISIONS (2026-07-18)](OWNER-DECISIONS-2026-07-18.md) | Consolidated morning agenda — every design-doc owner-question + standing gates, prioritized by leverage | owner-guidance |
 | [Security](S-security-rotation-and-least-privilege.md) | Secret rotation (zero-downtime) + startup fail-closed + least-privilege | plan |
+| [Resilience](R-resilience-delivery-and-db.md) | Outbox→Discord delivery retry-reach + dead-letter replay; DB pool reconnect/backoff + circuit breaker + fast fail-closed | plan |
 
 ## Index
 
