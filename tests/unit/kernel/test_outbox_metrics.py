@@ -21,9 +21,12 @@ import datetime as dt
 
 import pytest
 
+from pathlib import Path
+
 from sb.kernel.observability import metrics as metrics_mod
 from sb.kernel.outbox import store as store_mod
-from sb.kernel.outbox.metrics import OUTBOX_METRICS
+from sb.kernel.outbox import metrics as outbox_metrics_mod
+from sb.kernel.outbox.metrics import ALL_METRICS, OUTBOX_METRICS
 from sb.kernel.outbox.relay import MAX_ATTEMPTS, OutboxRelayLane
 from sb.kernel.outbox.store import OutboxStore
 from sb.spec.observability import METRICS
@@ -62,6 +65,40 @@ def test_union_registers_all_four_outbox_families() -> None:
     assert registry.counter("outbox_dead_letter_total") is not None
     assert registry.counter("outbox_claims_total") is not None
     assert registry.gauge("outbox_pending_age_seconds") is not None
+
+
+# --- the canonical ALL_METRICS seam (drift guard) ------------------------
+
+
+def test_all_metrics_is_the_canonical_union() -> None:
+    # The single seam both consumers import equals the two family groups
+    # unioned — pin it so a third group can't drift live-vs-checked.
+    assert ALL_METRICS == METRICS + OUTBOX_METRICS
+    # No family lost or duplicated by the fold.
+    assert len(ALL_METRICS) == len(METRICS) + len(OUTBOX_METRICS)
+    assert {m.name for m in ALL_METRICS} == {m.name for m in METRICS} | _OUTBOX_FAMILIES
+
+
+def test_cardinality_guard_validates_the_canonical_union() -> None:
+    # tools/check_metric_cardinality must reference the SAME tuple object the
+    # kernel exports (imported, not re-derived) so the checked set is the
+    # registered set by construction.
+    import tools.check_metric_cardinality as guard
+
+    assert guard.ALL_METRICS is outbox_metrics_mod.ALL_METRICS
+    import inspect
+
+    assert inspect.signature(guard.check).parameters["specs"].default is ALL_METRICS
+
+
+def test_composition_root_builds_registry_from_the_canonical_union() -> None:
+    # The composition root wires build_registry(ALL_METRICS) — assert the seam
+    # is imported and used rather than a re-derived `METRICS + OUTBOX_METRICS`.
+    src = Path(metrics_mod.__file__).parent.parent.parent / "app" / "main.py"
+    text = src.read_text()
+    assert "from sb.kernel.outbox.metrics import ALL_METRICS" in text
+    assert "build_registry(ALL_METRICS)" in text
+    assert "METRICS + OUTBOX_METRICS" not in text  # no re-derived union survives
 
 
 # --- emit at the outbox seam (prometheus-independent) ---------------------

@@ -17,10 +17,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from sb.spec.observability import METRICS, MetricKind, MetricSpec  # noqa: E402
-from sb.kernel.outbox.metrics import OUTBOX_METRICS  # noqa: E402
-
-ALL_METRICS: tuple[MetricSpec, ...] = METRICS + OUTBOX_METRICS
+from sb.spec.observability import MetricKind, MetricSpec  # noqa: E402
+from sb.kernel.outbox.metrics import ALL_METRICS  # noqa: E402
+# ALL_METRICS is the canonical union (METRICS + OUTBOX_METRICS) the composition
+# root also builds the registry from — imported, not re-derived, so the checked
+# set can't drift from the registered set.
 
 
 def check(specs: tuple[MetricSpec, ...] = ALL_METRICS) -> list[str]:
