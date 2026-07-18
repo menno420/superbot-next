@@ -1,6 +1,6 @@
 # 2026-07-18 — cover the two untested InvariantSweepLane paths
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · small · kernel test-depth
 
@@ -33,16 +33,43 @@ behaviour that already exists.
 
 ## What landed
 
-(pending)
+Two tests appended to `tests/unit/invariants/test_s12_invariants.py`, reusing
+the file's existing `env` fixture (fake idem/db/engine ports + installed guild
+source) — no production code touched.
+
+- **`test_reconcile_on_boot_runs_on_boot_only_and_crash_loop_guards`** — declares
+  an `ON_BOOT` invariant next to a default-`DAILY` one, then drives
+  `reconcile_on_boot`. Asserts: only the ON_BOOT invariant sweeps (the DAILY one
+  is skipped); a second boot within the same hour is deduped by the
+  `epoch = ts // 3600` once() key (no re-sweep — the crash-loop guard); a boot
+  two hours later is a new epoch and reconciles again.
+- **`test_alert_only_dispatch_records_finding_never_mutates`** — an enforced
+  `ALERT_ONLY` violation increments `alerts` and neither quarantines nor repairs
+  (the third severity branch, previously untested alongside the covered
+  QUARANTINE_ONLY / REPAIRABLE ones).
 
 ## Verification
 
-(pending)
+- `python3 -m pytest -q --ignore=examples` → **3495 passed, 29 skipped**
+  (baseline 3493 + 2 new tests). The invariants file alone: 12 passed (was 10).
+- Guards clean, no new fires: `check_namespace`, `check_symbol_shadowing`,
+  `check_config_usage`, `check_no_skip`.
+- No dependency files touched — pip-audit surface unchanged.
 
 ## 💡 Session idea
 
-(pending)
+`reconcile_on_boot` and steady-state `tick` diverge on an empty installed guild
+source: `tick` falls back to `targets = guilds or (None,)` (scans global), while
+`run_verify_import` iterates `tuple(_guild_source())` with no `or (None,)`
+fallback — so an installed-but-empty guild source makes verify-import scan
+nothing, skipping any global/None-scoped invariant that the live sweep would
+still check. Worth a follow-up to confirm which behaviour is intended and align
+them (left untouched here — a behaviour question, not a test gap).
 
 ## ⟲ Previous-session review
 
-(pending)
+The prior card (`canonical-all-metrics-seam`, #565) landed a clean behaviour-
+preserving seam and flagged an `assert_single_source` micro-guard convention as
+its idea; this slice is unrelated (test-depth, not a seam) but shares its
+posture — pin real behaviour, touch no production code, keep the change fully
+reversible.
