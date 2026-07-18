@@ -1,11 +1,12 @@
 # Session — mining 🔧 Workshop gear-craft select ported to the oracle (B3) 2026-07-18
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born red (this card only) as the first commit — holds `substrate-gate` red
-> until the deliberate LAST commit flips it `complete` (per `.sessions/README.md`),
-> releasing the HOLD so the server-side lander can merge on green. The impl +
-> tests + minted golden land in the second commit.
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red HOLD so the server-side lander
+> can merge on green. The born-red first commit (this card only) held
+> `substrate-gate` red; the impl + tests + minted golden landed in the second
+> commit; this flip is the last.
 
 - **📊 Model:** Opus 4 family · high · port
 
