@@ -112,6 +112,39 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         steps=(Step(kind="command", content="!help", persona="member"),),
         notes="the help panel projection + nav components",
     ),
+    # ------------------------------------------- help Home-message builder (Q-0059)
+    GoldenCase(
+        id="help.home_message_save",
+        subsystem="help",
+        # the shipped Q-0059 stage → mandatory-preview → save chain
+        # (disbot/views/help/home_builder.py). Entry is the server-management
+        # hub's ✏️ Help editor button (help.editor_home) → 🏠 Home message
+        # (help.editor_home_message), then the title modal, the mandatory
+        # preview (Save is disabled until previewed), and 💾 Save — one
+        # audited set_home_message write to help_overlay (home_* columns).
+        steps=(
+            Step(kind="command", content="!servermanagement", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="server_management:help_editor", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="help.editor_home.eh_home_msg", persona="admin"),
+            Step(kind="modal", target_message=1,
+                 custom_id="help.home_title_form",
+                 fields=(("title", "Welcome to our server!"),),
+                 persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="help.editor_home_message.hb_preview",
+                 persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="help.editor_home_message.hb_save",
+                 persona="admin"),
+        ),
+        notes=(
+            "the Q-0059 Home-message builder: stage a custom title, the "
+            "mandatory preview unlocks Save, then Save writes the home_* "
+            "overlay row (builder embed bytes + the audited DB write)"
+        ),
+    ),
     # --------------------------------------------------------- blackjack
     GoldenCase(
         id="blackjack.solo_round_hit",

@@ -30,6 +30,7 @@ function-local; top-level imports are stdlib + the K3 store spec only.
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 
 from sb.spec.refs import EngineRef, engine, is_registered
@@ -44,15 +45,25 @@ from sb.spec.versioning import (
 logger = logging.getLogger("sb.domain.help.overlay")
 
 __all__ = [
+    "DEFAULT_HOME_BODY",
+    "DEFAULT_HOME_TITLE",
     "EMPTY_OVERLAY",
     "HELP_OVERLAY_STORE",
+    "HOME_DEFAULT_COLOR",
+    "HOME_NAMED_COLORS",
     "MAX_DESCRIPTION_LEN",
     "MAX_DISPLAY_NAME_LEN",
+    "MAX_HOME_BODY_LEN",
+    "MAX_HOME_COLOR",
+    "MAX_HOME_TITLE_LEN",
     "VALID_ENTITY_KINDS",
     "GuildHelpOverlay",
     "HelpOverlayRow",
+    "HomeMessage",
     "entity_defaults",
     "get_guild_help_overlay",
+    "home_color_token",
+    "home_embed_frame",
     "invalidate_help_overlay_cache",
     "known_entities",
     "reset_overlay_cache_for_tests",
@@ -65,6 +76,54 @@ VALID_ENTITY_KINDS: frozenset[str] = frozenset({"hub", "subsystem"})
 # backstop (oracle bytes verbatim).
 MAX_DISPLAY_NAME_LEN = 100
 MAX_DESCRIPTION_LEN = 100
+
+# Q-0059 Home-message bounds (migration 0056 / oracle 067): embed-title cap /
+# a bounded body well under the 4096 description cap / Discord's 24-bit color
+# space. The DB CHECKs are the backstop; the write lane enforces the same.
+MAX_HOME_TITLE_LEN = 256
+MAX_HOME_BODY_LEN = 2000
+MAX_HOME_COLOR = 0xFFFFFF
+
+# The default Home frame (what renders when no home row exists). Owned here
+# so the live render path and the builder's draft display compose from ONE
+# source (oracle disbot/services/help_overlay.py bytes verbatim).
+DEFAULT_HOME_TITLE = "📚 Help Menu"
+DEFAULT_HOME_BODY = "Pick a category from the dropdown below."
+
+# The default Help-Home accent — discord.Color.blue() = the shipped
+# UTILITY_COLOR (oracle utils/ui_constants.py) = the help.home panel's
+# static "blue" style_token (STYLE_TOKEN_COLORS["blue"] = 3447003).
+HOME_DEFAULT_COLOR = 3447003
+
+# Q-0059 named embed colors (label, value, style_token). value None = the
+# default Help-Home blue; the style tokens map into
+# render.STYLE_TOKEN_COLORS so the builder / live-home renderer_override can
+# set a per-guild accent (the grammar style_token is static — D2). The
+# color ints are the oracle's named colors, verbatim.
+HOME_NAMED_COLORS: tuple[tuple[str, int | None, str], ...] = (
+    ("Default (blue)", None, "blue"),
+    ("Blurple", 0x5865F2, "blurple"),
+    ("Green", 0x57F287, "brand_green"),
+    ("Yellow", 0xFEE75C, "yellow"),
+    ("Orange", 0xE67E22, "orange"),
+    ("Red", 0xED4245, "brand_red"),
+    ("Fuchsia", 0xEB459E, "fuchsia"),
+    ("White", 0xFFFFFE, "white"),
+    ("Dark grey", 0x2C2F33, "brand_dark_grey"),
+)
+
+_HOME_COLOR_TOKEN: dict[int, str] = {
+    value: token for _label, value, token in HOME_NAMED_COLORS if value is not None
+}
+
+
+def home_color_token(color: int | None) -> str:
+    """The ``STYLE_TOKEN_COLORS`` token for a stored home color (or the
+    default blue token). v1 stores only named colors; an unknown int
+    degrades to the default accent rather than a crash."""
+    if color is None:
+        return "blue"
+    return _HOME_COLOR_TOKEN.get(int(color), "blue")
 
 HELP_OVERLAY_STORE = register_store(StoreSpec(
     table="help_overlay",
@@ -85,6 +144,58 @@ def _store_marker() -> str:
 
 if not is_registered(EngineRef("help.overlay_store")):
     engine("help.overlay_store")(_store_marker)
+
+
+@dataclass(frozen=True)
+class HomeMessage:
+    """The guild's Q-0059 Help-Home customization (``None`` field = default)."""
+
+    title: str | None = None
+    body: str | None = None
+    color: int | None = None
+
+    @property
+    def is_noop(self) -> bool:
+        return self.title is None and self.body is None and self.color is None
+
+
+# discord.utils.escape_mentions replicated stdlib-only — the domain layer
+# imports no discord (layer rule; sb/domain/media/video.py's _MENTION_RE is
+# the same domain-local-regex precedent). Byte-identical to the oracle: a
+# zero-width space breaks raw @everyone / @here / @<17-20 digit id> forms.
+_ESCAPE_MENTIONS_RE = re.compile(r"@(everyone|here|[!&]?[0-9]{17,20})")
+
+
+def _escape_mentions(text: str) -> str:
+    return _ESCAPE_MENTIONS_RE.sub("@​\\1", text)
+
+
+def home_embed_frame(
+    home: HomeMessage | None,
+    *,
+    default_color: int,
+) -> tuple[str, str, int]:
+    """``(title, description, color)`` for the Help Home embed — the one
+    frame the live Home render composes (oracle bytes verbatim).
+
+    Stored text is mention-suppressed here — embeds never ping, but
+    suppression keeps copied/quoted text safe too. ``None`` fields fall
+    back to the default title / body / accent.
+    """
+    if home is None:
+        return DEFAULT_HOME_TITLE, DEFAULT_HOME_BODY, default_color
+    title = (
+        _escape_mentions(home.title)
+        if home.title is not None
+        else DEFAULT_HOME_TITLE
+    )
+    body = (
+        _escape_mentions(home.body)
+        if home.body is not None
+        else DEFAULT_HOME_BODY
+    )
+    color = home.color if home.color is not None else default_color
+    return title, body, color
 
 
 @dataclass(frozen=True)
@@ -110,10 +221,15 @@ class HelpOverlayRow:
 
 @dataclass(frozen=True)
 class GuildHelpOverlay:
-    """All of one guild's Help presentation deviations (possibly empty)."""
+    """All of one guild's Help presentation deviations (possibly empty).
+
+    ``home`` is the Q-0059 Home-message customization (migration 0056) —
+    ``None`` renders the byte-identical default Home frame.
+    """
 
     guild_id: int | None
     rows: tuple[HelpOverlayRow, ...] = field(default=())
+    home: HomeMessage | None = None
 
     def get(self, entity_kind: str, entity_key: str) -> HelpOverlayRow | None:
         return next(
@@ -195,26 +311,35 @@ async def get_guild_help_overlay(guild_id: int | None) -> GuildHelpOverlay:
     try:
         raw = await fetchall(
             "SELECT entity_kind, entity_key, display_hidden, display_name, "
-            "description FROM help_overlay WHERE guild_id=$1 "
-            "ORDER BY entity_kind, entity_key", (int(guild_id),))
+            "description, home_title, home_body, home_color FROM help_overlay "
+            "WHERE guild_id=$1 ORDER BY entity_kind, entity_key",
+            (int(guild_id),))
     except Exception as exc:  # noqa: BLE001 — Help must render without it
         logger.warning(
             "help_overlay: read failed for guild %s — rendering defaults: "
             "%s", guild_id, exc)
         return GuildHelpOverlay(guild_id=guild_id)
-    overlay = GuildHelpOverlay(
-        guild_id=guild_id,
-        rows=tuple(
-            HelpOverlayRow(
-                entity_kind=str(r["entity_kind"]),
-                entity_key=str(r["entity_key"]),
-                display_hidden=r["display_hidden"],
-                display_name=r["display_name"],
-                description=r["description"],
+    rows: list[HelpOverlayRow] = []
+    home: HomeMessage | None = None
+    for r in raw:
+        # the single (guild, 'home', 'home') row carries the Home-message
+        # customization, never a presentation deviation — it stays OUT of
+        # the hub/subsystem set (migration 0056 / oracle 067).
+        if str(r["entity_kind"]) == "home":
+            home = HomeMessage(
+                title=r["home_title"],
+                body=r["home_body"],
+                color=r["home_color"],
             )
-            for r in raw
-        ),
-    )
+            continue
+        rows.append(HelpOverlayRow(
+            entity_kind=str(r["entity_kind"]),
+            entity_key=str(r["entity_key"]),
+            display_hidden=r["display_hidden"],
+            display_name=r["display_name"],
+            description=r["description"],
+        ))
+    overlay = GuildHelpOverlay(guild_id=guild_id, rows=tuple(rows), home=home)
     _cache[guild_id] = overlay
     return overlay
 

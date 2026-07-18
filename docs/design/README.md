@@ -30,13 +30,15 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 
 ## Beyond D1–D6 — production-readiness tracks
 
-Design tracks opened **beyond** the D1–D6 planning lanes — production-readiness
-concerns (resilience, operability) surfaced while grounding the port. Same
-doctrine: one doc per PR, grounded evidence-first in real code with `file:line`
-citations. Future beyond-D6 design-doc PRs add their row + file here.
+New production-readiness design topics opened outside the D1–D6 planning lanes.
+Same rules: **one doc per PR**, grounded evidence-first in real code with
+`file:line` citations. Future production-readiness design-doc PRs add their row
++ file here.
 
 | Doc | Topic | Status |
 |---|---|---|
+| [OWNER DECISIONS (2026-07-18)](OWNER-DECISIONS-2026-07-18.md) | Consolidated morning agenda — every design-doc owner-question + standing gates, prioritized by leverage | owner-guidance |
+| [Security](S-security-rotation-and-least-privilege.md) | Secret rotation (zero-downtime) + startup fail-closed + least-privilege | plan |
 | [Resilience](R-resilience-delivery-and-db.md) | Outbox→Discord delivery retry-reach + dead-letter replay; DB pool reconnect/backoff + circuit breaker + fast fail-closed | plan |
 
 ## Index
@@ -51,3 +53,13 @@ citations. Future beyond-D6 design-doc PRs add their row + file here.
   (owner-reviewable, no D-entry yet): the game-sections successor
   sweep that would edit anchored channel panels on enablement change;
   four design calls with options and costs.
+
+## Beyond D1–D6 — production-readiness tracks
+
+NEW design topics beyond the D1–D6 forward lanes: operational hardening the
+production cutover depends on. Each is a PLAN (`> **Status:** \`plan\``) the
+owner reacts to and prioritizes.
+
+| Track | Doc | What it proposes |
+|---|---|---|
+| Ops runbook | [Ops runbook](O-ops-migration-backup-restore-rollback.md) | The recoverability loop — migrate → backup → restore → rollback → deploy(Railway) — proven green end-to-end in CI: a restore-verify row-level-integrity leg, a rehearsed migrate+rollback drill on ephemeral Postgres, and a consolidated recovery runbook. |
