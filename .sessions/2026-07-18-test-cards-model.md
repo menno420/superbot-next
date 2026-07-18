@@ -1,6 +1,6 @@
 # 2026-07-18 — cover error/edge paths of the pure casino card model
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · test writing · additive card-model edge/error coverage (born-red, holds substrate-gate)
 
