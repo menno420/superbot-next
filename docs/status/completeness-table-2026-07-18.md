@@ -50,13 +50,13 @@ seam / subsystem / owner action.
 | **utility Invite** | **DONE** | `sb/domain/utility/handlers.py:436-457` real `actions.create_invite(max_uses=1, unique=True)`, matches oracle `utility_cog.py:290-295`. |
 | **C1** setup-band except-density audit | **DONE** | Closed AFTER this snapshot's base — was mis-listed PARTIAL. Every `except Exception` in the setup band now carries characterization coverage under `tests/unit/setup_band/`, landed across four legs: #516 (`7ceedee`) + #519 (`eb2f146`) characterized moderation + count/list soft-fail, then #526 (`0cac02d`, final_review/essential boundaries) + #538 (`bfff394`, launcher/wizard — "finish C1 audit"). `git log bfff394..HEAD -- sb/domain/setup/` is EMPTY — no new uncovered sites landed after the audit closed. |
 | **setup docstring** (C5 residual doc-fix) | **DONE** | Closed AFTER this snapshot's base — was mis-listed OPEN. #526 (`0cac02d`) rewrote the stale `sb/domain/setup/wizard.py:106-113` docstring (the "skipped until their seams exist" text → the resolved "lane is CLOSED / RESOLVED" wording); `grep "skipped until" sb/domain/setup/wizard.py` now returns nothing. |
+| **B2** mining skill-panel spend | **DONE (live)** | Closed AFTER this snapshot's base — was mis-listed OPEN/MINTABLE. #527 (`1e61fe6`) re-pointed the four `sk_*` buttons from the pending terminal to `mining.skill_spend_route` → `mining.skill` → the audited spend write (`sb/domain/mining/panels.py:797-811`). Golden `parity/goldens/mining/mining_skill_spend_write.json` + `tests/unit/mining/test_mining_skill_spend_button.py` present. |
+| **B3** mining workshop craft selector | **DONE (live)** | Closed AFTER this snapshot's base — was mis-listed OPEN/MINTABLE. #532 (`cae15f8`) wired the `ws_craft` selector → `mining.workshop_craft_pick` → the audited `mining.craft` write (selector `sb/domain/mining/panels.py:1240-1241`, handler `:1172-1242`). Golden `parity/goldens/mining/mining_workshop_craft_write.json` + `tests/unit/mining/test_mining_workshop_craft.py` present. |
 
 ## GENUINELY OPEN — remaining work
 
 | Item | Verdict | Mintable? | Evidence + notes |
 |---|---|---|---|
-| **B2** mining skill-panel spend | **OPEN** | **MINTABLE** | `sb/domain/mining/panels.py:808-820` wires the four `sk_*` buttons to pending terminal `mining.skill_spend_pending`; oracle `disbot/views/mining/skills_panel.py:74-84` writes via `skill_service.allocate`. The write is already LIVE via `!skill` (golden `mining_skill_write`); porting = re-point the panel handler to the real op + mint a skills-embed golden. **Mining lane is sibling-adjacent (PRs #520/#524) — coordinate before taking.** |
-| **B3** mining workshop craft selector | **OPEN** | **MINTABLE** | `sb/domain/mining/panels.py:1207-1214` (`ws_craft` → `mining.workshop_craft_pending`); oracle `workshop_panel.py:128-136` / `recipe_browser.py:222-237` write via `mining_workflow.craft`. Underlying `!craft` write LIVE. Re-point + mint. **Mining lane (sibling-adjacent).** |
 | **settings.group_pending** | **OPEN** | MULTI-SLICE EPIC (not a single mint) | The per-group type-specific scalar EDIT page surface — a **page frame** (S0, the ~626-line edit page) + **7 unported edit-widget slices** (bool / enum / number-modal / text-modal / channel / role / numeric-presets). Oracle `menno420/superbot @ f87fa50`: `disbot/views/settings/subsystem_view.py` + `edit_*.py` + `reset_button.py`. Distinct from the (DONE) audit surface. **Large but buildable, NOT blocked:** the write ops already exist (`settings.set_scalar` / `clear_scalar`) and the panel machinery (modals, windowed selects) exists — the cost is breadth (~1800 lines of oracle behaviour), not a missing seam. **Carries an unresolved OWNER-LEVEL product decision** routed to `docs/question-router.md` (append-only owner-intent venue): the oracle opens this edit page for ALL groups uniformly, but the port diverged (5 groups → operator-spine hub, the rest → `group_pending`) — so porting forces whether the edit page replaces `group_pending` for non-hub groups only, or also becomes reachable for the 5 hub groups. That routing choice is owner product-intent, not a worker call. |
 | **B10** role-hub route-origin back-button | **OPEN** | decision-sized, NOT cleanly mintable | Oracle appends a dynamic "↩ Server Management" back button per navigation origin (`disbot/views/server_management/hub.py:96`); sb uses only a static `home_hub` / `FOLLOW_PARENT` (`sb/domain/role/panels.py:172`, panel engine `sb/kernel/panels/registry.py:161`). Porting needs a new panel-engine route-origin signal (session-scoped opened-from tracking). |
 | **B8** ux_lab 9 wing interiors | **OPEN** | LOW priority | Admin-only (`audience_tier=administrator`), zero-write dev/diagnostic surface; all 9 `*_wing` are honest pending refusals (`sb/domain/ux_lab/handlers.py:50-62`) fronting a fully-ported home panel. Slice foundation-first: (0) port `utils/ux_patterns` registry + `ExhibitWingView` browser grammar, then per-wing — embeds cleanest/mintable; buttons/selects/mock_studio/compare/modals mintable renders; pil_cards/probe_bench/components_v2 need special handling (image bytes / version+date+live-errors / channel-side CV2 + external URLs). No user-facing gap (honest refusals). |
@@ -74,19 +74,20 @@ seam / subsystem / owner action.
 
 ## Conclusion
 
-The user-facing port surface is **essentially exhausted.** The remaining
-genuinely-OPEN, agent-actionable, mintable items are small — the B2/B3 mining
-panel re-points (C1 and the `wizard.py` docstring fix have since landed —
-#526/#538 — and moved to the DONE table) — plus one LOW-priority larger surface
-(**B8** ux_lab, an admin-only zero-write dev tool), the **settings.group_pending**
-per-group edit-page EPIC (multi-slice + an owner-gated group-routing decision),
-and two non-mintable / decision-or-ingestion items (**B10** route-origin engine
-signal; **btd6** NK ingestion). Nothing on the OPEN list is a silent user-facing
-gap: the remaining pending terminals are honest declared refusals, and the
-NOT-A-GAP rows are byte-faithful oracle stubs.
+The user-facing port surface is **essentially exhausted.** The small mintable
+re-points are now closed — B2/B3 (mining skill-spend / workshop-craft, #527/#532)
+have since landed and moved to the DONE table, joining C1 and the `wizard.py`
+docstring fix (#526/#538). What remains OPEN is no longer single-mint work: one
+LOW-priority larger surface (**B8** ux_lab, an admin-only zero-write dev tool),
+the **settings.group_pending** per-group edit-page EPIC (multi-slice + an
+owner-gated group-routing decision routed to `docs/question-router.md`), and two
+non-mintable / decision-or-ingestion items (**B10** route-origin engine signal;
+**btd6** NK ingestion). Nothing on the OPEN list is a silent user-facing gap:
+the remaining pending terminals are honest declared refusals, and the NOT-A-GAP
+rows are byte-faithful oracle stubs.
 
 **Recommendation:** shift the loop toward **PLANNING mode** — turn D1–D6 into
-fuller design docs — while opportunistically closing B2/B3 when the sibling
-mining lane clears. Honestly: this snapshot is itself point-in-time and derived
-from a shallow oracle clone; treat it as a dated checkpoint to be regenerated
-next wave, not a standing source of truth.
+fuller design docs — with the mintable mining lane now cleared. Honestly: this
+snapshot is itself point-in-time and derived from a shallow oracle clone; treat
+it as a dated checkpoint to be regenerated next wave, not a standing source of
+truth.

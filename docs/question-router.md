@@ -26,8 +26,50 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(No unanswered blocks — see Answered below. All six S11/S13/S14/S15/V-5/K10 blocks
-were resolved 2026-07-08 by the owner via the directing session's question panel.)
+(One unanswered block below — the settings per-group edit-page group-routing
+decision, appended 2026-07-18. The six S11/S13/S14/S15/V-5/K10 blocks were
+resolved 2026-07-08 by the owner via the directing session's question panel —
+see Answered below.)
+
+### Q: settings per-group edit page — replace `group_pending` for non-hub groups only, or for all groups uniformly? (settings-mutation epic, owner-gated)
+
+- **Area / Type / Priority / Status:** settings subsystem / product-intent
+  routing / gates a multi-slice epic / **OPEN**.
+- **Question:** the oracle's Settings hub opens the per-group
+  `SubsystemSettingsView` type-specific scalar EDIT page uniformly for **every**
+  group (oracle `menno420/superbot @ f87fa508`). The port diverged: it routes
+  the 5 operator-spine groups (welcome / counters / security / automod /
+  image_moderation) to their read-only `<group>.hub`, and every other group to
+  the blocked `settings.group_pending` terminal (`sb/domain/settings/handlers.py`
+  around `:242` the pending-handler registration, `:248` `open_group`'s hub
+  branch, `:277` the `group_pending` fallthrough). When the per-group edit-page
+  surface is ported, should it replace `group_pending` for the **non-hub groups
+  only** (leaving the 5 operator-spine groups on their existing hubs), or should
+  the edit page **also become reachable for the 5 hub groups**, matching the
+  oracle's uniform behaviour?
+- **Why agents need this:** it decides the page-open routing for the whole
+  ported edit surface, so it must be settled before (not during) the build — it
+  gates a **multi-slice epic**: the ~626-line edit-page frame plus 7 unported
+  edit-widget slices (bool / enum / number-modal / text-modal / channel / role /
+  numeric-presets). Choosing "non-hub only" preserves the port's
+  operator-spine-hub navigation for 5 groups and diverges from the oracle by
+  design; choosing "all groups uniformly" restores exact oracle parity but
+  displaces the existing hub routes. This is product intent about the settings
+  UX shape, not a worker call.
+- **Options:** (a) edit page replaces `group_pending` for the non-hub groups
+  only — the 5 operator-spine groups keep their read-only hubs (port stays
+  diverged, minimal displacement); (b) edit page becomes the uniform per-group
+  open for ALL groups including the 5 hubs — exact oracle parity, but the
+  existing hub routes for those 5 groups are displaced/re-homed.
+- **Safe default:** none built yet — the surface is unported, so
+  `group_pending` stands as an honest blocked terminal for non-hub groups until
+  this is ruled. The write ops (`settings.set_scalar` / `clear_scalar`) and the
+  panel machinery (modals, windowed selects) already exist; the cost is breadth,
+  not a missing seam.
+- **Maintainer answer:** _(pending — unanswered)_
+- **Routing result:** _(pending — on answer, route the chosen routing into the
+  settings-mutation epic's scope doc + record as a decisions.md entry citing
+  this block)_
 
 ## Answered
 
