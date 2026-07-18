@@ -1,6 +1,6 @@
 # 2026-07-18 — D1 themed card-renderer design doc
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Opus 4 family · high · kernel/architecture design
 
