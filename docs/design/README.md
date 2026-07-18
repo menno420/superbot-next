@@ -28,6 +28,17 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 | [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
 | B8 | ux_lab 9-wing foundation-then-per-wing | planned |
 
+## Beyond D1–D6 — production-readiness tracks
+
+Design tracks opened **beyond** the D1–D6 planning lanes — production-readiness
+concerns (resilience, operability) surfaced while grounding the port. Same
+doctrine: one doc per PR, grounded evidence-first in real code with `file:line`
+citations. Future beyond-D6 design-doc PRs add their row + file here.
+
+| Doc | Topic | Status |
+|---|---|---|
+| [Resilience](R-resilience-delivery-and-db.md) | Outbox→Discord delivery retry-reach + dead-letter replay; DB pool reconnect/backoff + circuit breaker + fast fail-closed | plan |
+
 ## Index
 
 - [game-sections.md](game-sections.md) — per-guild minigame/casino
