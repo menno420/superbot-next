@@ -2653,6 +2653,8 @@
   "general.eightball_form",
   "help.editor_redescribe_form",
   "help.editor_rename_form",
+  "help.home_body_form",
+  "help.home_title_form",
   "help:back",
   "help_categories:select",
   "logging_panel.create_cleanup",

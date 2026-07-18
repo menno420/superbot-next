@@ -282,6 +282,45 @@ def _ensure_handlers() -> None:
         await open_panel(PanelRef(f"help.sub_{sub}"), req)
         return None
 
+    @handler("help.render_home")
+    async def render_home(spec, ctx):
+        """Grammar render + the guild's saved Home-message frame (Q-0059
+        live-home). A guild with NO home row renders the byte-identical
+        default — the override returns the grammar render UNCHANGED (the
+        mandatory no-op guard: parity/goldens/help/*.json replay verbatim).
+        When a home row exists its title / body / accent override the
+        default frame through the same ``home_embed_frame`` the builder's
+        preview composes (preview-is-exact; mention suppression included)."""
+        import dataclasses
+
+        from sb.domain.help.overlay import (
+            HOME_DEFAULT_COLOR,
+            get_guild_help_overlay,
+            home_color_token,
+            home_embed_frame,
+        )
+        from sb.kernel.panels.render import render_panel
+
+        rendered = await render_panel(spec, ctx)
+        gid = int(getattr(ctx, "guild_id", 0) or 0)
+        overlay = await get_guild_help_overlay(gid or None)
+        if overlay.home is None:
+            # no deviation stored — the default Home frame renders byte-
+            # identical; leave the grammar render untouched.
+            return rendered
+        title, body, _color = home_embed_frame(
+            overlay.home, default_color=HOME_DEFAULT_COLOR)
+        # RenderedEmbed carries a style_token, not a raw color int — the
+        # per-guild accent rides the named token (v1 stores only named
+        # colors; an unknown int degrades to the default blue accent).
+        return dataclasses.replace(
+            rendered,
+            embed=dataclasses.replace(
+                rendered.embed,
+                title=title,
+                description=body,
+                style_token=home_color_token(overlay.home.color)))
+
 
 # --- the panel family -----------------------------------------------------------
 
@@ -386,6 +425,17 @@ def _home_panel() -> PanelSpec:
         # the help hub IS home — no help slot on itself (render also guards
         # subsystem=="help"), home stays for the root hub when one exists.
         navigation=NavigationSpec(show_help=False),
+        renderer_override=HandlerRef("help.render_home"),
+        justification=(
+            "the Q-0059 live Help-Home frame (title / body / accent) is a "
+            "per-guild deviation the static grammar cannot carry: when the "
+            "guild stored a custom Home message the override re-frames the "
+            "embed through home_embed_frame (the same composer the builder "
+            "preview uses — preview-is-exact); a guild with no home row "
+            "returns the grammar render UNCHANGED, so the byte-identical "
+            "default Home replays verbatim. The override adjusts only the "
+            "embed title / description / accent; the category fields, the "
+            "select and layout stay declared."),
         layout=LayoutSpec(pages=(PageSpec(rows=(("category_select",),)),)),
     )
 
