@@ -137,6 +137,86 @@ def test_atomic_db_only_external_conn_fence():
     assert any("headless" in p for p in check_atomic_db_only(confirmy))
 
 
+def test_atomic_db_only_fails_closed_on_uninspectable_handler():
+    # A normal module-level def (source readable) passes cleanly.
+    @workflow("x.readable")
+    async def _readable(conn, ctx):
+        return None
+
+    readable = _spec(legs=(LegSpec("a", LegKind.DB, WorkflowRef("x.readable"), "reversible"),))
+    assert check_atomic_db_only(readable) == []
+
+    # A handler built dynamically has no on-disk source, so inspect.getsource
+    # raises — the fence must FAIL-CLOSED and record a problem rather than
+    # silently treating the un-inspectable source as clean (fail-open).
+    ns: dict = {}
+    exec("async def _dyn(conn, ctx):\n    return None", ns)
+    workflow("x.uninspectable")(ns["_dyn"])
+    with pytest.raises(OSError):
+        import inspect
+        inspect.getsource(ns["_dyn"])          # guard: source truly un-inspectable
+
+    uninspectable = _spec(legs=(
+        LegSpec("u", LegKind.DB, WorkflowRef("x.uninspectable"), "reversible"),))
+    problems = check_atomic_db_only(uninspectable)
+    assert any("could not be inspected" in p for p in problems)
+
+
+def test_atomic_db_only_unwraps_partial_and_decorated_handlers():
+    """A legitimately WRAPPED handler (functools.partial / __wrapped__
+    decorator) must be unwrapped to its real def before the source scan —
+    the wrapper shim is not inspectable, but the underlying implementation
+    is, so the fence must inspect the REAL body rather than fail-closed on
+    the shim (the xp.repair_level_consistency regression class)."""
+    import functools
+
+    async def _pure_impl(conn, ctx):
+        return None
+
+    async def _dirty_impl(conn, ctx):
+        import discord  # noqa: F401, PLC0415
+        return None
+
+    # functools.partial layer over a clean def: unwrapped + scanned clean.
+    workflow("x.partial_clean")(functools.partial(_pure_impl))
+    partial_clean = _spec(legs=(
+        LegSpec("a", LegKind.DB, WorkflowRef("x.partial_clean"), "reversible"),))
+    assert check_atomic_db_only(partial_clean) == []
+
+    # functools.partial over a DIRTY def: the scan runs on the real body,
+    # so the banned import is still caught (unwrap must not blind the fence).
+    workflow("x.partial_dirty")(functools.partial(_dirty_impl))
+    partial_dirty = _spec(legs=(
+        LegSpec("d", LegKind.DB, WorkflowRef("x.partial_dirty"), "reversible"),))
+    assert any("banned I/O" in p for p in check_atomic_db_only(partial_dirty))
+
+    # @functools.wraps decorator (sets __wrapped__): inspect.unwrap follows it
+    # to the real def and scans that body.
+    @functools.wraps(_dirty_impl)
+    async def _decorated(conn, ctx):  # a shim whose OWN body is clean
+        return await _dirty_impl(conn, ctx)
+
+    workflow("x.decorated_dirty")(_decorated)
+    decorated_dirty = _spec(legs=(
+        LegSpec("w", LegKind.DB, WorkflowRef("x.decorated_dirty"), "reversible"),))
+    assert any("banned I/O" in p for p in check_atomic_db_only(decorated_dirty))
+
+
+def test_atomic_db_only_skips_unresolved_handler_ref():
+    """An UNRESOLVED leg-handler ref is boot's own failure surface
+    (ref_unresolved_at_boot), NOT a banned-I/O fence violation — the fence
+    must not hijack a RefUnresolved into a 'could not be inspected' verdict.
+
+    This is the xp.repair_level_consistency false-abort: the CompoundOpSpec
+    survives in the workflow registry while its leg handler ref was cleared
+    from the ref table (e.g. a prior test's clear_ref_table), so resolve()
+    raises RefUnresolved. The fence must skip that leg, not fail-closed."""
+    # A DB leg pointing at a name that was never registered in the ref table.
+    unresolved = _spec(legs=(
+        LegSpec("g", LegKind.DB, WorkflowRef("x.never_registered"), "reversible"),))
+    assert check_atomic_db_only(unresolved) == []
+
+
 def test_workflow_result_is_the_shipped_superset():
     r = WorkflowResult(
         mutation_id="m", guild_id=1, domain="economy", operation="economy.op",
