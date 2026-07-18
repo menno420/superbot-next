@@ -29,7 +29,8 @@ noted inline.
 | [D1](D1-themed-card-renderer.md) | Themed card renderer (rank / profile hero cards) | plan · Slice 1 (render band) landed (#560/#561) | Q1/Q2 — bundle DejaVu fonts + adopt Pillow as a hard runtime dep (the render-band Pillow decision; NOTE Pillow shipped at `>=12.3.0`, not `<12`, per the #561 security bump) |
 | [D3](D3-access-audit-model.md) | Access-control + audit-log data model (access-matrix / audit dashboard) | plan | Q2 — audit-log retention stays permanent; Q3 — M1 access granularity is per-channel (per-command deferred) |
 | [D6](D6-autonomy-apparatus-removal.md) | Autonomy-apparatus removal (safe removal sequence) | plan | Q1 — destructive removal deferred to the recreated Project (post-2026-07-21) |
-| [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan | — |
+| [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
+| [B10 plan](B10-route-origin-implementation-plan.md) | B10 route-origin — execute-on-approval implementation plan (Q2–Q6 resolved; Q1 routed) | plan | — |
 | [B8](B8-ux-lab-wings.md) | ux_lab 9-wing foundation-then-per-wing | plan | — |
 
 Decision provenance lives in `docs/decisions.md`; each doc's own footer pins its
