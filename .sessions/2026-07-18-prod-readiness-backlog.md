@@ -1,6 +1,6 @@
 # Session — prod-readiness backlog 2026-07-18
 
-> **Status:** in-progress
+> **Status:** complete
 
 ## Goal
 Land docs/status/prod-readiness-backlog-2026-07-17.md — a prioritized, cold-pickup-ready backlog of production-readiness slices for superbot-next, derived from a full-tree survey @ 1893d32.
