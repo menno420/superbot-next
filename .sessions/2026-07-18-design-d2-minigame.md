@@ -1,6 +1,6 @@
 # 2026-07-18 — D2 real-time minigame framework design doc
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · docs · D2 real-time minigame framework design doc (born-red, holds substrate-gate)
 
