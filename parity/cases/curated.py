@@ -1786,16 +1786,20 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
                  persona="member"),
         ),
         notes=(
-            "the coin-bet quickplay settle: `!rps 10` opens the shipped "
-            "solo-play view with the bet line (`Bet: **10** 🪙`) and the "
-            "invoker's 🪨 Rock click drives the audited rps.solo_play op — "
-            "seed-42's armed bot draw is scissors, so the win branch "
-            "credits the bet (`🎉 You win! +10 🪙`, reason rps:solo_win, "
-            "balance 40→50) and the shipped update_player_stats site "
-            "writes the FIRST row-bearing rps_players capture (1 win, "
-            "display name captured at game time) — the shipped "
-            "views/rps/solo_play.py + _helpers.py copy verbatim "
-            "(sb/domain/rps/ops.py module contract)"),
+            "the coin-bet quickplay settle (item 2 — solo result view "
+            "edit-in-place): `!rps 10` opens the shipped solo-play view with "
+            "the bet line (`Bet: **10** 🪙`) and the invoker's 🪨 Rock click "
+            "drives the audited rps.solo_play op — seed-42's armed bot draw "
+            "is scissors, so the win branch credits the bet (`🎉 You win! "
+            "+10 🪙`, reason rps:solo_win, balance 40→50) and the shipped "
+            "update_player_stats site writes the FIRST row-bearing "
+            "rps_players capture (1 win, display name captured at game "
+            "time). The click EDITS the picker message IN PLACE into the "
+            "result embed (interaction_response type 6 + edit_followup, move "
+            "buttons disabled) via refresh_session_view — the shipped "
+            "views/rps/solo_play._RpsView edit loop "
+            "(sb/domain/rps/handlers.py::rps.solo_click, the blackjack solo "
+            "table_click precedent)"),
     ),
     # ------------------------------------------------- farm money paths
     # The curation report's farm-goldens backlog line (docs/review/

@@ -11689,6 +11689,9 @@
       "handler:rps.settings_view": {
         "module": "sb.domain.rps.handlers"
       },
+      "handler:rps.solo_click": {
+        "module": "sb.domain.rps.handlers"
+      },
       "handler:rps.start_route": {
         "module": "sb.domain.rps.handlers"
       },
@@ -54976,12 +54979,12 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "none",
               "destructive": false,
               "emoji": "🪨",
               "flow_stage": 0,
               "handler": {
-                "$ref": "workflow:rps.solo_play"
+                "$ref": "handler:rps.solo_click"
               },
               "label": "Rock",
               "modal": null,
@@ -55001,12 +55004,12 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "none",
               "destructive": false,
               "emoji": "📄",
               "flow_stage": 0,
               "handler": {
-                "$ref": "workflow:rps.solo_play"
+                "$ref": "handler:rps.solo_click"
               },
               "label": "Paper",
               "modal": null,
@@ -55026,12 +55029,12 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "none",
               "destructive": false,
               "emoji": "✂️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "workflow:rps.solo_play"
+                "$ref": "handler:rps.solo_click"
               },
               "label": "Scissors",
               "modal": null,
