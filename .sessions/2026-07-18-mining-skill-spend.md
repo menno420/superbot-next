@@ -1,10 +1,12 @@
 # Session — mining 🌳 Skill Tree per-branch spend buttons ported to the oracle (B2) 2026-07-18
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red first commit (this card only). Holds the PR red via `substrate-gate`
-> until the deliberate LAST-commit flip to `complete`, once CI confirms every
-> functional gate green.
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red HOLD so the server-side lander
+> can merge on green. The born-red first commit (this card only) held
+> `substrate-gate` red; the impl + tests + minted golden landed in the second
+> commit; this flip is the last.
 
 - **📊 Model:** Opus 4 family · high · port
 
