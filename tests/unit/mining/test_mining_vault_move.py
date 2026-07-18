@@ -197,6 +197,15 @@ def _patch_op_after(monkeypatch, *, result):
     command-lane goldens already cover."""
     import sb.domain.mining.service as service
 
+    # Guarantee the mining route handlers are in the ref table before we
+    # resolve them: another suite (the interaction/panel tests) calls
+    # ``clear_ref_table()``, and service.py's import-time ``_register()`` will
+    # NOT re-run on the already-cached module — so relying on ambient
+    # registration is order-fragile (pytest-randomly). Re-run the canonical
+    # ``ensure_handler_refs`` (idempotent), the test_band6_mining_grid_panels
+    # precedent for a mining unit test that resolves a handler by name.
+    service.ensure_handler_refs()
+
     calls: list[tuple[str, dict]] = []
 
     async def fake_op_after(req, op_key, params=None):
