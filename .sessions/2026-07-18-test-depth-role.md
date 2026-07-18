@@ -1,8 +1,16 @@
 # 2026-07-18 — test-depth coverage for sb/domain/role (handler refusal ladders + DB-truth views)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
+>
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red `substrate-gate` HOLD so
+> the server-side lander can merge on green. First commit was the born-red
+> card + claim alone (held the gate red); the new test file landed in the
+> second commit; this flip is the last. Full `tests/unit` was green (3366
+> passed, 2 skipped) and both stdlib-`ast` guards clean at flip time. No
+> `sb/` product code, no golden touched — additive test file only.
 
-- **📊 Model:** [[fill: family · effort · test-depth]]
+- **📊 Model:** Opus 4 family · high · test-depth
 
 ## Scope
 
@@ -40,22 +48,58 @@ golden change, DB-free — pinning:
 
 ## Verification
 
-- `python3 -m pytest tests/unit -q` → [[fill: verbatim tail]]
-- `python3 tools/check_namespace.py` → clean
-- `python3 tools/check_no_skip.py` → clean
+- `python3 -m pytest tests/unit -q` → `3366 passed, 2 skipped, 1 warning
+  in 63.86s (0:01:03)` (the new file: 26 passed in 0.25s)
+- `python3 tools/check_namespace.py` → `check_namespace: clean`
+- `python3 tools/check_no_skip.py` → `check_no_skip: clean (every surface
+  funnels through resolve())`
 
 ## Deviation ledger
 
-[[fill: skipped gaps + why]]
+- **No gaps skipped.** All eight gaps in the assignment brief were
+  feasible DB-free and are covered: P1 deleterole ladder (6 branches),
+  reactroles_bind (4 branches), temprole + `_parse_duration` table,
+  ABOVE_ACTOR; P2 the six views (both diagnostics forks), the three
+  unarmed-adapter refusals, the authority-ref floors, the hub
+  audience-tier floor. No padding — each case asserts the specific
+  branch/copy/value that matters.
+- Verdict copy is pinned to `feasibility._REASONS` verbatim (e.g. the
+  ABOVE_BOT byte `above my highest role — I can't manage it`); the
+  provisioning-refusal case asserts the `❌ Could not delete **{name}**:`
+  prefix rather than the long unarmed-port RuntimeError tail, so it stays
+  robust to that message's wording.
 
 ## 💡 Session idea
 
-[[fill: one idea]]
+The **success** paths of the mutating handlers still lean on the
+`_create_role_lane`/`deleterole` twins for their shared-mutation_id
+audit+lifecycle pair — but `reactroles_bind`'s post-write ack (the
+role-name resolution via `service.find_role` over the live guild view)
+and `temprole`'s happy-path expiry ack are only exercised through the
+seam tests, not the handler. A follow-up one-file slice could pin those
+two acks end-to-end with an armed guild view + a monkeypatched
+`engine.run`, closing the last uncovered handler branches (the ack copy,
+not just the refusals).
 
 ## ⟲ Previous-session review
 
-[[fill: review of the most recent OTHER .sessions card]]
+Reviewed `.sessions/2026-07-18-owner-decisions-agenda.md` (the current
+`origin/main` HEAD, #539) — a docs-only slice that consolidated every
+scattered owner-open-question across the 2026-07-18 design docs into one
+prioritized `docs/design/OWNER-DECISIONS-2026-07-18.md` agenda, indexed
+from `docs/design/README.md`. Same born-red-first / flip-last discipline
+this card follows, and it models the decision-block shape (Decision ·
+Options · Recommendation · Unblocks · Source) the owner rips through. Its
+posture is the mirror of this slice: it gathers *product-intent*
+questions for the owner, whereas this slice closes a *verification* gap
+no owner decision was blocking — the two together keep the split between
+"needs a human call" and "just needs coverage" clean. No overlap; nothing
+to reconcile.
 
 ## Close-out
 
-[[fill: PR # + test count]]
+- **PR #541** — https://github.com/menno420/superbot-next/pull/541
+- `tests/unit/band5/test_band5_role_depth.py`, **26 DB-free cases**,
+  full `tests/unit` green (3366 passed / 2 skipped), both guards clean.
+- Server-side lander merges on green (the six required named gates) —
+  not merged agent-side.
