@@ -1,6 +1,6 @@
 # 2026-07-18 — cover the untested CI-gating AST checkers (check_config_usage, check_symbol_shadowing)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · additive test slice (born-red, holds substrate-gate)
 
