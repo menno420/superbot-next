@@ -11512,8 +11512,8 @@
       "handler:mining.vaultupgrade_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.workshop_craft_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.workshop_craft_pick": {
+        "module": "sb.domain.mining.panels"
       },
       "handler:moderation.modlogs_view": {
         "module": "sb.domain.moderation.service"
@@ -50996,7 +50996,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:mining.workshop_craft_pending"
+                "$ref": "handler:mining.workshop_craft_pick"
               },
               "options_source": {
                 "$ref": "provider:mining.workshop_craft_options"

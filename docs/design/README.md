@@ -21,11 +21,11 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 |---|---|---|
 | [D4](D4-observability-surface.md) | Observability surface (metrics / readiness / structured logs) | **this PR** |
 | D5 | End-to-end / live-guild test harness | planned |
-| D2 | Real-time minigame framework | planned |
+| [D2](D2-realtime-minigame-framework.md) | Real-time minigame framework | planned |
 | D1 | Themed renderer | planned |
 | D3 | Access-matrix / audit dashboard | planned |
 | D6 | Autonomy-apparatus removal | planned |
-| B10 | Role-hub route-origin back-button (panel-engine signal) | planned |
+| [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
 | B8 | ux_lab 9-wing foundation-then-per-wing | planned |
 
 ## Index
