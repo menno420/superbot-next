@@ -17,3 +17,4 @@ croniter>=6.0,<7               # K9 Cron trigger slots (sb/kernel/scheduler/misf
 PyYAML>=6.0,<7                 # tools checkers (check_amendments, check_schema_growth)
 anthropic>=0.40,<1             # K10 provider adapter (sb/kernel/ai/providers/anthropic_provider.py)
 openai>=1.40,<2                # K10 provider adapter (sb/kernel/ai/providers/openai_provider.py)
+Pillow>=11,<12                 # D1 render band (sb/kernel/render — themed card engine)
