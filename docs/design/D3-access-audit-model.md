@@ -363,3 +363,12 @@ cheapest real-signal fix and is independent; Slice 4 waits on the owner).
    settings+command-access changes, or become a **guild-wide** recent-changes
    view across all `subsystem`s (economy, governance, xp, …)? The spine supports
    either; today it is `subsystem='settings'`-only (`panels.py:814`).
+
+## Decisions recorded (2026-07-18)
+
+Owner-authorized under decide-and-flag (fm ORDER 048 / PL-001); logged as [D-0094] and [D-0095] in `docs/decisions.md`.
+
+- **Q2 retention → keep `permanent`.** `audit_log` stays the forensic spine with TOMBSTONE erasure; no pruning window now. An owner-gated pruning/retention window remains available but is a destructive prod-data op — owner-gated, not taken here.
+- **Q3 granularity → M1 per-channel; defer per-command.** Ship per-guild mode + per-channel allowlist + per-channel role-sets (M1). True per-command granularity (command × scope matrix) is a deferred D3-follow-on, dispatched only on an explicit product ask.
+
+Q1, Q4–Q7 remain open (not part of this decision pass).
