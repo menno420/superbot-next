@@ -1,6 +1,6 @@
 # 2026-07-18 — setup launcher/wizard except boundaries (finish C1)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · test writing · except-boundary characterization pins (C1 final slice)
 
@@ -56,8 +56,11 @@ every `except Exception` in the setup band is pinned to its boundary.
 
 - `pytest tests/unit/setup_band/ -q` → `468 passed in 3.73s` (the new file
   alone: `11 passed in 0.24s`).
-- PR CI: functional gates expected green; `substrate-gate` the sole red —
-  the born-red hold, cleared by this card flip.
+- PR #538 CI: all functional gates green — tests / checkers / code-quality /
+  architecture / sim-gate / manifest-validate / golden-parity /
+  check_compat_frozen + the build-image / lockfile-fresh / pip-audit / gate /
+  report set; `substrate-gate` was the sole red — the expected born-red
+  hold, cleared by this card flip.
 
 ## 💡 Session idea
 
