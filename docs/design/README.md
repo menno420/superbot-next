@@ -20,7 +20,7 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 | Doc | Topic | Status |
 |---|---|---|
 | [D4](D4-observability-surface.md) | Observability surface (metrics / readiness / structured logs) | **this PR** |
-| D5 | End-to-end / live-guild test harness | planned |
+| [D5](D5-e2e-test-harness.md) | End-to-end / live-guild test harness | planned |
 | [D2](D2-realtime-minigame-framework.md) | Real-time minigame framework | planned |
 | D1 | Themed renderer | planned |
 | D3 | Access-matrix / audit dashboard | planned |
