@@ -353,10 +353,24 @@ source:
   # command-lane mining_skill_write already pins — player_skills was covered
   # by WP-5, so NO exemption retires; this freezes the ported button's wire
   # bytes (interaction defer + followup) from the session panel.
-  minted_goldens: 62
+  # +1 minted the mining WORKSHOP-CRAFT select write golden (2026-07-18,
+  # backlog B3 — same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/mining/mining_workshop_craft_write.json — !workshop then the
+  # gear-craft select pick (bronze 2 fixture) drives the ported
+  # mining.workshop_craft_pick → mining.craft → record_craft
+  # (mining_workflow.craft): the mining_inventory bronze 2→0 consume + +1
+  # bronze boots + crafting game-XP write, then the panel re-renders IN PLACE
+  # with `✅ Crafted **bronze boots**!` + the SUCCESS green frame (oracle
+  # views/mining/workshop_panel.py _CraftSelect._rerender copy VERBATIM; a
+  # SELECT, so the FAITHFUL in-place re-render — the mining.title_equip_write
+  # select precedent, NOT the RESULT_CARD divergence the button lanes accept).
+  # Same op the command-lane mining_craft_write already pins — mining_inventory
+  # was covered by mine/sell/craft, so NO exemption retires; this freezes the
+  # ported select's in-place re-render wire bytes from the session panel.
+  minted_goldens: 63
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 524). The first retirement (2026-07-12
+  # imported + minted − retired = 525). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

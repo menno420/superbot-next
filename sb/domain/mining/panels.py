@@ -1154,23 +1154,63 @@ def _ensure_workshop_craft_provider() -> ProviderRef:
     return ref
 
 
-def _workshop_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminal for the Workshop panel's deferred lane — the craft
-    select's material→product write rides the deferred structures/panel port
-    (D-0043); the LIVE lanes (`!repair`, `!quickcraft`, the 🔁 Quick-craft
-    button) already carry the audited moves, and ↩ Workshop navigates to the
-    live mining hub (its `workshop_hub_pending` terminal retired by the
-    2026-07-13 curation rework). Registered at IMPORT (module bottom), never
-    ensure-only (#111 doctrine). No golden drives a workshop click, so the
-    terminal copy is unpinned."""
-    from sb.domain.operator_spine import pending_handler
+# The 🔧 Workshop panel's gear-craft select is LIVE (workshop-craft PORT, B3):
+# picking a recipe routes to ``mining.workshop_craft_pick`` -> the audited
+# ``mining.craft`` op (record_craft — the ported ``mining_workflow.craft``:
+# recipe materials consume + `+1` product into mining_inventory + crafting
+# game-XP in ONE advisory-fenced txn — the SAME leg the LIVE `!craft <item>` /
+# `!build <item>` command lane runs, byte-pinned by goldens/mining/
+# mining_craft_write via that lane). This RETIRES the workshop panel's last
+# pending terminal (``mining.workshop_craft_pending``); the 🔁 Quick-craft
+# button was already LIVE (``mining.quickcraft_route``) and ↩ Workshop navigates
+# to the live mining hub. The pick handler re-renders the panel IN PLACE with
+# the oracle's ✅/❌ note + SUCCESS/ERROR frame (the ``mining.titles_pick``
+# select precedent — the FAITHFUL reproduction of the oracle _CraftSelect
+# _rerender, NOT the RESULT_CARD divergence the button lanes accept).
 
-    return {
-        "craft": pending_handler(
-            "mining.workshop_craft_pending",
-            "🛠️ Crafting gear from the dropdown rides the deep-system panel "
-            "port (D-0043) — " + _D0043_TAIL),
-    }
+
+async def _workshop_craft_pick(req):
+    """`mining.workshop_craft_pick` — the shipped ``_CraftSelect.callback``
+    (views/mining/workshop_panel.py): craft the picked gear recipe through the
+    audited ``mining.craft`` op (record_craft — recipe materials consume + `+1`
+    product + crafting game-XP in ONE advisory-fenced txn; the SAME leg the LIVE
+    `!craft <item>` / `!build <item>` command lane runs, byte-pinned by
+    goldens/mining/mining_craft_write). The selected recipe rides ``values`` (the
+    entity-select value = the recipe name); the op's business refusals (no-recipe,
+    forge-gate, short-on-materials) raise ValidatorError with the oracle's
+    VERBATIM copy (D-0060 two-arg form). Then the panel re-renders IN PLACE with
+    the oracle note composition — ``("✅ " if ok else "❌ ") + message`` as the
+    embed description, SUCCESS green / ERROR red frame (build_workshop_embed(
+    note=…) + embed.color; the mining.titles_pick select precedent, the faithful
+    reproduction of _rerender). A refresh miss (restart/eviction) degrades to an
+    honest text reply (the titles_pick / grid _grid_note posture)."""
+    from sb.kernel.interaction.handler_kit import Reply, ctx_from_request
+    from sb.kernel.panels.engine import refresh_session_view
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import SUCCESS
+    from sb.spec.refs import WorkflowRef
+
+    values = tuple(req.args.get("values", ()) or ())
+    choice = str(values[0]) if values else ""
+    result = await engine.run(WorkflowRef("mining.craft"),
+                              ctx_from_request(req, {"item": choice}))
+    if result.outcome == SUCCESS:
+        after = next(iter((result.after or {}).values()), {})
+        note = "✅ " + str(after.get("message", ""))
+        tone = "success"
+    else:
+        note = "❌ " + str(result.user_message or "")
+        tone = "error"
+    key = _message_key(req)
+    if key:
+        try:
+            if await refresh_session_view(
+                    req, message_key=key,
+                    params={"workshop_note": note, "workshop_tone": tone}):
+                return Reply(SUCCESS, None)  # the edit IS the ack
+        except Exception:  # noqa: BLE001 — degrade to the text reply
+            pass
+    return Reply(SUCCESS, note)
 
 
 def mining_workshop_spec() -> PanelSpec:
@@ -1198,7 +1238,7 @@ def mining_workshop_spec() -> PanelSpec:
         selectors=(
             SelectorSpec(
                 selector_id="ws_craft", kind=SelectorKind.ENTITY,
-                on_select=HandlerRef("mining.workshop_craft_pending"),
+                on_select=HandlerRef("mining.workshop_craft_pick"),
                 options_source=_ensure_workshop_craft_provider(),
                 placeholder="Craft gear from resources…",
                 empty_state="Craft gear from resources…",
@@ -1261,6 +1301,12 @@ async def _render_workshop(spec: PanelSpec, ctx) -> object:
     rendered = await render_panel(spec, ctx)
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(getattr(ctx, "guild_id", 0) or 0)
+    # a craft re-render carries its note + tone in the params
+    # (``workshop_note``/``workshop_tone`` — the refresh_session_view lane, the
+    # _render_titles precedent; the shipped ``build_workshop_embed(note=…)``
+    # description + SUCCESS/ERROR embed.color).
+    note = str(ctx.params.get("workshop_note", "") or "")
+    tone = str(ctx.params.get("workshop_tone", "") or "")
     inventory = await store.get_mining_inventory(uid, gid)
     equipped = await store.get_equipment(uid, gid)
     wear = await store.get_gear_wear(uid, gid)
@@ -1304,8 +1350,13 @@ async def _render_workshop(spec: PanelSpec, ctx) -> object:
         fields.append(("🛠️ Craft gear", "\n".join(lines), False))
     embed = _dc_replace(
         rendered.embed, title="🔧 Workshop", fields=tuple(fields),
+        description=note or rendered.embed.description,
         footer=(f"Balance: {balance} 🪙  •  !repair <item> · !craft <item> · "
-                "!quickcraft"))
+                "!quickcraft"),
+        # the craft re-render colors: SUCCESS green / ERROR red on the note edit,
+        # MINING dark-grey on the plain open (build_workshop_embed default).
+        style_token={"success": "green",
+                     "error": "red"}.get(tone, "dark_grey"))
     components = tuple(
         _dc_replace(c, disabled=True)
         if (not last_broken
@@ -1693,11 +1744,12 @@ def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _grid_button_handlers()
-    _workshop_button_handlers()
     _ensure_workshop_craft_provider()
     _ensure_titles_select_provider()
     if not is_registered(HandlerRef("mining.titles_pick")):
         handler("mining.titles_pick")(_titles_pick)
+    if not is_registered(HandlerRef("mining.workshop_craft_pick")):
+        handler("mining.workshop_craft_pick")(_workshop_craft_pick)
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
     if not is_registered(HandlerRef("mining.render_grid")):
