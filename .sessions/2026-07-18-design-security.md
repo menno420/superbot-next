@@ -1,6 +1,6 @@
 # 2026-07-18 — Security design doc: secret rotation + startup fail-closed + least-privilege
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · docs · S security design doc (secret rotation + startup fail-closed + least-privilege; born-red, holds substrate-gate)
 
