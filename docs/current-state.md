@@ -16,8 +16,9 @@
 
 All seven port bands built (49 subsystems, hash-pinned
 `manifest.snapshot.json`); boots to RUNNING on real PostgreSQL (CUT-1 smoke
-PASS). The unit + integration suite is **3,160 passed / 29 skipped**
-(`python3 -m pytest tests/`, #501 close 2026-07-16). Golden parity is
+PASS). The unit + integration suite is **3,490 passed / 29 skipped**
+(`python3 -m pytest -q --ignore=examples`, 2026-07-18 — grew with the D1 render
+band's 36 tests + the D4 outbox-metric tests, see "Recently shipped"). Golden parity is
 **full-corpus green — 523/523 goldens, 49/49 subsystems ported + kernel**
 (`tools/check_parity_depth.py`); the committed-checker fleet + the six required
 named gates (`.github/workflows/named-gates.yml`) are green on main. The
@@ -32,9 +33,24 @@ port is complete; per-subsystem ground truth:
 [`docs/status/completeness-table-2026-07-13.md`](status/completeness-table-2026-07-13.md).
 The EAP-era close-out record (what the seat shipped, the owner walkthrough + audit)
 is [`docs/eap-closeout-walkthrough-2026-07-14.md`](eap-closeout-walkthrough-2026-07-14.md).
-Remaining build work — port-to-full-parity, the scoped game-surface backlog, and
-the CUT-over + distribution path — is the owner-directed task list in
+With the clean-mint port surface now **exhausted** (the small mintable re-points
+are closed) and the scoped game-surface backlog **settled** (#555), remaining
+forward work is **planning-led**: owner-gated design proposals (the D1–D6 forward
+lanes + the S / O / R / B8 / B10 tracks — [`docs/design/README.md`](design/README.md))
+and the CUT-over + distribution path — the owner-directed task list is
 [`docs/NEXT-TASKS.md`](NEXT-TASKS.md).
+
+**Open owner decisions (one place).** Every decision currently blocking a
+forward slice — and what each unblocks — is consolidated, prioritized by
+leverage, in the morning agenda
+[`docs/design/OWNER-DECISIONS-2026-07-18.md`](design/OWNER-DECISIONS-2026-07-18.md)
+(31 rows gathering every open design-doc question + the standing completeness-
+snapshot gates: D4 metrics/readiness, D2 minigame, D5 live-guild harness, B10
+route-origin, B8 ux_lab, S/O/R production-readiness, AI/btd6 credential gates).
+The `docs/question-router.md` "Open owner decisions" index points at the same
+agenda and adds the router's own residual owner items (CL-5b custody; K10
+API-keys / test-guild). The 2026-07-18 settings group-routing question is
+**answered** (option A) and no longer blocking.
 
 **Program status.** The Claude Code Projects EAP goes **read-only on Tuesday
 2026-07-21** (extended from the earlier close date per Anthropic mail, ORDER 023) —
@@ -64,6 +80,31 @@ is one command —
 
 ## Recently shipped (newest first)
 
+- 2026-07-18 (planning wave) — several forward slices landed on main; the
+  completeness reconciliation
+  ([`docs/status/completeness-table-2026-07-18.md`](status/completeness-table-2026-07-18.md),
+  #556) found the clean-mint port surface **exhausted** and the loop shifted to
+  PLANNING mode:
+  - **D1 render band** (#560 / #561) — a new `sb/kernel/render/` kernel band
+    (Theme / THEMES / CardCanvas / initials, bundled DejaVu fonts, 36 tests)
+    exists as a **consumer-less kernel leaf** (no domain calls it yet; it is a
+    scaffold, not a wired surface). It adopts **Pillow as a hard runtime dep,
+    pinned `Pillow>=12.3.0,<13`** in `requirements.txt` — NOT the originally
+    authorized `<12`: 11.x was uniformly pip-audit-vulnerable, so the #561
+    security bump moved the floor to 12.3.0.
+  - **D4 P1 outbox metrics armed** (#562) — the four dark outbox metric families
+    (`OUTBOX_METRICS`) now register at the composition root
+    (`sb/app/main.py:262/275`) and `outbox_pending_age_seconds` emits from a
+    bounded store read (`sb/kernel/outbox/relay.py:147`). The canonical
+    `ALL_METRICS` union seam (#565, `tools/check_metric_cardinality.py:23`) is
+    the single source the cardinality checker + the registry both consume.
+  - **settings group-routing decided** (#563) — the `settings.group_pending`
+    per-group edit-page routing is ruled **option A** (the ported edit page
+    replaces `group_pending` for **non-hub groups only**; the 5 operator-spine
+    hub groups keep their read-only hubs), recorded in
+    [`docs/question-router.md`](question-router.md); the executable S0–S7 epic
+    plan is queued
+    ([`docs/design/settings-group-pending-epic-plan.md`](design/settings-group-pending-epic-plan.md)).
 - 2026-07-17 — trigger/routine reconciliation (NEUTRAL): the coordinator failsafe
   wake is `trig_01GBaDCsMzgjwPbQCiKzyRDC` (cron `0 1-23/2 * * *`, bound to the
   coordinator session). The two baton-named stale triggers

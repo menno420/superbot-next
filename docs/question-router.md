@@ -26,10 +26,60 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(No unanswered blocks — the settings per-group edit-page group-routing
+(No unanswered **Q-blocks** — the settings per-group edit-page group-routing
 decision, appended 2026-07-18, was answered 2026-07-18 (option A) and moved to
 Answered below. The six S11/S13/S14/S15/V-5/K10 blocks were resolved 2026-07-08
 by the owner via the directing session's question panel — see Answered below.)
+
+### Open owner decisions — one-place index (2026-07-18)
+
+The **consolidated, prioritized** queue of every decision currently blocking a
+forward slice — with what each unblocks and a recommended default — is the
+morning agenda
+[`design/OWNER-DECISIONS-2026-07-18.md`](design/OWNER-DECISIONS-2026-07-18.md)
+(31 rows gathering the open **design-doc** questions + standing completeness-
+snapshot gates). Answer any row inline there or by number in the inbox. Rows in
+brief, by tier:
+
+- **Tier 1–2 (quick / infrastructure, high leverage):** D4 readiness threshold ·
+  `prometheus_client` fail-closed boot smoke · required-at-boot secret manifest ·
+  integrity-fixture ownership · restore/rollback drill cadence · metric
+  cardinality budget · **metrics backend + `/metrics` exposure/auth** (one answer
+  cascades) · secret store / rotation mechanism + downtime · backup source +
+  turn the net ON · restore-DB location · structured-log format · alert-delivery
+  path. *Each unblocks a named D4 / S / O slice; every row carries a default to
+  agree with.*
+- **Tier 3 (scope / priority calls):** **B10** route-origin — worth the engine
+  cost? (+ scope / back-depth / golden mechanics) · **D2** minigame framework —
+  first target game / refactor-fishing / primitive home / window-floor · **B8**
+  ux_lab — port the dev surface at all? `[?]` · S.3 least-privilege trim ·
+  **D5** e2e/live-guild harness shape `[?]` · **R** resilience delivery + DB
+  hardening bounds `[?]`.
+- **Tier 4 (credential gates — owner must provision):** AI-surface creds
+  (`ANTHROPIC_API_KEY` / `CLAUDE_ROUTINE_*`) → unblocks the ai NL lane + hermes ·
+  **btd6** NK data account → unblocks live bracket standings.
+- **Tier 5 (posture confirmations):** C4 tournament-TOCTOU (decided 2026-07-18 —
+  keep accepted-posture) · rollback scope · deploy-rollback scope · emergency-swap
+  secret posture.
+
+**Residual open owner items native to THIS router** (already-answered Q-blocks
+that left a live leg open — not in the agenda above):
+
+- **CL-5b — `SB_PROD_ATTEST` custody SOURCE** (S13 block): plain env vs sealed
+  secret vs OIDC. *Priority:* low, not blocking (no rotation dispatch until CUT-1).
+  *Unblocks:* the durable custody row in `sb/spec/credentials.py`. *Default:*
+  presence-gated env `SecretSpec` stands; re-append a fresh Q-block near CUT-1 if
+  still unresolved.
+- **K10 (a) AI API keys + `AI_ENABLED` flip** and **(d) test guild + test-bot
+  token** (K10 block): both are owner-action provisioning items, not decisions.
+  *Priority:* gates the first live AI milestone (a) and CUT-1 (d); not blocking
+  today (platform stays dormant/deterministic). *Unblocks:* the AI surface going
+  live (a) and the CUT-1 boot-into-guild milestone (d). *Default:* keep the honest
+  refusals until the owner provisions; re-flag at CUT-1 planning.
+
+*Answered 2026-07-18 (no longer blocking):* the **settings** per-group edit-page
+group-routing decision — **option A**, non-hub groups only (see Answered below;
+epic plan [`design/settings-group-pending-epic-plan.md`](design/settings-group-pending-epic-plan.md)).
 
 ## Answered
 

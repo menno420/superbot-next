@@ -10,16 +10,31 @@
 
 ## Build backlog
 
-1. **Finish the port to full parity.** Work down
-   [`docs/status/completeness-table-2026-07-18.md`](status/completeness-table-2026-07-18.md)
-   (verify-first reconciliation; supersedes the
-   [07-13 table](status/completeness-table-2026-07-13.md))
-   and [`docs/ideas/port-the-small-four-2026-07-10.md`](ideas/port-the-small-four-2026-07-10.md)
-   to close the gap from ~49 ported subsystems to the full corpus. The harness is
-   ready — 523 goldens are green today (`tools/check_parity_depth.py`), so each new
-   subsystem is a replay-to-green slice. With that surface essentially exhausted, the
-   snapshot recommends a PLANNING-mode loop — the forward design proposals live in
-   [`docs/design/README.md`](design/README.md) (the D1–D6 + B8/B10 design series).
+1. **Planning phase — the port's clean-mint surface is exhausted.** The
+   verify-first reconciliation
+   ([`docs/status/completeness-table-2026-07-18.md`](status/completeness-table-2026-07-18.md);
+   supersedes the [07-13 table](status/completeness-table-2026-07-13.md), and the
+   [small-four](ideas/port-the-small-four-2026-07-10.md) mints it tracked) found the
+   small mintable re-points all **closed** — B2/B3 (#527/#532) landed, joining C1 and
+   the wizard docstring fix (#526/#538). What remains OPEN is no longer single-mint
+   work: one LOW-priority larger surface (**B8** ux_lab, an admin-only zero-write dev
+   tool), the **settings.group_pending** per-group edit-page **EPIC** (multi-slice;
+   the group-routing question is decided option A, #563 —
+   [`docs/design/settings-group-pending-epic-plan.md`](design/settings-group-pending-epic-plan.md)),
+   and two non-mintable items (**B10** route-origin engine signal; **btd6** NK
+   ingestion). 523 goldens stay green (`tools/check_parity_depth.py`), but there is no
+   clean mint left to point at — so the loop has shifted to a **PLANNING-mode** cadence
+   with two lanes:
+   - **(a) owner-gated forward proposals** — the D1–D6 forward lanes + the
+     S / O / R / B8 / B10 tracks ([`docs/design/README.md`](design/README.md)), each a
+     design doc the owner reacts to and prioritizes. The open questions are
+     consolidated, prioritized by leverage, in
+     [`docs/design/OWNER-DECISIONS-2026-07-18.md`](design/OWNER-DECISIONS-2026-07-18.md);
+     D1 Slice 1 (render band, #560/#561) and D4 P1 (outbox metrics, #562) are the first
+     landed slices off these lanes.
+   - **(b) small self-initiated improvements** — contained, reversible cleanups an agent
+     can land without an owner decision (drift-prevention refactors like the canonical
+     `ALL_METRICS` seam #565, docs reconciliation, and the cleanup leads below).
 
 2. **Land the scoped game-surface backlog.** ✅ **Essentially complete** — all
    three sub-items have either landed or are a settled do-not-fix:
