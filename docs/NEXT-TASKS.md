@@ -57,3 +57,12 @@
    the doctrine is now: open a ready PR on green CI, the owner merges. This is a
    next-Project (recreation) change — the workflow files are left untouched by the
    2026-07-17 cleanup pass.
+
+## Cleanup leads
+
+- [cleanup lead] `sb/domain/xp/ops.py` `_record_import` negative-level guard is
+  dead via the public path (`reduce_max_levels` `-1` sentinel drops `level < 0`
+  first, so `if level < 0: raise` never fires); decide remove-vs-make-reachable
+  (owner/fuller-context call). Pinned by
+  `tests/unit/band4/test_band4_xp_depth.py::test_import_negative_level_guard`.
+  (surfaced PR #542)
