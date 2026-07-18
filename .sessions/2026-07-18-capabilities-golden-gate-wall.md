@@ -1,12 +1,14 @@
 # 2026-07-18 — docs: record the golden-parity `--gate` session-window wall (CAPABILITIES)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red first commit (per `.sessions/README.md`): this card lands ALONE and
-> holds the PR red via substrate-gate. The `docs/CAPABILITIES.md` edit follows in
-> a second commit. Flips `in-progress` → `complete` as the deliberate LAST commit
-> once CI confirms every functional gate green (substrate-gate is the expected
-> sole red the flip releases).
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red HOLD so the server-side lander
+> can merge on green. Flip made once CI confirmed every functional gate green on
+> PR #522 (`tests`, `code-quality`, `checkers`, `architecture`,
+> `manifest-validate`, `sim-gate`, `golden-parity`, `build-image`,
+> `check_compat_frozen`, aggregator `gate`), with `substrate-gate` the only red —
+> exactly the born-red hold this flip releases.
 
 - **📊 Model:** Opus family · low · docs-only
 - **Born:** 2026-07-18 (born-red first commit)
