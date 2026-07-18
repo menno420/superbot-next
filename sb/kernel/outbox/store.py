@@ -202,6 +202,24 @@ class OutboxStore:
         )
         return False
 
+    async def pending_age_seconds(self, now: datetime) -> float:
+        """Age in seconds of the oldest PENDING row, 0.0 when none.
+
+        The emitter of the declared `outbox_pending_age_seconds` gauge
+        (spec 08 §2/§3.2): a single bounded `MIN(available_at)` read over the
+        pending rows, clamped at 0 (a row backing off has an `available_at` in
+        the future — not yet due, so it reads as no backpressure). One row per
+        call; caller emits it behind the relay's guard so this never blocks
+        delivery."""
+        row = await pool.fetchone(
+            "SELECT MIN(available_at) AS oldest FROM event_outbox "
+            "WHERE status = 'pending'",
+        )
+        oldest = row["oldest"] if row else None
+        if oldest is None:
+            return 0.0
+        return max(0.0, (now - oldest).total_seconds())
+
     async def prune(self, now: datetime, *, batch: int = 500) -> int:
         """Bounded retention sweep (spec 08 §5.1: delivered:7d; dead:90d)."""
         result = await pool.execute(

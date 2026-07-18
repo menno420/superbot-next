@@ -59,6 +59,18 @@ def _inc(metric_name: str, n: int = 1) -> None:
         pass
 
 
+def _set(metric_name: str, value: float) -> None:
+    """Guarded gauge set — the `_inc` twin; observability never blocks delivery."""
+    try:
+        from sb.kernel.observability import metrics as _metrics
+
+        registry = _metrics.active_registry()
+        if registry is not None:
+            registry.gauge(metric_name).set(value)
+    except Exception:  # noqa: BLE001 — metrics are observability only
+        pass
+
+
 class OutboxRelayLane:
     """One claim->deliver cycle per tick (spec 08 §3.4, the fixed table)."""
 
@@ -119,10 +131,22 @@ class OutboxRelayLane:
                 _inc("outbox_delivered_total")
         # Step 4 (crash/timeout mid-cycle) needs no code here: the lapsed
         # lease makes the row claimable again; supervisor isolates exceptions.
+        # Emit the backpressure gauge from the residual backlog after this
+        # cycle's deliveries — behind a guard so a probe failure never wedges
+        # the relay (observability never blocks delivery).
+        await self._emit_pending_age(now)
         return LaneTickResult(
             lane=self.name, claimed=len(rows), fired=delivered,
             failed=failed, skipped=0,
         )
+
+    async def _emit_pending_age(self, now: datetime) -> None:
+        """Set `outbox_pending_age_seconds` from a bounded store read."""
+        try:
+            age = await self._store.pending_age_seconds(now)
+            _set("outbox_pending_age_seconds", age)
+        except Exception:  # noqa: BLE001 — observability never blocks delivery
+            pass
 
     async def reconcile_on_boot(self, now: datetime) -> None:
         """NO-OP (fork E): the first post-RUNNING tick IS the reconcile."""

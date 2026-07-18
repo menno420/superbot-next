@@ -38,16 +38,21 @@ def _row(event: str = "audit.action_recorded", attempts: int = 0,
 
 
 class _FakeStore:
-    def __init__(self, rows: list[OutboxRow] | None = None) -> None:
+    def __init__(self, rows: list[OutboxRow] | None = None,
+                 pending_age: float = 0.0) -> None:
         self.rows = rows or []
         self.delivered: list[uuid.UUID] = []
         self.retried: list[tuple[uuid.UUID, str, int]] = []
         self.dead: list[uuid.UUID] = []
         self.pruned = 0
+        self._pending_age = pending_age
 
     async def claim(self, now, *, batch_size, lease_s):
         batch, self.rows = self.rows[:batch_size], self.rows[batch_size:]
         return tuple(batch)
+
+    async def pending_age_seconds(self, now):
+        return self._pending_age
 
     async def mark_delivered(self, outbox_id, now):
         self.delivered.append(outbox_id)
