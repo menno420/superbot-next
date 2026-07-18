@@ -7,6 +7,8 @@
 > Ordered roughly by dependency, not strict priority — the owner directs; agents
 > pick the next contained slice, open a ready PR, and let it land on green.
 > Live state ("what is true now") is [`docs/current-state.md`](current-state.md).
+> Forward-planning proposal queue (owner reprioritizes, coordinator dispatches):
+> [`docs/status/roadmap-2026-07-18.md`](status/roadmap-2026-07-18.md).
 
 ## Build backlog
 
