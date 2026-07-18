@@ -1,0 +1,1 @@
+- `claude/test-depth-fishing` · **test-depth coverage for sb/domain/fishing loot math (weight spread+floor, pearl curve+cap, roll_catch weighting+clamp, level-band cap) + populated top_view/trophies_view rendering; timing/refusal already covered** · 2026-07-18
