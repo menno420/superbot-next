@@ -44,6 +44,34 @@ def _hand_lines(after: dict) -> list[str]:
     return lines
 
 
+async def _deal_solo_and_open(req, extra_params: dict) -> Reply:
+    """Deal a solo hand through ``blackjack.solo_start`` and OPEN the
+    interactive table view (the shipped ``!blackjack`` shape) — a
+    session-lifecycle panel rendered from the deal payload, with Hit/Stand/
+    Double on engine-minted ids; a natural at deal renders the terminal
+    shape (all buttons disabled). The ``!blackjack`` command
+    (``blackjack.play``) and the hub Solo buttons (``blackjack.hub_solo``)
+    share this ONE body so both surfaces land on the playable table, never
+    a dead RESULT_CARD deal (item-5 fix; the ``casino.poker_open``
+    command+button precedent)."""
+    import dataclasses
+
+    from sb.domain.blackjack.panels import TABLE_PANEL_ID
+    from sb.kernel.panels.engine import open_panel
+    from sb.kernel.workflow import engine
+    from sb.spec.refs import PanelRef, WorkflowRef
+
+    result = await engine.run(WorkflowRef("blackjack.solo_start"),
+                              _ctx_from_req(req, extra_params))
+    if result.outcome != SUCCESS:
+        return Reply(result.outcome,
+                     result.user_message or "Could not deal.")
+    after = (result.after or {}).get("solo_start", {})
+    table_req = dataclasses.replace(req, args={**dict(req.args), **after})
+    await open_panel(PanelRef(TABLE_PANEL_ID), table_req)
+    return Reply(SUCCESS, None)
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
@@ -86,28 +114,25 @@ def _register() -> None:
                 "bet": int(after.get("bet", 0) or 0)})
             await open_panel(PanelRef(PVP_PANEL_ID), pvp_req)
             return Reply(SUCCESS, None)
-        result = await engine.run(
-            WorkflowRef("blackjack.solo_start"),
-            _ctx_from_req(req, {"argv": argv,
-                                "channel_id": int(req.channel_id or 0)}))
-        if result.outcome != SUCCESS:
-            return Reply(result.outcome,
-                         result.user_message or "Could not deal.")
-        after = (result.after or {}).get("solo_start", {})
-        # the shipped solo table view (embed + Hit/Stand/Double) as a
-        # session-lifecycle panel rendered from the deal payload; a
-        # natural at deal renders the terminal shape (all buttons
-        # disabled — the shipped _finish look).
-        import dataclasses
+        # the shipped solo table view (embed + Hit/Stand/Double) — the
+        # command and the hub Solo buttons share the one deal→open-table
+        # body (item-5 fix).
+        return await _deal_solo_and_open(
+            req, {"argv": argv, "channel_id": int(req.channel_id or 0)})
 
-        from sb.domain.blackjack.panels import TABLE_PANEL_ID
-        from sb.kernel.panels.engine import open_panel
-        from sb.spec.refs import PanelRef
-
-        table_req = dataclasses.replace(
-            req, args={**dict(req.args), **after})
-        await open_panel(PanelRef(TABLE_PANEL_ID), table_req)
-        return Reply(SUCCESS, None)
+    @handler("blackjack.hub_solo")
+    async def hub_solo(req) -> Reply:
+        """The ``blackjack.hub`` Solo Free Play / Solo Bet (G-10 bet modal)
+        buttons — deal through ``blackjack.solo_start`` and OPEN the
+        interactive table view (the shipped ``!blackjack`` path), not the
+        bare RESULT_CARD deal the hub used to route (item-5 fix). Solo Free
+        Play carries no bet; Solo Bet threads its modal ``bet`` field into
+        the same op (``_bet_from`` reads either shape)."""
+        extra = {"channel_id": int(req.channel_id or 0)}
+        bet = req.args.get("bet")
+        if bet is not None:
+            extra["bet"] = bet
+        return await _deal_solo_and_open(req, extra)
 
     @handler("blackjack.table_click")
     async def table_click(req) -> Reply:
