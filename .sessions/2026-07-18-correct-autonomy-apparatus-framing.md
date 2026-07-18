@@ -1,12 +1,13 @@
 # 2026-07-18 — correct stale autonomy-apparatus framing (enabler live; control/ partially load-bearing)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red first commit (this card alone) HOLDs the `substrate-gate` red until it
-> flips `complete` as the deliberate LAST step (per `.sessions/README.md`). The
-> docs-only corrections land in the second commit; the flip is the last. Docs-only
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red `substrate-gate` HOLD so the PR can
+> merge on green. The born-red first commit (this card alone) held the gate red; the
+> docs corrections landed in the second commit; this flip is the last. Docs-only
 > truth-keeping — no `sb/` code touched, zero goldens, so the six functional named
-> gates ride green and `substrate-gate` is the expected sole red until the flip.
+> gates ride green and `substrate-gate` was the expected sole red until the flip.
 
 - **📊 Model:** opus-4.8 · high · docs · correct stale autonomy-apparatus framing (born-red, holds substrate-gate)
 
