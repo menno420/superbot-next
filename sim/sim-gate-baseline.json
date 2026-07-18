@@ -4188,6 +4188,73 @@
     ]
    }
   },
+  "help:help.editor_home_message:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the Q-0059 Help Home-message builder port carries the shipped views/help/home_builder.py button arrangement (row-0 edit title/body + row-1 color select + row-2 preview/save/reset) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "hb_title",
+       "hb_body"
+      ],
+      [
+       "hb_color"
+      ],
+      [
+       "hb_preview",
+       "hb_save",
+       "hb_reset"
+      ]
+     ]
+    }
+   ]
+  },
+  "help:help.editor_home_message:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the Q-0059 Help Home-message builder port carries the shipped views/help/home_builder.py button arrangement (row-0 edit title/body + row-1 color select + row-2 preview/save/reset) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": [
+    [
+     "hb_title",
+     "hb_body"
+    ],
+    [
+     "hb_color"
+    ],
+    [
+     "hb_preview",
+     "hb_save",
+     "hb_reset"
+    ]
+   ]
+  },
+  "help:help.editor_home_message:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the Q-0059 Help Home-message builder port carries the shipped views/help/home_builder.py button arrangement (row-0 edit title/body + row-1 color select + row-2 preview/save/reset) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "hb_title",
+        "hb_body"
+       ],
+       [
+        "hb_color"
+       ],
+       [
+        "hb_preview",
+        "hb_save",
+        "hb_reset"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "help:help:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"

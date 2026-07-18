@@ -116,6 +116,15 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # Item Shop embed, services/economy_helpers
                               # _shop_embed — goldens/economy/sweep_shop
                               # pins the byte)
+    # Q-0059 Help-Home named accents (the builder's / live-home's
+    # renderer_override sets one of these tokens per stored home color —
+    # the discord brand palette the oracle home builder offers;
+    # sb/domain/help/overlay.py HOME_NAMED_COLORS is the color source).
+    "brand_green": 0x57F287,      # Discord brand green
+    "brand_red": 0xED4245,        # Discord brand red
+    "fuchsia": 0xEB459E,          # Discord fuchsia
+    "white": 0xFFFFFE,            # near-white (0xFFFFFF is reserved sentinel)
+    "brand_dark_grey": 0x2C2F33,  # Discord dark-theme grey
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

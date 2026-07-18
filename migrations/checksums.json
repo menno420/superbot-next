@@ -53,5 +53,6 @@
   "0052_mining_energy.sql": "sha256:6abc7186bf0696d3166f9efe5f495ba9a1c8578d12ed90dd48f4c2e057dba58c",
   "0053_wordfilter_config.sql": "sha256:9ef86acaf8305971eb9e0ed72493fa9836d6d9c854dd4e2cc6b7f00968f8ab56",
   "0054_command_routing.sql": "sha256:7d08e9d2c782832500ab22febba2cb40e31098a11795837a436aec1bc9e508af",
-  "0055_automation_rules.sql": "sha256:2dc0f4bb9634e1bb3d53a92203567a23502c8eb11ad10fccf9600e75bbc7c5e7"
+  "0055_automation_rules.sql": "sha256:2dc0f4bb9634e1bb3d53a92203567a23502c8eb11ad10fccf9600e75bbc7c5e7",
+  "0056_help_overlay_home_message.sql": "sha256:f0ba013882d6a2c6040a8f644e60add8821c53b0a07c1a11574f5c3fc95be379"
 }
