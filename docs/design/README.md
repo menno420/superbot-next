@@ -28,6 +28,17 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 | [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
 | B8 | ux_lab 9-wing foundation-then-per-wing | planned |
 
+## Beyond D1–D6 — production-readiness tracks
+
+New production-readiness design topics opened outside the D1–D6 planning lanes.
+Same rules: **one doc per PR**, grounded evidence-first in real code with
+`file:line` citations. Future production-readiness design-doc PRs add their row
++ file here.
+
+| Doc | Topic | Status |
+|---|---|---|
+| [Security](S-security-rotation-and-least-privilege.md) | Secret rotation (zero-downtime) + startup fail-closed + least-privilege | plan |
+
 ## Index
 
 - [game-sections.md](game-sections.md) — per-guild minigame/casino
