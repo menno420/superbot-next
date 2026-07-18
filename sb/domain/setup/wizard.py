@@ -101,16 +101,21 @@ panel (no staged op, the oracle posture; writes ride the audited K7
 
 The named-successor lane this docstring declared is CLOSED: every one
 of the wizard's 10 sections walks its full flow — NO section slug
-holds a BLOCKED terminal any more. The follow-ups that survive the
+holds a BLOCKED terminal any more. The role/channel-create K9→K7
+compound ops (``create_managed_role`` / ``create_channel`` /
+``set_cog_routing`` / ``add_rule`` rows) and the automation-rule apply
+seam are RESOLVED — the 2026-07-13 compound-ops slice landed their
+audited K7 compound seams, so those rows now APPLY FOR REAL through the
+fail-closed K9 registry (the sibling ``role_templates.py`` /
+``logging_presets.py`` / ``cog_routing.py`` module-docstring ledgers
+carry the per-op detail). The windowed-select grammar successor also
+landed: the >25-option cog picker rides ``SelectorSpec(windowed=True)``
+over the kernel selectwindow engine (the cog_routing.py ledger),
+retiring the ad-hoc first-25 window. The follow-ups that survive the
 lane ride the completeness table's setup row
-(docs/status/completeness-table-2026-07-13.md): the role/channel-
-create K9→K7 compound ops (``create_managed_role`` /
-``create_channel`` / ``set_cog_routing`` / ``add_rule`` rows apply
-fail-closed as skipped until their seams exist), the on-ready resume
-sweep (app-boot seam), the automation-rule apply seam, the
-SectionRecoveryView + workspace-notice rides, the native
-channel-recommender port, and the windowed-select grammar successor
-(the >25-option cog picker windows at 25 meanwhile).
+(docs/status/completeness-table-2026-07-13.md): the on-ready resume
+sweep (app-boot seam), the SectionRecoveryView + workspace-notice
+rides, and the native channel-recommender port.
 """
 
 from __future__ import annotations
