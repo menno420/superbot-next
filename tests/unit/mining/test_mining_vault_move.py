@@ -121,22 +121,21 @@ def test_deposit_leg_lowercases_the_item_like_the_oracle(monkeypatch):
     assert ("pack", "diamond", -2) in moves
 
 
-# NOTE (pre-existing, flagged as follow-up — NOT in B1 scope): the shipped
-# stash/unstash ops raise the SINGLE-arg ValidatorError, so the domain refusal
-# rides ``.param`` (not ``.user_copy``) and currently renders wrapped in the
-# missing-argument boilerplate rather than verbatim (the D-0060 two-arg form is
-# the fix). This is a latent bug in the already-landed ops SHARED with the
-# `!stash` / `!unstash` command lane (unpinned by any golden); the modal reuses
-# the same op, so its refusal matches the command lane exactly. These tests pin
-# that the refusal branch is reached with the intended verbatim copy and writes
-# nothing — the render-wrap fix is deferred so B1 stays a pure modal-wiring slice.
+# The stash/unstash ops raise the D-0060 TWO-arg ValidatorError, so the domain
+# refusal rides ``.user_copy`` (the VERBATIM oracle sentence) and renders bare
+# instead of wrapped in the missing-argument boilerplate (slice C6). This bug
+# was SHARED with the `!stash` / `!unstash` command lane (both lanes route to
+# the same ``mining.stash`` / ``mining.unstash`` op); the modal reuses the same
+# op, so its refusal matches the command lane exactly. These tests pin the
+# verbatim copy is reached and the txn writes nothing.
 def test_deposit_leg_refuses_when_pack_holds_too_few(monkeypatch):
     from sb.domain.mining.ops import _record_stash
 
     moves = _seed_pack(monkeypatch, {"diamond": 2})
     with pytest.raises(ValidatorError) as err:
         run(_record_stash(None, _ctx({"item": "diamond", "qty": 5})))
-    assert err.value.param == "You have only **2× diamond** to deposit."
+    # verbatim domain refusal on .user_copy — no missing-argument wrapper.
+    assert err.value.user_copy == "You have only **2× diamond** to deposit."
     assert moves == []                              # the txn wrote nothing
 
 
@@ -146,7 +145,7 @@ def test_deposit_leg_refuses_when_pack_has_none(monkeypatch):
     moves = _seed_pack(monkeypatch, {})
     with pytest.raises(ValidatorError) as err:
         run(_record_stash(None, _ctx({"item": "diamond", "qty": 5})))
-    assert err.value.param == "You have no **diamond** to deposit."
+    assert err.value.user_copy == "You have no **diamond** to deposit."
     assert moves == []
 
 
@@ -167,7 +166,7 @@ def test_withdraw_leg_refuses_when_vault_holds_too_few(monkeypatch):
     moves = _seed_vault(monkeypatch, {"diamond": 2})
     with pytest.raises(ValidatorError) as err:
         run(_record_unstash(None, _ctx({"item": "diamond", "qty": 5})))
-    assert err.value.param == "Your vault holds only **2× diamond**."
+    assert err.value.user_copy == "Your vault holds only **2× diamond**."
     assert moves == []
 
 
@@ -177,7 +176,7 @@ def test_withdraw_leg_refuses_when_vault_has_none(monkeypatch):
     moves = _seed_vault(monkeypatch, {})
     with pytest.raises(ValidatorError) as err:
         run(_record_unstash(None, _ctx({"item": "diamond", "qty": 5})))
-    assert err.value.param == "Your vault holds no **diamond**."
+    assert err.value.user_copy == "Your vault holds no **diamond**."
     assert moves == []
 
 
