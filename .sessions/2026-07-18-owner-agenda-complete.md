@@ -1,6 +1,16 @@
 # 2026-07-18 — complete owner-agenda rows 22/24/25 from now-merged D5/B8/R docs
 
-> **Status:** `in-progress`
+> **Status:** `complete`
+>
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`) — releases the born-red `substrate-gate` HOLD so the
+> server-side lander can merge on green. The born-red first commit (this card
+> alone) held the gate red; the agenda-doc upgrade landed in the second commit;
+> this flip is the last. All functional named gates were green (code-quality,
+> manifest-validate, architecture, sim-gate, check_compat_frozen, golden-parity)
+> with the golden-parity full-corpus report deterministic-green on the docs-only
+> diff (zero goldens touched), and `substrate-gate` the expected sole red, when
+> the flip was taken. No `sb/` code touched.
 
 - **📊 Model:** opus-4.8 · medium · docs · complete owner-agenda rows 22/24/25 from now-merged D5/B8/R design docs (born-red, holds substrate-gate)
 
