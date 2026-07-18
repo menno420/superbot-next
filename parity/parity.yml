@@ -339,10 +339,27 @@ source:
   # farm-row drift check: NO drift @ corpus sha 7f7628e1); rps solo copy
   # is the shipped views/rps/solo_play.py contract (sb/domain/rps/
   # ops.py module docstring, @7f7628e1).
-  minted_goldens: 62
+  # +1 minted the help HOME-MESSAGE save golden (2026-07-18, this branch):
+  # goldens/help/help_home_message_save.json — the ported help.home_message
+  # save button write.
+  # +1 minted the mining SKILL-SPEND button write golden (2026-07-18,
+  # backlog B2 — same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/mining/mining_skill_spend_write.json — !skills then the ⛏️
+  # Mining branch click (300 game-XP level-2 fixture → 2 available points)
+  # drives the ported mining.skill_spend_route → mining.skill → record_skill
+  # (skill_service.allocate with the panel's default n=1): the player_skills
+  # mining row 0→1 write + the RESULT_CARD followup `<@u> Spent **1** point
+  # into **mining** (now 1/10). **1** point left.` (oracle
+  # views/mining/skills_panel.py MiningSkillsView._spend copy VERBATIM; the
+  # RESULT_CARD is the accepted sb divergence from the in-place panel
+  # re-render, the mining.respec_write button-click precedent). Same op the
+  # command-lane mining_skill_write already pins — player_skills was covered
+  # by WP-5, so NO exemption retires; this freezes the ported button's wire
+  # bytes (interaction defer + followup) from the session panel.
+  minted_goldens: 63
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 524). The first retirement (2026-07-12
+  # imported + minted − retired = 525). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

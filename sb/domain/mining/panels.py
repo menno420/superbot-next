@@ -54,12 +54,15 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
+from sb.spec.outcomes import DeferMode
 from sb.spec.panels import (
     ActionStyle,
     Audience,
     EmbedFrameSpec,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -616,25 +619,49 @@ async def _render_card(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
-def _vault_modal_handlers() -> dict[str, HandlerRef]:
-    """Pending terminals for the vault's modal-driven move buttons — the
-    📥 Deposit / 📤 Withdraw modals ride the deep-system panel port (D-0043);
-    the LIVE command lane (`!stash` / `!unstash`) already carries the same
-    audited move. Registered at IMPORT (module bottom), never ensure-only
-    (#111 doctrine). No golden drives a vault click, so the terminal copy is
-    unpinned."""
-    from sb.domain.operator_spine import pending_handler
+# The 🏦 Vault panel's 📥 Deposit / 📤 Withdraw modal forms (G-10 ModalSpec —
+# the treasury Contribute precedent, sb/domain/treasury/panels.py). The shipped
+# _VaultMoveModal (views/mining/vault_panel.py) carried one item field + one
+# amount field (default "1"); the submit re-enters the frozen MODAL adapter and
+# runs the SAME audited move op the LIVE `!stash` / `!unstash` command lane
+# carries (mining.stash / mining.unstash — record_stash / record_unstash), so
+# the deposit/withdraw write stays byte-pinned by mining_stash_write /
+# mining_unstash_write. The vault-move ops take the item VERBATIM (lowercased)
+# — sb mining carries no vault-item fuzzy resolver, the accepted sb divergence
+# from the oracle's resolve_item_name (the same posture the `!stash`/`!unstash`
+# routes already ship). No golden drives a vault-panel click and the parity
+# harness cannot drive a modal submit, so this terminal is unpinned (covered by
+# unit tests); the MODAL-defer button renders identical session <cid:N> wire
+# bytes (sweep_vault stays byte-clean).
+VAULT_DEPOSIT_MODAL = ModalSpec(
+    modal_id="mining.vault_deposit_form",
+    title="Deposit into Vault",              # shipped verb ("Deposit into" + " Vault")
+    fields=(
+        ModalFieldSpec(
+            field_id="item", label="Item name",
+            placeholder="e.g. diamond, iron, lucky charm",
+            required=True, max_length=100),
+        ModalFieldSpec(
+            field_id="qty", label="Amount", placeholder="how many",
+            required=False, default="1", max_length=9),
+    ),
+    on_submit=HandlerRef("mining.vault_deposit_route"),
+)
 
-    return {
-        "deposit": pending_handler(
-            "mining.vault_deposit_pending",
-            "📥 The vault deposit modal rides the deep-system panel port "
-            "(D-0043) — deposit now with `!stash <item> [n]`."),
-        "withdraw": pending_handler(
-            "mining.vault_withdraw_pending",
-            "📤 The vault withdraw modal rides the deep-system panel port "
-            "(D-0043) — withdraw now with `!unstash <item> [n]`."),
-    }
+VAULT_WITHDRAW_MODAL = ModalSpec(
+    modal_id="mining.vault_withdraw_form",
+    title="Withdraw from Vault",             # shipped verb ("Withdraw from" + " Vault")
+    fields=(
+        ModalFieldSpec(
+            field_id="item", label="Item name",
+            placeholder="e.g. diamond, iron, lucky charm",
+            required=True, max_length=100),
+        ModalFieldSpec(
+            field_id="qty", label="Amount", placeholder="how many",
+            required=False, default="1", max_length=9),
+    ),
+    on_submit=HandlerRef("mining.vault_withdraw_route"),
+)
 
 
 def mining_forge_spec() -> PanelSpec:
@@ -734,23 +761,14 @@ async def _render_forge(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed)
 
 
-def _skills_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminal for the skill-tree panel's per-branch spend button — the
-    point spend rides the deferred panel port (D-0043); the LIVE command lane
-    `!skill <branch>` is the named successor for the audited allocate. The ♻
-    Respec button is LIVE as of WP-7 (``mining.skill_respec_route`` ->
-    mining.respec -> record_respec, the ported skill_service.respec), so its
-    pending registration is retired (the forge/home 🔥 Build precedent).
-    Registered at IMPORT (module bottom), never ensure-only (#111 doctrine)."""
-    from sb.domain.operator_spine import pending_handler
-
-    return {
-        "spend": pending_handler(
-            "mining.skill_spend_pending",
-            "🌳 Spending a skill point from the panel rides the deep-system "
-            "panel port (D-0043) — spend now with `!skill <branch>` (mining, "
-            "combat, fortune, crafting)."),
-    }
+# The 🌳 Skill Tree panel's per-branch spend buttons are LIVE (skill-spend PORT):
+# each ⛏️/⚔️/🍀/🛠️ button routes to ``mining.skill_spend_route`` -> mining.skill ->
+# record_skill (the ported skill_service.allocate, spend ONE point into the clicked
+# branch — the SAME leg the LIVE `!skill <branch>` command lane runs, byte-pinned by
+# goldens/mining/mining_skill_write via that lane). This RETIRES the last skills-panel
+# pending terminal (``mining.skill_spend_pending``); the ♻ Respec button went LIVE at
+# WP-7 (``mining.skill_respec_route``). Both handlers are the service's @handler
+# methods (ensure-registered via ensure_handler_refs()), the skill_respec precedent.
 
 
 def mining_skills_spec() -> PanelSpec:
@@ -778,19 +796,19 @@ def mining_skills_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="sk_mining", label="⛏️ Mining",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_combat", label="⚔️ Combat",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_fortune", label="🍀 Fortune",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_crafting", label="🛠️ Crafting",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.skill_spend_pending")),
+                handler=HandlerRef("mining.skill_spend_route")),
             PanelActionSpec(
                 action_id="sk_respec", label="♻ Respec",
                 style=ActionStyle.DANGER, audience_tier="user",
@@ -1412,11 +1430,15 @@ def mining_vault_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="va_deposit", label="📥 Deposit",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.vault_deposit_pending")),
+                defer_mode=DeferMode.MODAL, modal=VAULT_DEPOSIT_MODAL,
+                handler=HandlerRef("mining.vault_deposit_route"),
+                result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(
                 action_id="va_withdraw", label="📤 Withdraw",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("mining.vault_withdraw_pending")),
+                defer_mode=DeferMode.MODAL, modal=VAULT_WITHDRAW_MODAL,
+                handler=HandlerRef("mining.vault_withdraw_route"),
+                result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(
                 action_id="va_stash_all", label="📦 Stash All Ore",
                 style=ActionStyle.SUCCESS, audience_tier="user",
@@ -1671,8 +1693,6 @@ def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _grid_button_handlers()
-    _vault_modal_handlers()
-    _skills_button_handlers()
     _workshop_button_handlers()
     _ensure_workshop_craft_provider()
     _ensure_titles_select_provider()

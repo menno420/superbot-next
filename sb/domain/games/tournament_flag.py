@@ -87,6 +87,7 @@ TOURNAMENT_FLAG_STORE = register_store(StoreSpec(
 ))
 
 
+# accepted-posture: open guard is intentionally non-atomic (unconditional UPSERT, no compare-and-set), strict fence = owner-decision — docs/ideas/tournament-open-flag-toctou-2026-07-12.md
 async def set_active(conn: Any, *, guild_id: int, game: str) -> None:
     """Mark *game*'s tournament active for the guild (the shipped
     tournament_state_service.set_active upsert)."""

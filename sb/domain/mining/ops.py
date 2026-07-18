@@ -66,7 +66,10 @@ def _item_from(ctx: WorkflowContext, *, skip: int = 0) -> str:
         if words[skip:]:
             item = " ".join(words[skip:])   # multi-word gear names
     if not item:
-        raise ValidatorError("Name an item.")
+        # two-arg D-0060 form: the 2nd arg is the VERBATIM user copy, so the
+        # refusal renders bare instead of wrapped in the missing-argument
+        # boilerplate (the raise site owns the sentence).
+        raise ValidatorError("item", "Name an item.")
     return str(item).strip().lower()
 
 
@@ -79,7 +82,8 @@ def _qty_from(ctx: WorkflowContext, default: int = 1) -> int:
                 break
     qty = int(qty or default)
     if qty <= 0:
-        raise ValidatorError("Quantity must be positive.")
+        # two-arg D-0060 form: VERBATIM user copy, rendered bare.
+        raise ValidatorError("qty", "Quantity must be positive.")
     return qty
 
 
@@ -563,7 +567,9 @@ async def _record_stash(conn, ctx: WorkflowContext) -> LegOutcome:
     have = inventory.get(item, 0)
     if have < qty:
         owned = f"only **{have}× {item}**" if have else f"no **{item}**"
-        raise ValidatorError(f"You have {owned} to deposit.")
+        # two-arg D-0060 form: the domain refusal renders VERBATIM (matches
+        # the oracle vault_deposit copy) instead of the missing-argument wrap.
+        raise ValidatorError("item", f"You have {owned} to deposit.")
     await store.update_mining_item(conn, user_id=uid, guild_id=gid,
                                    item=item, delta=-qty)
     await store.update_vault_item(conn, user_id=uid, guild_id=gid,
@@ -586,7 +592,8 @@ async def _record_unstash(conn, ctx: WorkflowContext) -> LegOutcome:
     have = vault.get(item, 0)
     if have < qty:
         owned = f"only **{have}× {item}**" if have else f"no **{item}**"
-        raise ValidatorError(f"Your vault holds {owned}.")
+        # two-arg D-0060 form: verbatim domain refusal (oracle vault_withdraw).
+        raise ValidatorError("item", f"Your vault holds {owned}.")
     await store.update_vault_item(conn, user_id=uid, guild_id=gid,
                                   item=item, delta=-qty)
     await store.update_mining_item(conn, user_id=uid, guild_id=gid,
@@ -607,8 +614,9 @@ async def _record_stash_all(conn, ctx: WorkflowContext) -> LegOutcome:
     inventory = await store.get_mining_inventory(uid, gid, conn=conn)
     resources = market.sellable_inventory(inventory)
     if not resources:
+        # two-arg D-0060 form: verbatim domain refusal, rendered bare.
         raise ValidatorError(
-            "You have no raw resources to stash — go mine some!")
+            "item", "You have no raw resources to stash — go mine some!")
     for name, qty, _price in resources:
         await store.update_mining_item(conn, user_id=uid, guild_id=gid,
                                        item=name, delta=-qty)
