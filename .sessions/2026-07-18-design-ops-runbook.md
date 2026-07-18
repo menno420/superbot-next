@@ -1,6 +1,6 @@
 # 2026-07-18 — Ops design doc: migration + backup/restore + rollback drill, proven green in CI
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · docs-only · O ops migration/backup/restore/rollback drill design doc (born-red, holds substrate-gate)
 
