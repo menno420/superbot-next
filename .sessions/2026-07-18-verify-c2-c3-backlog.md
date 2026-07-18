@@ -1,8 +1,8 @@
 # 2026-07-18 — verify + mark backlog C2/C3 status at HEAD
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** opus-4.8 · medium · docs · verify-and-annotate
+- **📊 Model:** opus-4.8 · medium · review/verify
 
 ## Scope
 
@@ -42,6 +42,15 @@ remain.
 
 Both invariant tests green at HEAD (`7 passed`). No fix needed; this PR
 carries the backlog-status annotation only.
+
+**B7 — xp.config panel actions — DONE (folded in mid-session on coordinator
+delegation).** Stale-listed as pending but already ported + landed on main
+(curation-rework chain, `46b545e`); verified at HEAD. Panel `xp_config_spec()`
+(`sb/domain/xp/panels.py:267`) registered in `sb/manifest/xp.py:156`; the 4
+handlers live in `sb/domain/xp/handlers.py` (:159/:181/:194/:236); no
+`*_pending` terminals remain; `tests/unit/band4/test_band4_xp.py` 25/25 green;
+goldens present. The `!xpimport` channel-scan front door stays a separate
+honest BLOCKED boundary (not covered).
 
 ## 💡 Session idea
 
