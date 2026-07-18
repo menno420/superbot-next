@@ -1,6 +1,6 @@
 # 2026-07-18 — setup-band except-boundary remainder (final_review + essential_steps) + stale wizard docstring fix
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · test writing · except-boundary characterization pins (C1 remainder)
 
@@ -61,9 +61,13 @@ except sites remain uncovered — a coherent next slice, kept out of this PR.
 
 ## Verification
 
-- `pytest tests/unit/setup_band/ -q` → (recorded on the card flip).
-- CI: functional gates green; `substrate-gate` the expected sole born-red
-  hold, cleared by this card flip.
+- `pytest tests/unit/setup_band/ -q` → `457 passed in 3.86s` (the new file
+  alone: `20 passed in 0.74s`).
+- PR #526 CI: all functional gates green — tests / checkers / code-quality /
+  architecture / sim-gate / manifest-validate / golden-parity / check_compat_frozen
+  + the build-image / lockfile-fresh / pip-audit / gate / report set;
+  `substrate-gate` was the sole red — the expected born-red hold, cleared by
+  this card flip.
 
 ## 💡 Session idea
 
