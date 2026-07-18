@@ -1,6 +1,6 @@
 # 2026-07-18 — D4 observability-surface design doc (+ planning-mode design index)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · medium · docs-only · D4 observability-surface design doc (born-red, holds substrate-gate)
 
