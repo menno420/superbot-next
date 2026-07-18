@@ -145,6 +145,13 @@ jobs:
       # installs no runtime deps, so it would silently skip there.
       - name: Real-Postgres concurrency regressions (F-001/F-002)
         run: python3 -m pytest tests/integration -q
+      # tests/e2e/ (D5.1 in-process adapter tier — the discord-installed
+      # variant) drives real commands through the real sb/adapters/discord/*
+      # modules against a fake gateway; it needs BOTH the full runtime lock
+      # (discord-py) and a live DB, so it rides THIS job's environment (the
+      # code-quality pytest run installs neither and would silently skip it).
+      - name: In-process adapter e2e tier (D5.1)
+        run: python3 -m pytest tests/e2e -q
 
   check_compat_frozen:
     runs-on: ubuntu-latest
