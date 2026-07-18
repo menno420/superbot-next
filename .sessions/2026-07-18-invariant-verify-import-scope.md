@@ -36,7 +36,8 @@ either fix-with-test or document-the-intent. Contained + reversible only.
   structural no-op", and `_run_sweep` increments `run.guilds_scanned` and writes
   one `SweepRun` log row even with zero guilds. `run_verify_import` writes **no**
   SweepRun row, so it correctly scans nothing on an empty installed source.
-- D-0015 documents verify-import as "the SAME sweep dry-run FORCED" — no
+- The S12 decision record (`docs/decisions.md`) documents verify-import as "the
+  SAME sweep dry-run FORCED" — no
   documented intent for a scope divergence, but the divergence has zero
   behavioral consequence for any current invariant and would only matter once
   the deferred GLOBAL-scan band ships (reworking BOTH paths — the live sweep's
