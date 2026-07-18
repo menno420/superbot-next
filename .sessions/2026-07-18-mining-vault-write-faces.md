@@ -1,6 +1,6 @@
 # Session — mining vault deposit/withdraw write-faces port 2026-07-18
 
-> **Status:** in-progress
+> **Status:** complete
 
 - **📊 Model:** Opus 4 family · high · port
 
@@ -33,7 +33,13 @@ The diff is exactly:
    helper reuses the sb `!stash` argv posture (non-digit → 1).
 3. **Tests** — `tests/unit/mining/test_mining_vault_move.py` (18 cases).
 4. **Snapshot** — `manifest.snapshot.json` recompiled (P9 recompile-parity).
-5. **This card.**
+5. **Frozen-pin amend** — `compat/compat-frozen.json`: the two new modal ids
+   (`mining.vault_deposit_form` / `mining.vault_withdraw_form`) legitimately
+   grow the §5.3 `legacy_custom_ids` contract; refreezed the SANCTIONED way
+   (`tools/check_compat_frozen.py --write`, never hand-edited). The pin file is
+   CODEOWNERS-routed, so this PR is BLOCKED ON OWNER REVIEW of that amendment —
+   the expected named blocker for this slice (it will not auto-merge on green).
+6. **This card.**
 
 **NO golden minted — and that is the honest, correct outcome.** The vault
 deposit/withdraw WRITE is already byte-pinned by
@@ -68,7 +74,8 @@ The write face is therefore covered by unit tests, NOT a fabricated golden.
   full `tests/unit/mining/` → 118 passed (zero drift). `manifest_compile`,
   `check_runtime_smoke`, `check_namespace`, `check_symbol_shadowing`,
   `check_no_skip`, `check_config_usage`, `check_parity_depth`,
-  `check_escape_hatches` → all green. `sweep.vault` dry-run capture → zero
+  `check_escape_hatches`, `check_compat_frozen` (after the `--write` refreeze)
+  → all green. `sweep.vault` dry-run capture → zero
   vault-panel/button byte changes (the only capture delta is pre-existing
   local-vs-CI environmental drift — an `ai_decision_audit` NL row + a
   `delete_message` call — which B1 cannot cause and must not re-mint away).
