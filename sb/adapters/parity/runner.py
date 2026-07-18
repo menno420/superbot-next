@@ -401,6 +401,20 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
 
     _arm_rps_rng(random.Random(case.seed))
 
+    # the Help-overlay read-through cache (Q-0059 home-message builder) —
+    # CLEARED at every case head (trap 20: runner-seeded, never accumulated).
+    # Unlike the seeded caches above there is no capture-world value to plant:
+    # the per-case DB truncate + fixture_sql define the help_overlay row state,
+    # so the cache is simply dropped and the case's first read repopulates it
+    # from the freshly-reset DB. Without this the home_message_save case's
+    # saved "home" overlay (title "Welcome to our server!") survived the DB
+    # truncate in the process-global _cache and leaked into the later plain
+    # help opens (sweep.help / sweep.slash_help), overwriting the default
+    # "📚 Help Menu" title. In-memory, so it never appears in any db_delta.
+    from sb.domain.help.overlay import reset_overlay_cache_for_tests
+
+    reset_overlay_cache_for_tests()
+
     before: dict[str, Any] = {}
     pool = None
     if harness.db_ready:
