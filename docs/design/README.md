@@ -23,7 +23,7 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
 | D5 | End-to-end / live-guild test harness | planned |
 | [D2](D2-realtime-minigame-framework.md) | Real-time minigame framework | planned |
 | [D1](D1-themed-card-renderer.md) | Themed card renderer (rank / profile hero cards) | **this PR** |
-| D3 | Access-matrix / audit dashboard | planned |
+| [D3](D3-access-audit-model.md) | Access-control + audit-log data model (access-matrix / audit dashboard) | **this PR** |
 | D6 | Autonomy-apparatus removal | planned |
 | [B10](B10-panel-route-origin.md) | Role-hub route-origin back-button (panel-engine signal) | plan |
 | B8 | ux_lab 9-wing foundation-then-per-wing | planned |
