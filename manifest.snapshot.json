@@ -11449,11 +11449,11 @@
       "handler:mining.use_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.vault_deposit_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.vault_deposit_route": {
+        "module": "sb.domain.mining.service"
       },
-      "handler:mining.vault_withdraw_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.vault_withdraw_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.vaultupgrade_route": {
         "module": "sb.domain.mining.service"
@@ -49920,15 +49920,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.vault_deposit_pending"
+                "$ref": "handler:mining.vault_deposit_route"
               },
               "label": "📥 Deposit",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "item",
+                    "label": "Item name",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "e.g. diamond, iron, lucky charm",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "1",
+                    "field_id": "qty",
+                    "label": "Amount",
+                    "max_length": 9,
+                    "min_length": null,
+                    "placeholder": "how many",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "mining.vault_deposit_form",
+                "on_submit": {
+                  "$ref": "handler:mining.vault_deposit_route"
+                },
+                "title": "Deposit into Vault"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -49945,15 +49973,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.vault_withdraw_pending"
+                "$ref": "handler:mining.vault_withdraw_route"
               },
               "label": "📤 Withdraw",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "item",
+                    "label": "Item name",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "e.g. diamond, iron, lucky charm",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "1",
+                    "field_id": "qty",
+                    "label": "Amount",
+                    "max_length": 9,
+                    "min_length": null,
+                    "placeholder": "how many",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "mining.vault_withdraw_form",
+                "on_submit": {
+                  "$ref": "handler:mining.vault_withdraw_route"
+                },
+                "title": "Withdraw from Vault"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",

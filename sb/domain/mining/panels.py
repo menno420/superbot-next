@@ -54,12 +54,15 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
+from sb.spec.outcomes import DeferMode
 from sb.spec.panels import (
     ActionStyle,
     Audience,
     EmbedFrameSpec,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -616,25 +619,49 @@ async def _render_card(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
-def _vault_modal_handlers() -> dict[str, HandlerRef]:
-    """Pending terminals for the vault's modal-driven move buttons — the
-    📥 Deposit / 📤 Withdraw modals ride the deep-system panel port (D-0043);
-    the LIVE command lane (`!stash` / `!unstash`) already carries the same
-    audited move. Registered at IMPORT (module bottom), never ensure-only
-    (#111 doctrine). No golden drives a vault click, so the terminal copy is
-    unpinned."""
-    from sb.domain.operator_spine import pending_handler
+# The 🏦 Vault panel's 📥 Deposit / 📤 Withdraw modal forms (G-10 ModalSpec —
+# the treasury Contribute precedent, sb/domain/treasury/panels.py). The shipped
+# _VaultMoveModal (views/mining/vault_panel.py) carried one item field + one
+# amount field (default "1"); the submit re-enters the frozen MODAL adapter and
+# runs the SAME audited move op the LIVE `!stash` / `!unstash` command lane
+# carries (mining.stash / mining.unstash — record_stash / record_unstash), so
+# the deposit/withdraw write stays byte-pinned by mining_stash_write /
+# mining_unstash_write. The vault-move ops take the item VERBATIM (lowercased)
+# — sb mining carries no vault-item fuzzy resolver, the accepted sb divergence
+# from the oracle's resolve_item_name (the same posture the `!stash`/`!unstash`
+# routes already ship). No golden drives a vault-panel click and the parity
+# harness cannot drive a modal submit, so this terminal is unpinned (covered by
+# unit tests); the MODAL-defer button renders identical session <cid:N> wire
+# bytes (sweep_vault stays byte-clean).
+VAULT_DEPOSIT_MODAL = ModalSpec(
+    modal_id="mining.vault_deposit_form",
+    title="Deposit into Vault",              # shipped verb ("Deposit into" + " Vault")
+    fields=(
+        ModalFieldSpec(
+            field_id="item", label="Item name",
+            placeholder="e.g. diamond, iron, lucky charm",
+            required=True, max_length=100),
+        ModalFieldSpec(
+            field_id="qty", label="Amount", placeholder="how many",
+            required=False, default="1", max_length=9),
+    ),
+    on_submit=HandlerRef("mining.vault_deposit_route"),
+)
 
-    return {
-        "deposit": pending_handler(
-            "mining.vault_deposit_pending",
-            "📥 The vault deposit modal rides the deep-system panel port "
-            "(D-0043) — deposit now with `!stash <item> [n]`."),
-        "withdraw": pending_handler(
-            "mining.vault_withdraw_pending",
-            "📤 The vault withdraw modal rides the deep-system panel port "
-            "(D-0043) — withdraw now with `!unstash <item> [n]`."),
-    }
+VAULT_WITHDRAW_MODAL = ModalSpec(
+    modal_id="mining.vault_withdraw_form",
+    title="Withdraw from Vault",             # shipped verb ("Withdraw from" + " Vault")
+    fields=(
+        ModalFieldSpec(
+            field_id="item", label="Item name",
+            placeholder="e.g. diamond, iron, lucky charm",
+            required=True, max_length=100),
+        ModalFieldSpec(
+            field_id="qty", label="Amount", placeholder="how many",
+            required=False, default="1", max_length=9),
+    ),
+    on_submit=HandlerRef("mining.vault_withdraw_route"),
+)
 
 
 def mining_forge_spec() -> PanelSpec:
@@ -1412,11 +1439,15 @@ def mining_vault_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="va_deposit", label="📥 Deposit",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.vault_deposit_pending")),
+                defer_mode=DeferMode.MODAL, modal=VAULT_DEPOSIT_MODAL,
+                handler=HandlerRef("mining.vault_deposit_route"),
+                result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(
                 action_id="va_withdraw", label="📤 Withdraw",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("mining.vault_withdraw_pending")),
+                defer_mode=DeferMode.MODAL, modal=VAULT_WITHDRAW_MODAL,
+                handler=HandlerRef("mining.vault_withdraw_route"),
+                result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(
                 action_id="va_stash_all", label="📦 Stash All Ore",
                 style=ActionStyle.SUCCESS, audience_tier="user",
@@ -1671,7 +1702,6 @@ def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _grid_button_handlers()
-    _vault_modal_handlers()
     _skills_button_handlers()
     _workshop_button_handlers()
     _ensure_workshop_craft_provider()

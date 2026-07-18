@@ -148,6 +148,17 @@ def _cook_args(argv: tuple, values: tuple) -> tuple[str, int]:
     return rest, qty
 
 
+def _modal_qty(raw: object) -> int:
+    """The 🏦 Vault move modal's Amount field → a positive count. A blank or
+    non-numeric entry falls to 1 — the shipped `!stash`/`!unstash` argv parse
+    (ops.py ``_qty_from``) already ignores non-digit tokens and defaults to 1,
+    so the modal lane reuses that sb posture rather than inventing the oracle's
+    modal-only ``isn't a number`` string (sb never produced it). The op
+    re-validates (positive) in-leg."""
+    text = str(raw or "").strip()
+    return int(text) if text.isdigit() else 1
+
+
 async def _card(req, embed) -> Reply:
     """Present one read card as the shipped public embed reply
     (``ctx.send(embed=…)`` — the ai.card/karma.card open_panel lane)."""
@@ -860,6 +871,47 @@ def _register() -> None:
         values = tuple(req.args.get("values", ()) or ())
         blocked, after = await _op_after(
             req, "mining.unstash", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.vault_deposit_route")
+    async def vault_deposit_route(req) -> Reply:
+        """The 🏦 Vault panel's 📥 Deposit modal submit (G-10) — collect an
+        item + amount and run the SAME audited move the LIVE `!stash` carries
+        (mining.stash → record_stash: mining_inventory debit + mining_vault
+        credit in ONE txn; services/mining_workflow.py ``vault_deposit``
+        verbatim, already byte-pinned by goldens/mining/mining_stash_write via
+        the command lane). Mirrors the stash_all / vaultupgrade panel-button
+        posture: reply `<@u> {message}` as a RESULT_CARD (the accepted sb
+        divergence from the oracle modal's in-place panel re-render). The item
+        is taken VERBATIM (lowercased in-leg) — sb carries no vault-item fuzzy
+        resolver, the accepted divergence from the oracle's resolve_item_name
+        (the same posture stash_route already ships). No golden drives this
+        modal (the parity harness cannot drive a submit); unit-tested."""
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        item = str(req.args.get("item") or "").strip()
+        qty = _modal_qty(req.args.get("qty"))
+        blocked, after = await _op_after(
+            req, "mining.stash", {"item": item, "qty": qty})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.vault_withdraw_route")
+    async def vault_withdraw_route(req) -> Reply:
+        """The 🏦 Vault panel's 📤 Withdraw modal submit (G-10) — the symmetric
+        inverse of ``vault_deposit_route``: run the SAME audited move the LIVE
+        `!unstash` carries (mining.unstash → record_unstash: mining_vault debit
+        + mining_inventory credit in ONE txn; ``vault_withdraw`` verbatim,
+        byte-pinned by goldens/mining/mining_unstash_write via the command
+        lane). Same RESULT_CARD `<@u> {message}` posture and verbatim-item
+        divergence as the deposit face; unit-tested (no golden drives it)."""
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        item = str(req.args.get("item") or "").strip()
+        qty = _modal_qty(req.args.get("qty"))
+        blocked, after = await _op_after(
+            req, "mining.unstash", {"item": item, "qty": qty})
         if blocked is not None:
             return blocked
         return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")

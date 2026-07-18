@@ -2668,6 +2668,8 @@
   "logging_routes.refresh",
   "logging_routes.select",
   "logging_routes.set",
+  "mining.vault_deposit_form",
+  "mining.vault_withdraw_form",
   "mining:character",
   "mining:explore_hub",
   "mining:gear",
