@@ -1,8 +1,8 @@
 # 2026-07-18 — test-depth coverage for sb/domain/server_management
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** [[fill: model line]]
+- **📊 Model:** Opus 4 family · high · test-depth
 
 ## Scope
 
@@ -41,22 +41,63 @@ pattern).
 
 ## Verification
 
-- `python3 -m pytest tests/unit -q` → [[fill: verbatim tail]]
-- `python3 tools/check_namespace.py` → clean
-- `python3 tools/check_no_skip.py` → clean
+- `python3 -m pytest tests/unit -q` → `3356 passed, 2 skipped, 1 warning
+  in 60.57s` (the 2 skips pre-exist — `check_no_skip` is clean; the new
+  file alone: `16 passed in 0.19s`).
+- `python3 tools/check_namespace.py` → `check_namespace: clean`
+- `python3 tools/check_no_skip.py` → `check_no_skip: clean (every surface
+  funnels through resolve())`
 
 ## Deviation ledger
 
-[[fill: skipped gaps + why, or "none — all 10 gaps landed"]]
+**None — all 10 gaps landed** (16 test functions; a couple gaps carry a
+paired positive/negative assertion so the count exceeds 10). One anchor
+required a monkeypatch the gap list did not name: gap 7
+(`_axis_help_visibility` no-category → unknown) is UNREACHABLE with the
+real category functions — `category_for_subsystem` always returns a valid
+key (falling back to `OTHER_CATEGORY.key`), so `category_by_key` never
+returns `None` on live data. The `if category is None` arm is a
+defensive guard; the test pins it by monkeypatching
+`categories.category_by_key` → `None`, flagged inline. All other gaps
+drive real code paths (real store fn + real `rsplit` parse for the
+tombstone lane; real axis/resolver logic elsewhere).
 
 ## Close-out
 
-[[fill: PR # + URL + test count]]
+PR **#540** — https://github.com/menno420/superbot-next/pull/540 · one
+new file `tests/unit/band6/test_band6_server_management_depth.py`, **16
+DB-free test functions** covering all 10 gap-list anchors. Additive
+only: no product code, no golden, no migration. Commits: `b8cd559`
+(born-red card + claim), `0b36508` (tests). Opened ready/non-draft;
+server-side lander merges on green (not self-merged).
 
 ## 💡 Session idea
 
-[[fill: one idea]]
+The tombstone lane's command-tag parse
+(`routing.tombstone_policy_actor`: `int(str(result).rsplit(" ",1)[-1])`)
+is a **duplicated idiom** — the governance `tombstone_subject_*` twins
+parse the same `UPDATE N` shape by hand, each with its own
+`except (ValueError, TypeError): return 0`. A single
+`sb/kernel/db/pool.rows_affected(command_tag) -> int` helper would
+collapse every erasure body's parse to one audited call site and let the
+next MEMBER_ID store inherit the fail-closed-to-0 behavior for free
+instead of re-deriving it. Guard recipe: grep `rsplit(" ", 1)` under
+`sb/domain/*/routing.py` + `sb/domain/governance/store.py`; land the
+helper + a `tests/unit/db/` pin, then swap the two existing call sites.
 
 ## ⟲ Previous-session review
 
-[[fill: review of the most recent OTHER .sessions card]]
+Reviewed the predecessor `.sessions/2026-07-18-setup-launcher-wizard-
+except.md` (PR #538, closing backlog C1 — the setup-band except-density
+audit). It's the same posture as this slice: an additive, DB-free,
+zero-product-change characterization pin that forces each guarded call to
+raise and asserts the intended boundary (fail-closed refusal vs.
+fail-soft degrade vs. logged-best-effort), mirroring a sibling harness.
+Its audit-finding discipline — classifying every swallow as
+CLOSED/SOFT/best-effort with the exact line anchor — is worth carrying
+forward; this slice applied the same "assert the SPECIFIC branch value"
+rigor one domain over (server_management's erasure + projection edges
+rather than setup's except boundaries), pinning `deny`/`unknown` vs. a
+false `allow` and the scrubbed-value/row-count rather than a swallow's
+degrade shape. Confirms the current rhythm holds: small, contained,
+new-test-only slices that each pin one unverified behavior class.
