@@ -1,9 +1,11 @@
 """The four outbox MetricSpecs (K4, frozen L0 spec 08 §2/§3.2).
 
 Homed here per spec 08's file map (not in sb/spec/observability.METRICS —
-that tuple is the verbatim shipped-46 harvest). The composition root builds
-the registry with METRICS + OUTBOX_METRICS; tools/check_metric_cardinality
-validates both tuples.
+that tuple is the verbatim shipped-46 harvest). `ALL_METRICS` (defined here,
+below the family tuples) is the single canonical union both consumers import:
+the composition root builds the registry from it and
+tools/check_metric_cardinality validates it — so a future third family group
+can't drift the live-vs-checked sets apart.
 
 `outbox_claims_total` high while `outbox_delivered_total` is flat and
 `outbox_pending_age_seconds` grows = the relay-health alert shape (a
@@ -12,9 +14,9 @@ crash-looping relay never dead-letters a healthy event — finding 6).
 
 from __future__ import annotations
 
-from sb.spec.observability import MetricKind, MetricSpec
+from sb.spec.observability import METRICS, MetricKind, MetricSpec
 
-__all__ = ["OUTBOX_METRICS"]
+__all__ = ["ALL_METRICS", "OUTBOX_METRICS"]
 
 OUTBOX_METRICS: tuple[MetricSpec, ...] = (
     MetricSpec(
@@ -43,3 +45,10 @@ OUTBOX_METRICS: tuple[MetricSpec, ...] = (
         owner_subsystem="outbox",
     ),
 )
+
+# The complete set of metric families to register / validate — the base
+# shipped tuple plus the outbox families. Both the composition root
+# (sb/app/main.py `build_registry`) and tools/check_metric_cardinality import
+# this canonical union rather than re-deriving `METRICS + OUTBOX_METRICS`
+# independently, so a third family group added later can't drift them apart.
+ALL_METRICS: tuple[MetricSpec, ...] = METRICS + OUTBOX_METRICS
