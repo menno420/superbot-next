@@ -673,3 +673,39 @@
 - parity: golden gate GREEN pre- and post-fix — all 502 goldens across all 50 ported subsystems replay clean (the compensator paths only fire on EFFECT refusal, which no golden captures — capture ports always succeed; the after-key fix changes only the success-ack composition the goldens never exercised). No flips, no exemption rows.
 - why: fork E's whole point is that durable state never claims an action Discord refused (D-0058) — the copy channel must hold the same line, or the operator's eyes and the DB disagree; giving the compensator the pen is the narrowest seam that stays generic (no per-op engine knowledge, D-0058's silent-compensator semantics untouched by construction).
 - provenance: band-5 live-drive ledger (docs/status/testing-report-2026-07-09.md band-5 row: the 3 live-leg bugs, PR #111) + the partial-echo observed in the band-5 session's own live drive (temprole/timedprize with unarmed ports, scratchpad live-band5.log); D-0062 (leg acks), D-0058 (warn compensator semantics), #105/#108 (delete-if-match / insert-only compensators this ruling gives a voice); tests tests/unit/band5/test_band5_partial_honesty.py
+
+## [D-0092] Tournament open-flag guard stays accepted-posture (no atomic fence)
+- status: decided
+- date: 2026-07-18
+- verdict: Keep the shared tournament `active_tournament` open guard as the deliberately non-atomic read-then-refuse that byte-matches the superbot oracle; recover the narrow double-open window via the boot escrow + flag sweep. Do NOT add an atomic advisory-lock fence. A strict `(guild,"tournament-open")` fence remains an available future owner-decision (a deliberate oracle-parity divergence), not a bug fix — dispatch it only on an explicit owner call.
+- why: The guard is the parity-faithful port of the oracle's own unfenced `get_active`/refuse (worst case = a stranded pot, boot-sweep-recovered); there is no product driver to diverge. PR #517 already pinned the accepted posture with a characterization test + tripwire so an accidental "fix" trips CI. This entry confirms the standing C4 owner-gate as keep-posture.
+- provenance: decide-and-flag under fm ORDER 048 / PL-001; docs/ideas/tournament-open-flag-toctou-2026-07-12.md (outcome: accepted-posture); PR #517 (0607d8f); oracle menno420/superbot@97d281e5; docs/design/OWNER-DECISIONS-2026-07-18.md row 28.
+
+## [D-0093] D1 renderer — bundle DejaVu fonts; adopt Pillow as a hard runtime dep
+- status: decided
+- date: 2026-07-18
+- verdict: For the D1 themed card renderer, bundle the permissive DejaVu TTFs in-repo (matches the oracle default, redistributable) as the shipped font set, and adopt Pillow as a hard runtime dependency (`Pillow>=11,<12`) rather than keeping it optional. The `requirements.txt` + `requirements.lock` change and the font assets land in the render-band scaffold slice (D1 Slice 1) alongside their first consumer, not ahead of it — no dep with zero import sites. A distinct brand font pair remains an available future product-identity call (a reversible font swap), not a blocker.
+- why: Shipping real cards makes Pillow effectively required (text-embed degradation is a fallback, not the product); DejaVu gives oracle fidelity with a redistributable license and zero asset acquisition. Deferring the dep-add to the scaffold slice respects the adopt-freely rule (add + regen lock in the same PR, Q-0105) and the lockfile-freshness / pip-audit gates.
+- why-not-owner: a font choice plus a single lazy-degrading imaging dep are contained + reversible with no owner-only class (no secrets / accounts / repo-settings); brand identity is flagged, not taken.
+- provenance: decide-and-flag under fm ORDER 048 / PL-001; docs/design/D1-themed-card-renderer.md Q1/Q2 (staged PR #534, b7d5f6e); requirements.txt adopt-freely header (Q-0105).
+
+## [D-0094] Audit-log retention stays permanent (no pruning window)
+- status: decided
+- date: 2026-07-18
+- verdict: Keep `audit_log` at `retention="permanent"` (the forensic spine) with the existing TOMBSTONE erasure ref for member-data erasure. Do NOT add a pruning/retention window now. An owner-gated pruning window (keep N months, archive older) remains an available future option — but arming it deletes/archives production audit rows (a destructive prod-data op), so it is owner-gated and not taken here.
+- why: The audit log is the forensic spine; permanent retention is the safe default and the store already carries TOMBSTONE erasure for member-data erasure, so retention and erasure stay separate concerns. No current driver for pruning; the destructive branch stays owner-gated per the store's own "pruning = owner-gated retention" note.
+- provenance: decide-and-flag under fm ORDER 048 / PL-001; docs/design/D3-access-audit-model.md Q2 (staged PR #544, 999ad29); sb/kernel/workflow/audit.py:41-59.
+
+## [D-0095] Access granularity is M1 per-channel; per-command deferred
+- status: decided
+- date: 2026-07-18
+- verdict: Access-control granularity ships at the M1 scope — per-guild mode + per-channel allowlist + per-channel role-sets — matching the shipped oracle surface. True per-command granularity (a command × scope grant matrix, likely its own store) is DEFERRED as a D3-follow-on, dispatched only on an explicit product ask.
+- why: M1 covers the oracle's shipped access surface and the resolver already consumes `channel_role_sets`; per-command is a materially larger model with no current product driver. Defer keeps the M1 slice shippable without over-building.
+- provenance: decide-and-flag under fm ORDER 048 / PL-001; docs/design/D3-access-audit-model.md Q3 (staged PR #544, 999ad29); sb/kernel/authority/channel_access.py:99-102.
+
+## [D-0096] D6 autonomy-removal — destructive steps deferred to the recreated Project
+- status: decided
+- date: 2026-07-18
+- verdict: Execute the D6 autonomy-apparatus removal per the filed sequence AFTER the Claude Code Projects EAP read-only window (post-2026-07-21), in the recreated Project. Hold the destructive steps (S2 delete enabler, S4 delete control/ bus, S6 delete ROUTINES.md) and the in-place neuter (S1) and kit-config migration (S3) for that cutover — do NOT start them now. The non-destructive Step 0 audit may run anytime but is low-value ahead of a deferred removal. `main` carries across the read-only window as the durable artifact, so nothing is lost by waiting.
+- why: Neutering the enabler now (S1) would remove the sole in-repo merge automation that lands agent PRs mid-window; the destructive steps touch live merge automation, kit-owned `substrate.config.json` keys, and depend on owner-only actions (repo "Allow auto-merge" setting; disarming two residual wake triggers via the routines console; deleting four orphan branches currently blocked by a GitHub 403 ref-delete wall). The recreated Project is the clean cutover point per NEXT-TASKS #6.
+- provenance: decide-and-flag under fm ORDER 048 / PL-001; docs/design/D6-autonomy-apparatus-removal.md Q1 (staged PR #548, 7b867e1); docs/NEXT-TASKS.md item #6; docs/current-state.md:44-53.

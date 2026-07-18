@@ -336,3 +336,11 @@ removal as "a next-Project (recreation) change."
    Should Step 3 be a `bootstrap` upgrade/re-render coordinated with the kit, or
    a pinned hand-edit? **Recommendation:** coordinate with the kit so the change
    survives the next `bootstrap upgrade`.
+
+## Decisions recorded (2026-07-18)
+
+Owner-authorized under decide-and-flag (fm ORDER 048 / PL-001); logged as [D-0096] in `docs/decisions.md`.
+
+- **Q1 timing → defer to the recreated Project (post-2026-07-21).** Hold every removal step — the in-place neuter (S1) and kit-config migration (S3) as well as the destructive S2/S4/S6 — for the post-EAP recreated-Project cutover; do not start them now. `main` carries across the read-only window as the durable artifact. The non-destructive Step 0 audit may run anytime but is low-value ahead of a deferred removal.
+
+Owner-only prerequisites for the eventual execution (surfaced, not taken): confirm the repo "Allow auto-merge" setting posture (Step 0 / Q4); disarm the two residual failsafe wake triggers via the routines console (Step 6 precondition); delete the four orphan merged branches (agent-blocked by a GitHub 403 ref-delete wall). Q2–Q6 remain open (not part of this decision pass).

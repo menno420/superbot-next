@@ -292,6 +292,7 @@ context; the block explains why.
 - **Recommendation:** **Keep the accepted-posture** — the non-atomic guard deliberately matches the oracle's shipped behaviour, with boot-sweep recovery as the safety net; `docs/ideas/tournament-open-flag-toctou-2026-07-12.md` already records `outcome: accepted-posture`. Fence it only if you now want to *diverge* from the oracle for a stronger guarantee (a deliberate parity break, not a bug fix). A sibling branch `claude/tournament-open-toctou` exists but has no open PR — do not harden without this call.
 - **Unblocks:** closes the standing C4 owner-gate (either confirm, or dispatch the fence slice).
 - **Source:** [completeness snapshot](../status/completeness-table-2026-07-18.md) C4 row; `docs/ideas/tournament-open-flag-toctou-2026-07-12.md`.
+- **Decided (2026-07-18):** Keep accepted-posture — confirmed under decide-and-flag (fm ORDER 048 / PL-001), recorded in the `docs/decisions.md` ledger and the tournament idea doc. No fence dispatched; the strict fence stays an available future owner-decision. Closes the standing C4 owner-gate.
 
 ### 29 — Rollback scope: schema vs data
 - **Decision:** Confirm the design premise — rollback is **data-plane reverse-import**, and the migration chain is **forward-only with no down-migrations** — as the permanent posture?

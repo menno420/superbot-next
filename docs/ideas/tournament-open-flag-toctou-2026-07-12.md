@@ -139,3 +139,5 @@ transaction-scoped `lock_new_checkpoint_slot`-style advisory lock keyed on
 before the `get_active` re-check, mirroring the entry-race fence. That is
 an OWNER-DECISION (it changes the oracle-faithful posture), flagged here
 rather than taken unilaterally.
+
+**Owner confirmation (2026-07-18):** keep-posture confirmed under decide-and-flag (fm ORDER 048 / PL-001); logged as [D-0092] in `docs/decisions.md`. No fence dispatched.

@@ -298,3 +298,12 @@ decision — but each piece is independently landable:
    `None`-safe. Confirm we want the live-avatar composite in prod (a CDN fetch
    per render) vs. always the network-free initials disc. Tests stay on the
    initials/fixed-PNG path regardless.
+
+## Decisions recorded (2026-07-18)
+
+Owner-authorized under decide-and-flag (fm ORDER 048 / PL-001); logged as [D-0093] in `docs/decisions.md`.
+
+- **Q1 fonts → DejaVu.** Bundle the permissive DejaVu TTFs in-repo as the shipped font set (oracle-default fidelity, redistributable). A distinct brand font pair stays an available future product-identity call — a reversible swap, not a blocker.
+- **Q2 Pillow → adopt as a hard runtime dep** (`Pillow>=11,<12`). The `requirements.txt` + `requirements.lock` regen and the font assets land in Slice 1 (render-band scaffold) alongside their first consumer, per the adopt-freely rule (Q-0105) — not ahead of it.
+
+Q3–Q5 remain open (not part of this decision pass).
