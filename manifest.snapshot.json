@@ -5355,6 +5355,31 @@
           "value": "erc_cancel"
         },
         {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "hb_title"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "hb_body"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "hb_preview"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "hb_save"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "hb_reset"
+        },
+        {
           "source": "sb/manifest/inventory.py",
           "subsystem": "inventory",
           "value": "open_mining_materials"
@@ -7977,6 +8002,11 @@
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help.editor_reset_confirm"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.editor_home_message"
         },
         {
           "source": "sb/manifest/hermes.py",
@@ -11140,13 +11170,13 @@
       "handler:general.trivia_view": {
         "module": "sb.domain.general.handlers"
       },
-      "handler:help.editor_home_message_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:help.editor_hub_next": {
         "module": "sb.domain.help.editor"
       },
       "handler:help.editor_hub_prev": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_open_home_message": {
         "module": "sb.domain.help.editor"
       },
       "handler:help.editor_open_hubs": {
@@ -11188,6 +11218,24 @@
       "handler:help.editor_toggle_hide": {
         "module": "sb.domain.help.editor"
       },
+      "handler:help.hb_color": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.hb_edit_body": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.hb_edit_title": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.hb_preview": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.hb_reset": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.hb_save": {
+        "module": "sb.domain.help.editor"
+      },
       "handler:help.open_category": {
         "module": "sb.domain.help.service"
       },
@@ -11204,6 +11252,12 @@
         "module": "sb.domain.help.editor"
       },
       "handler:help.render_editor_pick_subsystem": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.render_home": {
+        "module": "sb.domain.help.service"
+      },
+      "handler:help.render_home_builder": {
         "module": "sb.domain.help.editor"
       },
       "handler:hermes.bugreport": {
@@ -13024,6 +13078,9 @@
       "panel:help.editor_home": {
         "module": "sb.domain.help.editor"
       },
+      "panel:help.editor_home_message": {
+        "module": "sb.domain.help.editor"
+      },
       "panel:help.editor_pick_hub": {
         "module": "sb.domain.help.editor"
       },
@@ -13724,6 +13781,12 @@
         "module": "sb.domain.help.editor"
       },
       "provider:help.editor_subsystem_options": {
+        "module": "sb.domain.help.editor"
+      },
+      "provider:help.home_builder_fields": {
+        "module": "sb.domain.help.editor"
+      },
+      "provider:help.home_color_options": {
         "module": "sb.domain.help.editor"
       },
       "provider:image_moderation.hub_settings": {
@@ -14656,10 +14719,16 @@
       "workflow:help.record_reset_overlay": {
         "module": "sb.domain.help.overlay_ops"
       },
+      "workflow:help.record_set_home_message": {
+        "module": "sb.domain.help.overlay_ops"
+      },
       "workflow:help.record_set_overlay_fields": {
         "module": "sb.domain.help.overlay_ops"
       },
       "workflow:help.reset_overlay": {
+        "module": "sb.domain.help.overlay_ops"
+      },
+      "workflow:help.set_home_message": {
         "module": "sb.domain.help.overlay_ops"
       },
       "workflow:help.set_overlay_fields": {
@@ -44603,7 +44672,7 @@
             "style_token": "blue",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the Q-0059 live Help-Home frame (title / body / accent) is a per-guild deviation the static grammar cannot carry: when the guild stored a custom Home message the override re-frames the embed through home_embed_frame (the same composer the builder preview uses — preview-is-exact); a guild with no home row returns the grammar render UNCHANGED, so the byte-identical default Home replays verbatim. The override adjusts only the embed title / description / accent; the category fields, the select and layout stay declared.",
           "layout": {
             "pages": [
               {
@@ -44625,7 +44694,9 @@
             "show_rules": false
           },
           "panel_id": "help.home",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:help.render_home"
+          },
           "selectors": [
             {
               "audience_tier": "user",
@@ -44720,7 +44791,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:help.editor_home_message_pending"
+                "$ref": "handler:help.editor_open_home_message"
               },
               "label": "🏠 Home message",
               "modal": null,
@@ -45384,7 +45455,7 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Every hide, rename, and re-description in this server will be removed and Help returns to its defaults. This cannot be undone (the audit log keeps the history)."
+              "text": "Every hide, rename, re-description, and the custom Home message in this server will be removed and Help returns to its defaults. This cannot be undone (the audit log keeps the history)."
             }
           ],
           "co_open_group": "",
@@ -45427,6 +45498,256 @@
           "subsystem": "help",
           "timeout_s": 180,
           "title": "Reset ALL Help customizations?",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "hb_title",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.hb_edit_title"
+              },
+              "label": "✏️ Edit title…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "title",
+                    "label": "Custom Home title (blank = default)",
+                    "max_length": 256,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "help.home_title_form",
+                "on_submit": {
+                  "$ref": "handler:help.hb_edit_title"
+                },
+                "title": "Home title"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "hb_body",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.hb_edit_body"
+              },
+              "label": "📝 Edit body…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "body",
+                    "label": "Custom Home body (blank = default)",
+                    "max_length": 2000,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "paragraph"
+                  }
+                ],
+                "modal_id": "help.home_body_form",
+                "on_submit": {
+                  "$ref": "handler:help.hb_edit_body"
+                },
+                "title": "Home body"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "hb_preview",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.hb_preview"
+              },
+              "label": "👁 Preview",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "hb_save",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.hb_save"
+              },
+              "label": "💾 Save",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "hb_reset",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.hb_reset"
+              },
+              "label": "♻️ Reset to default",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Customize the Help Home frame (title, body text, color). **Preview is mandatory** — Save unlocks after you've seen the exact embed. Reset returns the byte-identical default."
+            },
+            {
+              "provider": {
+                "$ref": "provider:help.home_builder_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Home builder folds the mandatory-preview into ONE embed (the local RenderedPanel carries a single embed): the footer flips between 'Preview the draft to enable Save.' and 'Previewed — Save is unlocked.', 💾 Save renders DISABLED until the draft is previewed, and the embed accent is the staged color (a per-guild dynamic color the static style_token cannot carry — the fishing/ticket override precedent). The override delegates to the grammar renderer and adjusts only those surfaces; body, fields, the color select and the actions stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "hb_title",
+                    "hb_body"
+                  ],
+                  [
+                    "hb_color"
+                  ],
+                  [
+                    "hb_preview",
+                    "hb_save",
+                    "hb_reset"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.editor_home"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "help.editor_home_message",
+          "renderer_override": {
+            "$ref": "handler:help.render_home_builder"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.hb_color"
+              },
+              "options_source": {
+                "$ref": "provider:help.home_color_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick an embed color…",
+              "selector_id": "hb_color",
+              "slash_common": false,
+              "usage_weight": 1.0,
+              "windowed": false
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🏠 Home message builder",
           "usage_weight": 1.0
         }
       ],

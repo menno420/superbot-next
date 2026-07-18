@@ -339,10 +339,10 @@ source:
   # farm-row drift check: NO drift @ corpus sha 7f7628e1); rps solo copy
   # is the shipped views/rps/solo_play.py contract (sb/domain/rps/
   # ops.py module docstring, @7f7628e1).
-  minted_goldens: 61
+  minted_goldens: 62
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 523). The first retirement (2026-07-12
+  # imported + minted − retired = 524). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
