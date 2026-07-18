@@ -26,15 +26,17 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(One unanswered block below — the settings per-group edit-page group-routing
-decision, appended 2026-07-18. The six S11/S13/S14/S15/V-5/K10 blocks were
-resolved 2026-07-08 by the owner via the directing session's question panel —
-see Answered below.)
+(No unanswered blocks — the settings per-group edit-page group-routing
+decision, appended 2026-07-18, was answered 2026-07-18 (option A) and moved to
+Answered below. The six S11/S13/S14/S15/V-5/K10 blocks were resolved 2026-07-08
+by the owner via the directing session's question panel — see Answered below.)
+
+## Answered
 
 ### Q: settings per-group edit page — replace `group_pending` for non-hub groups only, or for all groups uniformly? (settings-mutation epic, owner-gated)
 
 - **Area / Type / Priority / Status:** settings subsystem / product-intent
-  routing / gates a multi-slice epic / **OPEN**.
+  routing / gated a multi-slice epic / **ANSWERED** (option A, 2026-07-18).
 - **Question:** the oracle's Settings hub opens the per-group
   `SubsystemSettingsView` type-specific scalar EDIT page uniformly for **every**
   group (oracle `menno420/superbot @ f87fa508`). The port diverged: it routes
@@ -66,12 +68,19 @@ see Answered below.)
   this is ruled. The write ops (`settings.set_scalar` / `clear_scalar`) and the
   panel machinery (modals, windowed selects) already exist; the cost is breadth,
   not a missing seam.
-- **Maintainer answer:** _(pending — unanswered)_
-- **Routing result:** _(pending — on answer, route the chosen routing into the
-  settings-mutation epic's scope doc + record as a decisions.md entry citing
-  this block)_
-
-## Answered
+- **Maintainer answer:** **Option (a) — the edit page replaces `group_pending`
+  for the NON-HUB groups only.** The 5 operator-spine hub groups (welcome /
+  counters / security / automod / image_moderation) stay on their existing
+  read-only `<group>.hub`; the port's diverged operator-spine navigation is
+  kept by design. (Provenance: coordinator-relayed owner directive, 2026-07-18
+  ~21:20Z; per the never-wait rider, silence = consent — recorded
+  decide-and-flag, PL-001.)
+- **Routing result:** feeds the settings-mutation epic plan —
+  [design/settings-group-pending-epic-plan.md](design/settings-group-pending-epic-plan.md)
+  (this PR) scopes S0–S7 to the non-hub groups only and leaves the 5 hub
+  routes (`sb/domain/settings/handlers.py` `open_group` `:272` `has_operator_hub`
+  branch) untouched. Record as a `docs/decisions.md` entry citing this block
+  when the epic's first slice lands.
 
 ### Q: adopt rubric-v2 classes 11/12/13? (S11, owner-gated)
 
