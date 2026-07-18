@@ -40,3 +40,13 @@ snapshot and cites real code. Future design-doc PRs add their row + file here.
   (owner-reviewable, no D-entry yet): the game-sections successor
   sweep that would edit anchored channel panels on enablement change;
   four design calls with options and costs.
+
+## Beyond D1–D6 — production-readiness tracks
+
+NEW design topics beyond the D1–D6 forward lanes: operational hardening the
+production cutover depends on. Each is a PLAN (`> **Status:** \`plan\``) the
+owner reacts to and prioritizes.
+
+| Track | Doc | What it proposes |
+|---|---|---|
+| Ops runbook | [Ops runbook](O-ops-migration-backup-restore-rollback.md) | The recoverability loop — migrate → backup → restore → rollback → deploy(Railway) — proven green end-to-end in CI: a restore-verify row-level-integrity leg, a rehearsed migrate+rollback drill on ephemeral Postgres, and a consolidated recovery runbook. |
