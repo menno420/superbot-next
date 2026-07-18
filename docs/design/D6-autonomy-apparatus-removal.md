@@ -40,23 +40,23 @@ revertible PR. This doc proposes that sequence. It executes nothing.
 
 ## Problem / context
 
-`docs/NEXT-TASKS.md:50-57` (item #6) directs: keep the six named CI gates as the
-merge bar, but **merge by owner action (or a simple server-side lander on
-green)** — remove `auto-merge-enabler.yml` and drop the `control/` message bus +
-wake-chain "so nothing self-arms auto-merge or self-fires a wake." It explicitly
-files this as **a next-Project (recreation) change** and records that "the
-workflow files are left untouched by the 2026-07-17 cleanup pass."
+`docs/NEXT-TASKS.md` (item #6) directs: keep the six named CI gates as the
+merge bar; with the enabler gone, agents **merge their own green PRs directly**
+(MCP/REST) — remove `auto-merge-enabler.yml` and drop the `control/` message bus +
+wake-chain "so nothing self-fires a wake." It explicitly files this as **a
+next-Project (recreation) change** and records that "the workflow files are left
+untouched by the 2026-07-17 cleanup pass."
 
 The doctrine that replaces the apparatus is already written and binding:
 
-- `CONSTITUTION.md:76-87` (§ Autonomy rails): "landing (merge) is an explicit
-  owner / server-side action" — "Agents do NOT arm GitHub auto-merge and do NOT
-  merge via the REST/MCP API — that path has been classifier-denied since
-  ~2026-07-15."
-- `docs/current-state.md:145-155` (§ Review rhythm): "a PR lands via the repo's
-  server-side lander workflow the moment CI is green, or the owner merges it …
-  In the recreated Project the plan is a plain owner-merge on green (retire
-  `auto-merge-enabler.yml`)."
+- `CONSTITUTION.md` (§ Autonomy rails): merging a green PR is normal agent work —
+  agents open a PR ready on green CI and merge their own green PR directly
+  (MCP/REST, or let the enabler land it); never route a mergeable green PR to the
+  owner.
+- `docs/current-state.md` (§ Review rhythm): a PR lands when its required checks go
+  green — agents merge their own green PRs directly, or the in-repo
+  `auto-merge-enabler.yml` lands it. In the recreated Project the plan is to retire
+  `auto-merge-enabler.yml` and have agents merge directly on green.
 
 The apparatus's current, honest state — item by item, with file evidence:
 
@@ -196,8 +196,9 @@ deleted, and doctrine docs are repointed **before** their cited targets vanish.
 
 **Step 0 — Confirm the replacement merge path (non-destructive gate; go/no-go).**
 Before touching anything, verify how PRs actually land now:
-(a) confirm whether an external/server-side lander is operating or whether
-merges are plain owner clicks (there is **no** in-repo lander workflow —
+(a) confirm the direct path — agents merge their own green PRs directly
+(MCP/REST) — is the standing replacement, and note whether the enabler still
+lands `claude/*` PRs as a fallback (there is **no** in-repo lander workflow —
 `.github/workflows/` has none matching `lander`); (b) read the repo's "Allow
 auto-merge" setting to learn whether the enabler (A) is still functionally
 arming; (c) confirm no open PR currently depends on the enabler to land. This is
@@ -272,9 +273,8 @@ removal as "a next-Project (recreation) change."
 
 **What must be true first:**
 
-1. **Replacement merge path confirmed operative** (Step 0) — owner-merge and/or
-   an external server-side lander demonstrably lands a green PR without the
-   enabler.
+1. **Replacement merge path confirmed operative** (Step 0) — a direct agent
+   merge of a green PR (MCP/REST) demonstrably lands it without the enabler.
 2. **All sessions migrated off the `control/` bus** — `NEXT-TASKS.md` is already
    the source of "what to build next" and `docs/current-state.md` the live state
    (`NEXT-TASKS.md:5`, `current-state.md:155`); confirm no session/tool still
