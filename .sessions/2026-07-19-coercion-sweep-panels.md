@@ -1,10 +1,10 @@
 # Session — coercion sweep TRUE-final slice (display-renderer floor)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red: this card is the sole FIRST commit (it holds the substrate-gate
-> red); the tests land in the second commit; the `in-progress` → `complete`
-> flip is the deliberate LAST commit.
+> Born-red: this card was the sole FIRST commit (it held the substrate-gate
+> red); the tests landed in the second commit; this `in-progress` →
+> `complete` flip is the deliberate LAST commit.
 
 - **📊 Model:** opus-4.8 · high · test writing
 
@@ -82,20 +82,62 @@ fallback-on-unrecognized contract — asserted only as the code truly produces.
 ## Verification
 
 - `python3 -m pytest -q tests/unit/band2/test_panel_status_coercion_sweep.py`
-  → _(placeholder — filled on flip)_.
-- Full `python3 -m pytest -q --ignore=examples` → _(placeholder — tail +
-  count filled on flip)_.
+  → **5 passed** in ~0.2s.
+- Full `python3 -m pytest -q --ignore=examples` (Postgres started; discord
+  present) → **3712 passed, 2 skipped, 1 warning** in ~101s. The +5 delta over
+  the `origin/main` baseline (3707, #599) is exactly this slice; no other test
+  moved. The 2 skips are pre-existing/unrelated; the 1 warning is the
+  pre-existing `discord/player.py` `audioop` DeprecationWarning (stdlib).
 - Guards clean (4): `check_namespace`, `check_symbol_shadowing`,
-  `check_config_usage`, `check_no_skip`. Guard-fires delta: _(placeholder)_.
-- `python3 bootstrap.py check` → _(placeholder — exit 0, card `complete`)_.
+  `check_config_usage`, `check_no_skip` — each exit 0. Guard-fires delta:
+  **0 fires** attributable to this slice (test-only, zero `sb/` source edited).
+- `python3 bootstrap.py check` → exit 0; card validates `complete` at HEAD.
 - No dependency change — `requirements.lock` untouched, pip-audit gate n/a.
 
 ## 💡 Session idea
 
-_(placeholder — filled on flip.)_
+The coercion shape is now provably exhausted — but the SAME divergent helper
+scatter the prior sweep flagged reaches one layer further. Each `_render_status`
+re-derives its OWN `_flag_of`/`_int_of` pair as function-LOCAL closures (unlike
+the module-level loader helpers `_as_bool`/`_as_int`/`_ids`/`_as_id_tuple` the
+loader sweep pinned and could import directly), and `_flag_of` matches the
+welcome/counters *hard-False-on-unrecognized* contract, not automod/
+server_logging's *return-the-fallback* one — so there are now EIGHT truthy/
+falsy-token helper families across the domain, two of them un-importable
+closures. A single shared `sb/kernel` coercion utility (one agreed
+unrecognized-token contract) would let these renderers drop their inline
+closures with zero behavior change, and this suite plus the loader sweep is the
+regression net that would prove it. A honest should-but-doesn't rides alongside,
+routed here not "fixed": `_flag_of`'s `fallback` parameter is effectively dead
+for a present-unrecognized token (that leg always returns `False` via the
+membership test; `fallback` is reached only for `None`/UNSET), so a future flag
+wanting `fallback=True` on a garbled row would silently get `False` — harmless
+today (every call site passes `fallback=False`) but a latent trap a shared
+utility would erase.
 
 ## ⟲ Review
 
 ### previous-session review
 
-_(placeholder — filled on flip.)_
+Predecessor: `.sessions/2026-07-19-coercion-sweep-final.md` (`complete`, same
+`opus-4.8 · high · test writing` class — the category-floor slice that landed as
+#599). Its conventions carried here byte-for-byte: a read-only HUNT proving the
+exact gap before writing (confirmed both panels are driven only for
+registration/hub-wiring, never for present/malformed stored-value rendering, and
+that each subsystem is `panels.py`-only so `_render_status` is its SOLE coercion
+site); a born-red card as the sole first commit holding the substrate-gate;
+tests in a second commit; a Verification section re-running the exact commands
+with tails/counts (+5 delta named against the #599 baseline); and the honesty
+seam — assert only what the shipped code truly produces (`_flag_of` pinned as
+membership *hard-False* on an unrecognized present token, NOT a
+fallback-on-unrecognized contract; `age_action` empty/unset pinned as `"alert"`
+via `str(None or "alert")`), with the helper-scatter posture routed to the 💡
+idea rather than "fixed". The `_install` reader-seam helper the #598 sweep added
+to `test_policy_coercion_sweep.py` was mirrored verbatim into the new file.
+Where this slice diverges: the predecessor closed the last *loader* branches and
+declared the category exhausted at the loader layer; this reaches the display
+RENDERERS — the last same-shape untested sites — driving `_render_status`
+through the `resolve` seam AND (a new seam for this sweep) monkeypatching
+`get_binding` to reach the slowmode lockdown branch that no reader-only drive
+can. With both layers pinned the coercion SHAPE is exhausted everywhere, not
+merely at the loaders — this is the true floor.
