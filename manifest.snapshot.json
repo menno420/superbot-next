@@ -9730,6 +9730,11 @@
           "value": "guild_command_access_channels"
         },
         {
+          "source": "sb/manifest/platform.py",
+          "subsystem": "platform",
+          "value": "guild_command_access_channel_roles"
+        },
+        {
           "source": "sb/manifest/proof_channel.py",
           "subsystem": "proof_channel",
           "value": "proof_channel_locks"
@@ -15249,10 +15254,16 @@
       "workflow:platform.record_set_access_mode": {
         "module": "sb.domain.platform.command_access"
       },
+      "workflow:platform.record_set_channel_roles": {
+        "module": "sb.domain.platform.command_access"
+      },
       "workflow:platform.set_access_channels": {
         "module": "sb.domain.platform.command_access"
       },
       "workflow:platform.set_access_mode": {
+        "module": "sb.domain.platform.command_access"
+      },
+      "workflow:platform.set_channel_roles": {
         "module": "sb.domain.platform.command_access"
       },
       "workflow:proof_channel.apply_lock": {
@@ -15918,6 +15929,14 @@
           "$ref": "engine:governance.store"
         },
         "subsystem": "governance"
+      },
+      "guild_command_access_channel_roles": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "guild_command_access_channel_roles",
+        "sole_writer": {
+          "$ref": "engine:platform.command_access_store"
+        },
+        "subsystem": "platform"
       },
       "guild_command_access_channels": {
         "checkpoint_class": "aggregate",
@@ -52812,6 +52831,32 @@
             "$ref": "engine:platform.command_access_store"
           },
           "table": "guild_command_access_channels",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "guild_command_access_channel_roles",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "interaction",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:platform.command_access_store"
+          },
+          "table": "guild_command_access_channel_roles",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

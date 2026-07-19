@@ -40,6 +40,7 @@ logger = logging.getLogger("sb.domain.platform.command_access")
 
 __all__ = [
     "COMMAND_ACCESS_CHANNELS_STORE",
+    "COMMAND_ACCESS_CHANNEL_ROLES_STORE",
     "COMMAND_ACCESS_POLICY_STORE",
     "ensure_refs",
     "forget_guild",
@@ -73,6 +74,18 @@ COMMAND_ACCESS_CHANNELS_STORE = register_store(StoreSpec(
     data_class=DataClass.NONE,
 ))
 
+COMMAND_ACCESS_CHANNEL_ROLES_STORE = register_store(StoreSpec(
+    table="guild_command_access_channel_roles",
+    sole_writer=EngineRef("platform.command_access_store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="guild_command_access_channel_roles",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("interaction", "diagnostics"),
+    bears_value=False,
+    data_class=DataClass.NONE,
+))
+
 
 @engine("platform.command_access_store")
 def _store_marker() -> str:
@@ -95,9 +108,17 @@ async def _fetch_snapshot(guild_id: int,
     channels = await fetchall(
         "SELECT channel_id FROM guild_command_access_channels "
         "WHERE guild_id=$1", (guild_id,), conn=conn)
+    role_rows = await fetchall(
+        "SELECT channel_id, role_id FROM "
+        "guild_command_access_channel_roles WHERE guild_id=$1",
+        (guild_id,), conn=conn)
+    role_sets: dict[int, set[int]] = {}
+    for r in role_rows:
+        role_sets.setdefault(int(r["channel_id"]), set()).add(int(r["role_id"]))
     return CommandAccessSnapshot(
         mode=str(row["mode"]),
-        allowed_channels=frozenset(int(c["channel_id"]) for c in channels))
+        allowed_channels=frozenset(int(c["channel_id"]) for c in channels),
+        channel_role_sets={cid: frozenset(rs) for cid, rs in role_sets.items()})
 
 
 async def read_policy_snapshot(guild_id: int) -> CommandAccessSnapshot:
@@ -200,6 +221,49 @@ async def _record_set_access_channels(conn, ctx: WorkflowContext) -> LegOutcome:
         before={}, after={"channels": list(channels)})
 
 
+@workflow("platform.record_set_channel_roles")
+async def _record_set_channel_roles(conn, ctx: WorkflowContext) -> LegOutcome:
+    from sb.kernel.interaction.errors import ValidatorError
+
+    gid = int(ctx.guild_id or 0)
+    channel_id = int(ctx.params.get("channel_id", 0) or 0)
+    if not channel_id:
+        # copy-only form: the sentence renders bare (D-0060/D-0061 posture)
+        raise ValidatorError("", "Give a channel id.")
+    role_ids = tuple(int(r) for r in (ctx.params.get("role_ids") or ()))
+    if not role_ids and not ctx.params.get("allow_empty", False):
+        # copy-only form: the sentence renders bare (D-0060/D-0061 posture)
+        raise ValidatorError(
+            "", "Give at least one role id (or allow_empty to clear).")
+    actor = int(getattr(getattr(ctx, "actor", None), "user_id", 0) or 0)
+    row = await fetchone(
+        "SELECT mode FROM guild_command_access_policy WHERE guild_id=$1",
+        (gid,), conn=conn)
+    if row is None:
+        # a role-set constraint implies a policy row exists; a role-set is
+        # usable under ANY mode, so seed the same ALL_CHANNELS-equivalent
+        # default the resolver treats as allow (mode is stored, not None).
+        await execute(
+            "INSERT INTO guild_command_access_policy (guild_id, mode, "
+            "updated_by) VALUES ($1, 'all_channels', $2)",
+            (gid, actor or None), conn=conn)
+    # atomic per-(guild, channel) replace: clear then re-INSERT this
+    # channel's role set (leaves other channels' rows untouched).
+    await execute(
+        "DELETE FROM guild_command_access_channel_roles "
+        "WHERE guild_id=$1 AND channel_id=$2", (gid, channel_id), conn=conn)
+    for rid in role_ids:
+        await execute(
+            "INSERT INTO guild_command_access_channel_roles (guild_id, "
+            "channel_id, role_id, created_by) VALUES ($1, $2, $3, $4) "
+            "ON CONFLICT DO NOTHING", (gid, channel_id, rid, actor or None),
+            conn=conn)
+    return LegOutcome(
+        step=StepResult(gid, "set_channel_roles", True),
+        before={}, after={"channel_id": channel_id,
+                          "role_ids": list(role_ids)})
+
+
 def _op(op_key: str, verb: str, ref: str) -> CompoundOpSpec:
     return CompoundOpSpec(
         op_key=op_key, domain="platform", lane=WorkflowLane.DOMAIN,
@@ -214,12 +278,16 @@ SET_ACCESS_MODE = _op("platform.set_access_mode", "command_access_mode_set",
 SET_ACCESS_CHANNELS = _op("platform.set_access_channels",
                           "command_access_channels_set",
                           "platform.record_set_access_channels")
+SET_CHANNEL_ROLES = _op("platform.set_channel_roles",
+                        "command_access_channel_roles_set",
+                        "platform.record_set_channel_roles")
 
-_OPS = (SET_ACCESS_MODE, SET_ACCESS_CHANNELS)
+_OPS = (SET_ACCESS_MODE, SET_ACCESS_CHANNELS, SET_CHANNEL_ROLES)
 
 _REF_TABLE = (
     ("platform.record_set_access_mode", _record_set_access_mode),
     ("platform.record_set_access_channels", _record_set_access_channels),
+    ("platform.record_set_channel_roles", _record_set_channel_roles),
 )
 
 
@@ -267,6 +335,20 @@ async def set_access_channels(ctx, *, channel_ids: tuple[int, ...],
     ctx.params.update({"channel_ids": tuple(channel_ids),
                        "allow_empty": allow_empty})
     result = await _engine.run(SET_ACCESS_CHANNELS, ctx)
+    if getattr(result, "outcome", None) == "success":
+        forget_guild(int(ctx.guild_id or 0))
+    return result
+
+
+async def set_channel_roles(ctx, *, channel_id: int,
+                            role_ids: tuple[int, ...],
+                            allow_empty: bool = False) -> object:
+    from sb.kernel.workflow import engine as _engine
+
+    ctx.params.update({"channel_id": int(channel_id),
+                       "role_ids": tuple(role_ids),
+                       "allow_empty": allow_empty})
+    result = await _engine.run(SET_CHANNEL_ROLES, ctx)
     if getattr(result, "outcome", None) == "success":
         forget_guild(int(ctx.guild_id or 0))
     return result
