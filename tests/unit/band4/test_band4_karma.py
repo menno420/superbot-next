@@ -230,6 +230,107 @@ def test_manifest_defaults_match_policy_constants():
     assert by_name["reaction_emoji"].default == policy.DEFAULT_REACTION_EMOJI
 
 
+# --- policy: stored-value coercion + per-key fallback ------------------------------------------
+#
+# `load_policy` reads each field through the K7 resolve seam and then defends
+# against malformed / off-type stored rows: a non-int cooldown/daily_cap reverts
+# to the shipped default (int() try/except), a None reaction_emoji normalises to
+# OFF (`str(emoji or "")`), and enabled is `bool()`-coerced. The undeclared-only
+# path (everything default) is pinned above; these pin the STORED-value legs.
+
+def _declare_karma_settings():
+    """Declare the four karma settings so `resolve` doesn't LookupError."""
+    from sb.kernel import settings as ksettings
+    from sb.domain.karma import policy
+
+    for name, default in (
+        ("enabled", policy.DEFAULT_ENABLED),
+        ("cooldown_seconds", policy.DEFAULT_COOLDOWN_SECONDS),
+        ("daily_cap", policy.DEFAULT_DAILY_CAP),
+        ("reaction_emoji", policy.DEFAULT_REACTION_EMOJI),
+    ):
+        ksettings.register_setting(
+            ksettings.SettingDeclaration(subsystem="karma", name=name,
+                                         default=default))
+
+
+def _install_store(store: dict):
+    """Install a per-guild settings reader backed by `store` (key -> value)."""
+    from sb.kernel import settings as ksettings
+
+    async def reader(guild_id, key):
+        if guild_id is not None and key in store:
+            return store[key]
+        return ksettings.UNSET
+
+    ksettings.install_settings_reader(reader)
+
+
+def test_load_policy_coerces_malformed_stored_values():
+    from sb.domain.karma.policy import (
+        DEFAULT_COOLDOWN_SECONDS, DEFAULT_DAILY_CAP, load_policy)
+
+    _declare_karma_settings()
+    _install_store({
+        "karma.enabled": 0,                     # falsy -> bool() -> False
+        "karma.cooldown_seconds": "not-an-int",  # int() ValueError -> default
+        "karma.daily_cap": [1, 2],               # int() TypeError -> default
+        "karma.reaction_emoji": None,            # str(None or "") -> ""
+    })
+
+    policy = run(load_policy(1))
+    assert policy.enabled is False
+    assert policy.cooldown_seconds == DEFAULT_COOLDOWN_SECONDS  # 3600, not the bad string
+    assert policy.daily_cap == DEFAULT_DAILY_CAP                # 10, not the bad list
+    assert policy.reaction_emoji == ""                         # None normalised OFF
+
+
+def test_load_policy_coerces_string_typed_stored_values():
+    from sb.domain.karma.policy import load_policy
+
+    _declare_karma_settings()
+    _install_store({
+        "karma.enabled": 1,                 # truthy int -> True
+        "karma.cooldown_seconds": "7200",   # numeric string -> int 7200
+        "karma.daily_cap": "25",            # numeric string -> int 25
+        "karma.reaction_emoji": "✨",
+    })
+
+    policy = run(load_policy(1))
+    assert policy.enabled is True
+    assert policy.cooldown_seconds == 7200 and isinstance(policy.cooldown_seconds, int)
+    assert policy.daily_cap == 25 and isinstance(policy.daily_cap, int)
+    assert policy.reaction_emoji == "✨"
+
+
+def test_load_policy_falls_back_per_missing_key():
+    """The `_get` LookupError swallow is per-key: an undeclared field reverts to
+    its default while the sibling declared+stored fields still resolve."""
+    from sb.kernel import settings as ksettings
+    from sb.domain.karma import policy as policy_mod
+    from sb.domain.karma.policy import load_policy
+
+    # Declare every key EXCEPT reaction_emoji (so only that one LookupErrors).
+    for name, default in (
+        ("enabled", policy_mod.DEFAULT_ENABLED),
+        ("cooldown_seconds", policy_mod.DEFAULT_COOLDOWN_SECONDS),
+        ("daily_cap", policy_mod.DEFAULT_DAILY_CAP),
+    ):
+        ksettings.register_setting(
+            ksettings.SettingDeclaration(subsystem="karma", name=name,
+                                         default=default))
+    _install_store({
+        "karma.enabled": True,
+        "karma.cooldown_seconds": 120,
+        "karma.daily_cap": 3,
+    })
+
+    policy = run(load_policy(1))
+    assert policy.cooldown_seconds == 120 and policy.daily_cap == 3
+    # reaction_emoji is undeclared -> resolve raises LookupError -> default "".
+    assert policy.reaction_emoji == policy_mod.DEFAULT_REACTION_EMOJI == ""
+
+
 # --- react-to-thank ---------------------------------------------------------------------------
 
 def test_handle_reaction_gates_before_any_write(monkeypatch):
