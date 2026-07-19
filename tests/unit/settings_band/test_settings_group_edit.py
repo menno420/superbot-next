@@ -164,7 +164,7 @@ class TestGroupEditFrame:
             "settings.needs_setup", "settings.invalid",
             "settings.missing_bindings", "settings.audit",
             "settings.command_access", "settings.group_edit",
-            "settings.group_edit_enum"]
+            "settings.group_edit_enum", "settings.group_edit_number"]
 
     def test_edit_and_reset_options_are_the_editable_specs(self):
         from sb.domain.settings import panels
@@ -482,3 +482,185 @@ class TestEnumDispatchAndCommit:
         assert reply is None
         assert opened == [("settings.group_edit",
                            {GROUP_EDIT_PARAM: _ENUM_GROUP})]
+
+
+# --- the S3 number-modal edit widget (K7 set_scalar) -------------------------------
+#
+# `moderation.warn_threshold` is a NON-HUB group int scalar
+# (value_type=int, default=3, bounds=(1, 50)) — the concrete port target.
+# Its typed input coerces + range-validates through the settings-service
+# coerce_value seam before the audited write.
+
+_NUM_GROUP = "moderation"
+_NUM_SETTING = "warn_threshold"
+
+
+class TestNumberWidgetFrame:
+    def test_number_spec_compiles_and_is_a_session_view(self):
+        from sb.domain.settings.panels import settings_group_edit_number_spec
+        from sb.kernel.panels.compile import check_panel
+        from sb.spec.outcomes import DeferMode
+        from sb.spec.panels import Audience, FooterMode
+        from sb.spec.refs import HandlerRef
+
+        spec = settings_group_edit_number_spec()
+        check_panel(spec)
+        assert spec.panel_id == "settings.group_edit_number"
+        assert spec.audience is Audience.INVOKER
+        assert spec.frame.footer_mode is FooterMode.NONE
+        assert spec.session_lifecycle is True
+        by_act = {a.action_id: a for a in spec.actions}
+        # the "Enter a number…" button ISSUES the G-10 numeric modal.
+        edit = by_act["number_edit"]
+        assert edit.defer_mode is DeferMode.MODAL
+        assert edit.modal is not None
+        assert edit.modal.modal_id == "settings.group_edit_number_form"
+        assert len(edit.modal.fields) == 1
+        assert edit.modal.fields[0].field_id == "number_value"
+        assert edit.handler == HandlerRef("settings.group_edit_number_submit")
+        # ↩ Back re-opens the group edit page via its own handler.
+        assert (by_act["number_back"].handler
+                == HandlerRef("settings.group_edit_number_back"))
+
+    def test_number_fields_show_current_default_and_range(self, monkeypatch):
+        from sb.domain.settings import panels, service
+
+        # deterministic current = 7 (avoid a DB-backed resolver).
+        async def fake_resolve(guild_id, subsystem, name, spec=None):
+            return SimpleNamespace(value=7)
+
+        monkeypatch.setattr(service, "resolve_setting", fake_resolve)
+        fields = run(panels._group_edit_number_fields(_ctx(
+            **{panels.GROUP_EDIT_PARAM: _NUM_GROUP,
+               panels.GROUP_EDIT_SETTING_PARAM: _NUM_SETTING})))
+        assert fields[0][0] == f"Editing `{_NUM_GROUP}.{_NUM_SETTING}`"
+        body = fields[0][1]
+        assert "current = `7`" in body
+        assert "default = `3`" in body
+        # warn_threshold declares bounds=(1, 50) — the range copy renders.
+        assert "Allowed range" in body and "`1`" in body and "`50`" in body
+
+    def test_number_fields_degrade_on_an_expired_session(self):
+        from sb.domain.settings import panels
+
+        fields = run(panels._group_edit_number_fields(_ctx()))
+        assert "session expired" in fields[0][1]
+
+
+class TestNumberDispatchAndCommit:
+    def _pick_req(self, name):
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        return _Req(args={GROUP_EDIT_PARAM: _NUM_GROUP, "values": (name,)})
+
+    def _submit_req(self, raw, *, group=_NUM_GROUP, name=_NUM_SETTING):
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        # the modal-args stash restores (group, setting); the submitted field
+        # value rides `number_value` (the ModalFieldSpec field_id).
+        return _Req(args={GROUP_EDIT_PARAM: group,
+                          GROUP_EDIT_SETTING_PARAM: name,
+                          "number_value": raw})
+
+    def test_number_pick_opens_the_number_widget(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        reply = run(_handler("settings.group_edit_pick")(
+            self._pick_req(_NUM_SETTING)))
+        assert reply is None                         # open_panel took over
+        assert [name for name, _ in opened] == ["settings.group_edit_number"]
+        args = opened[0][1]
+        assert args[GROUP_EDIT_PARAM] == _NUM_GROUP
+        assert args[GROUP_EDIT_SETTING_PARAM] == _NUM_SETTING
+
+    def test_number_submit_persists_the_coerced_scalar(self, monkeypatch):
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_number_submit")(
+            self._submit_req(" 5 ")))            # whitespace trims, coerces
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.set_scalar",
+                          {"key": ksettings.persisted_key(
+                              _NUM_GROUP, _NUM_SETTING),
+                           "value": "5"})]
+        assert "set to **5**" in reply.user_message
+
+    def test_number_submit_rejects_non_numeric_without_a_write(
+            self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_number_submit")(
+            self._submit_req("not-a-number")))
+        assert reply.outcome == BLOCKED
+        assert calls == []                       # no write for a bad value
+        assert "cannot coerce" in reply.user_message
+
+    def test_number_submit_rejects_out_of_range_without_a_write(
+            self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # warn_threshold bounds=(1, 50) — 9999 is a well-formed int that the
+        # coercer's range check rejects.
+        reply = run(_handler("settings.group_edit_number_submit")(
+            self._submit_req("9999")))
+        assert reply.outcome == BLOCKED
+        assert calls == []                       # no write for out-of-range
+        assert "cannot coerce" in reply.user_message
+
+    def test_number_submit_rejects_a_non_number_setting(self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # warn_escalation_action is a str/enum setting — not number-shaped.
+        reply = run(_handler("settings.group_edit_number_submit")(
+            self._submit_req("5", name="warn_escalation_action")))
+        assert reply.outcome == BLOCKED
+        assert calls == []
+        assert "not a number setting" in reply.user_message
+
+    def test_number_reset_clears_through_clear_scalar(self, monkeypatch):
+        """The S0 reset select is type-agnostic — resetting a number setting
+        clears its explicit row through settings.clear_scalar (no new path)."""
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_reset")(
+            _Req(args={GROUP_EDIT_PARAM: _NUM_GROUP,
+                       "values": (_NUM_SETTING,)})))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.clear_scalar",
+                          {"key": ksettings.persisted_key(
+                              _NUM_GROUP, _NUM_SETTING)})]
+
+    def test_number_back_reopens_the_group_edit_page(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        reply = run(_handler("settings.group_edit_number_back")(
+            _Req(args={GROUP_EDIT_PARAM: _NUM_GROUP})))
+        assert reply is None
+        assert opened == [("settings.group_edit",
+                           {GROUP_EDIT_PARAM: _NUM_GROUP})]

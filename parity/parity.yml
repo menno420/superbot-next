@@ -397,10 +397,23 @@ source:
   # moderation_warn_escalation_action=kick + the audited spine), the picker
   # refreshes IN PLACE and the ephemeral followup confirms. No new op — the
   # existing scalar lane, one widget further.
-  minted_goldens: 67
+  # +1 minted the SETTINGS NUMBER-MODAL write golden (2026-07-19, settings epic
+  # S3 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_number_write.json. !settings then the
+  # non-hub group select (moderation) opens the group_edit page; picking the
+  # int warn_threshold in the Edit select opens the number-modal widget
+  # (settings.group_edit_number — oracle disbot/views/settings/edit_number.py @
+  # f87fa508 NumberSettingModal), whose "Enter a number…" button ISSUES the
+  # G-10 numeric modal (stashing the (group, setting) session args); the widget
+  # render is captured, then submitting `5` coerces + range-validates (bounds
+  # 1-50) and commits it through the K7 settings.set_scalar lane (the guild
+  # `settings` row write key warn_threshold=5 + the audited spine), the widget
+  # refreshes IN PLACE and the ephemeral followup confirms. No new op — the
+  # existing scalar lane, one widget further.
+  minted_goldens: 68
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 529). The first retirement (2026-07-12
+  # imported + minted − retired = 530). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

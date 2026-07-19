@@ -80,6 +80,7 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
+from sb.spec.outcomes import DeferMode, ReplyVisibility
 from sb.spec.panels import (
     ActionStyle,
     Audience,
@@ -87,6 +88,8 @@ from sb.spec.panels import (
     FieldsBlock,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -111,6 +114,7 @@ __all__ = [
     "settings_audit_spec",
     "settings_command_access_spec",
     "settings_group_edit_enum_spec",
+    "settings_group_edit_number_spec",
     "settings_group_edit_spec",
     "settings_hub_spec",
     "settings_invalid_spec",
@@ -1722,6 +1726,121 @@ def settings_group_edit_enum_spec() -> PanelSpec:
     )
 
 
+# --- the ported number-modal edit widget (settings epic S3) -------------------------
+#
+# The oracle dispatch_edit_setting routed an `int` / `float` setting to the
+# NumberSettingModal (disbot/views/settings/edit_number.py @ f87fa508): a
+# one-input modal whose submit coerced + validated the typed value and wrote
+# through the audited mutation pipeline. Here that modal is a G-10 declared
+# ModalSpec on its OWN session-view child panel (settings.group_edit_number),
+# opened from the group_edit Edit select when the picked spec is number-shaped.
+# A selector pick is AUTO-deferred on this engine, so a button INTERMEDIATES and
+# issues the modal (the D-0054 confirm-surface posture; the ai edit_text /
+# edit_presets Override… precedent) — the submit re-enters through the frozen
+# MODAL adapter with the (group, setting) restored from the kernel modal-args
+# stash (the opening click's session-minted args: GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM). The typed value coerces + range-validates against
+# the SettingSpec through the SAME coerce_value seam the read path uses (bounds
+# + type), then commits through the LIVE K7 settings.set_scalar lane (no new
+# op); an invalid / out-of-range entry rejects without a write.
+
+#: the shipped NumberSettingModal (edit_number.py) as the G-10 declared form.
+#: The shipped title/label/placeholder embedded the picked setting's name and
+#: live current/default reprs; ModalSpec fields are static [S] wire data (the
+#: corpus cannot pin the transient form), so the per-open current/default/range
+#: readout rides the widget page's prompt instead — the ai `_NUMBER_MODAL` /
+#: starboard `THRESHOLD_MODAL` deviation precedent (D-0063/D-0085). int and
+#: float both ride this one free-form numeric form.
+_NUMBER_MODAL = ModalSpec(
+    modal_id="settings.group_edit_number_form",
+    title="Edit a setting",
+    fields=(ModalFieldSpec(
+        field_id="number_value",
+        label="New value (a number)",        # shipped: "New value (type: <t>)"
+        placeholder="e.g. 3",
+        required=True, max_length=64),))
+
+
+def _is_number_spec(spec) -> bool:
+    """The oracle number-dispatch predicate (dispatch_edit_setting): an `int`
+    or `float` scalar pops the free-form numeric modal."""
+    return spec is not None and str(spec.value_type) in ("int", "float")
+
+
+async def _group_edit_number_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The number widget's read block — names the setting under edit, its
+    current effective value + declared default + type, and any declared numeric
+    bounds (the oracle NumberSettingModal placeholder 'current=… · default=…'
+    carried onto the page since the modal copy is static). An expired session
+    degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    bounds = getattr(spec, "bounds", None)
+    range_line = (f"\nAllowed range: `{bounds[0]}` – `{bounds[1]}`."
+                  if bounds and len(bounds) == 2 else "")
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`  ·  "
+             f"type = `{spec.value_type}`{range_line}\n"
+             f"Tap **Enter a number…** below to set a new value."),)
+
+
+def settings_group_edit_number_spec() -> PanelSpec:
+    """The number-modal edit widget (settings epic S3) — a session-view child
+    whose single button ISSUES a numeric-input modal (the ported
+    NumberSettingModal), opened from the group_edit Edit select for an int /
+    float scalar. The submit coerces + range-validates then commits through
+    settings.set_scalar; the Back button re-opens the group's edit page."""
+    return PanelSpec(
+        panel_id="settings.group_edit_number",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_number_fields")),),
+        actions=(
+            # G-10: the click ISSUES the number form; the submit re-enters
+            # through the MODAL adapter and writes on the audited K7
+            # settings.set_scalar lane (the ai edit_presets Override… /
+            # starboard threshold precedent). The (group, setting) ride the
+            # kernel modal-args stash restored at submit.
+            PanelActionSpec(
+                action_id="number_edit", label="Enter a number…",
+                emoji="🔢", style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                defer_mode=DeferMode.MODAL, modal=_NUMBER_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the
+                # submit re-entry (the ai/starboard forms all followed up
+                # ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                handler=HandlerRef("settings.group_edit_number_submit")),
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the enum_back twin).
+            PanelActionSpec(
+                action_id="number_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_number_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / enum precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("number_edit",),
+            ("number_back",),
+        )),)),
+    )
+
+
 def settings_group_edit_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="settings.group_edit",
@@ -1844,6 +1963,8 @@ def _register_refs() -> None:
         panel("settings.group_edit")(settings_group_edit_spec)
     if not is_registered(PanelRef("settings.group_edit_enum")):
         panel("settings.group_edit_enum")(settings_group_edit_enum_spec)
+    if not is_registered(PanelRef("settings.group_edit_number")):
+        panel("settings.group_edit_number")(settings_group_edit_number_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -1882,6 +2003,8 @@ def _register_refs() -> None:
         provider("settings.group_edit_enum_fields")(_group_edit_enum_fields)
     if not is_registered(ProviderRef("settings.group_edit_enum_options")):
         provider("settings.group_edit_enum_options")(_group_edit_enum_options)
+    if not is_registered(ProviderRef("settings.group_edit_number_fields")):
+        provider("settings.group_edit_number_fields")(_group_edit_number_fields)
 
 
 _register_refs()
@@ -1896,7 +2019,8 @@ def install_settings_panels() -> PanelSpec:
     for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
                  settings_invalid_spec(), settings_missing_bindings_spec(),
                  settings_audit_spec(), settings_command_access_spec(),
-                 settings_group_edit_spec(), settings_group_edit_enum_spec()):
+                 settings_group_edit_spec(), settings_group_edit_enum_spec(),
+                 settings_group_edit_number_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:

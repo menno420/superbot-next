@@ -121,7 +121,13 @@ MANIFEST = SubsystemManifest(
             # disbot/views/settings/edit_enum.py): opened from the group_edit
             # Edit select for a str-with-allowed_values scalar; a pick commits
             # the chosen member through the same K7 settings.set_scalar lane.
-            _panels.settings_group_edit_enum_spec()),
+            _panels.settings_group_edit_enum_spec(),
+            # the ported number-modal edit widget (settings epic S3 — oracle
+            # disbot/views/settings/edit_number.py): opened from the group_edit
+            # Edit select for an int / float scalar; its button issues a G-10
+            # numeric-input modal whose submit coerces + range-validates then
+            # commits through the same K7 settings.set_scalar lane.
+            _panels.settings_group_edit_number_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),

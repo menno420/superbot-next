@@ -178,6 +178,43 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "(the guild settings write + in-place refresh + confirm)"
         ),
     ),
+    GoldenCase(
+        id="settings.group_edit_number_write",
+        subsystem="settings",
+        # settings epic S3 / number modal: open the moderation edit page, pick
+        # the int `warn_threshold` in the Edit select — it opens the
+        # number-modal widget (settings.group_edit_number); tapping its
+        # "Enter a number…" button ISSUES the G-10 numeric modal (stashing the
+        # (group, setting) session args), and submitting `5` coerces +
+        # range-validates then commits it through the K7 settings.set_scalar
+        # lane (the guild `settings` row write + the audited spine), the widget
+        # refreshes in place, and the ephemeral followup confirms. The
+        # `settings` db_delta + the number widget's render are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("moderation",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("warn_threshold",),
+                 persona="admin"),
+            # tap the "Enter a number…" button — issues the modal + stashes
+            # the (group, setting) args for the submit re-entry.
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=2, persona="admin"),
+            # submit the numeric modal: `warn_threshold` = 5 (in bounds 1-50).
+            Step(kind="modal", target_message=3,
+                 custom_id="settings.group_edit_number_form",
+                 fields=(("number_value", "5"),), persona="admin"),
+        ),
+        notes=(
+            "settings epic S3 number modal: picking the int warn_threshold "
+            "opens the number-modal widget; tapping Enter a number… issues "
+            "the numeric modal and submitting `5` commits it through "
+            "settings.set_scalar (the guild settings write + in-place refresh "
+            "+ confirm)"
+        ),
+    ),
     # -------------------------------------------------------------- help
     GoldenCase(
         id="help.panel_open",
