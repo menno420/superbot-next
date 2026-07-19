@@ -8,19 +8,20 @@
 # of its guards kept. NOT kit-owned in this repo (hand-installed): if a
 # later `bootstrap.py adopt/upgrade` regenerates an enabler, re-apply
 # the host customizations below (prefix allowlist, card-status regex,
-# six-named-gates messaging).
+# required-checks messaging).
 #
 # Arms GitHub-native auto-merge (squash) on agent PRs at open, so a
 # born-red session PR merges itself the moment the main-branch ruleset's
-# six required named checks go green (code-quality, manifest-validate,
-# architecture, sim-gate, golden-parity, check_compat_frozen —
-# named-gates.yml). Arming never merges anything itself; the required
-# checks stay the enforcement.
+# seven required checks go green (the six named gates — code-quality,
+# manifest-validate, architecture, sim-gate, golden-parity,
+# check_compat_frozen from named-gates.yml — plus pip-audit, a separate
+# ci.yml job branch protection also requires). Arming never merges
+# anything itself; the required checks stay the enforcement.
 #
 # INERT until two repo settings exist (owner UI):
 #   1. Settings → General → Pull Requests → "Allow auto-merge" = ON.
 #   2. A ruleset on the default branch REQUIRING status checks
-#      (already live here — the six named gates).
+#      (already live here — the six named gates plus pip-audit).
 # With NO required check, arming merges a PR INSTANTLY — the
 # refuse-to-arm guard below counts required contexts and refuses on
 # zero rather than inverting the gate.
@@ -73,7 +74,7 @@ jobs:
           echo "required contexts ($count): $contexts"
           echo "required=$count" >> "$GITHUB_OUTPUT"
           if [ "$count" = "0" ]; then
-            echo "::warning::the base branch requires no status-check CONTEXTS — arming would merge instantly. Refusing to arm; require the six named gates (named-gates.yml) on main first."
+            echo "::warning::the base branch requires no status-check CONTEXTS — arming would merge instantly. Refusing to arm; require the named gates (named-gates.yml) plus pip-audit (ci.yml) on main first."
           fi
       - name: Re-check the do-not-automerge label FRESH (stale-payload race guard)
         id: label
@@ -193,7 +194,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
         run: |
           if gh pr merge --auto --squash "$PR" --repo "$GITHUB_REPOSITORY" --body "Head-ref: $HEAD_REF"; then
-            echo "Auto-merge enabled for PR #$PR — it merges when the six required named gates are green."
+            echo "Auto-merge enabled for PR #$PR — it merges when all ${{ steps.rules.outputs.required }} required status checks are green."
           else
             echo "::warning::Could not enable auto-merge for PR #$PR. Confirm: (1) 'Allow auto-merge' is ON (Settings → General → Pull Requests), (2) the base branch ruleset requires the named gates, (3) the token has Pull requests + Contents write. If GitHub structurally refuses the arm, land manually merge-on-green instead."
           fi
