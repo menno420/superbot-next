@@ -157,13 +157,14 @@ class TestGroupEditFrame:
         # Back to Hub is a PanelRef open-child terminal back to the hub.
         assert by_act["group_back"].handler == PanelRef("settings.hub")
 
-    def test_manifest_declares_the_group_edit_page_last(self):
+    def test_manifest_declares_the_group_edit_pages_last(self):
         from sb.manifest.settings import MANIFEST
 
         assert [p.panel_id for p in MANIFEST.panels[2:]] == [
             "settings.needs_setup", "settings.invalid",
             "settings.missing_bindings", "settings.audit",
-            "settings.command_access", "settings.group_edit"]
+            "settings.command_access", "settings.group_edit",
+            "settings.group_edit_enum"]
 
     def test_edit_and_reset_options_are_the_editable_specs(self):
         from sb.domain.settings import panels
@@ -297,3 +298,187 @@ class TestBoolToggleAndReset:
             _Req(args={GROUP_EDIT_PARAM: "role"})))
         assert reply.outcome == SUCCESS
         assert "no dedicated interactive panel" in reply.user_message
+
+
+# --- the S2 enum-select edit widget (K7 set_scalar) --------------------------------
+#
+# `moderation.warn_escalation_action` is a NON-HUB group enum scalar
+# (value_type=str, allowed_values=("timeout","kick","ban","none"),
+# default="timeout") — the concrete port target.
+
+_ENUM_GROUP = "moderation"
+_ENUM_SETTING = "warn_escalation_action"
+_ENUM_CHOICES = ("timeout", "kick", "ban", "none")
+
+
+def _ctx(**params):
+    from sb.kernel.interaction.locale import LocaleContext
+    from sb.kernel.panels.context import PanelContext, PanelOrigin
+    from sb.spec.panels import Audience
+
+    return PanelContext(
+        bot=None, guild_id=GID, actor=SimpleNamespace(user_id=42),
+        channel_id=CHAN, origin=PanelOrigin.INTERACTION,
+        audience=Audience.INVOKER, locale=LocaleContext(), params=params)
+
+
+class TestEnumPickerFrame:
+    def test_enum_spec_compiles_and_is_a_session_view(self):
+        from sb.domain.settings.panels import settings_group_edit_enum_spec
+        from sb.kernel.panels.compile import check_panel
+        from sb.spec.panels import Audience, FooterMode
+        from sb.spec.refs import HandlerRef
+
+        spec = settings_group_edit_enum_spec()
+        check_panel(spec)
+        assert spec.panel_id == "settings.group_edit_enum"
+        assert spec.audience is Audience.INVOKER
+        assert spec.frame.footer_mode is FooterMode.NONE
+        assert spec.session_lifecycle is True
+        by_sel = {s.selector_id: s for s in spec.selectors}
+        assert by_sel["enum_select"].windowed is True
+        assert (by_sel["enum_select"].on_select
+                == HandlerRef("settings.group_edit_enum_pick"))
+        by_act = {a.action_id: a for a in spec.actions}
+        assert (by_act["enum_back"].handler
+                == HandlerRef("settings.group_edit_enum_back"))
+
+    def test_enum_options_are_the_declared_choices_current_marked(
+            self, monkeypatch):
+        from sb.domain.settings import panels, service
+
+        # deterministic current = "kick" (avoid a DB-backed resolver).
+        async def fake_resolve(guild_id, subsystem, name, spec=None):
+            return SimpleNamespace(value="kick")
+
+        monkeypatch.setattr(service, "resolve_setting", fake_resolve)
+        opts = run(panels._group_edit_enum_options(_ctx(
+            **{panels.GROUP_EDIT_PARAM: _ENUM_GROUP,
+               panels.GROUP_EDIT_SETTING_PARAM: _ENUM_SETTING})))
+        assert [o["value"] for o in opts] == list(_ENUM_CHOICES)
+        # the current value is pre-marked (default=True, description "current").
+        marked = [o for o in opts if o.get("default")]
+        assert len(marked) == 1
+        assert marked[0]["value"] == "kick"
+        assert marked[0]["description"] == "current"
+
+    def test_enum_options_empty_for_a_non_enum_setting(self):
+        from sb.domain.settings import panels
+
+        # a bool setting is not enum-shaped → no options materialize.
+        opts = run(panels._group_edit_enum_options(_ctx(
+            **{panels.GROUP_EDIT_PARAM: "role",
+               panels.GROUP_EDIT_SETTING_PARAM: "time_roles_stack"})))
+        assert opts == ()
+
+
+class TestEnumDispatchAndCommit:
+    def _pick_req(self, name):
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        return _Req(args={GROUP_EDIT_PARAM: _ENUM_GROUP, "values": (name,)})
+
+    def _commit_req(self, chosen, *, group=_ENUM_GROUP, name=_ENUM_SETTING):
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        return _Req(args={GROUP_EDIT_PARAM: group,
+                          GROUP_EDIT_SETTING_PARAM: name,
+                          "values": (chosen,)})
+
+    def test_enum_pick_opens_the_windowed_picker(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        reply = run(_handler("settings.group_edit_pick")(
+            self._pick_req(_ENUM_SETTING)))
+        assert reply is None                         # open_panel took over
+        assert [name for name, _ in opened] == ["settings.group_edit_enum"]
+        args = opened[0][1]
+        assert args[GROUP_EDIT_PARAM] == _ENUM_GROUP
+        assert args[GROUP_EDIT_SETTING_PARAM] == _ENUM_SETTING
+
+    def test_enum_commit_emits_set_scalar_with_the_chosen_member(
+            self, monkeypatch):
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_enum_pick")(
+            self._commit_req("kick")))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.set_scalar",
+                          {"key": ksettings.persisted_key(
+                              _ENUM_GROUP, _ENUM_SETTING),
+                           "value": "kick"})]
+        assert "set to **kick**" in reply.user_message
+
+    def test_enum_commit_rejects_a_non_allowed_value_without_a_write(
+            self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_enum_pick")(
+            self._commit_req("banana")))         # not in allowed_values
+        assert reply.outcome == BLOCKED
+        assert calls == []                       # no write for a bad value
+        assert "not an allowed value" in reply.user_message
+
+    def test_out_of_window_pick_still_resolves(self, monkeypatch):
+        """A >25-choice enum windows its select; the chosen value rides the
+        `values` round-trip, so a page-2 option commits the same as a page-1
+        one (the window is a render concern, never a resolution one)."""
+        from sb.domain.settings import panels
+        from sb.spec.outcomes import SUCCESS
+        from sb.spec.settings import SettingSpec
+
+        big = SettingSpec(name="big_enum", value_type=str, default="opt_0",
+                          settings_key="big_enum",
+                          allowed_values=tuple(f"opt_{i}" for i in range(30)))
+        monkeypatch.setattr(panels, "_group_edit_spec",
+                            lambda group, name: big)
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_enum_pick")(
+            self._commit_req("opt_28", name="big_enum")))   # window page 2
+        assert reply.outcome == SUCCESS
+        assert calls[0][0] == "settings.set_scalar"
+        assert calls[0][1]["value"] == "opt_28"
+
+    def test_enum_reset_clears_through_clear_scalar(self, monkeypatch):
+        """The S0 reset select is type-agnostic — resetting an enum setting
+        clears its explicit row through settings.clear_scalar (no new path)."""
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_reset")(
+            _Req(args={GROUP_EDIT_PARAM: _ENUM_GROUP,
+                       "values": (_ENUM_SETTING,)})))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.clear_scalar",
+                          {"key": ksettings.persisted_key(
+                              _ENUM_GROUP, _ENUM_SETTING)})]
+
+    def test_enum_back_reopens_the_group_edit_page(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        reply = run(_handler("settings.group_edit_enum_back")(
+            _Req(args={GROUP_EDIT_PARAM: _ENUM_GROUP})))
+        assert reply is None
+        assert opened == [("settings.group_edit",
+                           {GROUP_EDIT_PARAM: _ENUM_GROUP})]

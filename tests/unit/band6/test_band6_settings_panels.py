@@ -313,7 +313,8 @@ def test_manifest_declares_the_front_doors():
     assert [p.panel_id for p in MANIFEST.panels[2:]] == [
         "settings.needs_setup", "settings.invalid",
         "settings.missing_bindings", "settings.audit",
-        "settings.command_access", "settings.group_edit"]
+        "settings.command_access", "settings.group_edit",
+        "settings.group_edit_enum"]
 
 
 def test_no_settings_pending_terminal_remains():

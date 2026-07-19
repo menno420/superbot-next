@@ -149,6 +149,35 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "(the guild settings write + in-place refresh + confirm)"
         ),
     ),
+    GoldenCase(
+        id="settings.group_edit_enum_write",
+        subsystem="settings",
+        # settings epic S2 / enum select: open the moderation edit page, pick
+        # the enum `warn_escalation_action` in the Edit select — it opens the
+        # windowed enum picker (settings.group_edit_enum) of the declared
+        # allowed_values; picking `kick` commits the chosen member through the
+        # K7 settings.set_scalar lane (the guild `settings` row write + the
+        # audited spine), the picker refreshes in place, and the ephemeral
+        # followup confirms. The `settings` db_delta + the enum picker's
+        # render are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("moderation",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("warn_escalation_action",),
+                 persona="admin"),
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=3, values=("kick",), persona="admin"),
+        ),
+        notes=(
+            "settings epic S2 enum select: picking the enum "
+            "warn_escalation_action opens the windowed choice picker, and "
+            "picking `kick` commits it through settings.set_scalar "
+            "(the guild settings write + in-place refresh + confirm)"
+        ),
+    ),
     # -------------------------------------------------------------- help
     GoldenCase(
         id="help.panel_open",

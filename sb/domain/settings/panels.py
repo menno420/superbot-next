@@ -110,6 +110,7 @@ __all__ = [
     "settings_access_spec",
     "settings_audit_spec",
     "settings_command_access_spec",
+    "settings_group_edit_enum_spec",
     "settings_group_edit_spec",
     "settings_hub_spec",
     "settings_invalid_spec",
@@ -1387,6 +1388,13 @@ _GROUP_EDIT_FIELD_CAP = 1000
 #: the session refresh — the group is never a raw KV read, only a nav axis).
 GROUP_EDIT_PARAM = "group_edit_group"
 
+#: the enum-widget's setting-name axis (settings epic S2): the enum picker
+#: (settings.group_edit_enum) is opened from the group_edit Edit select with
+#: BOTH the group (GROUP_EDIT_PARAM) and the picked setting name baked onto
+#: its session-minted child args, so a value click carries its (group, name)
+#: page context — the S0 minted-child convention, one axis further.
+GROUP_EDIT_SETTING_PARAM = "group_edit_setting"
+
 
 def _truncate_group(text: str, *, limit: int = _GROUP_EDIT_FIELD_CAP) -> str:
     """The oracle _truncate (subsystem_view.py) — the shipped 1000-char cap
@@ -1579,6 +1587,141 @@ async def _group_edit_reset_options(ctx) -> tuple[dict, ...]:
         for spec in _group_editable_specs(group))
 
 
+# --- the ported enum-select edit widget (settings epic S2) --------------------------
+#
+# The oracle dispatch_edit_setting routed a `str` setting that declares
+# `allowed_values` to build_enum_select_view (disbot/views/settings/
+# edit_enum.py @ f87fa508): a windowed select of the allowed members with the
+# current value pre-marked, whose pick wrote through the audited mutation
+# pipeline. Here that select is its own session-view panel
+# (settings.group_edit_enum), opened from the group_edit Edit select when the
+# picked spec is enum-shaped; the group AND the picked setting name ride the
+# session-minted child args (GROUP_EDIT_PARAM / GROUP_EDIT_SETTING_PARAM), so
+# a value click carries its (group, name) context with no parallel session
+# dict. The chosen member commits through the LIVE K7 settings.set_scalar lane
+# (no new op) and the picker refreshes in place showing the new current.
+
+
+def _is_enum_spec(spec) -> bool:
+    """The oracle enum-dispatch predicate (dispatch_edit_setting): a `str`
+    scalar that declares a non-empty `allowed_values` set renders a select."""
+    return (spec is not None and str(spec.value_type) == "str"
+            and bool(getattr(spec, "allowed_values", ())))
+
+
+async def _group_edit_current(guild_id: int | None, group: str, name: str,
+                              spec) -> object:
+    """The setting's current effective value (the oracle dispatch_edit_setting
+    `current = resolution.value` read): the per-guild resolved value through
+    the K7 typed read seam, or the declared default in DM / on a resolver
+    miss."""
+    current = getattr(spec, "default", None)
+    if guild_id is None:
+        return current
+    try:
+        from sb.domain.settings import service as settings_service
+
+        resolution = await settings_service.resolve_setting(
+            guild_id, group, name, spec=spec)
+    except Exception:  # noqa: BLE001 — fail-soft to the declared default
+        return current
+    if resolution is not None:
+        return resolution.value
+    return current
+
+
+async def _group_edit_enum_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The enum picker's read block — names the setting under edit and its
+    current effective value (the oracle ephemeral prompt copy: 'Pick a new
+    value for `{subsystem}.{name}`'). An expired session degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`\n"
+             f"Pick a new value from the select below."),)
+
+
+async def _group_edit_enum_options(ctx) -> tuple[dict, ...]:
+    """The oracle build_enum_select_view options: one option per declared
+    allowed value, the current value pre-marked (`default=True`, description
+    'current'). The group + setting ride ctx.params; the windowed engine pages
+    an >25-member enum instead of front-truncating (the #1040 class)."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not _is_enum_spec(spec):
+        return ()
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    options: list[dict] = []
+    for value in spec.allowed_values:
+        label = str(value)[:100]
+        is_current = str(value) == str(current)
+        option: dict = {"value": label, "label": label}
+        if is_current:
+            option["default"] = True
+            option["description"] = "current"
+        options.append(option)
+    return tuple(options)
+
+
+def settings_group_edit_enum_spec() -> PanelSpec:
+    """The enum-select edit widget (settings epic S2) — a windowed select of a
+    setting's declared `allowed_values`, opened from the group_edit Edit select
+    for an enum-shaped scalar. A pick commits through settings.set_scalar; the
+    Back button re-opens the group's edit page (the group rides its args)."""
+    return PanelSpec(
+        panel_id="settings.group_edit_enum",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_enum_fields")),),
+        selectors=(
+            # the shipped windowed enum select (edit_enum.py
+            # build_enum_select_view over PaginatedSelectView): options are
+            # the declared allowed_values (provider-fed, current pre-marked),
+            # windowed past 25 (the #1040 class). A pick commits through
+            # settings.set_scalar (settings.group_edit_enum_pick).
+            SelectorSpec(
+                selector_id="enum_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef(
+                    "settings.group_edit_enum_options"),
+                placeholder="Pick a new value…",
+                empty_state="No choices declared for this setting…",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_enum_pick")),
+        ),
+        actions=(
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand.
+            PanelActionSpec(
+                action_id="enum_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_enum_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("enum_select",),
+            ("enum_back",),
+        )),)),
+    )
+
+
 def settings_group_edit_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="settings.group_edit",
@@ -1699,6 +1842,8 @@ def _register_refs() -> None:
         panel("settings.command_access")(settings_command_access_spec)
     if not is_registered(PanelRef("settings.group_edit")):
         panel("settings.group_edit")(settings_group_edit_spec)
+    if not is_registered(PanelRef("settings.group_edit_enum")):
+        panel("settings.group_edit_enum")(settings_group_edit_enum_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -1733,6 +1878,10 @@ def _register_refs() -> None:
         provider("settings.group_edit_edit_options")(_group_edit_edit_options)
     if not is_registered(ProviderRef("settings.group_edit_reset_options")):
         provider("settings.group_edit_reset_options")(_group_edit_reset_options)
+    if not is_registered(ProviderRef("settings.group_edit_enum_fields")):
+        provider("settings.group_edit_enum_fields")(_group_edit_enum_fields)
+    if not is_registered(ProviderRef("settings.group_edit_enum_options")):
+        provider("settings.group_edit_enum_options")(_group_edit_enum_options)
 
 
 _register_refs()
@@ -1747,7 +1896,7 @@ def install_settings_panels() -> PanelSpec:
     for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
                  settings_invalid_spec(), settings_missing_bindings_spec(),
                  settings_audit_spec(), settings_command_access_spec(),
-                 settings_group_edit_spec()):
+                 settings_group_edit_spec(), settings_group_edit_enum_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:
