@@ -986,12 +986,39 @@ def _format_channel_list(channel_ids: frozenset[int]) -> str:
     return rendered
 
 
+def _format_role_gates(
+        channel_role_sets: dict[int, frozenset[int]]) -> str:
+    """Render the snapshot's per-channel role gates (Slice 1's
+    ``channel_role_sets`` — ``{channel_id: frozenset(role_id, …)}``) as one
+    ``<#channel> — <@&role> …`` line per configured channel, sorted for a
+    stable render (the K6 ``role_not_held`` gate's DB truth, made visible).
+    Same 950-char truncation guard as ``_format_channel_list`` so the
+    1024-cap field never fails."""
+    if not channel_role_sets:
+        return "*(none configured — no per-channel role gate)*"
+    lines = []
+    for cid in sorted(channel_role_sets):
+        roles = channel_role_sets[cid]
+        if roles:
+            mentions = " ".join(f"<@&{rid}>" for rid in sorted(roles))
+            lines.append(f"<#{cid}> — {mentions}")
+        else:
+            lines.append(f"<#{cid}> — *(cleared)*")
+    rendered = "\n".join(lines)
+    if len(rendered) > 950:
+        head = "\n".join(lines[:15])
+        return f"{head}\n… (+{len(lines) - 15} more)"
+    return rendered
+
+
 async def _command_access_fields(ctx) -> tuple[tuple[str, str], ...]:
     """The shipped Command-Access body (build_command_access_embed):
     no-guild placeholder → the live policy read (the K8 reader's cached
     ``read_policy_snapshot`` — the write lanes forget the cache post-
     commit, so a refresh reads fresh) → Current mode + Allowed channels
-    (+ the Recovery field in the disabled mode), copy verbatim. The
+    + Role gates (D3 M1 slice 2 — the snapshot's per-channel role-sets,
+    the K6 ``role_not_held`` gate's DB truth made visible) (+ the Recovery
+    field in the disabled mode), copy verbatim for the shipped fields. The
     shipped Delete-blocked-commands field is the ledgered under-port
     (no store column here — the section comment)."""
     guild_id = int(getattr(ctx, "guild_id", 0) or 0)
@@ -1013,6 +1040,8 @@ async def _command_access_fields(ctx) -> tuple[tuple[str, str], ...]:
         ("Current mode", f"**{mode_label}**\n{mode_description}"),
         (f"Allowed channels ({len(snapshot.allowed_channels)})",
          _format_channel_list(snapshot.allowed_channels)),
+        (f"Role gates ({len(snapshot.channel_role_sets)})",
+         _format_role_gates(snapshot.channel_role_sets)),
     ]
     if snapshot.mode == "disabled_except_bootstrap":
         fields.append(("Recovery", _CA_RECOVERY))
@@ -1040,6 +1069,18 @@ def settings_command_access_spec() -> PanelSpec:
                 min_values=0, max_values=25,
                 placeholder="Set allowed channels (selected_channels "
                             "mode)…",
+                audience_tier="administrator"),
+            # D3 M1 slice 2 — the per-channel role-gate editor. Native
+            # RoleSelect (component type 6). Current-channel-bound: it
+            # writes THIS channel's role set (the handler reads
+            # req.channel_id), keeping the panel's stateless "DB snapshot
+            # IS the state" model (no session dict). min 0 / max 25 — a
+            # blank selection CLEARS this channel's gate (allow_empty).
+            SelectorSpec(
+                selector_id="ca_channel_roles", kind=SelectorKind.ROLE,
+                on_select=HandlerRef("settings.ca_channel_roles"),
+                min_values=0, max_values=25,
+                placeholder="Set THIS channel's role gate (blank clears)…",
                 audience_tier="administrator"),
         ),
         actions=(
@@ -1084,6 +1125,7 @@ def settings_command_access_spec() -> PanelSpec:
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("ca_all_channels", "ca_selected_channels", "ca_disabled"),
             ("ca_channels",),
+            ("ca_channel_roles",),
             ("command_access_back",),
         )),)),
     )

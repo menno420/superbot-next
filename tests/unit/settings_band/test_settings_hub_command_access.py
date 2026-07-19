@@ -68,11 +68,13 @@ def _handler(name):
     return resolve(HandlerRef(name))
 
 
-def _snapshot(mode=None, channels=()):
+def _snapshot(mode=None, channels=(), role_sets=None):
     from sb.kernel.authority.channel_access import CommandAccessSnapshot
 
-    return CommandAccessSnapshot(mode=mode,
-                                 allowed_channels=frozenset(channels))
+    return CommandAccessSnapshot(
+        mode=mode, allowed_channels=frozenset(channels),
+        channel_role_sets={cid: frozenset(rs)
+                           for cid, rs in (role_sets or {}).items()})
 
 
 def _install_snapshot(monkeypatch, snapshot):
@@ -122,6 +124,23 @@ def _install_channels_write(monkeypatch, outcome=None, user_message=""):
     return calls
 
 
+def _install_channel_roles_write(monkeypatch, outcome=None, user_message=""):
+    """Stub the platform.set_channel_roles K7 lane (Slice 1's per-channel
+    role-set replace); records (ctx, channel_id, role_ids, allow_empty)."""
+    from sb.domain.platform import command_access
+    from sb.spec.outcomes import SUCCESS
+
+    calls: list[tuple] = []
+
+    async def fake_roles(ctx, *, channel_id, role_ids, allow_empty=False):
+        calls.append((ctx, channel_id, tuple(role_ids), allow_empty))
+        return SimpleNamespace(outcome=outcome or SUCCESS,
+                               user_message=user_message)
+
+    monkeypatch.setattr(command_access, "set_channel_roles", fake_roles)
+    return calls
+
+
 # --- the spec + hub route ---------------------------------------------------------
 
 
@@ -165,9 +184,10 @@ def test_command_access_spec_shape_is_the_shipped_view():
         # settings_command_access.* ids are not in the freeze.
         assert by_id[aid].custom_id_override == "", aid
 
-    # the shipped multi-ChannelSelect: blank selection = clear (min 0).
-    (select,) = spec.selectors
-    assert select.selector_id == "ca_channels"
+    # the shipped multi-ChannelSelect: blank selection = clear (min 0);
+    # + the D3 M1 slice-2 role-gate RoleSelect (run-minted ca_channel_roles).
+    by_sel = {s.selector_id: s for s in spec.selectors}
+    select = by_sel["ca_channels"]
     assert select.kind is SelectorKind.CHANNEL
     assert select.min_values == 0
     assert select.max_values == 25
@@ -177,6 +197,15 @@ def test_command_access_spec_shape_is_the_shipped_view():
     assert select.placeholder == ("Set allowed channels "
                                   "(selected_channels mode)…")
 
+    roles = by_sel["ca_channel_roles"]
+    assert roles.kind is SelectorKind.ROLE
+    assert roles.min_values == 0            # blank selection clears the gate
+    assert roles.max_values == 25
+    assert roles.on_select == HandlerRef("settings.ca_channel_roles")
+    assert roles.audience_tier == "administrator"
+    assert roles.custom_id_override == ""   # run-minted (not in the freeze)
+    assert roles.placeholder == "Set THIS channel's role gate (blank clears)…"
+
     # Back-to-Hub — the PanelRef open-child terminal (slice-1 shape).
     back = by_id["command_access_back"]
     assert back.handler == PanelRef("settings.hub")
@@ -184,11 +213,13 @@ def test_command_access_spec_shape_is_the_shipped_view():
     assert back.emoji == "↩"
     assert back.custom_id_override == ""
 
-    # the shipped rows: modes / select / back (the delete-blocked
-    # toggle's row is the ledgered under-port).
+    # the shipped rows: modes / allowlist select / role-gate select (D3 M1
+    # slice 2) / back (the delete-blocked toggle's row is the ledgered
+    # under-port).
     assert spec.layout.pages[0].rows == (
         ("ca_all_channels", "ca_selected_channels", "ca_disabled"),
         ("ca_channels",),
+        ("ca_channel_roles",),
         ("command_access_back",),
     )
 
@@ -225,6 +256,8 @@ def test_fields_default_no_policy_row(monkeypatch):
          "Normal prefix + slash commands work in every guild channel "
          "(subject to per-command permissions and governance)."),
         ("Allowed channels (0)", "*(none configured)*"),
+        ("Role gates (0)",
+         "*(none configured — no per-channel role gate)*"),
     )
     assert calls == [GID]
 
@@ -240,7 +273,9 @@ def test_fields_selected_channels_renders_the_sorted_mentions(monkeypatch):
         "Bootstrap commands (`/setup`, `/help`, `/settings`, etc.) "
         "still work everywhere for guild operators.")
     assert fields[1] == ("Allowed channels (3)", "<#10> <#20> <#30>")
-    assert len(fields) == 2             # no Recovery field outside disabled
+    assert fields[2] == ("Role gates (0)",
+                         "*(none configured — no per-channel role gate)*")
+    assert len(fields) == 3             # no Recovery field outside disabled
 
 
 def test_fields_disabled_mode_carries_the_recovery_field(monkeypatch):
@@ -252,7 +287,7 @@ def test_fields_disabled_mode_carries_the_recovery_field(monkeypatch):
         "Normal commands are denied. Only bootstrap commands "
         "remain reachable so an operator can re-enable from "
         "`!setup` or this panel.")
-    assert fields[2] == (
+    assert fields[3] == (
         "Recovery",
         "Normal commands are currently denied.  Pick **All "
         "channels** or **Selected channels** above to re-enable, "
@@ -380,6 +415,86 @@ def test_channels_write_failure_answers_honestly(monkeypatch):
     assert reply.outcome == "error"
     assert "Couldn't update the allowed channels" in reply.user_message
     assert "nope" in reply.user_message
+
+
+# --- D3 M1 slice 2: the Role-gates field + the per-channel role editor -------------
+
+
+def test_role_gates_field_renders_the_snapshot_role_sets(monkeypatch):
+    # two channels with configured gates + one cleared (empty set) — the
+    # field renders sorted channels, sorted role mentions per channel.
+    _install_snapshot(monkeypatch, _snapshot(
+        "selected_channels", (10,),
+        role_sets={20: (300, 100), 10: (200,), 30: ()}))
+    fields = run(_fields()(_ctx()))
+    assert fields[2] == (
+        "Role gates (3)",
+        "<#10> — <@&200>\n"
+        "<#20> — <@&100> <@&300>\n"
+        "<#30> — *(cleared)*")
+
+
+def test_role_editor_writes_this_channels_gate(monkeypatch):
+    from sb.spec.outcomes import SUCCESS
+
+    calls = _install_channel_roles_write(monkeypatch)
+    reply = run(_handler("settings.ca_channel_roles")(
+        _req(args={"values": ("500", "600")})))
+    (ctx, channel_id, role_ids, allow_empty), = calls
+    # current-channel-bound: the write targets req.channel_id, not a
+    # session-picked channel (the stateless panel model).
+    assert channel_id == CHAN
+    assert role_ids == (500, 600)
+    assert allow_empty is True              # the atomic-replace contract
+    assert ctx.guild_id == GID
+    assert ctx.actor.user_id == 42
+    assert reply.outcome == SUCCESS
+    assert reply.user_message == (
+        f"✅ Role gate for <#{CHAN}> updated (2 roles).")
+
+
+def test_role_editor_single_role_uses_the_singular(monkeypatch):
+    _install_channel_roles_write(monkeypatch)
+    reply = run(_handler("settings.ca_channel_roles")(
+        _req(args={"values": ("500",)})))
+    assert reply.user_message == (
+        f"✅ Role gate for <#{CHAN}> updated (1 role).")
+
+
+def test_blank_role_selection_clears_this_channels_gate(monkeypatch):
+    from sb.spec.outcomes import SUCCESS
+
+    calls = _install_channel_roles_write(monkeypatch)
+    reply = run(_handler("settings.ca_channel_roles")(
+        _req(args={"values": ()})))
+    (_, channel_id, role_ids, allow_empty), = calls
+    assert channel_id == CHAN
+    assert role_ids == ()
+    assert allow_empty is True              # blank clears (min_values=0)
+    assert reply.outcome == SUCCESS
+    assert reply.user_message == f"✅ Role gate cleared for <#{CHAN}>."
+
+
+def test_role_editor_write_failure_answers_honestly(monkeypatch):
+    _install_channel_roles_write(monkeypatch, outcome="error",
+                                 user_message="downstream boom")
+    reply = run(_handler("settings.ca_channel_roles")(
+        _req(args={"values": ("500",)})))
+    assert reply.outcome == "error"
+    assert "Couldn't update this channel's role gate" in reply.user_message
+    assert "downstream boom" in reply.user_message
+
+
+def test_role_editor_no_guild_guard_blocks_before_the_seam(monkeypatch):
+    from sb.spec.outcomes import BLOCKED
+
+    calls = _install_channel_roles_write(monkeypatch)
+    reply = run(_handler("settings.ca_channel_roles")(
+        _req(guild_id=0, args={"values": ("500",)})))
+    assert reply.outcome == BLOCKED
+    assert reply.user_message == (
+        "❌ Command access can only be configured inside a server.")
+    assert calls == []
 
 
 # --- the guards --------------------------------------------------------------------

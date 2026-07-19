@@ -11870,6 +11870,9 @@
       "handler:settings.access_view": {
         "module": "sb.domain.settings.handlers"
       },
+      "handler:settings.ca_channel_roles": {
+        "module": "sb.domain.settings.handlers"
+      },
       "handler:settings.ca_channels": {
         "module": "sb.domain.settings.handlers"
       },
@@ -58590,6 +58593,9 @@
                     "ca_channels"
                   ],
                   [
+                    "ca_channel_roles"
+                  ],
+                  [
                     "command_access_back"
                   ]
                 ]
@@ -58627,6 +58633,25 @@
               "page_size": 25,
               "placeholder": "Set allowed channels (selected_channels mode)…",
               "selector_id": "ca_channels",
+              "slash_common": false,
+              "usage_weight": 1.0,
+              "windowed": false
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 25,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:settings.ca_channel_roles"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Set THIS channel's role gate (blank clears)…",
+              "selector_id": "ca_channel_roles",
               "slash_common": false,
               "usage_weight": 1.0,
               "windowed": false
