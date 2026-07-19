@@ -116,7 +116,12 @@ MANIFEST = SubsystemManifest(
             # arm of settings.open_group opens this (owner ruling option A),
             # displacing the retired settings.group_pending terminal. The
             # S1 bool toggle rides the K7 settings.set_scalar lane.
-            _panels.settings_group_edit_spec()),
+            _panels.settings_group_edit_spec(),
+            # the ported enum-select edit widget (settings epic S2 — oracle
+            # disbot/views/settings/edit_enum.py): opened from the group_edit
+            # Edit select for a str-with-allowed_values scalar; a pick commits
+            # the chosen member through the same K7 settings.set_scalar lane.
+            _panels.settings_group_edit_enum_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),

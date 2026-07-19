@@ -384,10 +384,23 @@ source:
   # lane (the guild `settings` row write + the audited spine), the page
   # refreshes IN PLACE and the ephemeral followup confirms `✅ role.
   # time_roles_stack set to **True**.`. No new op — the existing scalar lane.
-  minted_goldens: 66
+  # +1 minted the SETTINGS ENUM-SELECT write golden (2026-07-19, settings epic
+  # S2 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_enum_write.json. !settings then the
+  # non-hub group select (moderation) opens the group_edit page; picking the
+  # enum warn_escalation_action in the Edit select opens the windowed enum
+  # picker (settings.group_edit_enum — oracle disbot/views/settings/
+  # edit_enum.py @ f87fa508 build_enum_select_view) of the declared
+  # allowed_values (timeout/kick/ban/none, the current value pre-marked); the
+  # picker render is captured, then picking `kick` commits it through the K7
+  # settings.set_scalar lane (the guild `settings` row write key
+  # moderation_warn_escalation_action=kick + the audited spine), the picker
+  # refreshes IN PLACE and the ephemeral followup confirms. No new op — the
+  # existing scalar lane, one widget further.
+  minted_goldens: 67
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 528). The first retirement (2026-07-12
+  # imported + minted − retired = 529). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

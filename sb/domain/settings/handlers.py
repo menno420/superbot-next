@@ -195,6 +195,29 @@ async def _refresh_group_edit(req, group: str) -> bool:
         return False
 
 
+async def _refresh_group_edit_enum(req, group: str, name: str) -> bool:
+    """Best-effort in-place re-render of the enum picker after a write
+    (the _refresh_group_edit posture, one axis further): re-supply BOTH the
+    group and the setting so the picker's options re-mark the new current
+    value; a miss degrades to the caller's text confirmation."""
+    key = _message_key(req)
+    if not key:
+        return False
+    try:
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+        from sb.kernel.panels.engine import refresh_session_view
+
+        return await refresh_session_view(
+            req, message_key=key,
+            params={GROUP_EDIT_PARAM: group, GROUP_EDIT_SETTING_PARAM: name})
+    except Exception:  # noqa: BLE001 — the caller's text reply answers
+        logger.debug("settings.group_edit_enum refresh failed", exc_info=True)
+        return False
+
+
 def _group_edit_selection(req):
     """(group, setting_name) from a group_edit select click: the group rides
     the minted-child args (GROUP_EDIT_PARAM), the picked setting rides the
@@ -567,11 +590,13 @@ def _register() -> None:
     @handler("settings.group_edit_pick")
     async def group_edit_pick(req):
         """The windowed "Edit a setting…" select — dispatch by the picked
-        SettingSpec's value type. S0: bool toggles in place through
-        settings.set_scalar (the flipped effective value); other types land
-        their widget in a later slice (S2–S7)."""
+        SettingSpec's value type. S1: bool toggles in place through
+        settings.set_scalar (the flipped effective value). S2: an enum-shaped
+        scalar (str + allowed_values) opens the windowed enum picker
+        (settings.group_edit_enum). The remaining per-type widgets land in a
+        later slice (S3–S7)."""
         from sb.domain.settings.ops import SET_SCALAR
-        from sb.domain.settings.panels import _group_edit_spec
+        from sb.domain.settings.panels import _group_edit_spec, _is_enum_spec
         from sb.spec.outcomes import BLOCKED
 
         group, name = _group_edit_selection(req)
@@ -580,30 +605,53 @@ def _register() -> None:
         spec = _group_edit_spec(group, name)
         if spec is None:
             return Reply(BLOCKED, f"⚙️ Unknown setting `{group}.{name}`.")
-        if not spec.is_bool:
-            return Reply(
-                SUCCESS,
-                f"⚙️ The `{spec.value_type}` editor for `{group}.{name}` "
-                f"ports in a later settings slice (S2–S7). The bool toggle "
-                f"is live now (S1).")
-        if not req.guild_id:
-            return Reply(BLOCKED, "❌ Settings are per server — use this "
-                                  "inside a server.")
-        from sb.kernel import settings as ksettings
+        # S1 — bool toggle: flip the effective value in place.
+        if spec.is_bool:
+            if not req.guild_id:
+                return Reply(BLOCKED, "❌ Settings are per server — use this "
+                                      "inside a server.")
+            from sb.kernel import settings as ksettings
 
-        current = bool(await ksettings.resolve(int(req.guild_id), group, name))
-        new_value = "false" if current else "true"
-        key = ksettings.persisted_key(group, name)
-        result = await _run_scalar_op(req, SET_SCALAR,
-                                      {"key": key, "value": new_value})
-        if getattr(result, "outcome", None) != SUCCESS:
-            return Reply(
-                getattr(result, "outcome", "error"),
-                f"❌ Couldn't update `{group}.{name}`: "
-                f"{getattr(result, 'user_message', '') or 'write failed'}")
-        await _refresh_group_edit(req, group)
-        return Reply(SUCCESS,
-                     f"✅ `{group}.{name}` set to **{not current}**.")
+            current = bool(await ksettings.resolve(
+                int(req.guild_id), group, name))
+            new_value = "false" if current else "true"
+            key = ksettings.persisted_key(group, name)
+            result = await _run_scalar_op(req, SET_SCALAR,
+                                          {"key": key, "value": new_value})
+            if getattr(result, "outcome", None) != SUCCESS:
+                return Reply(
+                    getattr(result, "outcome", "error"),
+                    f"❌ Couldn't update `{group}.{name}`: "
+                    f"{getattr(result, 'user_message', '') or 'write failed'}")
+            await _refresh_group_edit(req, group)
+            return Reply(SUCCESS,
+                         f"✅ `{group}.{name}` set to **{not current}**.")
+        # S2 — enum select: open the windowed picker of the declared
+        # allowed_values (the oracle build_enum_select_view). The group + the
+        # picked setting ride the opening args so the engine bakes them onto
+        # the session-minted select; a value click commits through set_scalar.
+        if _is_enum_spec(spec):
+            import dataclasses as _dc
+
+            from sb.domain.settings.panels import (
+                GROUP_EDIT_PARAM,
+                GROUP_EDIT_SETTING_PARAM,
+            )
+            from sb.kernel.panels.engine import open_panel
+            from sb.spec.refs import PanelRef
+
+            await open_panel(
+                PanelRef("settings.group_edit_enum"),
+                _dc.replace(req, args={**dict(req.args),
+                                       GROUP_EDIT_PARAM: group,
+                                       GROUP_EDIT_SETTING_PARAM: name}))
+            return None
+        # S3–S7 — the remaining per-type widgets land in a later slice.
+        return Reply(
+            SUCCESS,
+            f"⚙️ The `{spec.value_type}` editor for `{group}.{name}` "
+            f"ports in a later settings slice (S3–S7). The bool toggle (S1) "
+            f"and enum select (S2) are live now.")
 
     @handler("settings.group_edit_reset")
     async def group_edit_reset(req):
@@ -655,6 +703,81 @@ def _register() -> None:
             f"⚙️ `{group}` has no dedicated interactive panel yet — use the "
             f"Edit / Reset selects above, or the hub's diagnostics "
             f"(📋 Needs setup · ⚠️ Invalid settings · 🔗 Missing bindings).")
+
+    # --- the ported enum-select edit widget (settings epic S2) --------------
+    # The oracle build_enum_select_view (disbot/views/settings/edit_enum.py):
+    # a windowed select of a str setting's declared allowed_values whose pick
+    # wrote through the mutation pipeline. Here the chosen member commits
+    # through the LIVE K7 settings.set_scalar lane (no new op) and the picker
+    # refreshes in place. The group + setting ride the click's session-minted
+    # args (GROUP_EDIT_PARAM / GROUP_EDIT_SETTING_PARAM).
+
+    @handler("settings.group_edit_enum_pick")
+    async def group_edit_enum_pick(req):
+        """The windowed enum select — commit the chosen allowed value through
+        settings.set_scalar. The value rides the ordinary select `values`
+        round-trip (so an out-of-window pick resolves the same as a
+        first-window one); the (group, setting) ride the minted-child args."""
+        from sb.domain.settings.ops import SET_SCALAR
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+            _group_edit_spec,
+            _is_enum_spec,
+        )
+        from sb.spec.outcomes import BLOCKED
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        name = str(req.args.get(GROUP_EDIT_SETTING_PARAM) or "")
+        values = tuple(req.args.get("values", ()) or ())
+        chosen = str(values[0]) if values else ""
+        if not group or not name:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        spec = _group_edit_spec(group, name)
+        if spec is None or not _is_enum_spec(spec):
+            return Reply(BLOCKED,
+                         f"⚙️ `{group}.{name}` is not an enum setting.")
+        allowed = tuple(str(v) for v in (spec.allowed_values or ()))
+        if chosen not in allowed:
+            return Reply(BLOCKED,
+                         f"⚙️ `{chosen}` is not an allowed value for "
+                         f"`{group}.{name}`.")
+        if not req.guild_id:
+            return Reply(BLOCKED, "❌ Settings are per server — use this "
+                                  "inside a server.")
+        from sb.kernel import settings as ksettings
+
+        key = ksettings.persisted_key(group, name)
+        result = await _run_scalar_op(req, SET_SCALAR,
+                                      {"key": key, "value": chosen})
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't update `{group}.{name}`: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_group_edit_enum(req, group, name)
+        return Reply(SUCCESS,
+                     f"✅ `{group}.{name}` set to **{chosen}**.")
+
+    @handler("settings.group_edit_enum_back")
+    async def group_edit_enum_back(req):
+        """↩ Back to settings — re-open the group's edit page (the group rides
+        the click's args; the oracle enum view's back-to-parent). Never a
+        strand: a missing group falls back to the honest expiry terminal."""
+        import dataclasses as _dc
+
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        if not group:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        await open_panel(
+            PanelRef("settings.group_edit"),
+            _dc.replace(req, args={**dict(req.args),
+                                   GROUP_EDIT_PARAM: group}))
+        return None
 
 
 _register()

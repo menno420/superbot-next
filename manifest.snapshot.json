@@ -6065,6 +6065,11 @@
           "value": "group_back"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "enum_back"
+        },
+        {
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "depth_quick"
@@ -8287,6 +8292,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.group_edit"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.group_edit_enum"
         },
         {
           "source": "sb/manifest/setup.py",
@@ -11761,6 +11771,12 @@
       "handler:settings.ca_mode": {
         "module": "sb.domain.settings.handlers"
       },
+      "handler:settings.group_edit_enum_back": {
+        "module": "sb.domain.settings.handlers"
+      },
+      "handler:settings.group_edit_enum_pick": {
+        "module": "sb.domain.settings.handlers"
+      },
       "handler:settings.group_edit_pick": {
         "module": "sb.domain.settings.handlers"
       },
@@ -13423,6 +13439,9 @@
       "panel:settings.group_edit": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:settings.group_edit_enum": {
+        "module": "sb.domain.settings.panels"
+      },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
@@ -14108,6 +14127,12 @@
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.group_edit_edit_options": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.group_edit_enum_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.group_edit_enum_options": {
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.group_edit_fields": {
@@ -58565,6 +58590,107 @@
           "subsystem": "settings",
           "timeout_s": 180,
           "title": "⚙️ Settings",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "enum_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_enum_back"
+              },
+              "label": "Back to settings",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "provider": {
+                "$ref": "provider:settings.group_edit_enum_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "enum_select"
+                  ],
+                  [
+                    "enum_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.group_edit_enum",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No choices declared for this setting…",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:settings.group_edit_enum_pick"
+              },
+              "options_source": {
+                "$ref": "provider:settings.group_edit_enum_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a new value…",
+              "selector_id": "enum_select",
+              "slash_common": false,
+              "usage_weight": 1.0,
+              "windowed": true
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "⚙️ Edit a setting",
           "usage_weight": 1.0
         }
       ],
