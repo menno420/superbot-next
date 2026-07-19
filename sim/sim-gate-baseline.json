@@ -6743,7 +6743,7 @@
   },
   "settings:settings.command_access:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry). D3 access-audit M1 slice 2 inserts the per-channel role-gate RoleSelect (ca_channel_roles) as the row directly before Back-to-Hub \u2014 the editor for Slice 1's persisted channel_role_sets; net-new rebuild surface (no oracle counterpart), one added admin-only control row that preserves the shipped mode-buttons / allowlist / back grouping"
    },
    "value": [
     {
@@ -6757,6 +6757,9 @@
        "ca_channels"
       ],
       [
+       "ca_channel_roles"
+      ],
+      [
        "command_access_back"
       ]
      ]
@@ -6765,7 +6768,7 @@
   },
   "settings:settings.command_access:PageSpec.rows": {
    "provenance": {
-    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry). D3 access-audit M1 slice 2 inserts the per-channel role-gate RoleSelect (ca_channel_roles) as the row directly before Back-to-Hub \u2014 the editor for Slice 1's persisted channel_role_sets; net-new rebuild surface (no oracle counterpart), one added admin-only control row that preserves the shipped mode-buttons / allowlist / back grouping"
    },
    "value": [
     [
@@ -6777,13 +6780,16 @@
      "ca_channels"
     ],
     [
+     "ca_channel_roles"
+    ],
+    [
      "command_access_back"
     ]
    ]
   },
   "settings:settings.command_access:PanelSpec.layout": {
    "provenance": {
-    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry). D3 access-audit M1 slice 2 inserts the per-channel role-gate RoleSelect (ca_channel_roles) as the row directly before Back-to-Hub \u2014 the editor for Slice 1's persisted channel_role_sets; net-new rebuild surface (no oracle counterpart), one added admin-only control row that preserves the shipped mode-buttons / allowlist / back grouping"
    },
    "value": {
     "pages": [
@@ -6796,6 +6802,9 @@
        ],
        [
         "ca_channels"
+       ],
+       [
+        "ca_channel_roles"
        ],
        [
         "command_access_back"

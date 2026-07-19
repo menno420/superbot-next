@@ -672,6 +672,52 @@ def _register() -> None:
                 f"channel{'s' if len(channel_ids) != 1 else ''}).")
         return Reply(SUCCESS, "✅ Allowed channel list cleared.")
 
+    @handler("settings.ca_channel_roles")
+    async def ca_channel_roles(req):
+        """D3 M1 slice 2 — the per-channel role-gate editor. A native
+        RoleSelect picking the role set that gates THIS channel
+        (``req.channel_id``); writes through platform.set_channel_roles
+        (Slice 1's atomic per-(guild, channel) replace — DELETE + re-INSERT
+        keyed on the (guild, channel) natural key, so other channels' gates
+        stay untouched). A blank selection CLEARS this channel's gate
+        (allow_empty — the min_values=0 contract, the ca_channels precedent).
+
+        Current-channel-bound by design: the editor targets the channel the
+        panel is used in, which keeps the stateless panel model (the DB
+        snapshot IS the state — no session dict). Every configured channel's
+        gate stays visible in the Role-gates field; other channels are edited
+        by opening the panel there. A successful write refreshes the panel in
+        place then confirms (the ca_channels posture)."""
+        from sb.domain.platform import command_access
+        from sb.spec.outcomes import BLOCKED
+
+        if not req.guild_id:
+            # shipped guard copy, verbatim.
+            return Reply(BLOCKED, _CA_GUILD_ONLY)
+        channel_id = int(req.channel_id or 0)
+        if not channel_id:
+            return Reply(BLOCKED, "❌ This role gate needs a channel "
+                                  "context — use the panel inside the "
+                                  "target channel.")
+        role_ids = tuple(
+            int(v) for v in (req.args.get("values", ()) or ())
+            if str(v).isdigit())
+        result = await command_access.set_channel_roles(
+            ctx_from_request(req, {}), channel_id=channel_id,
+            role_ids=role_ids, allow_empty=True)
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't update this channel's role gate: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_command_access(req)
+        if role_ids:
+            return Reply(
+                SUCCESS,
+                f"✅ Role gate for <#{channel_id}> updated ({len(role_ids)} "
+                f"role{'s' if len(role_ids) != 1 else ''}).")
+        return Reply(SUCCESS, f"✅ Role gate cleared for <#{channel_id}>.")
+
     # --- the ported per-group EDIT page controls (settings epic S0) ---------
     # The oracle SubsystemSettingsView edit/reset selects + Open-Panel
     # button. The Edit select dispatches by SettingSpec type: S0 wires the
