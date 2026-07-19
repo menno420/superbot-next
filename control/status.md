@@ -7,12 +7,14 @@
 > [`docs/current-state.md`](../docs/current-state.md); the forward task list is
 > [`docs/NEXT-TASKS.md`](../docs/NEXT-TASKS.md).
 
-updated: 2026-07-18T04:15:22Z
-phase: EAP wind-down — autonomous apparatus retired; oracle port loop running per NEXT-TASKS
-health: green
+updated: 2026-07-19T07:56:54Z
+phase: post-overnight execution — settings epic S0+
+health: green (~3531 tests, 7 required checks incl pip-audit)
 kit: v1.17.0 · check: green · engaged: no
-last-shipped: #512 — Help Home-message builder port (Q-0059); pending stub help.editor_home_message_pending retired
+last-shipped: #578
+open-prs: #576 parked (owner-attended completion; blocker in PR body)
+next-2: settings S0/S1 · D3 M1 per-channel granularity
 blockers: none
-orders: acked=001-023 done=001-023
+orders: unchanged (ORDER 024 executed; task ledger = docs/NEXT-TASKS.md)
 ⚑ needs-owner: (1) disarm the residual failsafe wake triggers via the routines UI — both enabled duplicates of "SuperBot 2.0 failsafe wake": trig_01E86nBnXqesQTwm6WA4mSUD + trig_01UC7wiV3n5Vgs3RpSQt4gWz (no standing wake chain in the recreated Project); (2) delete 4 orphan merged branches (blocked agent-side by the GitHub 403 ref-delete wall, recorded 2026-07-17): #385 claude/energy-slice-2, #473 claude/title-equip-write, #476 claude/curation-row72, #424 claude/wp-stack-reconcile.
 notes: Help Home-message builder (Q-0059) ported behind the audited seam — migration 0056 (additive), HomeMessage read model + set_home_message write lane, editor_home_message builder panel with mandatory-preview Save gate, help.home live-wired via guarded no-op. Golden corpus → 526 (help.home_message_save minted + main's mining_workshop_craft_write, reconciled as a UNION at merge over the 524 merge-base — minted_goldens 64); check_parity_depth 49/49 ported (kernel ported); run_golden_parity 50/50 subsystems ported (help subsystem already flipped, this adds goldens only). Full golden-parity gate verifies in CI (session-window wall); per-case mint_golden ORACLE-VERIFY green locally. NEXT-TASKS gap #4 (settings-audit) found already-done on inspection — no work required. Corpus disk-count via parity/goldens/*/*.json = 526 (find -name overcounts to 527 via the top-level _sweep_skips.json metadata file). The autonomous apparatus (self-wake / pacemaker / message bus) stays retired — no standing wake trigger re-armed. Forward work: docs/NEXT-TASKS.md.
