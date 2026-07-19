@@ -60,8 +60,9 @@
    (Owner action: the repo secret + variable + retention setting are owner-only.)
 
 6. **Replace the still-live autonomy apparatus with a plain direct-merge flow.**
-   Keep the six named CI gates (`.github/workflows/named-gates.yml`) as the merge
-   bar; with the enabler gone, agents just **merge their own green PRs directly**
+   Keep the six named CI gates (`.github/workflows/named-gates.yml`) plus
+   `pip-audit` (`.github/workflows/ci.yml`) as the merge bar; with the enabler
+   gone, agents just **merge their own green PRs directly**
    (MCP/REST) — remove `.github/workflows/auto-merge-enabler.yml` and retire the
    `control/` order-bus + wake-chain so nothing self-fires a wake.
    **Correction (2026-07-18):** the enabler is currently **LIVE** (fires

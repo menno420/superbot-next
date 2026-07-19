@@ -147,9 +147,11 @@ is one command —
 
 ## Review rhythm
 
-PRs open ready with a `.sessions/` card and must be green on the six required named
-checks (code-quality, manifest-validate, architecture, sim-gate, golden-parity,
-check_compat_frozen — `.github/workflows/named-gates.yml`) before they can land.
+PRs open ready with a `.sessions/` card and must be green on the seven required
+checks — the six named gates (code-quality, manifest-validate, architecture,
+sim-gate, golden-parity, check_compat_frozen — `.github/workflows/named-gates.yml`)
+plus `pip-audit` (a separate `.github/workflows/ci.yml` job branch protection also
+requires) — before they can land.
 **Merging a green PR is normal agent work:** a PR lands when its required checks go
 green. Agents merge their own green PRs directly (MCP/REST merge), or let the in-repo
 `auto-merge-enabler.yml` land it — GitHub-native squash auto-merge is armed at PR-open
