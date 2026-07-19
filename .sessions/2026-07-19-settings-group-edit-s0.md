@@ -1,8 +1,8 @@
 # 2026-07-19 — settings epic S0: the `settings.group_edit` page frame + S1 bool widget
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** [[fill:model]]
+- **📊 Model:** opus · high · feature build
 
 ## Scope
 
@@ -41,12 +41,42 @@ Deliverables:
 
 ## Result
 
-_(in progress — filled on flip to complete)_
+Landed the `settings.group_edit` page frame + the S1 bool toggle on PR #579.
+`settings.open_group`'s non-hub arm now opens the ported page
+(`sb/domain/settings/panels.py` `settings_group_edit_spec` + the
+`_group_edit_*` providers/renderer; `sb/domain/settings/handlers.py` the
+re-pointed `open_group` + the `group_edit_pick` / `group_edit_reset` /
+`group_open_panel` handlers); the 5 hub arms + `games` are untouched (option
+A, D-0097). `settings.group_pending` retired — the last orphan pending, so
+`tools/check_orphan_pendings.py` `_KNOWN_ORPHANS` is now empty. Two goldens
+minted honestly via the oracle-replay path (`settings_group_edit_open` +
+`settings_group_edit_bool_write`, corpus 528). The read embed reproduces the
+oracle `build_subsystem_embed` header/fields verbatim; the bool write
+persists the `settings` row through the K7 `set_scalar` lane + refreshes in
+place. `python3 -m pytest --ignore=examples`: **3531 passed, 15 skipped**;
+golden-parity gate **GREEN (528/528, 50 subsystems)**; manifest snapshot
+recompiled; `check_orphan_pendings` / `symbol_shadowing` / `namespace` /
+`no_skip` / `config_usage` clean.
 
 ## 💡 Session idea
 
-_[[fill:idea]]_
+The selected group never needed a parallel `_GROUP_EDIT_SESSIONS` dict: it
+rides the engine's `_mint_ephemeral` binding args, which bake the opening
+request's args onto every session-minted child, so a click already carries
+its page context (`GROUP_EDIT_PARAM`) alongside the live `values`. That is a
+reusable convention for every future per-entity session panel — S2–S7 inherit
+the group axis for free, and the diagnostics/command-access panels that
+currently keep their own `_ACCESS_SESSIONS`-style dicts could fold onto it
+where the axis is a pure open-time constant (not a running selection). Worth a
+one-liner in the panels playbook: "a session-view's open-time key rides the
+minted-child args, not a side table."
 
 ## ⟲ Previous-session review
 
-_[[fill:prev-review]]_
+The 2026-07-18 verify-C2/C3-backlog card (verify/review class) modelled
+the discipline this build leaned on: it closed each hardening item by citing
+the live class-killer invariant (an emptied `_ALLOWLIST` / `_KNOWN_ENSURE_ONLY`)
+rather than just a PR number. S0 does the same in the other direction —
+retiring the last `group_pending` orphan empties `_KNOWN_ORPHANS` to a zero
+floor, so the checker now proves "no orphan pending exists" as a standing
+invariant, not a one-time cleanup. Handoff read clean; no drift to reconcile.
