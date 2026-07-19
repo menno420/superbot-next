@@ -6080,6 +6080,16 @@
           "value": "number_back"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "text_edit"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "text_back"
+        },
+        {
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "depth_quick"
@@ -8312,6 +8322,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.group_edit_number"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.group_edit_text"
         },
         {
           "source": "sb/manifest/setup.py",
@@ -11804,6 +11819,12 @@
       "handler:settings.group_edit_reset": {
         "module": "sb.domain.settings.handlers"
       },
+      "handler:settings.group_edit_text_back": {
+        "module": "sb.domain.settings.handlers"
+      },
+      "handler:settings.group_edit_text_submit": {
+        "module": "sb.domain.settings.handlers"
+      },
       "handler:settings.group_open_panel": {
         "module": "sb.domain.settings.handlers"
       },
@@ -13466,6 +13487,9 @@
       "panel:settings.group_edit_number": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:settings.group_edit_text": {
+        "module": "sb.domain.settings.panels"
+      },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
@@ -14166,6 +14190,9 @@
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.group_edit_reset_options": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.group_edit_text_fields": {
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.hub_fields": {
@@ -58832,6 +58859,126 @@
             "show_rules": false
           },
           "panel_id": "settings.group_edit_number",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "⚙️ Edit a setting",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "text_edit",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "✏️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_text_submit"
+              },
+              "label": "Enter text…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "text_value",
+                    "label": "New value (text)",
+                    "max_length": 2000,
+                    "min_length": null,
+                    "placeholder": "Enter the new value…",
+                    "required": true,
+                    "style": "paragraph"
+                  }
+                ],
+                "modal_id": "settings.group_edit_text_form",
+                "on_submit": null,
+                "title": "Edit a setting"
+              },
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "text_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_text_back"
+              },
+              "label": "Back to settings",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "provider": {
+                "$ref": "provider:settings.group_edit_text_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "text_edit"
+                  ],
+                  [
+                    "text_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.group_edit_text",
           "renderer_override": null,
           "selectors": [],
           "session_lifecycle": true,

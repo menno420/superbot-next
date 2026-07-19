@@ -2719,6 +2719,7 @@
   "server_management:roles",
   "server_management:setup",
   "settings.group_edit_number_form",
+  "settings.group_edit_text_form",
   "settings_hub.audit",
   "settings_hub.command_access",
   "settings_hub.invalid",

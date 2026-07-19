@@ -89,6 +89,7 @@ from sb.spec.panels import (
     FooterMode,
     LayoutSpec,
     ModalFieldSpec,
+    ModalFieldStyle,
     ModalSpec,
     NavigationSpec,
     PageSpec,
@@ -115,6 +116,7 @@ __all__ = [
     "settings_command_access_spec",
     "settings_group_edit_enum_spec",
     "settings_group_edit_number_spec",
+    "settings_group_edit_text_spec",
     "settings_group_edit_spec",
     "settings_hub_spec",
     "settings_invalid_spec",
@@ -1841,6 +1843,140 @@ def settings_group_edit_number_spec() -> PanelSpec:
     )
 
 
+# --- the ported free-text-modal edit widget (settings epic S4) ----------------------
+#
+# The oracle dispatch_edit_setting routed a free-form `str` setting — a `str`
+# whose `allowed_values` is empty (an enum-shaped str goes to edit_enum, S2) —
+# to the TextSettingModal (disbot/views/settings/edit_text.py @ f87fa508): a
+# one-input modal whose submit wrote the typed string through the audited
+# mutation pipeline. Here that modal is a G-10 declared ModalSpec on its OWN
+# session-view child panel (settings.group_edit_text), opened from the group_edit
+# Edit select when the picked spec is free-text-shaped. This is the S3
+# number-modal shape verbatim (child session-view + issuing button + modal-args
+# stash) for a string field: a selector pick is AUTO-deferred, so a button
+# INTERMEDIATES and issues the modal, and the submit re-enters through the frozen
+# MODAL adapter with the (group, setting) restored from the kernel modal-args
+# stash (the opening click's session-minted args: GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM). The submitted string is validated (non-empty + the
+# declared `bounds` max-length `(max_len,)` per the SettingSpec — coerce_value
+# does NOT apply str bounds, so the length gate lives on the submit) then commits
+# through the LIVE K7 settings.set_scalar lane (no new op); an empty / over-length
+# entry rejects without a write.
+
+#: the shipped TextSettingModal (edit_text.py) as the G-10 declared form. The
+#: shipped title/label/placeholder embedded the picked setting's name + live
+#: current/default reprs; ModalSpec fields are static [S] wire data (the corpus
+#: cannot pin the transient form), so the per-open current/default readout rides
+#: the widget page's prompt instead — the _NUMBER_MODAL deviation precedent
+#: (D-0063/D-0085). The shipped input is a paragraph (multi-line) TextInput with
+#: max_length=2000 (the wire cap; the per-setting max-length gate is enforced on
+#: the submit against the declared bounds).
+_TEXT_MODAL = ModalSpec(
+    modal_id="settings.group_edit_text_form",
+    title="Edit a setting",
+    fields=(ModalFieldSpec(
+        field_id="text_value",
+        label="New value (text)",            # shipped verbatim
+        style=ModalFieldStyle.PARAGRAPH,     # shipped: discord.TextStyle.paragraph
+        placeholder="Enter the new value…",
+        required=True, max_length=2000),))
+
+
+#: input_hints the oracle dispatch_edit_setting routes BEFORE the value_type
+#: fallback (the channel/role/presets arms — the S5–S7 widget targets). A
+#: hinted scalar is NOT free-text even when it is a str, so the S4 arm excludes
+#: them to leave those settings for their own slices.
+_POINTER_HINTS = ("channel", "role", "numeric_presets")
+
+
+def _is_text_spec(spec) -> bool:
+    """The oracle free-text-dispatch predicate (dispatch_edit_setting's FINAL
+    fallback): a `str` scalar WITHOUT declared allowed_values and WITHOUT a
+    channel/role/presets input_hint pops the free-form text modal (a str WITH
+    allowed_values is the S2 enum select; a channel/role/presets-hinted scalar
+    is routed by the S5–S7 arms first — the oracle routes input_hint before the
+    value_type fallback)."""
+    if spec is None or str(spec.value_type) != "str":
+        return False
+    if getattr(spec, "allowed_values", ()) or ():
+        return False
+    hint = str(getattr(spec, "input_hint", "") or "").strip().lower()
+    return hint not in _POINTER_HINTS
+
+
+async def _group_edit_text_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The text widget's read block — names the setting under edit, its current
+    effective value + declared default + type, and any declared max-length
+    bound (the oracle TextSettingModal placeholder 'current=… · default=…'
+    carried onto the page since the modal copy is static). An expired session
+    degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    bounds = getattr(spec, "bounds", None)
+    max_len_line = (f"\nMax length: `{bounds[0]}` characters."
+                    if bounds and len(bounds) >= 1 else "")
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`  ·  "
+             f"type = `{spec.value_type}`{max_len_line}\n"
+             f"Tap **Enter text…** below to set a new value."),)
+
+
+def settings_group_edit_text_spec() -> PanelSpec:
+    """The free-text-modal edit widget (settings epic S4) — a session-view child
+    whose single button ISSUES a free-text-input modal (the ported
+    TextSettingModal), opened from the group_edit Edit select for a
+    str-without-allowed_values scalar. The submit validates (non-empty +
+    declared max-length) then commits through settings.set_scalar; the Back
+    button re-opens the group's edit page."""
+    return PanelSpec(
+        panel_id="settings.group_edit_text",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_text_fields")),),
+        actions=(
+            # G-10: the click ISSUES the text form; the submit re-enters through
+            # the MODAL adapter and writes on the audited K7 settings.set_scalar
+            # lane (the S3 number precedent). The (group, setting) ride the
+            # kernel modal-args stash restored at submit.
+            PanelActionSpec(
+                action_id="text_edit", label="Enter text…",
+                emoji="✏️", style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                defer_mode=DeferMode.MODAL, modal=_TEXT_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the submit
+                # re-entry (the text/number forms all followed up ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                handler=HandlerRef("settings.group_edit_text_submit")),
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the number_back twin).
+            PanelActionSpec(
+                action_id="text_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_text_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / number precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("text_edit",),
+            ("text_back",),
+        )),)),
+    )
+
+
 def settings_group_edit_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="settings.group_edit",
@@ -1965,6 +2101,8 @@ def _register_refs() -> None:
         panel("settings.group_edit_enum")(settings_group_edit_enum_spec)
     if not is_registered(PanelRef("settings.group_edit_number")):
         panel("settings.group_edit_number")(settings_group_edit_number_spec)
+    if not is_registered(PanelRef("settings.group_edit_text")):
+        panel("settings.group_edit_text")(settings_group_edit_text_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -2005,6 +2143,8 @@ def _register_refs() -> None:
         provider("settings.group_edit_enum_options")(_group_edit_enum_options)
     if not is_registered(ProviderRef("settings.group_edit_number_fields")):
         provider("settings.group_edit_number_fields")(_group_edit_number_fields)
+    if not is_registered(ProviderRef("settings.group_edit_text_fields")):
+        provider("settings.group_edit_text_fields")(_group_edit_text_fields)
 
 
 _register_refs()
@@ -2020,7 +2160,8 @@ def install_settings_panels() -> PanelSpec:
                  settings_invalid_spec(), settings_missing_bindings_spec(),
                  settings_audit_spec(), settings_command_access_spec(),
                  settings_group_edit_spec(), settings_group_edit_enum_spec(),
-                 settings_group_edit_number_spec()):
+                 settings_group_edit_number_spec(),
+                 settings_group_edit_text_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:

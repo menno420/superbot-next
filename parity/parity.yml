@@ -410,10 +410,23 @@ source:
   # `settings` row write key warn_threshold=5 + the audited spine), the widget
   # refreshes IN PLACE and the ephemeral followup confirms. No new op — the
   # existing scalar lane, one widget further.
-  minted_goldens: 68
+  # +1 minted the SETTINGS FREE-TEXT-MODAL write golden (2026-07-19, settings
+  # epic S4 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_text_write.json. !settings then the
+  # non-hub group select (karma) opens the group_edit page; picking the
+  # free-text str reaction_emoji in the Edit select opens the free-text-modal
+  # widget (settings.group_edit_text — oracle disbot/views/settings/edit_text.py
+  # @ f87fa508 TextSettingModal), whose "Enter text…" button ISSUES the G-10
+  # free-text modal (stashing the (group, setting) session args); the widget
+  # render is captured, then submitting `⭐` validates (non-empty + the declared
+  # 64-char max-length bound) and commits it through the K7 settings.set_scalar
+  # lane (the guild `settings` row write key karma_reaction_emoji=⭐ + the
+  # audited spine), the widget refreshes IN PLACE and the ephemeral followup
+  # confirms. No new op — the existing scalar lane, one widget further.
+  minted_goldens: 69
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 530). The first retirement (2026-07-12
+  # imported + minted − retired = 531). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

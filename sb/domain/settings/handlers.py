@@ -241,6 +241,29 @@ async def _refresh_group_edit_number(req, group: str, name: str) -> bool:
         return False
 
 
+async def _refresh_group_edit_text(req, group: str, name: str) -> bool:
+    """Best-effort in-place re-render of the text widget after a write (the
+    _refresh_group_edit_number twin): re-supply BOTH the group and the setting
+    so the prompt re-reads the new effective value; a miss degrades to the
+    caller's text confirmation."""
+    key = _message_key(req)
+    if not key:
+        return False
+    try:
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+        from sb.kernel.panels.engine import refresh_session_view
+
+        return await refresh_session_view(
+            req, message_key=key,
+            params={GROUP_EDIT_PARAM: group, GROUP_EDIT_SETTING_PARAM: name})
+    except Exception:  # noqa: BLE001 — the caller's text reply answers
+        logger.debug("settings.group_edit_text refresh failed", exc_info=True)
+        return False
+
+
 def _group_edit_selection(req):
     """(group, setting_name) from a group_edit select click: the group rides
     the minted-child args (GROUP_EDIT_PARAM), the picked setting rides the
@@ -623,6 +646,7 @@ def _register() -> None:
             _group_edit_spec,
             _is_enum_spec,
             _is_number_spec,
+            _is_text_spec,
         )
         from sb.spec.outcomes import BLOCKED
 
@@ -693,12 +717,34 @@ def _register() -> None:
                                        GROUP_EDIT_PARAM: group,
                                        GROUP_EDIT_SETTING_PARAM: name}))
             return None
-        # S4–S7 — the remaining per-type widgets land in a later slice.
+        # S4 — free-text modal: a str-without-allowed_values scalar opens the
+        # free-text-input widget (the oracle TextSettingModal). The group +
+        # picked setting ride the opening args so the child session-view bakes
+        # them onto the modal-issue stash; the modal submit commits through
+        # set_scalar.
+        if _is_text_spec(spec):
+            import dataclasses as _dc
+
+            from sb.domain.settings.panels import (
+                GROUP_EDIT_PARAM,
+                GROUP_EDIT_SETTING_PARAM,
+            )
+            from sb.kernel.panels.engine import open_panel
+            from sb.spec.refs import PanelRef
+
+            await open_panel(
+                PanelRef("settings.group_edit_text"),
+                _dc.replace(req, args={**dict(req.args),
+                                       GROUP_EDIT_PARAM: group,
+                                       GROUP_EDIT_SETTING_PARAM: name}))
+            return None
+        # S5–S7 — the remaining per-type widgets land in a later slice.
         return Reply(
             SUCCESS,
             f"⚙️ The `{spec.value_type}` editor for `{group}.{name}` "
-            f"ports in a later settings slice (S4–S7). The bool toggle (S1), "
-            f"enum select (S2) and number modal (S3) are live now.")
+            f"ports in a later settings slice (S5–S7). The bool toggle (S1), "
+            f"enum select (S2), number modal (S3) and free-text modal (S4) "
+            f"are live now.")
 
     @handler("settings.group_edit_reset")
     async def group_edit_reset(req):
@@ -897,6 +943,112 @@ def _register() -> None:
     async def group_edit_number_back(req):
         """↩ Back to settings — re-open the group's edit page (the group rides
         the click's args; the enum_back twin). Never a strand: a missing group
+        falls back to the honest expiry terminal."""
+        import dataclasses as _dc
+
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        if not group:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        await open_panel(
+            PanelRef("settings.group_edit"),
+            _dc.replace(req, args={**dict(req.args),
+                                   GROUP_EDIT_PARAM: group}))
+        return None
+
+    # --- the ported free-text-modal edit widget (settings epic S4) ----------
+    # The oracle TextSettingModal (disbot/views/settings/edit_text.py): a
+    # one-input free-text modal for str-without-allowed_values scalars whose
+    # submit wrote the typed string through the mutation pipeline. Here the
+    # modal is a G-10 ModalSpec on the settings.group_edit_text child; the
+    # submit re-enters through the frozen MODAL adapter with the (group, setting)
+    # restored from the kernel modal-args stash (the S3 number precedent). The
+    # submitted string is validated (non-empty + the declared bounds max-length
+    # per the SettingSpec — coerce_value does NOT apply str bounds, so the
+    # length gate lives here) then commits through the LIVE K7
+    # settings.set_scalar lane (no new op); an empty / over-length entry rejects
+    # without a write.
+
+    @handler("settings.group_edit_text_submit")
+    async def group_edit_text_submit(req):
+        """The text form's SUBMIT (the oracle TextSettingModal.on_submit):
+        validate the typed string against the picked SettingSpec (non-empty +
+        the declared max-length bound), then commit through settings.set_scalar.
+        The (group, setting) arrive through the kernel modal-args stash (a stash
+        miss falls to the honest expiry terminal); an empty / over-length value
+        rejects without a write."""
+        from sb.domain.settings.ops import SET_SCALAR
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+            _group_edit_spec,
+            _is_text_spec,
+        )
+        from sb.spec.outcomes import BLOCKED
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        name = str(req.args.get(GROUP_EDIT_SETTING_PARAM) or "")
+        if not group or not name:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        spec = _group_edit_spec(group, name)
+        if spec is None or not _is_text_spec(spec):
+            return Reply(BLOCKED,
+                         f"⚙️ `{group}.{name}` is not a free-text setting.")
+        if not req.guild_id:
+            return Reply(BLOCKED, "❌ Settings are per server — use this "
+                                  "inside a server.")
+        # the shipped TextSettingModal stored the value verbatim; keep it as
+        # typed (templates carry meaningful internal whitespace).
+        raw = str(req.args.get("text_value") or "")
+        # non-empty — the widget requires a value (use Reset to clear a setting;
+        # the S0 reset select clears the explicit row through clear_scalar).
+        if not raw.strip():
+            return Reply(
+                BLOCKED,
+                f"❌ Couldn't update `{group}.{name}`: the value can't be "
+                f"empty (use **Reset** on the edit page to clear it).")
+        # declared max-length: str bounds are the single-element (max_len,).
+        bounds = getattr(spec, "bounds", None)
+        if bounds and len(bounds) >= 1 and isinstance(bounds[0], int):
+            max_len = bounds[0]
+            if len(raw) > max_len:
+                return Reply(
+                    BLOCKED,
+                    f"❌ Couldn't update `{group}.{name}`: value is too long "
+                    f"({len(raw)} > {max_len} characters).")
+        from sb.domain.settings.service import coerce_value
+
+        value, ok, diags = coerce_value(spec, raw)
+        if not ok:
+            # the shipped TextSettingModal coercion reject (SettingsMutationError)
+            # — no write. For a free-text str this is a defensive belt (str
+            # coercion is identity); an allowed_values guard would trip here.
+            return Reply(
+                BLOCKED,
+                f"❌ Couldn't update `{group}.{name}`: cannot coerce "
+                f"value={raw!r} to {spec.value_type} "
+                f"({'; '.join(diags) or 'invalid value'}).")
+        from sb.kernel import settings as ksettings
+
+        key = ksettings.persisted_key(group, name)
+        result = await _run_scalar_op(req, SET_SCALAR,
+                                      {"key": key, "value": str(value)})
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't update `{group}.{name}`: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_group_edit_text(req, group, name)
+        return Reply(SUCCESS,
+                     f"✅ `{group}.{name}` set to **{value!r}**.")
+
+    @handler("settings.group_edit_text_back")
+    async def group_edit_text_back(req):
+        """↩ Back to settings — re-open the group's edit page (the group rides
+        the click's args; the number_back twin). Never a strand: a missing group
         falls back to the honest expiry terminal."""
         import dataclasses as _dc
 

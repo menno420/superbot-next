@@ -127,7 +127,14 @@ MANIFEST = SubsystemManifest(
             # Edit select for an int / float scalar; its button issues a G-10
             # numeric-input modal whose submit coerces + range-validates then
             # commits through the same K7 settings.set_scalar lane.
-            _panels.settings_group_edit_number_spec()),
+            _panels.settings_group_edit_number_spec(),
+            # the ported free-text-modal edit widget (settings epic S4 — oracle
+            # disbot/views/settings/edit_text.py): opened from the group_edit
+            # Edit select for a str-without-allowed_values scalar; its button
+            # issues a G-10 free-text-input modal whose submit validates
+            # (non-empty + declared max-length) then commits through the same
+            # K7 settings.set_scalar lane.
+            _panels.settings_group_edit_text_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),
