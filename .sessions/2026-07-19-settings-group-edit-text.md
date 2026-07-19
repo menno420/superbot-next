@@ -1,8 +1,8 @@
 # 2026-07-19 — settings epic S4: the free-text modal edit widget
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** [[fill: family-level model line, no exact id]]
+- **📊 Model:** opus · high · feature build
 
 ## Scope
 
@@ -47,12 +47,74 @@ Deliverables:
 
 ## Result
 
-[[fill: result narrative]]
+Landed the S4 free-text-modal edit widget on PR #582. Picking a
+`str`-without-`allowed_values` scalar in the `settings.group_edit` Edit select
+now opens the free-text-modal widget `settings.group_edit_text`
+(`sb/domain/settings/panels.py` `settings_group_edit_text_spec` +
+`_group_edit_text_fields` provider; the new `_is_text_spec` predicate + the
+`_TEXT_MODAL` G-10 `ModalSpec`, a paragraph/multi-line input), whose
+"Enter text…" button ISSUES the free-text modal. On submit, the typed string is
+validated (non-empty + the declared `bounds` max-length `(max_len,)` per the
+`SettingSpec`) and commits through the existing K7 `settings.set_scalar` lane
+(`sb/domain/settings/handlers.py` `group_edit_pick` text branch +
+`group_edit_text_submit` / `group_edit_text_back` handlers + the
+`_refresh_group_edit_text` in-place refresh) — no new op minted. An empty /
+over-length entry rejects without a write. The (group, setting) ride the kernel
+modal-args stash restored at submit (the S3 `group_edit_number_submit`
+precedent) — no parallel session dict.
+
+Faithful to the oracle `dispatch_edit_setting` order, `_is_text_spec` EXCLUDES
+the `channel`/`role`/`numeric_presets` `input_hint`s (the S5–S7 widget targets
+the oracle routes BEFORE the free-text fallback). Flagged finding: after S4,
+every editable scalar in the current corpus routes to a live widget
+(bool/enum/number/free-text) — no editable setting is list-typed or carries a
+pointer `input_hint` today, so the "ports in a later slice (S5–S7)" placeholder
+is now defensive-only for real settings; the `test_non_bool_pick_degrades`
+regression test was repointed onto a synthetic `input_hint="channel"` spec to
+keep exercising that honest-degrade arm.
+
+Bool (S1) + enum (S2) + number (S3) stay live; text reset keeps clearing
+through `settings.clear_scalar` (the S0 reset select is type-agnostic).
+Option-A boundary preserved (the 5 hub arms + `games` untouched). Manifest
+snapshot recompiled (49 manifests). Golden
+`settings_group_edit_text_write.json` minted honestly via the oracle-replay
+path (`karma.reaction_emoji` str, bounds `(64,)` → `⭐`; the `settings` db_delta
+writes `karma_reaction_emoji=⭐`; step-4 issues the type-2 button, step-5 submits
+the type-9 modal + commits). Golden corpus 530 → 531 (minted 68 → 69);
+count-pins resynced in `test_check_parity_depth.py` + `test_replay_adapter.py`.
+Compat-frozen §5.3 pin amended for the new `settings.group_edit_text_form`
+modal custom_id (via `tools/check_compat_frozen.py --write`).
+Full `python3 -m pytest tests/unit` — **3523 passed, 15 skipped**;
+`check_symbol_shadowing` / `namespace` / `no_skip` / `config_usage` /
+`check_orphan_pendings` clean; `check_compat_frozen` green. The full
+`--ignore=examples` corpus + golden-parity replay is left to CI's authoritative
+gates on the PR (a local full run under a single Postgres deadlocks against the
+parity gate — S3's confirmed env-only note).
 
 ## 💡 Session idea
 
-[[fill: one genuine idea]]
+S4 confirmed the S3 idea's prediction — the modal-widget playbook line
+("child session-view + issuing button; selection rides the modal-args STASH;
+golden needs BOTH the issue click and the submit step") ported to a string
+field verbatim, zero new machinery. The genuinely NEW lesson is the *dispatch
+frontier*: S4 is the last value-type arm, so the free-text predicate must be
+the DISPATCH-ORDER COMPLEMENT of the arms above it AND the pointer arms below
+it — `str AND not allowed_values AND input_hint not in {channel,role,presets}`.
+The oracle encoded that ordering imperatively (input_hint checked first, then
+value_type fallback); a declarative per-arm predicate set only stays disjoint if
+each new arm subtracts BOTH directions. Worth pinning as the widget-frontier
+rule: "a value-type dispatch arm's predicate must exclude every sibling arm's
+claim in BOTH directions — the ones already landed and the ones the oracle
+routes ahead of it — or a later slice silently loses its targets." S5/S6 will
+lean on this exact exclusion (they claim the input_hints S4 just carved out).
 
 ## ⟲ Previous-session review
 
-[[fill: one-line review remark on the S3 session]]
+S3 (number) left the frame in exactly the shape S4 needed: the `_is_*_spec`
+predicate + child-session-view-with-baked-args + modal-args-stash pattern
+generalized to `_is_text_spec` with zero churn to the shared `group_edit_pick`
+/ reset / refresh seams, and S3's own comment already anticipated
+`role.skip_roles` as "str — S4 text widget", so the one regression it planted
+was self-documenting. The only thing S3 could not foresee: that S4 would close
+the value-type frontier and turn the S5–S7 placeholder into defensive-only code
+— a fact worth carrying into S5's plan note.
