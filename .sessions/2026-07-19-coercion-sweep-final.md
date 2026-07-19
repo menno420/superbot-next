@@ -86,7 +86,7 @@ real function before commit):
 
 - `python3 -m pytest -q tests/unit/band2/test_policy_coercion_sweep.py
   tests/integration/test_ai_policy_store_generation_decode.py` → **14 passed**
-  (10 pre-existing in the sweep file + my 4, plus the 1 integration).
+  (9 pre-existing in the sweep file + my 4 = 13, plus the 1 integration).
 - Full `python3 -m pytest -q --ignore=examples` (Postgres started; discord
   present) → **3707 passed, 2 skipped, 1 warning** in ~104s. The +5 delta over
   the `origin/main` baseline (3702, #598) is exactly this slice; no other test
