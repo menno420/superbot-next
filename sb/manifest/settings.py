@@ -134,7 +134,14 @@ MANIFEST = SubsystemManifest(
             # issues a G-10 free-text-input modal whose submit validates
             # (non-empty + declared max-length) then commits through the same
             # K7 settings.set_scalar lane.
-            _panels.settings_group_edit_text_spec()),
+            _panels.settings_group_edit_text_spec(),
+            # the ported channel-select edit widget (settings epic S5 — oracle
+            # disbot/views/settings/edit_channel.py): opened from the group_edit
+            # Edit select for a channel-hinted scalar (input_hint="channel");
+            # its windowed component select lists the guild's channels and a
+            # pick commits the chosen channel id through the same K7
+            # settings.set_scalar lane.
+            _panels.settings_group_edit_channel_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),

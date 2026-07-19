@@ -55,7 +55,7 @@ def _armed_refs():
     against genuine registrations (never a fake ensure_hub)."""
     from sb.domain.settings import handlers, panels
 
-    for name in (*_HUB_GROUPS, "role", "moderation", "karma"):
+    for name in (*_HUB_GROUPS, "role", "moderation", "karma", "btd6"):
         importlib.import_module(f"sb.manifest.{name}")
     panels.ensure_panel_refs()
     handlers.ensure_handler_refs()
@@ -165,7 +165,7 @@ class TestGroupEditFrame:
             "settings.missing_bindings", "settings.audit",
             "settings.command_access", "settings.group_edit",
             "settings.group_edit_enum", "settings.group_edit_number",
-            "settings.group_edit_text"]
+            "settings.group_edit_text", "settings.group_edit_channel"]
 
     def test_edit_and_reset_options_are_the_editable_specs(self):
         from sb.domain.settings import panels
@@ -268,9 +268,9 @@ class TestBoolToggleAndReset:
     def test_non_bool_pick_degrades_honestly_without_a_write(
             self, monkeypatch):
         """A pick whose widget hasn't landed yet degrades honestly (no write).
-        After S4 every real editable scalar routes to a live widget
-        (bool/enum/number/free-text), so a channel/role-pointer-hinted str — the
-        S5–S7 territory the oracle routes by input_hint before the free-text
+        After S5 every real editable scalar routes to a live widget
+        (bool/enum/number/free-text/channel), so a role-pointer-hinted str — the
+        S6–S7 territory the oracle routes by input_hint before the free-text
         fallback — stands in for the still-unported case."""
         from sb.domain.settings import panels
         from sb.spec.outcomes import SUCCESS
@@ -279,15 +279,16 @@ class TestBoolToggleAndReset:
         calls = _patch_scalar_run(monkeypatch)
         _patch_refresh(monkeypatch)
 
-        # a channel-pointer scalar (input_hint="channel") — routed by the S5
-        # channel-select arm first, so it is NOT the free-text modal.
-        pointer = SettingSpec(name="log_channel", value_type=str,
-                              settings_key="role_log_channel",
-                              input_hint="channel")
+        # a role-pointer scalar (input_hint="role") — the S6 role-select arm
+        # (not yet ported) claims it, so it is NEITHER the free-text modal (the
+        # _POINTER_HINTS exclusion) NOR the S5 channel picker.
+        pointer = SettingSpec(name="staff_role", value_type=str,
+                              settings_key="role_staff_role",
+                              input_hint="role")
         monkeypatch.setattr(panels, "_group_edit_spec",
                             lambda group, name: pointer)
         reply = run(_handler("settings.group_edit_pick")(
-            self._req("log_channel")))
+            self._req("staff_role")))
         assert reply.outcome == SUCCESS
         assert calls == []                          # no write for unported type
         assert "later settings slice" in reply.user_message
@@ -866,3 +867,254 @@ class TestTextDispatchAndCommit:
         assert reply is None
         assert opened == [("settings.group_edit",
                            {GROUP_EDIT_PARAM: _TEXT_GROUP})]
+
+
+# --- the S5 channel-select edit widget (K7 set_scalar) -----------------------------
+#
+# `btd6.strategy_submission_channel` is a NON-HUB group channel-pointer scalar
+# (value_type=int, default=0, input_hint="channel") — the concrete port target.
+# It is `int`-typed, so before S5 it MISROUTED to the S3 number modal
+# (`_is_number_spec` matches int); the S5 arm intercepts input_hint=="channel"
+# BEFORE the number check so it opens the channel picker instead. The chosen
+# channel id commits through the same K7 settings.set_scalar lane.
+
+_CHAN_GROUP = "btd6"
+_CHAN_SETTING = "strategy_submission_channel"
+
+
+class _FakeChannelDirectory:
+    """A channel-directory READ stub (the _WorldChannelDirectory shape) —
+    yields ChannelSnapshot-duck rows for the options provider."""
+
+    def __init__(self, rows):
+        self._rows = rows
+
+    async def list_channels(self, guild_id):
+        del guild_id
+        return tuple(
+            SimpleNamespace(channel_id=cid, name=name, kind=kind)
+            for cid, name, kind in self._rows)
+
+
+def _patch_channel_directory(monkeypatch, rows):
+    from sb.domain.channel import service
+
+    monkeypatch.setattr(service, "active_directory",
+                        lambda: _FakeChannelDirectory(rows))
+
+
+class TestChannelWidgetFrame:
+    def test_channel_spec_compiles_and_is_a_session_view(self):
+        from sb.domain.settings.panels import settings_group_edit_channel_spec
+        from sb.kernel.panels.compile import check_panel
+        from sb.spec.panels import Audience, FooterMode, SelectorKind
+        from sb.spec.refs import HandlerRef
+
+        spec = settings_group_edit_channel_spec()
+        check_panel(spec)
+        assert spec.panel_id == "settings.group_edit_channel"
+        assert spec.audience is Audience.INVOKER
+        assert spec.frame.footer_mode is FooterMode.NONE
+        assert spec.session_lifecycle is True
+        by_sel = {s.selector_id: s for s in spec.selectors}
+        # the channel picker is a windowed component select (NOT a modal).
+        assert by_sel["channel_select"].windowed is True
+        assert by_sel["channel_select"].kind is SelectorKind.ENUM
+        assert (by_sel["channel_select"].on_select
+                == HandlerRef("settings.group_edit_channel_pick"))
+        by_act = {a.action_id: a for a in spec.actions}
+        assert (by_act["channel_back"].handler
+                == HandlerRef("settings.group_edit_channel_back"))
+
+    def test_channel_options_are_the_guild_channels_current_marked(
+            self, monkeypatch):
+        from sb.domain.settings import panels, service
+
+        # deterministic current = channel id 111 (avoid a DB-backed resolver).
+        async def fake_resolve(guild_id, subsystem, name, spec=None):
+            return SimpleNamespace(value=111)
+
+        monkeypatch.setattr(service, "resolve_setting", fake_resolve)
+        _patch_channel_directory(monkeypatch, [
+            (111, "general", "text"),
+            (222, "commands", "text"),
+            (333, "the-category", "category"),   # categories are filtered out
+        ])
+        opts = run(panels._group_edit_channel_options(_ctx(
+            **{panels.GROUP_EDIT_PARAM: _CHAN_GROUP,
+               panels.GROUP_EDIT_SETTING_PARAM: _CHAN_SETTING})))
+        # only the two text channels materialize (the category is dropped).
+        assert [o["value"] for o in opts] == ["111", "222"]
+        assert [o["label"] for o in opts] == ["#general", "#commands"]
+        # the current channel is pre-marked (default=True, description "current").
+        marked = [o for o in opts if o.get("default")]
+        assert len(marked) == 1
+        assert marked[0]["value"] == "111"
+        assert marked[0]["description"] == "current"
+
+    def test_channel_options_empty_for_a_non_channel_setting(self, monkeypatch):
+        from sb.domain.settings import panels
+
+        _patch_channel_directory(monkeypatch, [(111, "general", "text")])
+        # a bool setting is not channel-hinted → no options materialize.
+        opts = run(panels._group_edit_channel_options(_ctx(
+            **{panels.GROUP_EDIT_PARAM: "role",
+               panels.GROUP_EDIT_SETTING_PARAM: "time_roles_stack"})))
+        assert opts == ()
+
+    def test_channel_options_empty_when_directory_unarmed(self, monkeypatch):
+        from sb.domain.channel import service
+        from sb.domain.settings import panels
+
+        def _raise():
+            raise RuntimeError("directory not installed")
+
+        monkeypatch.setattr(service, "active_directory", _raise)
+        opts = run(panels._group_edit_channel_options(_ctx(
+            **{panels.GROUP_EDIT_PARAM: _CHAN_GROUP,
+               panels.GROUP_EDIT_SETTING_PARAM: _CHAN_SETTING})))
+        assert opts == ()
+
+
+class TestChannelDispatchAndCommit:
+    def _pick_req(self, name, *, group=_CHAN_GROUP):
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        return _Req(args={GROUP_EDIT_PARAM: group, "values": (name,)})
+
+    def _commit_req(self, chosen, *, group=_CHAN_GROUP, name=_CHAN_SETTING):
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        return _Req(args={GROUP_EDIT_PARAM: group,
+                          GROUP_EDIT_SETTING_PARAM: name,
+                          "values": (chosen,)})
+
+    def test_channel_pick_opens_the_picker_not_the_number_modal(
+            self, monkeypatch):
+        """THE S5 REGRESSION: `btd6.strategy_submission_channel` is an `int`
+        with input_hint="channel"; before S5 the value_type-only dispatch
+        misrouted it to the S3 number modal. The channel arm now intercepts the
+        hint FIRST, so it opens the channel picker instead."""
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        reply = run(_handler("settings.group_edit_pick")(
+            self._pick_req(_CHAN_SETTING)))
+        assert reply is None                         # open_panel took over
+        # the channel picker — NOT settings.group_edit_number.
+        assert [name for name, _ in opened] == ["settings.group_edit_channel"]
+        args = opened[0][1]
+        assert args[GROUP_EDIT_PARAM] == _CHAN_GROUP
+        assert args[GROUP_EDIT_SETTING_PARAM] == _CHAN_SETTING
+
+    def test_channel_pick_persists_the_channel_id(self, monkeypatch):
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_channel_pick")(
+            self._commit_req("222")))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.set_scalar",
+                          {"key": ksettings.persisted_key(
+                              _CHAN_GROUP, _CHAN_SETTING),
+                           "value": "222"})]
+        assert "set to <#222>" in reply.user_message
+
+    def test_channel_pick_rejects_a_non_numeric_value_without_a_write(
+            self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_channel_pick")(
+            self._commit_req("not-a-channel")))
+        assert reply.outcome == BLOCKED
+        assert calls == []                       # no write for a bad value
+        assert "not a valid channel" in reply.user_message
+
+    def test_channel_pick_rejects_a_non_channel_setting(self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # warn_threshold is a plain int (no channel hint) — not channel-shaped.
+        reply = run(_handler("settings.group_edit_channel_pick")(
+            self._commit_req("222", group="moderation", name="warn_threshold")))
+        assert reply.outcome == BLOCKED
+        assert calls == []
+        assert "not a channel setting" in reply.user_message
+
+    def test_out_of_window_channel_pick_still_resolves(self, monkeypatch):
+        """A >25-channel guild windows the select; the chosen channel id rides
+        the `values` round-trip, so a page-2 channel commits the same as a
+        page-1 one (the window is a render concern, never a resolution one)."""
+        from sb.domain.settings import panels, service
+        from sb.spec.outcomes import SUCCESS
+        from sb.spec.settings import SettingSpec
+
+        big = SettingSpec(name=_CHAN_SETTING, value_type=int, default=0,
+                          settings_key="btd6_strategy_submission_channel",
+                          input_hint="channel")
+        monkeypatch.setattr(panels, "_group_edit_spec",
+                            lambda group, name: big)
+
+        # 30 channels — the options provider windows past Discord's 25 ceiling.
+        rows = [(1000 + i, f"chan-{i}", "text") for i in range(30)]
+
+        async def fake_resolve(guild_id, subsystem, name, spec=None):
+            return SimpleNamespace(value=0)
+
+        monkeypatch.setattr(service, "resolve_setting", fake_resolve)
+        _patch_channel_directory(monkeypatch, rows)
+        opts = run(panels._group_edit_channel_options(_ctx(
+            **{panels.GROUP_EDIT_PARAM: _CHAN_GROUP,
+               panels.GROUP_EDIT_SETTING_PARAM: _CHAN_SETTING})))
+        assert len(opts) == 30            # every channel is an option (windowed)
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+        # a page-2 channel (index 28) commits the same as any first-window one.
+        reply = run(_handler("settings.group_edit_channel_pick")(
+            self._commit_req("1028")))
+        assert reply.outcome == SUCCESS
+        assert calls[0][0] == "settings.set_scalar"
+        assert calls[0][1]["value"] == "1028"
+
+    def test_channel_reset_clears_through_clear_scalar(self, monkeypatch):
+        """The S0 reset select is type-agnostic — resetting a channel setting
+        clears its explicit row through settings.clear_scalar (no new path)."""
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_reset")(
+            _Req(args={GROUP_EDIT_PARAM: _CHAN_GROUP,
+                       "values": (_CHAN_SETTING,)})))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.clear_scalar",
+                          {"key": ksettings.persisted_key(
+                              _CHAN_GROUP, _CHAN_SETTING)})]
+
+    def test_channel_back_reopens_the_group_edit_page(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        reply = run(_handler("settings.group_edit_channel_back")(
+            _Req(args={GROUP_EDIT_PARAM: _CHAN_GROUP})))
+        assert reply is None
+        assert opened == [("settings.group_edit",
+                           {GROUP_EDIT_PARAM: _CHAN_GROUP})]

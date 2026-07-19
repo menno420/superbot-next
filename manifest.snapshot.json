@@ -6090,6 +6090,11 @@
           "value": "text_back"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "channel_back"
+        },
+        {
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "depth_quick"
@@ -8327,6 +8332,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.group_edit_text"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.group_edit_channel"
         },
         {
           "source": "sb/manifest/setup.py",
@@ -11801,6 +11811,12 @@
       "handler:settings.ca_mode": {
         "module": "sb.domain.settings.handlers"
       },
+      "handler:settings.group_edit_channel_back": {
+        "module": "sb.domain.settings.handlers"
+      },
+      "handler:settings.group_edit_channel_pick": {
+        "module": "sb.domain.settings.handlers"
+      },
       "handler:settings.group_edit_enum_back": {
         "module": "sb.domain.settings.handlers"
       },
@@ -13481,6 +13497,9 @@
       "panel:settings.group_edit": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:settings.group_edit_channel": {
+        "module": "sb.domain.settings.panels"
+      },
       "panel:settings.group_edit_enum": {
         "module": "sb.domain.settings.panels"
       },
@@ -14172,6 +14191,12 @@
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.command_access_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.group_edit_channel_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.group_edit_channel_options": {
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.group_edit_edit_options": {
@@ -58981,6 +59006,107 @@
           "panel_id": "settings.group_edit_text",
           "renderer_override": null,
           "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "⚙️ Edit a setting",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "channel_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_channel_back"
+              },
+              "label": "Back to settings",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "provider": {
+                "$ref": "provider:settings.group_edit_channel_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "channel_select"
+                  ],
+                  [
+                    "channel_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.group_edit_channel",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No channels available (directory unarmed).",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:settings.group_edit_channel_pick"
+              },
+              "options_source": {
+                "$ref": "provider:settings.group_edit_channel_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a channel…",
+              "selector_id": "channel_select",
+              "slash_common": false,
+              "usage_weight": 1.0,
+              "windowed": true
+            }
+          ],
           "session_lifecycle": true,
           "subsystem": "settings",
           "timeout_s": 180,

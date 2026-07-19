@@ -308,9 +308,20 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
             component = flat[step.component_index]
             custom_id = component.get("custom_id", "")
             component_type = component.get("type", component_type)
+        # a channel-picker option value can carry a ``__CHANNEL_<NAME>__``
+        # token (the command-content substitution's twin, for select values):
+        # rewrite it to the boot-allocated raw channel id so a channel-select
+        # golden names a channel by name instead of pinning a per-boot
+        # snowflake (the capture normalizer redacts it back to ``<#name>``).
+        values = list(step.values) if step.values is not None else None
+        if values and "__CHANNEL_" in "".join(values) \
+                and harness.world is not None:
+            for name, cid in harness.world.channels.items():
+                token = f"__CHANNEL_{name.upper()}__"
+                values = [v.replace(token, str(cid)) for v in values]
         await harness.click(message_id=message_id, custom_id=custom_id,
                             component_type=component_type,
-                            values=list(step.values) if step.values is not None else None,
+                            values=values,
                             persona=step.persona, channel=step.channel,
                             advance_s=step.advance_s)
         return custom_id

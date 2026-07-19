@@ -254,6 +254,42 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "+ confirm)"
         ),
     ),
+    GoldenCase(
+        id="settings.group_edit_channel_write",
+        subsystem="settings",
+        # settings epic S5 / channel select: open the btd6 edit page, pick the
+        # channel-pointer `strategy_submission_channel` in the Edit select — it
+        # is an `int` with input_hint="channel", so before S5 it MISROUTED to
+        # the number modal; the S5 arm intercepts the hint first and opens the
+        # windowed channel picker (settings.group_edit_channel) of the guild's
+        # channels; picking #general commits the channel id through the K7
+        # settings.set_scalar lane (the guild `settings` row write + the audited
+        # spine), the picker refreshes in place, and the ephemeral followup
+        # confirms. The `settings` db_delta + the channel picker's render are
+        # pinned. The picked channel id rides the __CHANNEL_GENERAL__ token (the
+        # runner rewrites it to the boot-allocated id; the capture normalizer
+        # redacts it back to <#general> in the golden bytes).
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("btd6",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("strategy_submission_channel",),
+                 persona="admin"),
+            # pick #general in the windowed channel select — commits the id.
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=3, values=("__CHANNEL_GENERAL__",),
+                 persona="admin"),
+        ),
+        notes=(
+            "settings epic S5 channel select: picking the channel-pointer "
+            "strategy_submission_channel (int + input_hint=channel — before S5 "
+            "it misrouted to the number modal) opens the windowed channel "
+            "picker, and picking #general commits it through settings.set_scalar "
+            "(the guild settings write + in-place refresh + confirm)"
+        ),
+    ),
     # -------------------------------------------------------------- help
     GoldenCase(
         id="help.panel_open",
