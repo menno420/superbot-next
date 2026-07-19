@@ -315,7 +315,8 @@ def test_manifest_declares_the_front_doors():
         "settings.missing_bindings", "settings.audit",
         "settings.command_access", "settings.group_edit",
         "settings.group_edit_enum", "settings.group_edit_number",
-        "settings.group_edit_text", "settings.group_edit_channel"]
+        "settings.group_edit_text", "settings.group_edit_channel",
+        "settings.group_edit_presets"]
 
 
 def test_no_settings_pending_terminal_remains():

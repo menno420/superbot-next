@@ -288,6 +288,30 @@ async def _refresh_group_edit_channel(req, group: str, name: str) -> bool:
         return False
 
 
+async def _refresh_group_edit_presets(req, group: str, name: str) -> bool:
+    """Best-effort in-place re-render of the presets widget after a write (the
+    _refresh_group_edit_channel twin): re-supply BOTH the group and the setting
+    so the quick-set buttons re-mark the new current value; a miss degrades to
+    the caller's text confirmation."""
+    key = _message_key(req)
+    if not key:
+        return False
+    try:
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+        from sb.kernel.panels.engine import refresh_session_view
+
+        return await refresh_session_view(
+            req, message_key=key,
+            params={GROUP_EDIT_PARAM: group, GROUP_EDIT_SETTING_PARAM: name})
+    except Exception:  # noqa: BLE001 — the caller's text reply answers
+        logger.debug("settings.group_edit_presets refresh failed",
+                     exc_info=True)
+        return False
+
+
 def _group_edit_selection(req):
     """(group, setting_name) from a group_edit select click: the group rides
     the minted-child args (GROUP_EDIT_PARAM), the picked setting rides the
@@ -671,6 +695,7 @@ def _register() -> None:
             _is_channel_spec,
             _is_enum_spec,
             _is_number_spec,
+            _is_presets_spec,
             _is_text_spec,
         )
         from sb.spec.outcomes import BLOCKED
@@ -721,6 +746,31 @@ def _register() -> None:
 
             await open_panel(
                 PanelRef("settings.group_edit_channel"),
+                _dc.replace(req, args={**dict(req.args),
+                                       GROUP_EDIT_PARAM: group,
+                                       GROUP_EDIT_SETTING_PARAM: name}))
+            return None
+        # S7 — numeric-presets quick-set: a `numeric_presets`-hinted scalar (a
+        # declared `presets` tuple) opens the quick-set buttons widget (the
+        # oracle NumericPresetsView). The oracle checks input_hint FIRST, so this
+        # arm — like the S5 channel arm — is routed BEFORE the enum / number /
+        # text value_type arms: a presets-hinted `int` satisfies _is_number_spec
+        # too, so ordering (not the predicate) is what keeps it off the S3 number
+        # modal. The group + picked setting ride the opening args so the child
+        # session-view bakes them onto the session-minted buttons; a preset click
+        # commits its fixed value through set_scalar.
+        if _is_presets_spec(spec):
+            import dataclasses as _dc
+
+            from sb.domain.settings.panels import (
+                GROUP_EDIT_PARAM,
+                GROUP_EDIT_SETTING_PARAM,
+            )
+            from sb.kernel.panels.engine import open_panel
+            from sb.spec.refs import PanelRef
+
+            await open_panel(
+                PanelRef("settings.group_edit_presets"),
                 _dc.replace(req, args={**dict(req.args),
                                        GROUP_EDIT_PARAM: group,
                                        GROUP_EDIT_SETTING_PARAM: name}))
@@ -786,14 +836,15 @@ def _register() -> None:
                                        GROUP_EDIT_PARAM: group,
                                        GROUP_EDIT_SETTING_PARAM: name}))
             return None
-        # S6–S7 — the remaining per-type widgets (role / numeric-presets) land
-        # in a later slice.
+        # S6 — the role-select widget is the last unported per-type widget
+        # (routed separately from this epic).
         return Reply(
             SUCCESS,
             f"⚙️ The `{spec.value_type}` editor for `{group}.{name}` "
-            f"ports in a later settings slice (S6–S7). The bool toggle (S1), "
-            f"enum select (S2), number modal (S3), free-text modal (S4) and "
-            f"channel select (S5) are live now.")
+            f"ports in a later settings slice (S6 role select). The bool "
+            f"toggle (S1), enum select (S2), number modal (S3), free-text "
+            f"modal (S4), channel select (S5) and numeric-presets quick-set "
+            f"(S7) are live now.")
 
     @handler("settings.group_edit_reset")
     async def group_edit_reset(req):
@@ -982,6 +1033,95 @@ def _register() -> None:
     async def group_edit_channel_back(req):
         """↩ Back to settings — re-open the group's edit page (the group rides
         the click's args; the enum_back twin). Never a strand: a missing group
+        falls back to the honest expiry terminal."""
+        import dataclasses as _dc
+
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        if not group:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        await open_panel(
+            PanelRef("settings.group_edit"),
+            _dc.replace(req, args={**dict(req.args),
+                                   GROUP_EDIT_PARAM: group}))
+        return None
+
+    # --- the ported numeric-presets quick-set edit widget (settings epic S7) -
+    # The oracle NumericPresetsView (disbot/views/settings/edit_number_presets.py):
+    # a row of quick-set buttons (one per declared preset value) whose click wrote
+    # the fixed value through the audited mutation pipeline. Here that widget is
+    # its own session-view child (settings.group_edit_presets) rendered as static
+    # preset-button slots relabelled per-setting by the render override; the
+    # clicked slot's index rides session_action (the access_page precedent), the
+    # handler maps it back onto spec.presets[index], and the value commits through
+    # the LIVE K7 settings.set_scalar lane (no new op) and the widget refreshes in
+    # place. The group + setting ride the click's session-minted args
+    # (GROUP_EDIT_PARAM / GROUP_EDIT_SETTING_PARAM).
+
+    @handler("settings.group_edit_presets_pick")
+    async def group_edit_presets_pick(req):
+        """A quick-set preset button — commit its declared preset value through
+        settings.set_scalar. The clicked slot's index rides session_action
+        (pval_<i>); the handler maps it back onto the picked SettingSpec's
+        `presets` tuple (so the fixed value is re-derived from the spec, never
+        trusted from the wire); the (group, setting) ride the minted-child args.
+        A stale slot beyond the declared presets rejects without a write."""
+        from sb.domain.settings.ops import SET_SCALAR
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+            _group_edit_spec,
+            _is_presets_spec,
+        )
+        from sb.spec.outcomes import BLOCKED
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        name = str(req.args.get(GROUP_EDIT_SETTING_PARAM) or "")
+        if not group or not name:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        spec = _group_edit_spec(group, name)
+        if spec is None or not _is_presets_spec(spec):
+            return Reply(BLOCKED,
+                         f"⚙️ `{group}.{name}` is not a numeric-presets "
+                         f"setting.")
+        if not req.guild_id:
+            return Reply(BLOCKED, "❌ Settings are per server — use this "
+                                  "inside a server.")
+        # the clicked slot id (pval_<i>) → the preset index; re-derive the value
+        # from the spec (never the wire) so a stale/forged id can't write an
+        # arbitrary value.
+        action = str(req.args.get("session_action") or "")
+        try:
+            index = int(action.rsplit("_", 1)[1])
+        except (ValueError, IndexError):
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        presets = tuple(getattr(spec, "presets", ()) or ())
+        if not 0 <= index < len(presets):
+            return Reply(BLOCKED,
+                         f"⚙️ That preset is no longer available for "
+                         f"`{group}.{name}`.")
+        value = presets[index]
+        from sb.kernel import settings as ksettings
+
+        key = ksettings.persisted_key(group, name)
+        result = await _run_scalar_op(req, SET_SCALAR,
+                                      {"key": key, "value": str(value)})
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't update `{group}.{name}`: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_group_edit_presets(req, group, name)
+        return Reply(SUCCESS,
+                     f"✅ `{group}.{name}` set to **{value!r}**.")
+
+    @handler("settings.group_edit_presets_back")
+    async def group_edit_presets_back(req):
+        """↩ Back to settings — re-open the group's edit page (the group rides
+        the click's args; the channel_back twin). Never a strand: a missing group
         falls back to the honest expiry terminal."""
         import dataclasses as _dc
 

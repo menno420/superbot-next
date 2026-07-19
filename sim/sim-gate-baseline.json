@@ -6805,6 +6805,88 @@
     ]
    }
   },
+  "settings:settings.group_edit_presets:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: settings epic S7 port carries the oracle NumericPresetsView quick-set button grid (5-per-row) as the seed arrangement \u2014 the preset-button slots are relabelled/dropped per-setting by the render override at runtime, so the layout is mechanical, not sim-assigned (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "pval_0",
+       "pval_1",
+       "pval_2",
+       "pval_3",
+       "pval_4"
+      ],
+      [
+       "pval_5",
+       "pval_6",
+       "pval_7",
+       "pval_8",
+       "pval_9"
+      ],
+      [
+       "presets_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "settings:settings.group_edit_presets:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: settings epic S7 port carries the oracle NumericPresetsView quick-set button grid (5-per-row) as the seed arrangement \u2014 the preset-button slots are relabelled/dropped per-setting by the render override at runtime, so the layout is mechanical, not sim-assigned (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "pval_0",
+     "pval_1",
+     "pval_2",
+     "pval_3",
+     "pval_4"
+    ],
+    [
+     "pval_5",
+     "pval_6",
+     "pval_7",
+     "pval_8",
+     "pval_9"
+    ],
+    [
+     "presets_back"
+    ]
+   ]
+  },
+  "settings:settings.group_edit_presets:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: settings epic S7 port carries the oracle NumericPresetsView quick-set button grid (5-per-row) as the seed arrangement \u2014 the preset-button slots are relabelled/dropped per-setting by the render override at runtime, so the layout is mechanical, not sim-assigned (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "pval_0",
+        "pval_1",
+        "pval_2",
+        "pval_3",
+        "pval_4"
+       ],
+       [
+        "pval_5",
+        "pval_6",
+        "pval_7",
+        "pval_8",
+        "pval_9"
+       ],
+       [
+        "presets_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "settings:settings.hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

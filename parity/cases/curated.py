@@ -290,6 +290,42 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "(the guild settings write + in-place refresh + confirm)"
         ),
     ),
+    GoldenCase(
+        id="settings.group_edit_presets_write",
+        subsystem="settings",
+        # settings epic S7 / numeric-presets quick-set: open the xp edit page,
+        # pick the numeric-presets `xp_cooldown` in the Edit select — it is an
+        # `int` with input_hint="numeric_presets" (+ a declared presets tuple),
+        # so before S7 it MISROUTED to the number modal; the S7 arm intercepts
+        # the hint first and opens the quick-set buttons widget
+        # (settings.group_edit_presets), one button per declared preset value
+        # with the current value marked. Clicking the 3rd preset button (index 2
+        # → the declared preset `30`) commits that fixed value through the K7
+        # settings.set_scalar lane (the guild `settings` row write + the audited
+        # spine), the widget refreshes in place, and the ephemeral followup
+        # confirms. The `settings` db_delta + the quick-set buttons' render are
+        # pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("xp",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("xp_cooldown",), persona="admin"),
+            # click the 3rd quick-set button (index 2 → the declared preset 30)
+            # — commits the fixed value through settings.set_scalar.
+            Step(kind="click", target_message=3, component_index=2,
+                 component_type=2, persona="admin"),
+        ),
+        notes=(
+            "settings epic S7 numeric-presets quick-set: picking the "
+            "numeric-presets xp_cooldown (int + input_hint=numeric_presets — "
+            "before S7 it misrouted to the number modal) opens the quick-set "
+            "buttons, and clicking the preset `30` commits it through "
+            "settings.set_scalar (the guild settings write + in-place refresh "
+            "+ confirm)"
+        ),
+    ),
     # -------------------------------------------------------------- help
     GoldenCase(
         id="help.panel_open",

@@ -71,7 +71,7 @@ class TestImportedCorpus:
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 532
+        assert len(goldens) == 533
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -138,7 +138,11 @@ class TestImportedCorpus:
         # settings_group_edit_number_write, 2026-07-19)
         # + 1 settings free-text-modal write mint (settings epic S4:
         # settings_group_edit_text_write, 2026-07-19)
-        assert source["minted_goldens"] == 70
+        # + 1 settings channel-select write mint (settings epic S5:
+        # settings_group_edit_channel_write, 2026-07-19)
+        # + 1 settings numeric-presets quick-set write mint (settings epic S7:
+        # settings_group_edit_presets_write, 2026-07-19)
+        assert source["minted_goldens"] == 71
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -673,7 +677,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "full-corpus parity report" in out
-        assert "532 goldens" in out
+        assert "533 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):
