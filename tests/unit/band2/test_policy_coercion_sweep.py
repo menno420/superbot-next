@@ -214,3 +214,94 @@ def test_counters_template_for_empty_falls_back_to_default():
     assert policy.template_for("total") == DEFAULT_TEMPLATES["total"]
     assert policy.template_for("humans") == "H={count}"
     assert policy.template_for("bots") == DEFAULT_TEMPLATES["bots"]
+
+
+# --- server_logging ----------------------------------------------------------------
+#
+# `load_config` (subsystem key "logging") reads every field through the K7
+# `resolve` seam and coerces the stored row. Its sole pre-existing test
+# (`test_logging_config_defaults_and_degrade` in test_band2_slice1.py) pins ONLY
+# the all-UNSET/default path — the present-value legs below were unpinned. Each
+# assertion was verified against a live run of the real function before commit.
+
+_LOGGING_KEYS = (
+    "event_routing", "enabled", "auto_create_channels",
+    "ignored_channels", "ignored_users",
+    "messages_enabled", "members_enabled", "roles_enabled",
+    "moderation_enabled", "channels_enabled", "server_enabled",
+    "voice_enabled",
+)
+
+
+def test_logging_as_bool_recognizes_present_truthy_and_falsy_tokens():
+    """`_as_bool` (~L186): a present truthy token wins over any fallback and a
+    present falsy token likewise; the fallback is the *unrecognized*-only leg.
+    The default test only reaches the UNSET→fallback line — removing the token
+    membership tests would silently flip the wrong category toggle."""
+    from sb.domain.server_logging.service import _as_bool
+
+    for token in ("1", "true", "yes", "on", "TRUE", " Yes "):
+        assert _as_bool(token, False) is True, token   # truthy wins over fallback False
+    for token in ("0", "false", "no", "off", "OFF"):
+        assert _as_bool(token, True) is False, token    # falsy wins over fallback True
+    assert _as_bool("garbage", True) is True            # unrecognized -> fallback
+    assert _as_bool("garbage", False) is False
+    assert _as_bool(True, False) is True                # real bool passes through
+
+
+def test_logging_as_id_tuple_parses_mention_tokens():
+    """`_as_id_tuple` (~L197): strips the `<#@&` mention wrappers, treats `;`
+    as a separator (`;`->`,`), and keeps only `.isdigit()` tokens (order
+    preserved). Only the empty/UNSET leg was tested — removal → wrong ignored
+    set."""
+    from sb.domain.server_logging.service import _as_id_tuple
+
+    assert _as_id_tuple("<#123>, <@456> ; <@&789>") == (123, 456, 789)
+    assert _as_id_tuple("1;2;3") == (1, 2, 3)           # semicolon separator
+    assert _as_id_tuple("abc, 12, x9") == (12,)          # non-digit tokens dropped
+    assert _as_id_tuple(None) == ()                      # None -> "" -> empty
+    assert _as_id_tuple("") == ()
+
+
+def test_logging_load_config_coerces_present_stored_values():
+    """Drive the present-value legs end-to-end through the `resolve` seam: a
+    present truthy/falsy category toggle, mention-token ignore lists, and — the
+    key gap — a stored `routing` OUTSIDE `VALID_ROUTING` degrading to
+    `ROUTING_COMBINED` ("degrade, never disable"). The default test only reaches
+    the UNSET `... or ROUTING_COMBINED` leg, never the invalid-present degrade."""
+    from sb.domain.server_logging.service import ROUTING_COMBINED, load_config
+
+    _install("logging", _LOGGING_KEYS, {
+        "logging.event_routing": "bogus-routing",   # invalid -> degrade to combined
+        "logging.enabled": "on",                     # truthy token -> True
+        "logging.auto_create_channels": "off",       # falsy token -> False
+        "logging.messages_enabled": "yes",           # truthy -> True
+        "logging.members_enabled": "0",              # falsy -> False
+        "logging.ignored_channels": "<#111>; <#222>",
+        "logging.ignored_users": "<@333>, <@&444>",
+    })
+
+    c = run(load_config(1))
+    assert c.routing == ROUTING_COMBINED             # present-invalid degraded, not disabled
+    assert c.enabled is True
+    assert c.auto_create_channels is False
+    assert c.category_enabled["messages"] is True
+    assert c.category_enabled["members"] is False
+    assert c.category_enabled["roles"] is False      # UNSET -> fallback False
+    assert c.ignored_channels == (111, 222)
+    assert c.ignored_users == (333, 444)
+
+
+def test_logging_load_config_preserves_valid_routing():
+    """Contrast to the degrade leg: a stored routing that IS in `VALID_ROUTING`
+    survives untouched (so the degrade only fires on an invalid value), and the
+    `per_category` property tracks it."""
+    from sb.domain.server_logging.service import ROUTING_PER_CATEGORY, load_config
+
+    _install("logging", _LOGGING_KEYS, {
+        "logging.event_routing": ROUTING_PER_CATEGORY,
+    })
+
+    c = run(load_config(1))
+    assert c.routing == ROUTING_PER_CATEGORY
+    assert c.per_category is True
