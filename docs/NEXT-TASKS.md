@@ -21,6 +21,24 @@
    snapshot recommends a PLANNING-mode loop — the forward design proposals live in
    [`docs/design/README.md`](design/README.md) (the D1–D6 + B8/B10 design series).
 
+   - **Settings `group_pending` edit-page epic — ✅ essentially COMPLETE.** The
+     per-group scalar-edit-page epic
+     ([`docs/design/settings-group-pending-epic-plan.md`](design/settings-group-pending-epic-plan.md))
+     is done for **every reachable scalar type**: S0 (page frame) + S1 bool / S2
+     enum / S3 number-modal / S4 text-modal / S5 channel-select / S7
+     numeric-presets have all landed or are landing (PRs #579–#584). The
+     `settings.group_pending` blocked terminal is **fully retired** for every
+     non-hub group (replaced by the live `settings.group_edit` page per the
+     option-A ruling; the 5 operator-spine hub groups keep their read-only hubs
+     by design). **The only open item is S6 (role-select)**, which is BLOCKED,
+     not built: no reachable honest golden target exists — the port declares zero
+     `input_hint="role"` settings, and the oracle's role settings live in
+     `moderation` (unported) and `welcome` (a read-only hub, unreachable under
+     option A). S6 is routed as a scoping question — see
+     [`docs/question-router.md`](question-router.md) → Open questions → "settings
+     epic S6 (role-select edit widget)" (recommend DEFER until a role-typed
+     non-hub setting exists; the widget is ~1 slice once a target does).
+
 2. **Land the scoped game-surface backlog.** ✅ **Essentially complete** — all
    three sub-items have either landed or are a settled do-not-fix:
    - **Blackjack remaining surface** — ✅ **DONE** (PR #551, squash `70b8a8a`,

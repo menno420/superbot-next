@@ -26,13 +26,13 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(Two unanswered blocks below — the **B10 route-origin go/no-go** and the **D2
-real-time minigame-framework go/no-go** (both appended 2026-07-18) await the
-owner's cost/benefit ruling. The settings per-group
-edit-page group-routing decision, appended 2026-07-18, was answered 2026-07-18
-(option A) and moved to Answered below. The six S11/S13/S14/S15/V-5/K10 blocks
-were resolved 2026-07-08 by the owner via the directing session's question panel
-— see Answered below.)
+(Three unanswered blocks below — the **B10 route-origin go/no-go** and the **D2
+real-time minigame-framework go/no-go** (both appended 2026-07-18), and the
+**settings epic S6 role-select scoping** go-ahead (appended 2026-07-19) — all
+await the owner's ruling. The settings per-group edit-page group-routing
+decision, appended 2026-07-18, was answered 2026-07-18 (option A) and moved to
+Answered below. The six S11/S13/S14/S15/V-5/K10 blocks were resolved 2026-07-08
+by the owner via the directing session's question panel — see Answered below.)
 
 ### Q: B10 route-origin — add a kernel nav-mode seam to fix dynamic back-button labels, or keep static FOLLOW_PARENT and accept the cosmetic gap? (panel engine, owner-gated)
 
@@ -136,6 +136,60 @@ were resolved 2026-07-08 by the owner via the directing session's question panel
   a parked `plan` re-triggered by the next real-time-minigame ask; on NEVER, D2
   closes as "considered, declined" and fishing remains the standalone reference
   impl.)_
+
+### Q: settings epic S6 (role-select edit widget) — no reachable honest golden target exists; how to proceed? (settings-mutation epic, owner-gated)
+
+- **Area / Type / Priority / Status:** settings subsystem / product-intent
+  scoping / gates the epic's final slice (S6) / **OPEN** (pending owner,
+  appended 2026-07-19).
+- **Question:** the settings `group_pending` per-group scalar-edit-page epic
+  ([design/settings-group-pending-epic-plan.md](design/settings-group-pending-epic-plan.md))
+  is complete for every reachable scalar type — S0 (page frame) + S1 bool / S2
+  enum / S3 number-modal / S4 text-modal / S5 channel-select / S7
+  numeric-presets have all landed or are landing (PRs #579–#584). The one
+  remaining slice, **S6 (role-select)**, needs a REACHABLE, honest golden
+  target: a **non-hub** group setting with `input_hint="role"` that routes to
+  the `settings.group_edit` page. **No such setting exists today.** How should
+  S6 proceed?
+- **Why agents need this:** it is a product/scoping call, not mechanical
+  porting, and it gates the epic's final slice. The verified blocking facts:
+  (1) superbot-next declares **ZERO** role settings — `rg 'input_hint="role"'
+  sb/` returns nothing; (2) the oracle (`menno420/superbot @ f87fa508`) has 3
+  role settings — `moderation.moderator_role`, `moderation.trusted_tier_role`,
+  and `welcome.entry_role` — but **all three are unreachable by the S6
+  widget**: `moderation` is NOT a ported group_edit subsystem in the port, and
+  `welcome` is one of the 5 read-only operator-spine **HUB** groups, which
+  under the epic's **option-A** decision (Answered block below, 2026-07-18) have
+  **no group_edit edit page**, so `welcome.entry_role` is unreachable. Net: no
+  reachable, honest role-setting target exists, so per the epic's honest-golden
+  rule (§ "Risks / notes" — one oracle-replay golden per widget, no half-wired
+  surface), building S6 now would ship a **speculative dormant widget with no
+  honest golden**, which the epic explicitly does not do.
+- **Options:** **(A)** introduce/port a role setting into a **NON-HUB** group
+  that already routes to `settings.group_edit` (owner picks which subsystem),
+  then build S6 with an honest oracle-replay golden against that setting. **(B)
+  DEFER S6** until a role-typed non-hub setting exists organically.
+  **Recommended** — there is no honest reachable target today, so building now
+  would be speculative infra the epic explicitly does not ship. The S6 widget
+  code + oracle port are well-understood (oracle
+  `disbot/views/settings/edit_role.py`; a windowed role select →
+  `settings.set_scalar`, exactly the S5 channel shape one hint over) and can be
+  added in **~1 slice** the moment a target exists.
+- **Recommended default (my read):** **(B) DEFER.** The mechanics are solved —
+  S6 is the S5 channel widget with `role` swapped for `channel` — so the block
+  is not engineering, it is the absence of an honest golden target, and
+  fabricating one (adding a role setting to a non-hub group purely to feed S6)
+  is a product decision about the settings surface, not a worker call. Defer
+  until either the owner names a non-hub subsystem that should carry a role
+  setting (→ option A, then S6 lands next to it) or such a setting arrives
+  organically as another subsystem is ported. Do **not** build S6 as dormant
+  infra against the unreachable `welcome.entry_role`.
+- **Maintainer answer:** _(pending)_
+- **Routing result:** _(pending owner ruling — on (A), the owner's named
+  subsystem gets the role setting and S6 lands with its honest golden, closing
+  the epic; on (B) DEFER, S6 stays the epic's one parked slice, re-triggered by
+  the first role-typed non-hub setting, and `docs/NEXT-TASKS.md` records the
+  epic as complete-but-for-S6.)_
 
 ## Answered
 
