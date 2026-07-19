@@ -114,6 +114,7 @@ __all__ = [
     "settings_access_spec",
     "settings_audit_spec",
     "settings_command_access_spec",
+    "settings_group_edit_channel_spec",
     "settings_group_edit_enum_spec",
     "settings_group_edit_number_spec",
     "settings_group_edit_text_spec",
@@ -1728,6 +1729,155 @@ def settings_group_edit_enum_spec() -> PanelSpec:
     )
 
 
+# --- the ported channel-select edit widget (settings epic S5) -----------------------
+#
+# The oracle dispatch_edit_setting checked input_hint FIRST (channel → role →
+# numeric_presets → value_type fallback), routing a `channel`-hinted setting to
+# the ChannelSettingSelectView (disbot/views/settings/edit_channel.py @
+# f87fa508): a native ChannelSelect + Clear button whose pick wrote the chosen
+# channel id through the audited mutation pipeline. Here that select is its own
+# session-view child (settings.group_edit_channel), opened from the group_edit
+# Edit select when the picked spec is channel-hinted; the group AND the picked
+# setting name ride the session-minted child args (GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM), so a value click carries its (group, name) context
+# with no parallel session dict. PORT DEVIATION: the oracle's native
+# ChannelSelect renders as a windowed provider-fed ENUM select over the
+# channel-directory roster (the port-frame convention — provider options paged
+# past Discord's 25-option ceiling via selectwindow.py, which the native picker
+# cannot window; the channel-cog `_channel_options` precedent), and clearing
+# rides the shared type-agnostic S0 reset select (settings.clear_scalar) rather
+# than a per-widget Clear button (the S2 enum posture). The chosen channel id
+# commits through the LIVE K7 settings.set_scalar lane (no new op) and the
+# picker refreshes in place showing the new current.
+
+
+def _is_channel_spec(spec) -> bool:
+    """The oracle channel-dispatch predicate (dispatch_edit_setting checks
+    input_hint FIRST): a scalar declaring ``input_hint == "channel"`` pops the
+    channel picker — regardless of value_type (a channel key is a Discord
+    channel id, declared `int` today but stored as the scalar string). Routed
+    BEFORE the number/enum/text arms so a channel-hinted `int` does NOT
+    misroute to the S3 number modal."""
+    if spec is None:
+        return False
+    hint = str(getattr(spec, "input_hint", "") or "").strip().lower()
+    return hint == "channel"
+
+
+async def _group_edit_channel_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The channel picker's read block — names the setting under edit and its
+    current effective value (the oracle ephemeral prompt copy: 'Pick a channel
+    for `{subsystem}.{name}` (current=…)'). An expired session degrades
+    honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    current_line = (f"current = <#{current}>" if str(current or "").isdigit()
+                    and str(current) != "0" else f"current = `{current!r}`")
+    return ((f"Editing `{group}.{name}`",
+             f"{current_line}  ·  default = `{spec.default!r}`\n"
+             f"Pick a channel from the select below."),)
+
+
+async def _group_edit_channel_options(ctx) -> tuple[dict, ...]:
+    """The oracle ChannelSettingSelectView roster, rendered as provider-fed
+    windowed options: one option per guild text channel (the channel-directory
+    READ seam — the channel-cog `_channel_options` shape), the current channel
+    pre-marked (`default=True`, description 'current'). The group + setting ride
+    ctx.params; the windowed engine pages a >25-channel guild instead of
+    front-truncating. An unarmed directory (DM / headless) degrades to the
+    selector's empty state, never a crash."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not _is_channel_spec(spec):
+        return ()
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    if guild_id is None:
+        return ()
+    current = await _group_edit_current(guild_id, group, name, spec)
+    current_id = str(current or "")
+    from sb.domain.channel import service as channel_service
+
+    try:
+        snaps = await channel_service.active_directory().list_channels(
+            int(guild_id))
+    except RuntimeError:
+        return ()
+    except Exception:  # noqa: BLE001 — unarmed/failed directory ⇒ empty state
+        return ()
+    options: list[dict] = []
+    for snap in snaps:
+        if getattr(snap, "kind", "text") == "category":
+            continue
+        cid = str(snap.channel_id)
+        option: dict = {"value": cid, "label": f"#{snap.name}"[:100],
+                        "description": f"ID: {cid}"[:100]}
+        if cid == current_id:
+            option["default"] = True
+            option["description"] = "current"
+        options.append(option)
+    return tuple(options)
+
+
+def settings_group_edit_channel_spec() -> PanelSpec:
+    """The channel-select edit widget (settings epic S5) — a windowed component
+    select of the guild's channels, opened from the group_edit Edit select for
+    a channel-hinted scalar (`input_hint="channel"`). A pick commits the chosen
+    channel id through settings.set_scalar; the Back button re-opens the group's
+    edit page (the group rides its args)."""
+    return PanelSpec(
+        panel_id="settings.group_edit_channel",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_channel_fields")),),
+        selectors=(
+            # the shipped windowed channel select (the oracle
+            # ChannelSettingSelectView rendered as a provider-fed windowed ENUM
+            # select — the channel-cog roster shape): options are the guild's
+            # channels (provider-fed, current pre-marked), windowed past 25. A
+            # pick commits through settings.set_scalar
+            # (settings.group_edit_channel_pick).
+            SelectorSpec(
+                selector_id="channel_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef(
+                    "settings.group_edit_channel_options"),
+                placeholder="Pick a channel…",
+                empty_state="No channels available (directory unarmed).",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_channel_pick")),
+        ),
+        actions=(
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the enum_back twin).
+            PanelActionSpec(
+                action_id="channel_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_channel_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / enum precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("channel_select",),
+            ("channel_back",),
+        )),)),
+    )
+
+
 # --- the ported number-modal edit widget (settings epic S3) -------------------------
 #
 # The oracle dispatch_edit_setting routed an `int` / `float` setting to the
@@ -2103,6 +2253,8 @@ def _register_refs() -> None:
         panel("settings.group_edit_number")(settings_group_edit_number_spec)
     if not is_registered(PanelRef("settings.group_edit_text")):
         panel("settings.group_edit_text")(settings_group_edit_text_spec)
+    if not is_registered(PanelRef("settings.group_edit_channel")):
+        panel("settings.group_edit_channel")(settings_group_edit_channel_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -2145,6 +2297,12 @@ def _register_refs() -> None:
         provider("settings.group_edit_number_fields")(_group_edit_number_fields)
     if not is_registered(ProviderRef("settings.group_edit_text_fields")):
         provider("settings.group_edit_text_fields")(_group_edit_text_fields)
+    if not is_registered(ProviderRef("settings.group_edit_channel_fields")):
+        provider("settings.group_edit_channel_fields")(
+            _group_edit_channel_fields)
+    if not is_registered(ProviderRef("settings.group_edit_channel_options")):
+        provider("settings.group_edit_channel_options")(
+            _group_edit_channel_options)
 
 
 _register_refs()
@@ -2161,7 +2319,8 @@ def install_settings_panels() -> PanelSpec:
                  settings_audit_spec(), settings_command_access_spec(),
                  settings_group_edit_spec(), settings_group_edit_enum_spec(),
                  settings_group_edit_number_spec(),
-                 settings_group_edit_text_spec()):
+                 settings_group_edit_text_spec(),
+                 settings_group_edit_channel_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:

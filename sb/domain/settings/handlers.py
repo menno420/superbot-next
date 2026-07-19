@@ -264,6 +264,30 @@ async def _refresh_group_edit_text(req, group: str, name: str) -> bool:
         return False
 
 
+async def _refresh_group_edit_channel(req, group: str, name: str) -> bool:
+    """Best-effort in-place re-render of the channel picker after a write (the
+    _refresh_group_edit_enum twin): re-supply BOTH the group and the setting so
+    the picker's options re-mark the new current channel; a miss degrades to
+    the caller's text confirmation."""
+    key = _message_key(req)
+    if not key:
+        return False
+    try:
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+        from sb.kernel.panels.engine import refresh_session_view
+
+        return await refresh_session_view(
+            req, message_key=key,
+            params={GROUP_EDIT_PARAM: group, GROUP_EDIT_SETTING_PARAM: name})
+    except Exception:  # noqa: BLE001 — the caller's text reply answers
+        logger.debug("settings.group_edit_channel refresh failed",
+                     exc_info=True)
+        return False
+
+
 def _group_edit_selection(req):
     """(group, setting_name) from a group_edit select click: the group rides
     the minted-child args (GROUP_EDIT_PARAM), the picked setting rides the
@@ -644,6 +668,7 @@ def _register() -> None:
         from sb.domain.settings.ops import SET_SCALAR
         from sb.domain.settings.panels import (
             _group_edit_spec,
+            _is_channel_spec,
             _is_enum_spec,
             _is_number_spec,
             _is_text_spec,
@@ -677,6 +702,29 @@ def _register() -> None:
             await _refresh_group_edit(req, group)
             return Reply(SUCCESS,
                          f"✅ `{group}.{name}` set to **{not current}**.")
+        # S5 — channel select: a `channel`-hinted scalar opens the windowed
+        # channel picker (the oracle ChannelSettingSelectView). The oracle
+        # checks input_hint FIRST, so this arm is routed BEFORE the enum /
+        # number / text value_type arms — otherwise a channel-hinted `int`
+        # would misroute to the S3 number modal. The group + picked setting
+        # ride the opening args so the child session-view bakes them onto the
+        # session-minted select; a channel click commits through set_scalar.
+        if _is_channel_spec(spec):
+            import dataclasses as _dc
+
+            from sb.domain.settings.panels import (
+                GROUP_EDIT_PARAM,
+                GROUP_EDIT_SETTING_PARAM,
+            )
+            from sb.kernel.panels.engine import open_panel
+            from sb.spec.refs import PanelRef
+
+            await open_panel(
+                PanelRef("settings.group_edit_channel"),
+                _dc.replace(req, args={**dict(req.args),
+                                       GROUP_EDIT_PARAM: group,
+                                       GROUP_EDIT_SETTING_PARAM: name}))
+            return None
         # S2 — enum select: open the windowed picker of the declared
         # allowed_values (the oracle build_enum_select_view). The group + the
         # picked setting ride the opening args so the engine bakes them onto
@@ -738,13 +786,14 @@ def _register() -> None:
                                        GROUP_EDIT_PARAM: group,
                                        GROUP_EDIT_SETTING_PARAM: name}))
             return None
-        # S5–S7 — the remaining per-type widgets land in a later slice.
+        # S6–S7 — the remaining per-type widgets (role / numeric-presets) land
+        # in a later slice.
         return Reply(
             SUCCESS,
             f"⚙️ The `{spec.value_type}` editor for `{group}.{name}` "
-            f"ports in a later settings slice (S5–S7). The bool toggle (S1), "
-            f"enum select (S2), number modal (S3) and free-text modal (S4) "
-            f"are live now.")
+            f"ports in a later settings slice (S6–S7). The bool toggle (S1), "
+            f"enum select (S2), number modal (S3), free-text modal (S4) and "
+            f"channel select (S5) are live now.")
 
     @handler("settings.group_edit_reset")
     async def group_edit_reset(req):
@@ -857,6 +906,83 @@ def _register() -> None:
         """↩ Back to settings — re-open the group's edit page (the group rides
         the click's args; the oracle enum view's back-to-parent). Never a
         strand: a missing group falls back to the honest expiry terminal."""
+        import dataclasses as _dc
+
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        if not group:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        await open_panel(
+            PanelRef("settings.group_edit"),
+            _dc.replace(req, args={**dict(req.args),
+                                   GROUP_EDIT_PARAM: group}))
+        return None
+
+    # --- the ported channel-select edit widget (settings epic S5) -----------
+    # The oracle ChannelSettingSelectView (disbot/views/settings/edit_channel.py):
+    # a native ChannelSelect whose pick wrote the chosen channel id through the
+    # audited mutation pipeline. Here that select is its own session-view child
+    # (settings.group_edit_channel), rendered as a windowed provider-fed select
+    # over the channel-directory roster (the port-frame convention); the chosen
+    # channel id commits through the LIVE K7 settings.set_scalar lane (no new op)
+    # and the picker refreshes in place. The group + setting ride the click's
+    # session-minted args (GROUP_EDIT_PARAM / GROUP_EDIT_SETTING_PARAM).
+
+    @handler("settings.group_edit_channel_pick")
+    async def group_edit_channel_pick(req):
+        """The windowed channel select — commit the chosen channel id through
+        settings.set_scalar. The channel id rides the ordinary select `values`
+        round-trip (so an out-of-window pick resolves the same as a first-window
+        one); the (group, setting) ride the minted-child args. A non-numeric
+        selection rejects without a write."""
+        from sb.domain.settings.ops import SET_SCALAR
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+            _group_edit_spec,
+            _is_channel_spec,
+        )
+        from sb.spec.outcomes import BLOCKED
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        name = str(req.args.get(GROUP_EDIT_SETTING_PARAM) or "")
+        values = tuple(req.args.get("values", ()) or ())
+        chosen = str(values[0]) if values else ""
+        if not group or not name:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        spec = _group_edit_spec(group, name)
+        if spec is None or not _is_channel_spec(spec):
+            return Reply(BLOCKED,
+                         f"⚙️ `{group}.{name}` is not a channel setting.")
+        if not chosen.isdigit():
+            return Reply(BLOCKED,
+                         f"⚙️ `{chosen}` is not a valid channel for "
+                         f"`{group}.{name}`.")
+        if not req.guild_id:
+            return Reply(BLOCKED, "❌ Settings are per server — use this "
+                                  "inside a server.")
+        from sb.kernel import settings as ksettings
+
+        key = ksettings.persisted_key(group, name)
+        result = await _run_scalar_op(req, SET_SCALAR,
+                                      {"key": key, "value": chosen})
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't update `{group}.{name}`: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_group_edit_channel(req, group, name)
+        return Reply(SUCCESS,
+                     f"✅ `{group}.{name}` set to <#{chosen}>.")
+
+    @handler("settings.group_edit_channel_back")
+    async def group_edit_channel_back(req):
+        """↩ Back to settings — re-open the group's edit page (the group rides
+        the click's args; the enum_back twin). Never a strand: a missing group
+        falls back to the honest expiry terminal."""
         import dataclasses as _dc
 
         from sb.domain.settings.panels import GROUP_EDIT_PARAM

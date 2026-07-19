@@ -423,10 +423,26 @@ source:
   # lane (the guild `settings` row write key karma_reaction_emoji=⭐ + the
   # audited spine), the widget refreshes IN PLACE and the ephemeral followup
   # confirms. No new op — the existing scalar lane, one widget further.
-  minted_goldens: 69
+  # +1 minted the SETTINGS CHANNEL-SELECT write golden (2026-07-19, settings
+  # epic S5 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_channel_write.json. !settings then the
+  # non-hub group select (btd6) opens the group_edit page; picking the
+  # channel-pointer strategy_submission_channel (int + input_hint=channel —
+  # before S5 it MISROUTED to the number modal) in the Edit select opens the
+  # channel-picker widget (settings.group_edit_channel — oracle
+  # disbot/views/settings/edit_channel.py @ f87fa508 ChannelSettingSelectView,
+  # ported as a windowed provider-fed select over the channel-directory
+  # roster); the picker render (the guild's channels) is captured, then picking
+  # #general commits the channel id through the K7 settings.set_scalar lane (the
+  # guild `settings` row write key btd6_strategy_submission_channel=<#general> +
+  # the audited spine), the widget refreshes IN PLACE and the ephemeral followup
+  # confirms. No new op — the existing scalar lane, one widget further. The
+  # picked channel rides the __CHANNEL_GENERAL__ value token (the runner rewrites
+  # it to the boot-allocated id; the normalizer redacts it back to <#general>).
+  minted_goldens: 70
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 531). The first retirement (2026-07-12
+  # imported + minted − retired = 532). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
