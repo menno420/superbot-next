@@ -1,10 +1,11 @@
 # Session — spec grammar: cover the namespaced-predicate parsers
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 >
-> Born-red: this card is the session's FIRST commit (per `.sessions/README.md`),
-> committed alone to hold the substrate-gate while in-flight. Flipped to
-> `complete` as the deliberate LAST commit once the close-out is written.
+> Flipped `in-progress` → `complete` as the deliberate LAST commit (per
+> `.sessions/README.md`): the first commit was this card alone (born-red, held
+> the substrate-gate); the test landed in the second commit; this flip is the
+> last.
 
 - **📊 Model:** opus-4.8 · high · test writing
 
@@ -57,20 +58,57 @@ real functions before being committed:
 ## Verification
 
 - `python3 -m pytest -q tests/unit/spec/test_refs_predicates.py` →
-  **[[fill: N]] passed**.
-- Full `python3 -m pytest -q --ignore=examples` → **[[fill: tail + count]]**.
+  **25 passed** in 0.04s.
+- Full `python3 -m pytest -q --ignore=examples` (Postgres started + discord
+  present) → **3674 passed, 2 skipped, 1 warning** in 110s. The 2 skips are
+  pre-existing/unrelated; the 1 warning is the pre-existing `discord/player.py`
+  `audioop` DeprecationWarning (stdlib, unrelated). The +25 delta is exactly
+  this file — no other test moved.
 - Guards clean: `check_namespace`, `check_symbol_shadowing`,
   `check_config_usage`, `check_no_skip` — each exit 0. Guard-fires delta:
-  **[[fill:]]**.
+  **0 fires** attributable to this slice (test-only, zero `sb/` source edited).
 - `python3 bootstrap.py check` → exit 0; card validates `complete` at HEAD.
 - No dependency change — `requirements.lock` untouched, pip-audit gate n/a.
 
 ## 💡 Session idea
 
-[[fill: one concrete idea surfaced while writing]]
+The gate/parser empty-key asymmetry (test 2) is currently latent-safe only
+because manifest predicate strings are author-written and validated upstream —
+but `evaluate()` in `sb/kernel/interaction/predicates.py` catches only
+`LookupError`, not the `ValueError` that `parse_namespaced_predicate("setting:")`
+raises after `is_namespaced_predicate` waves it through. A hand-authored or
+future-generated `"setting:"` (trailing-colon typo) would therefore surface as
+an uncaught `ValueError` at render/gate time rather than a fail-closed `False`.
+Worth a one-line decision: either tighten `is_namespaced_predicate` to also
+reject the empty key (making the two agree), or widen the `except` in `evaluate`
+to `(LookupError, ValueError)` so a malformed predicate fails closed like every
+other unreadable one. Guard recipe: anchor on `is_namespaced_predicate` +
+`parse_namespaced_predicate` in `sb/spec/refs.py` and the `except LookupError`
+in `sb/kernel/interaction/predicates.py::evaluate`; a behavioral pin would be an
+`evaluate(PredicateRef("setting:"), ctx)` case asserting `False` (fail-closed)
+once the posture is chosen. This test file pins TODAY's behavior (parse raises),
+so whichever way the decision lands, the change to this test is the signal.
 
 ## ⟲ Review
 
 ### previous-session review
 
-[[fill: byte-form review of the predecessor card]]
+Predecessor: `.sessions/2026-07-19-mining-rewards-rolls.md` (`complete`, same
+`opus-4.8 · high · test writing` class). That card's convention carried here
+verbatim: read-only HUNT to prove the exact gap is genuinely uncovered before
+writing (confirmed neither `parse_namespaced_predicate` nor
+`is_namespaced_predicate` appears in any test), a born-red card as the sole
+first commit holding the substrate-gate, the test in a second commit, and a
+verification section that re-runs the exact commands and records tails/counts.
+One concrete carry heeded: that card's *honesty seam* discipline — do NOT assert
+behavior the shipped code does not produce (it declined to claim a legacy-bonus
+amount difference that rounds to a no-op). Applied here to the `is_namespaced`/
+`parse` asymmetry: rather than assert the two "should agree", the tests pin that
+they deliberately DISAGREE on the empty-key edge (gate True, parse raises) — the
+real shipped behavior — and the divergence is routed to the 💡 idea as a posture
+question, not silently "fixed". Where this slice diverges: mining was
+game-economy loot math (rounding/clamp); this is a kernel/spec grammar leaf
+gating every `enabled_when`/`visible_when` predicate — lower blast radius per
+call but on the hotter path, and the value tie-break (`""` vs `None`) is the
+assertion that earns its keep, since a `.split("=")` refactor would silently
+flip a compare-to-empty into a truthiness check across every guild's gates.
