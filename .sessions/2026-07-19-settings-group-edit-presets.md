@@ -1,8 +1,8 @@
 # 2026-07-19 — settings epic S7: the numeric-presets quick-set widget
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** [[fill: family · effort · kind]]
+- **📊 Model:** opus · high · feature build
 
 ## Scope
 
@@ -50,4 +50,100 @@ Deliverables:
 
 ## Result
 
-[[fill: on flip to complete]]
+Landed the S7 numeric-presets quick-set widget on PR #584 (base main; S5 #583
+already merged, so the diff is presets-only — branched from origin/main rather
+than rebasing the pre-merge S5 branch). The `group_edit_pick` dispatch now
+intercepts `input_hint == "numeric_presets"` BEFORE the value_type arms (right
+after the S5 channel arm — the oracle checks input_hint first), so picking a
+presets-hinted scalar in the `settings.group_edit` Edit select opens the
+quick-set buttons widget `settings.group_edit_presets`
+(`sb/domain/settings/panels.py` `settings_group_edit_presets_spec` +
+`_group_edit_presets_fields` provider + the `_render_group_edit_presets`
+renderer override + the new `_is_presets_spec` predicate;
+`sb/domain/settings/handlers.py` `group_edit_pick` presets branch +
+`group_edit_presets_pick` / `group_edit_presets_back` handlers + the
+`_refresh_group_edit_presets` in-place refresh). The widget renders one quick-set
+button per declared preset value: static `pval_0…pval_9` PanelActionSpec slots
+that the render override relabels with each preset value (the current value
+marked primary), dropping the surplus slots — the `_render_access`
+dynamic-component precedent (this grammar renders buttons from declared actions,
+so the per-setting labels ride the override). A preset click commits its fixed
+value through the existing K7 `settings.set_scalar` lane — no new op — and
+refreshes in place; the clicked slot's index rides `session_action` and the value
+is re-derived from `spec.presets` (never trusted from the wire). A stale slot
+beyond the declared presets rejects without a write.
+
+**Regression fixed + pinned:** `xp.xp_cooldown` (and `karma.cooldown_seconds` /
+`karma.daily_cap`, etc.) are `int` + `input_hint="numeric_presets"`; the
+value_type-only dispatch tail misrouted them to the S3 number modal. The presets
+arm now intercepts the hint first, so they open the quick-set buttons
+(`test_presets_pick_opens_the_buttons_not_the_number_modal` pins this against the
+real xp setting — asserting the opened panel id, not merely the predicate).
+
+**Port deviation (flagged):** the oracle's `NumericPresetsView` carried an
+`Override…` button that reopened the free-form `NumberSettingModal` for an
+arbitrary value; the port OMITS it as a deliberate under-port — carrying it would
+need either a new `ModalSpec` custom_id (compat-frozen §5.3 drift, which this
+slice avoids by design) or reusing the S3 number modal across two panels (submit
+routing ambiguity). The arbitrary-value path is a follow-up. Clearing rides the
+shared type-agnostic S0 reset select (`settings.clear_scalar`), the S2/S5 posture.
+
+**Sim-gate note (flagged):** the widget declares 11 components (10 preset slots +
+Back), above `PANEL_FLOOR=4`, so unlike the ≤4-component S2–S5 widgets (which are
+auto-exempt below-floor) its [A] layout is NOT auto-exempt. Its mechanical
+quick-set grid (5-per-row, mirroring the oracle) is pinned **Exempt** in
+`manifest/layout/settings.lock.json` + the sim-gate baseline — the
+`settings.access` / `ai.settings_edit_presets` precedent (both above-floor,
+both Exempt legacy-seed).
+
+Bool (S1) + enum (S2) + number (S3) + free-text (S4) + channel (S5) stay live;
+presets reset clears through `settings.clear_scalar` (the S0 reset select is
+type-agnostic). Option-A boundary preserved (the 5 hub arms + `games` untouched).
+Manifest snapshot recompiled. Golden
+`parity/goldens/settings/settings_group_edit_presets_write.json` minted honestly
+via the oracle-replay path against `xp.xp_cooldown` (open the xp edit page → pick
+`xp_cooldown` → click the preset `30` → the `settings` db_delta writes
+`xp_cooldown=30`; the quick-set buttons render `0/15/30/60/120/300`, and the
+in-place refresh re-marks the `30` button primary). Golden corpus 532 → 533
+(minted 70 → 71); count-pins resynced in `test_check_parity_depth.py` +
+`test_replay_adapter.py`. `check_compat_frozen` GREEN with NO drift — the buttons
+add run-minted component custom_ids but no ModalSpec custom_id, so the frozen
+§5.3 contract is untouched (the defensive S3.5 prediction held). Full
+`python3 -m pytest tests/unit --ignore=examples` — **3546 passed, 15 skipped**;
+`check_symbol_shadowing` / `namespace` / `no_skip` / `config_usage` /
+`orphan_pendings` / `sim_gate` clean. The full golden-parity replay is left to
+CI's authoritative gates on the PR (not blocked locally per the slice rule).
+
+## 💡 Session idea
+
+S7 completes the widget frontier the S4/S5 cards mapped, and it surfaces a THIRD
+axis the pointer-arm rule (S5) did not name: the port frame's dispatch order is a
+property of the SEQUENCE, but the port frame's *component grammar* is a property
+of the COMPONENT COUNT. Every S2–S5 widget stayed under `PANEL_FLOOR=4` (a select
++ a Back, or a modal button + a Back), so its arrangement was auto-exempt from
+the sim gate — invisibly. S7 is the first group_edit widget whose faithful shape
+(one button per preset) crosses that floor, and it is exactly the crossing that
+forces the layout into the reviewed-or-Exempt gate. Worth pinning as the
+widget-count rule: "a ported widget stays below the sim gate's radar only while
+its declared component count ≤ PANEL_FLOOR; the moment a widget's honest shape is
+a *variable-arity component set* (preset buttons, a role-chip row, a multi-slot
+grid) it crosses the floor and needs an explicit Exempt or sim record — the
+auto-exempt below-floor carve-out is a property of the widget's ARITY, not of it
+being a group_edit widget." That is why S7 is the first slice to touch
+`settings.lock.json` at all, and why S6 (role select, a single native picker)
+will NOT need to — it is back under the floor.
+
+## ⟲ Previous-session review
+
+S5 (channel select, #583) left the dispatch in exactly the shape S7 needed — its
+`input_hint == "channel"` interception, routed BEFORE `_is_number_spec`, was the
+literal template for S7's `numeric_presets` arm (same ordering rationale: a
+hinted `int` satisfies `_is_number_spec` too, so ORDER, not the predicate, is
+what keeps it off the number modal), and its card's pointer-arm rule ("test the
+ORDER, not just the predicate") is precisely why
+`test_presets_pick_opens_the_buttons_not_the_number_modal` asserts the opened
+panel id. The one thing S5 could not foresee: that S7's widget would be the first
+to cross `PANEL_FLOOR` and so the first to need a `settings.lock.json` Exempt — S5
+was a windowed select (2 components, auto-exempt), so its card's "no drift"
+posture held for compat-frozen but silently side-stepped the sim gate entirely,
+a surface S7 was the first to meet.
