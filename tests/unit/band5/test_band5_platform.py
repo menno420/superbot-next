@@ -88,6 +88,70 @@ def test_access_mode_leg_validates_and_writes(monkeypatch):
         run(ca._record_set_access_mode(None, _ctx({"mode": "lockdown"})))
 
 
+def test_channel_role_sets_fold_into_snapshot(monkeypatch):
+    """D3 M1: role rows fold into channel_role_sets keyed by channel."""
+    from sb.domain.platform import command_access as ca
+
+    async def fetchone(sql, args=(), conn=None):
+        return {"mode": "all_channels"}
+
+    async def fetchall(sql, args=(), conn=None):
+        if "guild_command_access_channels" in sql and "role" not in sql:
+            return [{"channel_id": 5}]
+        if "guild_command_access_channel_roles" in sql:
+            return [
+                {"channel_id": 5, "role_id": 100},
+                {"channel_id": 5, "role_id": 200},
+                {"channel_id": 9, "role_id": 300},
+            ]
+        return []
+
+    monkeypatch.setattr(ca, "fetchone", fetchone)
+    monkeypatch.setattr(ca, "fetchall", fetchall)
+    snap = run(ca._fetch_snapshot(1))
+    assert snap.mode == "all_channels"
+    assert snap.allowed_channels == frozenset({5})
+    assert snap.channel_role_sets[5] == frozenset({100, 200})
+    assert snap.channel_role_sets[9] == frozenset({300})
+    # a channel with no role rows is absent (unconstrained), not empty-set.
+    assert 42 not in snap.channel_role_sets
+
+
+def test_channel_roles_leg_atomic_replace_and_writes(monkeypatch):
+    """D3 M1: the leg clears then re-INSERTs this channel's role set and
+    the op carries the command_access_channel_roles_set audit verb."""
+    from sb.domain.platform import command_access as ca
+    from sb.kernel.interaction.errors import ValidatorError
+
+    writes = []
+
+    async def execute(sql, args=(), conn=None):
+        writes.append((sql.split()[0], args))
+
+    async def fetchone(sql, args=(), conn=None):
+        return {"mode": "all_channels"}   # policy row already present
+
+    monkeypatch.setattr(ca, "execute", execute)
+    monkeypatch.setattr(ca, "fetchone", fetchone)
+
+    out = run(ca._record_set_channel_roles(
+        None, _ctx({"channel_id": 5, "role_ids": (100, 200)})))
+    assert out.after == {"channel_id": 5, "role_ids": [100, 200]}
+    verbs = [w[0] for w in writes]
+    # exactly one DELETE (the per-channel clear) then one INSERT per role.
+    assert verbs == ["DELETE", "INSERT", "INSERT"]
+    assert all(w[1][0] == 1 and w[1][1] == 5 for w in writes)   # gid, channel
+    assert ca.SET_CHANNEL_ROLES.audit_verb == "command_access_channel_roles_set"
+
+    # empty role set without allow_empty is refused (copy-only ValidatorError).
+    with pytest.raises(ValidatorError):
+        run(ca._record_set_channel_roles(None, _ctx({"channel_id": 5})))
+    # a missing channel id is refused too.
+    with pytest.raises(ValidatorError):
+        run(ca._record_set_channel_roles(
+            None, _ctx({"channel_id": 0, "role_ids": (1,)})))
+
+
 # --- teardown registry -------------------------------------------------------------
 
 def test_teardown_isolation_and_order():
