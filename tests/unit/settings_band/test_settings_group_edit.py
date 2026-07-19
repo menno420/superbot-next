@@ -55,7 +55,7 @@ def _armed_refs():
     against genuine registrations (never a fake ensure_hub)."""
     from sb.domain.settings import handlers, panels
 
-    for name in (*_HUB_GROUPS, "role", "moderation"):
+    for name in (*_HUB_GROUPS, "role", "moderation", "karma"):
         importlib.import_module(f"sb.manifest.{name}")
     panels.ensure_panel_refs()
     handlers.ensure_handler_refs()
@@ -164,7 +164,8 @@ class TestGroupEditFrame:
             "settings.needs_setup", "settings.invalid",
             "settings.missing_bindings", "settings.audit",
             "settings.command_access", "settings.group_edit",
-            "settings.group_edit_enum", "settings.group_edit_number"]
+            "settings.group_edit_enum", "settings.group_edit_number",
+            "settings.group_edit_text"]
 
     def test_edit_and_reset_options_are_the_editable_specs(self):
         from sb.domain.settings import panels
@@ -266,13 +267,27 @@ class TestBoolToggleAndReset:
 
     def test_non_bool_pick_degrades_honestly_without_a_write(
             self, monkeypatch):
+        """A pick whose widget hasn't landed yet degrades honestly (no write).
+        After S4 every real editable scalar routes to a live widget
+        (bool/enum/number/free-text), so a channel/role-pointer-hinted str — the
+        S5–S7 territory the oracle routes by input_hint before the free-text
+        fallback — stands in for the still-unported case."""
+        from sb.domain.settings import panels
         from sb.spec.outcomes import SUCCESS
+        from sb.spec.settings import SettingSpec
 
         calls = _patch_scalar_run(monkeypatch)
         _patch_refresh(monkeypatch)
 
+        # a channel-pointer scalar (input_hint="channel") — routed by the S5
+        # channel-select arm first, so it is NOT the free-text modal.
+        pointer = SettingSpec(name="log_channel", value_type=str,
+                              settings_key="role_log_channel",
+                              input_hint="channel")
+        monkeypatch.setattr(panels, "_group_edit_spec",
+                            lambda group, name: pointer)
         reply = run(_handler("settings.group_edit_pick")(
-            self._req("skip_roles")))               # str — S4 text widget
+            self._req("log_channel")))
         assert reply.outcome == SUCCESS
         assert calls == []                          # no write for unported type
         assert "later settings slice" in reply.user_message
@@ -664,3 +679,190 @@ class TestNumberDispatchAndCommit:
         assert reply is None
         assert opened == [("settings.group_edit",
                            {GROUP_EDIT_PARAM: _NUM_GROUP})]
+
+
+# --- the S4 free-text-modal edit widget (K7 set_scalar) ----------------------------
+#
+# `karma.reaction_emoji` is a NON-HUB group free-text str scalar
+# (value_type=str, no allowed_values, default="", bounds=(64,)) — the concrete
+# port target. Its typed string is validated (non-empty + the declared
+# 64-char max-length) before the audited write; a str WITH allowed_values goes
+# to the S2 enum select, not here.
+
+_TEXT_GROUP = "karma"
+_TEXT_SETTING = "reaction_emoji"
+
+
+class TestTextWidgetFrame:
+    def test_text_spec_compiles_and_is_a_session_view(self):
+        from sb.domain.settings.panels import settings_group_edit_text_spec
+        from sb.kernel.panels.compile import check_panel
+        from sb.spec.outcomes import DeferMode
+        from sb.spec.panels import Audience, FooterMode, ModalFieldStyle
+        from sb.spec.refs import HandlerRef
+
+        spec = settings_group_edit_text_spec()
+        check_panel(spec)
+        assert spec.panel_id == "settings.group_edit_text"
+        assert spec.audience is Audience.INVOKER
+        assert spec.frame.footer_mode is FooterMode.NONE
+        assert spec.session_lifecycle is True
+        by_act = {a.action_id: a for a in spec.actions}
+        # the "Enter text…" button ISSUES the G-10 free-text modal.
+        edit = by_act["text_edit"]
+        assert edit.defer_mode is DeferMode.MODAL
+        assert edit.modal is not None
+        assert edit.modal.modal_id == "settings.group_edit_text_form"
+        assert len(edit.modal.fields) == 1
+        assert edit.modal.fields[0].field_id == "text_value"
+        # the shipped paragraph (multi-line) TextInput.
+        assert edit.modal.fields[0].style is ModalFieldStyle.PARAGRAPH
+        assert edit.handler == HandlerRef("settings.group_edit_text_submit")
+        # ↩ Back re-opens the group edit page via its own handler.
+        assert (by_act["text_back"].handler
+                == HandlerRef("settings.group_edit_text_back"))
+
+    def test_text_fields_show_current_default_and_max_length(self, monkeypatch):
+        from sb.domain.settings import panels, service
+
+        # deterministic current = "⭐" (avoid a DB-backed resolver).
+        async def fake_resolve(guild_id, subsystem, name, spec=None):
+            return SimpleNamespace(value="⭐")
+
+        monkeypatch.setattr(service, "resolve_setting", fake_resolve)
+        fields = run(panels._group_edit_text_fields(_ctx(
+            **{panels.GROUP_EDIT_PARAM: _TEXT_GROUP,
+               panels.GROUP_EDIT_SETTING_PARAM: _TEXT_SETTING})))
+        assert fields[0][0] == f"Editing `{_TEXT_GROUP}.{_TEXT_SETTING}`"
+        body = fields[0][1]
+        assert "current = `'⭐'`" in body
+        assert "type = `str`" in body
+        # reaction_emoji declares bounds=(64,) — the max-length copy renders.
+        assert "Max length" in body and "`64`" in body
+
+    def test_text_fields_degrade_on_an_expired_session(self):
+        from sb.domain.settings import panels
+
+        fields = run(panels._group_edit_text_fields(_ctx()))
+        assert "session expired" in fields[0][1]
+
+
+class TestTextDispatchAndCommit:
+    def _pick_req(self, name, *, group=_TEXT_GROUP):
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        return _Req(args={GROUP_EDIT_PARAM: group, "values": (name,)})
+
+    def _submit_req(self, raw, *, group=_TEXT_GROUP, name=_TEXT_SETTING):
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        # the modal-args stash restores (group, setting); the submitted field
+        # value rides `text_value` (the ModalFieldSpec field_id).
+        return _Req(args={GROUP_EDIT_PARAM: group,
+                          GROUP_EDIT_SETTING_PARAM: name,
+                          "text_value": raw})
+
+    def test_text_pick_opens_the_text_widget(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        reply = run(_handler("settings.group_edit_pick")(
+            self._pick_req(_TEXT_SETTING)))
+        assert reply is None                         # open_panel took over
+        assert [name for name, _ in opened] == ["settings.group_edit_text"]
+        args = opened[0][1]
+        assert args[GROUP_EDIT_PARAM] == _TEXT_GROUP
+        assert args[GROUP_EDIT_SETTING_PARAM] == _TEXT_SETTING
+
+    def test_text_submit_persists_the_string(self, monkeypatch):
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_text_submit")(
+            self._submit_req("⭐")))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.set_scalar",
+                          {"key": ksettings.persisted_key(
+                              _TEXT_GROUP, _TEXT_SETTING),
+                           "value": "⭐"})]
+        assert "set to **'⭐'**" in reply.user_message
+
+    def test_text_submit_rejects_empty_without_a_write(self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # a whitespace-only value is empty — the widget requires a value
+        # (Reset clears a setting through clear_scalar).
+        reply = run(_handler("settings.group_edit_text_submit")(
+            self._submit_req("   ")))
+        assert reply.outcome == BLOCKED
+        assert calls == []                       # no write for an empty value
+        assert "can't be empty" in reply.user_message
+
+    def test_text_submit_rejects_over_length_without_a_write(self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # reaction_emoji bounds=(64,) — a 65-char value trips the max-length
+        # gate (coerce_value does not apply str bounds; the submit does).
+        reply = run(_handler("settings.group_edit_text_submit")(
+            self._submit_req("x" * 65)))
+        assert reply.outcome == BLOCKED
+        assert calls == []                       # no write for over-length
+        assert "too long" in reply.user_message
+
+    def test_text_submit_rejects_a_non_text_setting(self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # warn_escalation_action is a str/enum setting (allowed_values) — routed
+        # to the S2 enum select, not the free-text modal.
+        reply = run(_handler("settings.group_edit_text_submit")(
+            self._submit_req("anything", group="moderation",
+                             name="warn_escalation_action")))
+        assert reply.outcome == BLOCKED
+        assert calls == []
+        assert "not a free-text setting" in reply.user_message
+
+    def test_text_reset_clears_through_clear_scalar(self, monkeypatch):
+        """The S0 reset select is type-agnostic — resetting a text setting
+        clears its explicit row through settings.clear_scalar (no new path)."""
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_reset")(
+            _Req(args={GROUP_EDIT_PARAM: _TEXT_GROUP,
+                       "values": (_TEXT_SETTING,)})))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.clear_scalar",
+                          {"key": ksettings.persisted_key(
+                              _TEXT_GROUP, _TEXT_SETTING)})]
+
+    def test_text_back_reopens_the_group_edit_page(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        reply = run(_handler("settings.group_edit_text_back")(
+            _Req(args={GROUP_EDIT_PARAM: _TEXT_GROUP})))
+        assert reply is None
+        assert opened == [("settings.group_edit",
+                           {GROUP_EDIT_PARAM: _TEXT_GROUP})]

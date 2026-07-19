@@ -215,6 +215,45 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "+ confirm)"
         ),
     ),
+    GoldenCase(
+        id="settings.group_edit_text_write",
+        subsystem="settings",
+        # settings epic S4 / free-text modal: open the karma edit page, pick the
+        # free-text str `reaction_emoji` in the Edit select — it opens the
+        # free-text-modal widget (settings.group_edit_text); tapping its
+        # "Enter text…" button ISSUES the G-10 free-text modal (stashing the
+        # (group, setting) session args), and submitting `⭐` validates
+        # (non-empty + the declared 64-char max-length) then commits it through
+        # the K7 settings.set_scalar lane (the guild `settings` row write + the
+        # audited spine), the widget refreshes in place, and the ephemeral
+        # followup confirms. The `settings` db_delta + the text widget's render
+        # are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("karma",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("reaction_emoji",),
+                 persona="admin"),
+            # tap the "Enter text…" button — issues the modal + stashes the
+            # (group, setting) args for the submit re-entry.
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=2, persona="admin"),
+            # submit the free-text modal: `reaction_emoji` = ⭐ (non-empty, well
+            # under the 64-char bound).
+            Step(kind="modal", target_message=3,
+                 custom_id="settings.group_edit_text_form",
+                 fields=(("text_value", "⭐"),), persona="admin"),
+        ),
+        notes=(
+            "settings epic S4 free-text modal: picking the free-text str "
+            "reaction_emoji opens the text-modal widget; tapping Enter text… "
+            "issues the free-text modal and submitting `⭐` commits it through "
+            "settings.set_scalar (the guild settings write + in-place refresh "
+            "+ confirm)"
+        ),
+    ),
     # -------------------------------------------------------------- help
     GoldenCase(
         id="help.panel_open",
