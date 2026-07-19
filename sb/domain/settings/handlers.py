@@ -1,9 +1,6 @@
 """Settings-surface handlers — the ``!settings access`` front door plus
-the declared + honest pending terminal for the one hub surface whose
-target is still its own port slice (the role/utility/channel-band
-precedent, never a silent stub): the per-group settings pages
-(``settings_subsystem.*``) stay pending with the settings-mutation
-slice. The Access Policy Explorer's six controls are ARMED (curation
+the settings-hub sub-surface controls. Every pending terminal is now
+RETIRED: the Access Policy Explorer's six controls are ARMED (curation
 rows 82-87) over the governance diagnostic read seam
 (``governance.resolve_subsystem_state``) and the K7 ``SET_VISIBILITY``
 clear lane (Reset); the hub's three READ-ONLY diagnostics (Needs setup /
@@ -14,8 +11,14 @@ grammar owns the dispatch. The 🚪 Command Access panel is ARMED the same
 way (settings-admin slice 3) with its WRITE controls handled below over
 the live platform command-access K7 lanes (``platform.set_access_mode``
 / ``set_access_channels`` — the setup-wizard step-8 seam, reused, never
-re-minted). Refs register at MODULE IMPORT (the composition-parity
-invariant — the live root never runs ENSURE_REFS)."""
+re-minted). Settings epic S0 ports the per-group scalar EDIT page:
+``settings.open_group``'s non-hub arm now opens ``settings.group_edit``
+(owner ruling option A) — the last ``settings.group_pending`` terminal
+is retired, and the edit/reset controls below ride the K7
+``settings.set_scalar`` / ``clear_scalar`` scalar lanes (the S1 bool
+toggle wired end to end; S2–S7 add the per-type widgets). Refs register
+at MODULE IMPORT (the composition-parity invariant — the live root never
+runs ENSURE_REFS)."""
 
 from __future__ import annotations
 
@@ -27,8 +30,6 @@ from sb.kernel.interaction.handler_kit import Reply, ctx_from_request
 logger = logging.getLogger("sb.domain.settings")
 
 __all__ = ["Reply", "ensure_handler_refs"]
-
-_PENDING = " ports with the settings-mutation panel slice."
 
 #: settings groups whose page is a REAL dedicated panel that is NOT the
 #: operator-spine ``<group>.hub`` shape — ``games.hub`` is the PLAYER games
@@ -151,6 +152,61 @@ async def _refresh_command_access(req) -> bool:
         return False
 
 
+# --- the ported per-group EDIT page write path (settings epic S0) ---------------
+#
+# The oracle SubsystemSettingsView's edit/reset selects dispatched by
+# SettingSpec type onto the shipped SettingsMutationPipeline; here they ride
+# the LIVE K7 scalar lanes (settings.set_scalar / clear_scalar — sb/domain/
+# settings/ops.py, the ADMIN-floor write path, no new op minted). S0 wires
+# the S1 BOOL toggle end to end; the per-type widgets (S2–S7) land later, so
+# a non-bool pick degrades to an honest terminal rather than a dead control.
+# The selected group rides the click's args (GROUP_EDIT_PARAM — baked onto
+# every session-minted child at open), never a parallel session dict.
+
+_GROUP_EDIT_EXPIRED = ("⚙️ This settings session expired — reopen the group "
+                       "from `!settings`.")
+
+
+async def _run_scalar_op(req, op, params: dict):
+    """Run a K7 scalar CompoundOp (set_scalar / clear_scalar) on the click's
+    actor/guild — the command_access.set_access_mode invocation shape
+    (``engine.run(op, ctx_from_request(req, params))``)."""
+    from sb.kernel.workflow import engine as _engine
+
+    return await _engine.run(op, ctx_from_request(req, params))
+
+
+async def _refresh_group_edit(req, group: str) -> bool:
+    """Best-effort in-place re-render of the group_edit page after a write
+    (the _refresh_command_access posture): re-supply the running group so
+    the read embed shows the new effective value; a miss degrades to the
+    caller's text confirmation."""
+    key = _message_key(req)
+    if not key:
+        return False
+    try:
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+        from sb.kernel.panels.engine import refresh_session_view
+
+        return await refresh_session_view(
+            req, message_key=key, params={GROUP_EDIT_PARAM: group})
+    except Exception:  # noqa: BLE001 — the caller's text reply answers
+        logger.debug("settings.group_edit refresh failed", exc_info=True)
+        return False
+
+
+def _group_edit_selection(req):
+    """(group, setting_name) from a group_edit select click: the group rides
+    the minted-child args (GROUP_EDIT_PARAM), the picked setting rides the
+    ordinary select ``values`` round-trip."""
+    from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+    group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+    values = tuple(req.args.get("values", ()) or ())
+    name = str(values[0]) if values else ""
+    return group, name
+
+
 async def _resolve_selection(req, state: dict):
     """The governance diagnostic read for the current selection (lazy
     domain→governance import — the sections.py seam shape, PL-001)."""
@@ -230,17 +286,14 @@ def _explain_text(res, state: dict) -> str:
 
 
 def _register() -> None:
-    from sb.domain.operator_spine import pending_handler
     from sb.spec.refs import HandlerRef, handler, is_registered
 
-    # The three read-only diagnostics' pending refs are RETIRED
-    # (settings-admin slice 1 armed them as PanelRef open-child routes —
-    # the retired-explorer-pending precedent), slice 2 retired the audit
-    # view's, and slice 3 retired the Command-Access door's the same
-    # way; only the per-group edit page keeps its honest terminal (the
-    # settings-mutation slice's port).
-    pending_handler("settings.group_pending",
-                    f"⚙️ The per-group settings page{_PENDING}")
+    # Every settings-hub sub-surface's pending terminal is now RETIRED:
+    # slices 1-3 armed the read-only diagnostics / audit view / Command
+    # Access door as real routes, and settings epic S0 retired the LAST
+    # one — ``settings.group_pending`` — by porting the per-group scalar
+    # EDIT page (``settings.group_edit``); open_group now routes non-hub
+    # groups there (option A). Nothing pending remains in this subsystem.
 
     if is_registered(HandlerRef("settings.access_view")):
         return
@@ -249,32 +302,52 @@ def _register() -> None:
     async def open_group(req):
         """The Settings-hub "Open a settings group…" select — the shipped
         ``SettingsHubView`` group select NAVIGATED (read-only, never a
-        mutation) to each group's page. Restore that navigation as a
-        faithful READ SUBSET: open the group's read-only operator-spine hub
-        when one is ensured (welcome/counters/security/automod/
-        image_moderation) or the group's dedicated settings panel
-        (``_GROUP_PANELS`` — the D-0082 games sections surface); every
-        other group keeps the honest pending terminal until the
-        settings-mutation panel slice ports the full edit page. This
-        handler only NAVIGATES — open_panel or BLOCKED, never a write
-        seam (mirrors ``help.open_category``); the games sections panel's
-        own components carry the mutations."""
+        mutation) to each group's page. The port's three-way branch (owner
+        ruling option A, docs/question-router.md → Answered):
+
+          1. the group's dedicated settings panel (``_GROUP_PANELS`` — the
+             D-0082 games sections surface) — UNTOUCHED by S0;
+          2. the group's read-only operator-spine hub when one is ensured
+             (welcome/counters/security/automod/image_moderation) —
+             UNTOUCHED by S0;
+          3. every OTHER (non-hub) group opens the ported per-group scalar
+             EDIT page ``settings.group_edit`` (settings epic S0) — this is
+             the arm option A re-points, displacing the retired
+             ``settings.group_pending`` terminal.
+
+        This handler only NAVIGATES — open_panel, never a write seam
+        (mirrors ``help.open_category``); the group_edit page's own
+        components carry the S1+ mutations. The selected group rides the
+        opening request's args so the engine bakes it onto every minted
+        child (the session-view group axis; see panels.py GROUP_EDIT_PARAM)."""
+        import dataclasses as _dc
+
         from sb.domain.operator_spine import has_operator_hub
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
         from sb.kernel.panels.engine import open_panel
         from sb.spec.outcomes import BLOCKED
         from sb.spec.refs import PanelRef
 
         values = tuple(req.args.get("values", ()) or ())
         group = str(values[0]) if values else ""
+        if not group:
+            return Reply(BLOCKED,
+                         "⚙️ Pick a settings group from the dropdown.")
         if group in _GROUP_PANELS:
             await open_panel(PanelRef(_GROUP_PANELS[group]), req)
             return None
-        if group and has_operator_hub(group):
+        if has_operator_hub(group):
             await open_panel(PanelRef(f"{group}.hub"), req)
             return None
-        # the per-group scalar edit + reset is the settings-mutation slice's
-        # port (write-seam-gated) — read-only nav lands here until then.
-        return Reply(BLOCKED, f"⚙️ The per-group settings page{_PENDING}")
+        # option A: the non-hub arm opens the ported per-group scalar edit
+        # page. The group rides the opening args (GROUP_EDIT_PARAM) so the
+        # engine's session-mint bakes it onto every child — the running
+        # selection needs no parallel session dict.
+        await open_panel(
+            PanelRef("settings.group_edit"),
+            _dc.replace(req, args={**dict(req.args),
+                                   GROUP_EDIT_PARAM: group}))
+        return None
 
     @handler("settings.access_view")
     async def access_view(req):
@@ -481,6 +554,107 @@ def _register() -> None:
                 f"✅ Allowed channels updated ({len(channel_ids)} "
                 f"channel{'s' if len(channel_ids) != 1 else ''}).")
         return Reply(SUCCESS, "✅ Allowed channel list cleared.")
+
+    # --- the ported per-group EDIT page controls (settings epic S0) ---------
+    # The oracle SubsystemSettingsView edit/reset selects + Open-Panel
+    # button. The Edit select dispatches by SettingSpec type: S0 wires the
+    # S1 BOOL toggle (flip → settings.set_scalar); the per-type widgets
+    # (enum / number / text / channel / role / presets) land as S2–S7, so a
+    # non-bool pick degrades to an honest terminal. The Reset select clears
+    # through settings.clear_scalar. Every write rides the ADMIN-floor K7
+    # scalar lanes — no new op minted.
+
+    @handler("settings.group_edit_pick")
+    async def group_edit_pick(req):
+        """The windowed "Edit a setting…" select — dispatch by the picked
+        SettingSpec's value type. S0: bool toggles in place through
+        settings.set_scalar (the flipped effective value); other types land
+        their widget in a later slice (S2–S7)."""
+        from sb.domain.settings.ops import SET_SCALAR
+        from sb.domain.settings.panels import _group_edit_spec
+        from sb.spec.outcomes import BLOCKED
+
+        group, name = _group_edit_selection(req)
+        if not group or not name:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        spec = _group_edit_spec(group, name)
+        if spec is None:
+            return Reply(BLOCKED, f"⚙️ Unknown setting `{group}.{name}`.")
+        if not spec.is_bool:
+            return Reply(
+                SUCCESS,
+                f"⚙️ The `{spec.value_type}` editor for `{group}.{name}` "
+                f"ports in a later settings slice (S2–S7). The bool toggle "
+                f"is live now (S1).")
+        if not req.guild_id:
+            return Reply(BLOCKED, "❌ Settings are per server — use this "
+                                  "inside a server.")
+        from sb.kernel import settings as ksettings
+
+        current = bool(await ksettings.resolve(int(req.guild_id), group, name))
+        new_value = "false" if current else "true"
+        key = ksettings.persisted_key(group, name)
+        result = await _run_scalar_op(req, SET_SCALAR,
+                                      {"key": key, "value": new_value})
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't update `{group}.{name}`: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_group_edit(req, group)
+        return Reply(SUCCESS,
+                     f"✅ `{group}.{name}` set to **{not current}**.")
+
+    @handler("settings.group_edit_reset")
+    async def group_edit_reset(req):
+        """The windowed "Reset a setting…" select — restore the spec's
+        default by clearing the explicit row (settings.clear_scalar; the
+        oracle reset_setting path)."""
+        from sb.domain.settings.ops import CLEAR_SCALAR
+        from sb.domain.settings.panels import _group_edit_spec
+        from sb.spec.outcomes import BLOCKED
+
+        group, name = _group_edit_selection(req)
+        if not group or not name:
+            return Reply(SUCCESS, _GROUP_EDIT_EXPIRED)
+        spec = _group_edit_spec(group, name)
+        if spec is None:
+            return Reply(BLOCKED, f"⚙️ Unknown setting `{group}.{name}`.")
+        if not req.guild_id:
+            return Reply(BLOCKED, "❌ Settings are per server — use this "
+                                  "inside a server.")
+        from sb.kernel import settings as ksettings
+
+        key = ksettings.persisted_key(group, name)
+        result = await _run_scalar_op(req, CLEAR_SCALAR, {"key": key})
+        if getattr(result, "outcome", None) != SUCCESS:
+            return Reply(
+                getattr(result, "outcome", "error"),
+                f"❌ Couldn't reset `{group}.{name}`: "
+                f"{getattr(result, 'user_message', '') or 'write failed'}")
+        await _refresh_group_edit(req, group)
+        return Reply(
+            SUCCESS,
+            f"✅ `{group}.{name}` reset to its default "
+            f"(`{spec.default!r}`).")
+
+    @handler("settings.group_open_panel")
+    async def group_open_panel(req):
+        """The shipped Open-Panel button (subsystem_view.py
+        _OpenRelatedPanelButton) — routes to the group's related cog panel.
+        Non-hub groups have no dedicated operator panel in the port (the
+        _GROUP_PANELS games arm never reaches this page), so this is the
+        oracle's no-panel fallback: an honest pointer to the group's read
+        controls. A dedicated route lands with the group's own panel
+        slice."""
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        group = str(req.args.get(GROUP_EDIT_PARAM) or "")
+        return Reply(
+            SUCCESS,
+            f"⚙️ `{group}` has no dedicated interactive panel yet — use the "
+            f"Edit / Reset selects above, or the hub's diagnostics "
+            f"(📋 Needs setup · ⚠️ Invalid settings · 🔗 Missing bindings).")
 
 
 _register()

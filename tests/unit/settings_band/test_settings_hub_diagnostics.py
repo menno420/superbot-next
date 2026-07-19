@@ -157,7 +157,7 @@ def test_hub_routes_the_armed_diagnostics_and_keeps_the_frozen_ids():
                 == f"settings_hub.{action_id}")
 
 
-def test_the_retired_pending_refs_stay_gone_and_the_kept_ones_stay():
+def test_every_settings_pending_ref_is_retired():
     from sb.domain.settings import handlers
     from sb.spec.refs import HandlerRef, is_registered
 
@@ -166,10 +166,11 @@ def test_the_retired_pending_refs_stay_gone_and_the_kept_ones_stay():
                  "settings.invalid_pending",
                  "settings.missing_bindings_pending",
                  "settings.audit_pending",         # slice 2 retired it
-                 "settings.command_access_pending"):  # slice 3 retired it
+                 "settings.command_access_pending",  # slice 3 retired it
+                 # settings epic S0 retired the LAST one — the per-group
+                 # edit page (settings.group_edit) displaced it (option A).
+                 "settings.group_pending"):
         assert not is_registered(HandlerRef(name)), name
-    for name in ("settings.group_pending",):
-        assert is_registered(HandlerRef(name)), name
 
 
 def test_diagnostic_specs_compile_and_carry_the_back_door():

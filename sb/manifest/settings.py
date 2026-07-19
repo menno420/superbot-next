@@ -110,7 +110,13 @@ MANIFEST = SubsystemManifest(
             # slice 3 — oracle disbot/views/settings/
             # edit_command_access.py over the live platform
             # command-access K7 lanes: set_access_mode/_channels).
-            _panels.settings_command_access_spec()),
+            _panels.settings_command_access_spec(),
+            # the ported per-group scalar EDIT page (settings epic S0 —
+            # oracle disbot/views/settings/subsystem_view.py): the non-hub
+            # arm of settings.open_group opens this (owner ruling option A),
+            # displacing the retired settings.group_pending terminal. The
+            # S1 bool toggle rides the K7 settings.set_scalar lane.
+            _panels.settings_group_edit_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),
