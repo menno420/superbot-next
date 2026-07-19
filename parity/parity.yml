@@ -370,10 +370,24 @@ source:
   # Same op the command-lane mining_craft_write already pins — mining_inventory
   # was covered by mine/sell/craft, so NO exemption retires; this freezes the
   # ported select's in-place re-render wire bytes from the session panel.
-  minted_goldens: 64
+  # +2 minted the SETTINGS GROUP-EDIT page goldens (2026-07-19, settings epic
+  # S0 — same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/settings/settings_group_edit_open.json + settings_group_edit_
+  # bool_write.json. Option A (docs/decisions.md D-0093): !settings then the
+  # non-hub group select (role) opens the ported per-group scalar EDIT page
+  # (settings.group_edit — oracle disbot/views/settings/subsystem_view.py
+  # @ f87fa508 build_subsystem_embed + the S6 edit/reset windowed selects +
+  # nav): the read embed (resolved scalar values + tier/key header), the
+  # windowed Edit / Reset selects and the Open-Panel / Back-to-Hub nav are the
+  # OPEN golden. The WRITE golden then picks the bool time_roles_stack in the
+  # Edit select (S1 toggle) — it flips ON through the K7 settings.set_scalar
+  # lane (the guild `settings` row write + the audited spine), the page
+  # refreshes IN PLACE and the ephemeral followup confirms `✅ role.
+  # time_roles_stack set to **True**.`. No new op — the existing scalar lane.
+  minted_goldens: 66
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 526). The first retirement (2026-07-12
+  # imported + minted − retired = 528). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

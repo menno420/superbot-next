@@ -41,13 +41,17 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
 * the group SELECT NAVIGATES read-only (``settings.open_group``): it
   opens the group's read-only operator-spine hub when one is ensured
   (welcome/counters/security/automod/image_moderation — the shipped
-  SettingsHubView group-select navigation, as a read subset), and lands
-  on the honest pending terminal for every other group; the per-group
-  scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
-  settings-mutation slice's port;
-* the per-group mutation page (``settings_subsystem.*``) stays the
-  settings-mutation slice's port (the honest ``settings.group_pending``
-  terminal — sb/domain/settings/handlers.py).
+  SettingsHubView group-select navigation, as a read subset), the
+  ``games`` dedicated panel, and — for every OTHER (non-hub) group — the
+  ported per-group scalar EDIT page ``settings.group_edit`` (settings
+  epic S0, owner ruling option A);
+* the per-group EDIT page (``settings.group_edit``) is the ported
+  ``SubsystemSettingsView`` frame (settings epic S0): the read embed +
+  the windowed edit/reset selects + Back-to-Hub / Open-Panel nav; S0
+  wires the S1 bool toggle end to end over the K7 ``settings.set_scalar``
+  / ``clear_scalar`` lanes, with the per-type widgets (enum / number /
+  text / channel / role / presets) landing as slices S2–S7. It replaces
+  the retired ``settings.group_pending`` terminal for the non-hub groups.
   The EXPLORER'S six controls are ARMED (curation rows 82-87):
   subsystem/scope selects, Explain, Reset and the page-turn pair drive
   the governance diagnostic read seam
@@ -106,6 +110,7 @@ __all__ = [
     "settings_access_spec",
     "settings_audit_spec",
     "settings_command_access_spec",
+    "settings_group_edit_spec",
     "settings_hub_spec",
     "settings_invalid_spec",
     "settings_missing_bindings_spec",
@@ -1355,6 +1360,324 @@ async def _render_access(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed, components=tuple(components))
 
 
+# --- the ported per-group scalar EDIT page (settings epic S0) ------------------------
+#
+# Oracle-verbatim port of the shipped SubsystemSettingsView frame
+# (disbot/views/settings/subsystem_view.py @ menno420/superbot f87fa508 —
+# build_subsystem_embed + the S6 edit/reset windowed selects + the
+# Back-to-Hub / Open-Panel nav). Owner ruling option A
+# (docs/question-router.md → Answered, 2026-07-18): this page replaces the
+# honest `settings.group_pending` terminal for the NON-HUB groups only; the
+# 5 operator-spine hub groups keep their read-only `<group>.hub` and the
+# `games` panel arm is untouched (settings.open_group's first two arms).
+#
+# The selected group rides the session-minted component args (the engine's
+# `_mint_ephemeral` bakes the opening request's args onto every minted
+# child) — the running selection needs no parallel session dict: it flows
+# through ctx.params on open, and the refresh handler re-supplies it from
+# the click's args. S0 wires ONLY the bool toggle (S1) end to end; every
+# other value type degrades to an honest "widget ports in a later slice"
+# terminal rather than a dead control (S2–S7 add the per-type widgets).
+
+#: the shipped subsystem-page field-value cap (subsystem_view.py
+#: _FIELD_VALUE_CAP), applied before the grammar's own 1024 clamp.
+_GROUP_EDIT_FIELD_CAP = 1000
+
+#: the running-selection param key (threaded through ctx.params on open and
+#: the session refresh — the group is never a raw KV read, only a nav axis).
+GROUP_EDIT_PARAM = "group_edit_group"
+
+
+def _truncate_group(text: str, *, limit: int = _GROUP_EDIT_FIELD_CAP) -> str:
+    """The oracle _truncate (subsystem_view.py) — the shipped 1000-char cap
+    with the trailing ellipsis (the grammar's 1024 clamp then never fires)."""
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1] + "…"
+
+
+def _group_manifest(group: str):
+    """The SubsystemManifest for a settings group key (the ONE manifest
+    inventory walk — the _iter_settings_facets seam), or None."""
+    for key, manifest in _iter_settings_facets():
+        if key == group:
+            return manifest
+    return None
+
+
+def _group_editable_specs(group: str) -> tuple:
+    """The group's editable SettingSpecs — the oracle _editable_specs subset
+    (those carrying a persisted settings_key), in declaration order."""
+    from sb.spec.settings import SettingSpec
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return ()
+    return tuple(s for s in getattr(manifest, "settings", ()) or ()
+                 if isinstance(s, SettingSpec) and s.settings_key)
+
+
+def _group_edit_spec(group: str, name: str):
+    """The editable SettingSpec for (group, name), or None — the handlers'
+    dispatch lookup (the oracle dispatch_edit_setting spec resolution)."""
+    for spec in _group_editable_specs(group):
+        if spec.name == name:
+            return spec
+    return None
+
+
+def _group_meta(group: str) -> dict:
+    """(emoji, display, description, tier) — the oracle SUBSYSTEMS meta read,
+    re-sourced onto the port's two registries: the shipped hub roster
+    (_HUB_GROUPS) carries emoji/label/description; the governance registry
+    carries the visibility tier (the _access_page2_options precedent)."""
+    curated = {value: (label, emoji, description)
+               for value, label, emoji, description in _HUB_GROUPS}
+    label, emoji, description = curated.get(
+        group, (group.replace("_", " ").title(), "⚙️", ""))
+    from sb.domain.governance.registry import SUBSYSTEM_META
+
+    tier = str((SUBSYSTEM_META.get(group) or {}).get("visibility_tier", "—"))
+    return {"emoji": emoji or "⚙️", "display": label,
+            "description": description, "tier": tier}
+
+
+async def _group_scalar_lines(guild_id: int | None, group: str) -> list[str]:
+    """The oracle _resolve_settings_block: one rendered line per declared
+    SettingSpec resolved through the K7 typed read (per-guild effective
+    value + provenance + validity + default); DM shows the declared default
+    only (the shipped no-guild-context line)."""
+    from sb.spec.settings import SettingSpec
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return []
+    specs = [s for s in getattr(manifest, "settings", ()) or ()
+             if isinstance(s, SettingSpec)]
+    if not specs:
+        return []
+    lines: list[str] = []
+    if guild_id is None:
+        for spec in specs:
+            lines.append(
+                f"`{spec.name}` — type=`{spec.value_type}` "
+                f"default=`{spec.default!r}` *(no guild context)*")
+        return lines
+    from sb.domain.settings import service as settings_service
+
+    for spec in specs:
+        try:
+            resolution = await settings_service.resolve_setting(
+                guild_id, group, spec.name, spec=spec)
+        except Exception as exc:  # noqa: BLE001 — fail-soft per panel field
+            lines.append(f"`{spec.name}` — ❌ resolver raised "
+                         f"{type(exc).__name__}: {exc!s:.80}")
+            continue
+        if resolution is None:
+            lines.append(f"`{spec.name}` — *(resolver returned None)*")
+            continue
+        validity = "valid" if resolution.valid else "**invalid**"
+        lines.append(
+            f"`{spec.name}` = `{resolution.value!r}` "
+            f"(`{resolution.provenance}`, "
+            f"default=`{resolution.default!r}`, {validity})")
+    return lines
+
+
+def _group_binding_lines(group: str) -> list[str]:
+    """The oracle _bindings_block: declared BindingSpecs (kind + required +
+    capability), read-only — the bind control is a later slice."""
+    from sb.spec.settings import BindingSpec
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return []
+    out: list[str] = []
+    for spec in getattr(manifest, "settings", ()) or ():
+        if not isinstance(spec, BindingSpec):
+            continue
+        required = "required" if spec.required else "optional"
+        cap = (f"cap=`{spec.capability_required}`"
+               if getattr(spec, "capability_required", "") else "")
+        out.append(
+            f"`{spec.name}` — kind=`{spec.kind.value}` ({required}) "
+            f"{cap}".rstrip())
+    return out
+
+
+def _group_resource_lines(group: str) -> list[str]:
+    """The oracle _resources_block: declared ResourceRequirements (kind +
+    priority + suggested name + binding cross-link), read-only."""
+    from sb.spec.settings import ResourceRequirement
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return []
+    out: list[str] = []
+    for req in getattr(manifest, "settings", ()) or ():
+        if not isinstance(req, ResourceRequirement):
+            continue
+        suggested = (f" → `{req.provisioning.suggested_name}`"
+                     if getattr(req.provisioning, "suggested_name", "")
+                     else "")
+        out.append(
+            f"`{req.intent}` — kind=`{req.kind.value}` "
+            f"priority=`{req.provisioning.priority.value}`{suggested} "
+            f"(binding=`{req.binding_name}`)")
+    return out
+
+
+async def _group_edit_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The oracle build_subsystem_embed body: the Scalar-settings block
+    (declared SettingSpecs resolved per guild), then the declared Bindings
+    and Provisionable-resources blocks. The group rides ctx.params (open) /
+    the session refresh params; an expired session degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    if not group:
+        return (("Scalar settings",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    fields: list[tuple[str, str]] = []
+    setting_lines = await _group_scalar_lines(guild_id, group)
+    fields.append(
+        ("Scalar settings",
+         _truncate_group("\n".join(setting_lines)) if setting_lines
+         else "*none declared*"))
+    binding_lines = _group_binding_lines(group)
+    if binding_lines:
+        fields.append(("Bindings",
+                       _truncate_group("\n".join(binding_lines))))
+    resource_lines = _group_resource_lines(group)
+    if resource_lines:
+        fields.append(("Provisionable resources",
+                       _truncate_group("\n".join(resource_lines))))
+    return tuple(fields)
+
+
+async def _group_edit_edit_options(ctx) -> tuple[dict, ...]:
+    """The oracle _attach_edit_select options: one rich option per editable
+    SettingSpec (label = the name, description = its value type). The group
+    rides ctx.params; the windowed engine pages a >25-spec group."""
+    group = str(dict(getattr(ctx, "params", {}) or {}).get(
+        GROUP_EDIT_PARAM) or "")
+    return tuple(
+        {"value": spec.name, "label": spec.name[:100],
+         "description": f"type={spec.value_type}"[:100]}
+        for spec in _group_editable_specs(group))
+
+
+async def _group_edit_reset_options(ctx) -> tuple[dict, ...]:
+    """The oracle _attach_reset_select options: one rich option per editable
+    SettingSpec (label = "Reset <name>", description = its declared
+    default)."""
+    group = str(dict(getattr(ctx, "params", {}) or {}).get(
+        GROUP_EDIT_PARAM) or "")
+    return tuple(
+        {"value": spec.name, "label": f"Reset {spec.name}"[:100],
+         "description": f"default={spec.default!r}"[:100]}
+        for spec in _group_editable_specs(group))
+
+
+def settings_group_edit_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.group_edit",
+        subsystem="settings",
+        # the per-group title (`{emoji} {display}`) is stamped by the
+        # renderer override; this static title is the pre-group placeholder.
+        title="⚙️ Settings",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple().
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(provider=ProviderRef("settings.group_edit_fields")),),
+        selectors=(
+            # the shipped windowed "Edit a setting…" picker (#1040 class):
+            # picking a setting dispatches by its value type
+            # (settings.group_edit_pick). Options are provider-fed (the
+            # editable-spec set is per-group), windowed past 25.
+            SelectorSpec(
+                selector_id="edit_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef("settings.group_edit_edit_options"),
+                placeholder="Edit a setting…",
+                empty_state="No editable settings in this group…",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_pick")),
+            # the shipped windowed "Reset a setting…" picker.
+            SelectorSpec(
+                selector_id="reset_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef(
+                    "settings.group_edit_reset_options"),
+                placeholder="Reset a setting to its default…",
+                empty_state="No settings to reset in this group…",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_reset")),
+        ),
+        actions=(
+            # the shipped Open-Panel button (subsystem_view.py
+            # _OpenRelatedPanelButton) — the oracle's no-panel fallback
+            # here (non-hub groups have no dedicated operator panel; the
+            # dedicated route lands with the group's own panel slice).
+            PanelActionSpec(
+                action_id="group_open_panel", label="Open Panel",
+                emoji="🪟", style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.group_open_panel")),
+            # the shipped ↩ Back to Hub button — a PanelRef open-child
+            # terminal back to the hub (the diagnostics' back precedent).
+            PanelActionSpec(
+                action_id="group_back", label="Back to Hub", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=PanelRef("settings.hub")),
+        ),
+        # the shipped page carried no standard nav row; the session-view
+        # exemption takes the never-strand fence (the hub precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_group_edit"),
+        justification=(
+            "the shipped SubsystemSettingsView header is per-group DYNAMIC "
+            "copy (subsystem_view.py build_subsystem_embed): the "
+            "'{emoji} {display}' title, the '_desc_ · visibility tier · "
+            "subsystem key' description, and the 'Scalar edit + reset "
+            "live · use the selects below.  guild_id={id}' footer are all "
+            "keyed on the selected group — outside the grammar's static "
+            "title / FooterMode vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer and "
+            "stamps ONLY those three header surfaces; the scalar/binding/"
+            "resource fields, selectors, actions and layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("edit_select",),
+            ("reset_select",),
+            ("group_open_panel", "group_back"),
+        )),)),
+    )
+
+
+async def _render_group_edit(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped per-group header (see justification):
+    the title, tier/key description, and guild-keyed footer, keyed on the
+    selected group in ctx.params. With no group in params (a stranded
+    render) the grammar bytes stand unchanged."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    group = str(dict(getattr(ctx, "params", {}) or {}).get(
+        GROUP_EDIT_PARAM) or "")
+    if not group:
+        return rendered
+    meta = _group_meta(group)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    title = f"{meta['emoji']} {meta['display']}"
+    description = (f"_{meta['description']}_\n"
+                  f"visibility tier: `{meta['tier']}`  ·  "
+                  f"subsystem key: `{group}`")
+    footer = ("Scalar edit + reset live · use the selects below.  "
+              f"guild_id={guild_id if guild_id else 'DM'}")
+    return _dc_replace(rendered, embed=_dc_replace(
+        rendered.embed, title=title, description=description, footer=footer))
+
+
 # --- registration -----------------------------------------------------------------
 
 def _register_refs() -> None:
@@ -1374,6 +1697,8 @@ def _register_refs() -> None:
         panel("settings.audit")(settings_audit_spec)
     if not is_registered(PanelRef("settings.command_access")):
         panel("settings.command_access")(settings_command_access_spec)
+    if not is_registered(PanelRef("settings.group_edit")):
+        panel("settings.group_edit")(settings_group_edit_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -1386,6 +1711,8 @@ def _register_refs() -> None:
         handler("settings.render_audit")(_render_audit)
     if not is_registered(HandlerRef("settings.render_command_access")):
         handler("settings.render_command_access")(_render_command_access)
+    if not is_registered(HandlerRef("settings.render_group_edit")):
+        handler("settings.render_group_edit")(_render_group_edit)
     if not is_registered(ProviderRef("settings.hub_fields")):
         provider("settings.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("settings.access_fields")):
@@ -1400,6 +1727,12 @@ def _register_refs() -> None:
         provider("settings.audit_fields")(_audit_fields)
     if not is_registered(ProviderRef("settings.command_access_fields")):
         provider("settings.command_access_fields")(_command_access_fields)
+    if not is_registered(ProviderRef("settings.group_edit_fields")):
+        provider("settings.group_edit_fields")(_group_edit_fields)
+    if not is_registered(ProviderRef("settings.group_edit_edit_options")):
+        provider("settings.group_edit_edit_options")(_group_edit_edit_options)
+    if not is_registered(ProviderRef("settings.group_edit_reset_options")):
+        provider("settings.group_edit_reset_options")(_group_edit_reset_options)
 
 
 _register_refs()
@@ -1413,7 +1746,8 @@ def install_settings_panels() -> PanelSpec:
     hub = settings_hub_spec()
     for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
                  settings_invalid_spec(), settings_missing_bindings_spec(),
-                 settings_audit_spec(), settings_command_access_spec()):
+                 settings_audit_spec(), settings_command_access_spec(),
+                 settings_group_edit_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:

@@ -407,10 +407,12 @@ def test_no_guild_guard_blocks_both_writes_before_the_seam(monkeypatch):
 # --- the retired pending terminal ---------------------------------------------------
 
 
-def test_command_access_pending_is_retired_group_pending_stays():
+def test_command_access_and_group_pending_terminals_are_retired():
     from sb.domain.settings import handlers
     from sb.spec.refs import HandlerRef, is_registered
 
     handlers.ensure_handler_refs()
     assert not is_registered(HandlerRef("settings.command_access_pending"))
-    assert is_registered(HandlerRef("settings.group_pending"))
+    # settings epic S0 retired the last terminal — settings.group_pending
+    # was displaced by the ported per-group edit page (option A).
+    assert not is_registered(HandlerRef("settings.group_pending"))

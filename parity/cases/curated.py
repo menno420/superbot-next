@@ -105,6 +105,50 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         steps=(Step(kind="command", content="!settings", persona="admin"),),
         notes="the settings hub panel — component tree is the golden",
     ),
+    # ----------------------------------------- settings group edit page (S0)
+    GoldenCase(
+        id="settings.group_edit_open",
+        subsystem="settings",
+        # option A: the hub group select opens the ported per-group scalar
+        # EDIT page for a NON-HUB group (role). The click defers + posts the
+        # group_edit followup — the read embed (resolved scalar values +
+        # tier/key header), the windowed Edit / Reset selects and the
+        # Open-Panel / Back-to-Hub nav are the golden.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("role",), persona="admin"),
+        ),
+        notes=(
+            "settings epic S0: the non-hub group select (role) opens "
+            "settings.group_edit (option A) — the read embed + windowed "
+            "edit/reset selects + nav are the golden"
+        ),
+    ),
+    GoldenCase(
+        id="settings.group_edit_bool_write",
+        subsystem="settings",
+        # the S1 bool toggle: open the role edit page, then pick the bool
+        # `time_roles_stack` in the Edit select — it flips on through the K7
+        # settings.set_scalar lane (guild `settings` row write + the audited
+        # spine), the page refreshes in place, and the ephemeral followup
+        # confirms. The `settings` db_delta + the refreshed embed are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("role",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("time_roles_stack",),
+                 persona="admin"),
+        ),
+        notes=(
+            "settings epic S0 / S1 bool toggle: picking the bool "
+            "time_roles_stack flips it on through settings.set_scalar "
+            "(the guild settings write + in-place refresh + confirm)"
+        ),
+    ),
     # -------------------------------------------------------------- help
     GoldenCase(
         id="help.panel_open",
