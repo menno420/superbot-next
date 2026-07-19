@@ -141,7 +141,15 @@ MANIFEST = SubsystemManifest(
             # its windowed component select lists the guild's channels and a
             # pick commits the chosen channel id through the same K7
             # settings.set_scalar lane.
-            _panels.settings_group_edit_channel_spec()),
+            _panels.settings_group_edit_channel_spec(),
+            # the ported numeric-presets quick-set edit widget (settings epic
+            # S7 — oracle disbot/views/settings/edit_number_presets.py): opened
+            # from the group_edit Edit select for a numeric_presets-hinted
+            # scalar (input_hint="numeric_presets" + a declared presets tuple);
+            # it renders one quick-set button per declared preset value and a
+            # click commits that fixed value through the same K7
+            # settings.set_scalar lane.
+            _panels.settings_group_edit_presets_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),

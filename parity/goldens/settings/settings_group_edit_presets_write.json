@@ -1,0 +1,783 @@
+{
+ "case_id": "settings.group_edit_presets_write",
+ "db_delta": {
+  "settings": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "key": "xp_cooldown",
+     "updated_at": "<ts>",
+     "value": "30"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1955024320,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@admin>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "settings epic S7 numeric-presets quick-set: picking the numeric-presets xp_cooldown (int + input_hint=numeric_presets — before S7 it misrouted to the number modal) opens the quick-set buttons, and clicking the preset `30` commits it through settings.set_scalar (the guild settings write + in-place refresh + confirm)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "settings_hub.subsystem_select",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "Member greetings, farewells, and an optional entry role",
+            "emoji": {
+             "id": null,
+             "name": "👋"
+            },
+            "label": "Welcome",
+            "value": "welcome"
+           },
+           {
+            "default": false,
+            "description": "Live member-count channels (total · humans · bots)",
+            "emoji": {
+             "id": null,
+             "name": "📊"
+            },
+            "label": "Server Counters",
+            "value": "counters"
+           },
+           {
+            "default": false,
+            "description": "Raid detection + account-age screening on member join",
+            "emoji": {
+             "id": null,
+             "name": "🛡️"
+            },
+            "label": "Server Security",
+            "value": "security"
+           },
+           {
+            "default": false,
+            "description": "Proof submission and exclusive access sessions",
+            "emoji": {
+             "id": null,
+             "name": "📋"
+            },
+            "label": "Proof Channel",
+            "value": "proof_channel"
+           },
+           {
+            "default": false,
+            "description": "Time-based and XP-based automatic role assignment",
+            "emoji": {
+             "id": null,
+             "name": "🎭"
+            },
+            "label": "Roles",
+            "value": "role"
+           },
+           {
+            "default": false,
+            "description": "Prohibited words, command deletion, channel hygiene",
+            "emoji": {
+             "id": null,
+             "name": "🧹"
+            },
+            "label": "Cleanup",
+            "value": "cleanup"
+           },
+           {
+            "default": false,
+            "description": "Spam, invite links, excessive caps, and mass-mention filtering",
+            "emoji": {
+             "id": null,
+             "name": "🛡️"
+            },
+            "label": "Automod",
+            "value": "automod"
+           },
+           {
+            "default": false,
+            "description": "Scan uploaded images for sexual, violent, harassment, or hate content",
+            "emoji": {
+             "id": null,
+             "name": "🖼️"
+            },
+            "label": "Image moderation",
+            "value": "image_moderation"
+           },
+           {
+            "default": false,
+            "description": "Warnings, timeouts, bans, mod logs",
+            "emoji": {
+             "id": null,
+             "name": "🔨"
+            },
+            "label": "Moderation",
+            "value": "moderation"
+           },
+           {
+            "default": false,
+            "description": "Per-guild moderation/cleanup event logging — channel selection, auto-create, and audit (S7)",
+            "emoji": {
+             "id": null,
+             "name": "📝"
+            },
+            "label": "Server Logging",
+            "value": "logging"
+           },
+           {
+            "default": false,
+            "description": "Read-only AI gateway diagnostics: provider state, feature flags, task routing, and request/failure c",
+            "emoji": {
+             "id": null,
+             "name": "🤖"
+            },
+            "label": "AI Platform",
+            "value": "ai"
+           },
+           {
+            "default": false,
+            "description": "Interactive help menu and command discovery",
+            "emoji": {
+             "id": null,
+             "name": "📚"
+            },
+            "label": "Help",
+            "value": "help"
+           },
+           {
+            "default": false,
+            "description": "Daily coins, work, shop, balance",
+            "emoji": {
+             "id": null,
+             "name": "💰"
+            },
+            "label": "Economy",
+            "value": "economy"
+           },
+           {
+            "default": false,
+            "description": "Experience points, levels, and leaderboards",
+            "emoji": {
+             "id": null,
+             "name": "⭐"
+            },
+            "label": "XP & Levels",
+            "value": "xp"
+           },
+           {
+            "default": false,
+            "description": "Peer reputation — thank helpful members with !thanks",
+            "emoji": {
+             "id": null,
+             "name": "✨"
+            },
+            "label": "Karma",
+            "value": "karma"
+           },
+           {
+            "default": false,
+            "description": "Blackjack card game",
+            "emoji": {
+             "id": null,
+             "name": "🃏"
+            },
+            "label": "Blackjack",
+            "value": "blackjack"
+           },
+           {
+            "default": false,
+            "description": "Deterministic Bloons Tower Defense 6 assistant — tower/hero/map lookups, round threat summaries, and",
+            "emoji": {
+             "id": null,
+             "name": "🐵"
+            },
+            "label": "BTD6 Assistant",
+            "value": "btd6"
+           },
+           {
+            "default": false,
+            "description": "1v1 duel battles",
+            "emoji": {
+             "id": null,
+             "name": "⚔️"
+            },
+            "label": "Deathmatch",
+            "value": "deathmatch"
+           },
+           {
+            "default": false,
+            "description": "Rock Paper Scissors: quick play, PvP, bot matches, tournaments",
+            "emoji": {
+             "id": null,
+             "name": "✂️"
+            },
+            "label": "Rock Paper Scissors",
+            "value": "rps_tournament"
+           },
+           {
+            "default": false,
+            "description": "Competitive games and channel activities",
+            "emoji": {
+             "id": null,
+             "name": "🎮"
+            },
+            "label": "Games",
+            "value": "games"
+           }
+          ],
+          "placeholder": "Open a settings group…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "settings_hub.needs_setup",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📋"
+          },
+          "label": "Needs setup",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "settings_hub.invalid",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "⚠️"
+          },
+          "label": "Invalid settings",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "settings_hub.missing_bindings",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🔗"
+          },
+          "label": "Missing bindings",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "settings_hub.audit",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🕒"
+          },
+          "label": "Recent changes",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "settings_hub.command_access",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🚪"
+          },
+          "label": "Command access",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 5793266,
+        "description": "Browse platform settings, bindings, resource requirements, and recent audit history.  The dropdown lists every group with something configurable (scalar edit + reset live on the group's page); use the buttons for cross-cutting diagnostics.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Inventory",
+          "value": "`groups`: 19  ·  `subsystems`: 43  ·  `schemas`: 19\n`settings`: 0  ·  `bindings`: 17  ·  `resources`: 15"
+         },
+         {
+          "inline": false,
+          "name": "Customization findings",
+          "value": "*catalogue not built yet*"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Tip: `!platform customization` and `!platform settings-registry` expose the underlying catalogues."
+        },
+        "title": "⚙️ Settings Manager",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@admin>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!settings",
+    "kind": "command",
+    "persona": "admin"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "xp_min",
+            "value": "xp_min"
+           },
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "xp_max",
+            "value": "xp_max"
+           },
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "xp_cooldown",
+            "value": "xp_cooldown"
+           }
+          ],
+          "placeholder": "Edit a setting…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "default=15",
+            "label": "Reset xp_min",
+            "value": "xp_min"
+           },
+           {
+            "default": false,
+            "description": "default=25",
+            "label": "Reset xp_max",
+            "value": "xp_max"
+           },
+           {
+            "default": false,
+            "description": "default=60",
+            "label": "Reset xp_cooldown",
+            "value": "xp_cooldown"
+           }
+          ],
+          "placeholder": "Reset a setting to its default…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🪟"
+          },
+          "label": "Open Panel",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "↩"
+          },
+          "label": "Back to Hub",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 5793266,
+        "description": "_Experience points, levels, and leaderboards_\nvisibility tier: `user`  ·  subsystem key: `xp`",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Scalar settings",
+          "value": "`xp_min` = `15` (`default`, default=`15`, valid)\n`xp_max` = `25` (`default`, default=`25`, valid)\n`xp_cooldown` = `60` (`default`, default=`60`, valid)"
+         },
+         {
+          "inline": false,
+          "name": "Bindings",
+          "value": "`announce_channel` — kind=`channel` (optional)"
+         },
+         {
+          "inline": false,
+          "name": "Provisionable resources",
+          "value": "`announce_channel` — kind=`channel` priority=`optional` → `level-ups` (binding=`announce_channel`)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Scalar edit + reset live · use the selects below.  guild_id=<guild>"
+        },
+        "title": "⭐ XP & Levels",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "settings_hub.subsystem_select",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 1,
+    "values": [
+     "xp"
+    ]
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "label": "0",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "label": "15",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "label": "30",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "label": "60",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "label": "120",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": false,
+          "label": "300",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:11>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "↩"
+          },
+          "label": "Back to settings",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 5793266,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Editing `xp.xp_cooldown`",
+          "value": "current = `60`  ·  default = `60`  ·  type = `int`\nQuick-set presets: `0`, `15`, `30`, `60`, `120`, `300`\nTap a preset button below to set that value."
+         }
+        ],
+        "flags": 0,
+        "title": "⚙️ Edit a setting",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 2,
+    "values": [
+     "xp_cooldown"
+    ]
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:3>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:4>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "label": "0",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "label": "15",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "label": "30",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "label": "60",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "label": "120",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": false,
+          "label": "300",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:11>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "↩"
+          },
+          "label": "Back to settings",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 5793266,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Editing `xp.xp_cooldown`",
+          "value": "current = `30`  ·  default = `60`  ·  type = `int`\nQuick-set presets: `0`, `15`, `30`, `60`, `120`, `300`\nTap a preset button below to set that value."
+         }
+        ],
+        "flags": 0,
+        "title": "⚙️ Edit a setting",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "✅ `xp.xp_cooldown` set to **30**."
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "settings.changed",
+     "payload": {
+      "guild_id": "<guild>",
+      "key": "xp_cooldown",
+      "subsystem": ""
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:7>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 3
+   }
+  }
+ ],
+ "subsystem": "settings"
+}

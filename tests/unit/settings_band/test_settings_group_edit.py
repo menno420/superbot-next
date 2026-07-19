@@ -55,7 +55,7 @@ def _armed_refs():
     against genuine registrations (never a fake ensure_hub)."""
     from sb.domain.settings import handlers, panels
 
-    for name in (*_HUB_GROUPS, "role", "moderation", "karma", "btd6"):
+    for name in (*_HUB_GROUPS, "role", "moderation", "karma", "btd6", "xp"):
         importlib.import_module(f"sb.manifest.{name}")
     panels.ensure_panel_refs()
     handlers.ensure_handler_refs()
@@ -165,7 +165,8 @@ class TestGroupEditFrame:
             "settings.missing_bindings", "settings.audit",
             "settings.command_access", "settings.group_edit",
             "settings.group_edit_enum", "settings.group_edit_number",
-            "settings.group_edit_text", "settings.group_edit_channel"]
+            "settings.group_edit_text", "settings.group_edit_channel",
+            "settings.group_edit_presets"]
 
     def test_edit_and_reset_options_are_the_editable_specs(self):
         from sb.domain.settings import panels
@@ -1118,3 +1119,236 @@ class TestChannelDispatchAndCommit:
         assert reply is None
         assert opened == [("settings.group_edit",
                            {GROUP_EDIT_PARAM: _CHAN_GROUP})]
+
+
+# --- the S7 numeric-presets quick-set widget (K7 set_scalar) -----------------------
+#
+# `xp.xp_cooldown` is a NON-HUB group numeric-presets scalar (value_type=int,
+# default=60, input_hint="numeric_presets", presets=(0,15,30,60,120,300)) — the
+# concrete port target. It is `int`-typed, so before S7 it MISROUTED to the S3
+# number modal (`_is_number_spec` matches int); the S7 arm intercepts
+# input_hint=="numeric_presets" BEFORE the number check so it opens the quick-set
+# buttons instead. Clicking a preset commits its fixed value through the same K7
+# settings.set_scalar lane (the index rides session_action; the value is
+# re-derived from the spec's presets tuple, never the wire).
+
+_PRESET_GROUP = "xp"
+_PRESET_SETTING = "xp_cooldown"
+_PRESETS = (0, 15, 30, 60, 120, 300)
+
+
+def _render_override(spec, ctx):
+    """Drive the presets renderer override (the engine calls it via the
+    render_group_edit_presets handler ref)."""
+    from sb.domain.settings.panels import _render_group_edit_presets
+
+    return run(_render_group_edit_presets(spec, ctx))
+
+
+class TestPresetsWidgetFrame:
+    def test_presets_spec_compiles_and_is_a_session_view(self):
+        from sb.domain.settings.panels import settings_group_edit_presets_spec
+        from sb.kernel.panels.compile import check_panel
+        from sb.spec.panels import Audience, FooterMode
+        from sb.spec.refs import HandlerRef
+
+        spec = settings_group_edit_presets_spec()
+        check_panel(spec)
+        assert spec.panel_id == "settings.group_edit_presets"
+        assert spec.audience is Audience.INVOKER
+        assert spec.frame.footer_mode is FooterMode.NONE
+        assert spec.session_lifecycle is True
+        # the widget is BUTTONS (no selectors) — the quick-set posture.
+        assert spec.selectors == ()
+        by_act = {a.action_id: a for a in spec.actions}
+        # every preset slot dispatches to the presets-pick handler.
+        assert (by_act["pval_0"].handler
+                == HandlerRef("settings.group_edit_presets_pick"))
+        assert (by_act["presets_back"].handler
+                == HandlerRef("settings.group_edit_presets_back"))
+
+    def test_all_declared_presets_render_as_buttons(self):
+        """The regression the S7 slice pins: one quick-set button per declared
+        preset value (label == the preset), surplus slots dropped, the current
+        value marked primary, Back kept."""
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+            settings_group_edit_presets_spec,
+        )
+
+        spec = settings_group_edit_presets_spec()
+        # current == the declared default (60) — the DM/no-resolver path.
+        ctx = _ctx(**{GROUP_EDIT_PARAM: _PRESET_GROUP,
+                      GROUP_EDIT_SETTING_PARAM: _PRESET_SETTING})
+        ctx = SimpleNamespace(**{**ctx.__dict__, "guild_id": None})
+        rendered = _render_override(spec, ctx)
+        buttons = [c for c in rendered.components if c.kind == "button"]
+        preset_btns = [c for c in buttons
+                       if c.custom_id.rsplit(".", 1)[-1].startswith("pval_")]
+        # exactly one button per declared preset — no surplus slots.
+        assert len(preset_btns) == len(_PRESETS)
+        assert [c.label for c in preset_btns] == [str(v) for v in _PRESETS]
+        # the current value (default 60) is marked primary; the rest secondary.
+        primary = [c for c in preset_btns if c.style == "primary"]
+        assert len(primary) == 1 and primary[0].label == "60"
+        # Back survives the override.
+        assert any(c.custom_id.endswith("presets_back") for c in buttons)
+
+    def test_presets_fields_show_current_default_and_roster(self):
+        from sb.domain.settings import panels
+
+        fields = run(panels._group_edit_presets_fields(_ctx(
+            **{panels.GROUP_EDIT_PARAM: _PRESET_GROUP,
+               panels.GROUP_EDIT_SETTING_PARAM: _PRESET_SETTING})))
+        body = fields[0][1]
+        assert "default = `60`" in body
+        assert "`300`" in body                       # the roster is listed
+        assert "type = `int`" in body
+
+    def test_presets_fields_degrade_on_an_expired_session(self):
+        from sb.domain.settings import panels
+
+        fields = run(panels._group_edit_presets_fields(_ctx()))
+        assert "session expired" in fields[0][1]
+
+    def test_render_override_drops_all_slots_for_a_non_presets_spec(self):
+        """A stranded render (no group/setting) drops every preset slot — only
+        Back stands, the honest degrade (never a wall of placeholder buttons)."""
+        from sb.domain.settings.panels import settings_group_edit_presets_spec
+
+        spec = settings_group_edit_presets_spec()
+        rendered = _render_override(spec, _ctx())     # empty params
+        preset_btns = [c for c in rendered.components
+                       if c.kind == "button"
+                       and c.custom_id.rsplit(".", 1)[-1].startswith("pval_")]
+        assert preset_btns == []
+
+
+class TestPresetsDispatchAndCommit:
+    def _pick_req(self, name, *, group=_PRESET_GROUP):
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        return _Req(args={GROUP_EDIT_PARAM: group, "values": (name,)})
+
+    def _commit_req(self, slot, *, group=_PRESET_GROUP, name=_PRESET_SETTING):
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        return _Req(args={GROUP_EDIT_PARAM: group,
+                          GROUP_EDIT_SETTING_PARAM: name,
+                          "session_action": slot})
+
+    def test_presets_pick_opens_the_buttons_not_the_number_modal(
+            self, monkeypatch):
+        """THE S7 REGRESSION: `xp.xp_cooldown` is an `int` with
+        input_hint="numeric_presets"; before S7 the value_type dispatch matched
+        _is_number_spec and misrouted it to the S3 number modal. The presets arm
+        now intercepts the hint FIRST, so it opens the quick-set buttons."""
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import (
+            GROUP_EDIT_PARAM,
+            GROUP_EDIT_SETTING_PARAM,
+        )
+
+        reply = run(_handler("settings.group_edit_pick")(
+            self._pick_req(_PRESET_SETTING)))
+        assert reply is None                         # open_panel took over
+        # the presets widget — NOT settings.group_edit_number.
+        assert [name for name, _ in opened] == ["settings.group_edit_presets"]
+        args = opened[0][1]
+        assert args[GROUP_EDIT_PARAM] == _PRESET_GROUP
+        assert args[GROUP_EDIT_SETTING_PARAM] == _PRESET_SETTING
+
+    def test_preset_click_persists_the_fixed_value(self, monkeypatch):
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # click slot pval_2 → presets[2] == 30.
+        reply = run(_handler("settings.group_edit_presets_pick")(
+            self._commit_req("pval_2")))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.set_scalar",
+                          {"key": ksettings.persisted_key(
+                              _PRESET_GROUP, _PRESET_SETTING),
+                           "value": "30"})]
+        assert "set to **30**" in reply.user_message
+
+    def test_preset_click_value_is_derived_from_the_spec_not_the_wire(
+            self, monkeypatch):
+        """The index rides session_action but the VALUE is re-read from the
+        spec's presets tuple — a first-slot click writes presets[0], never a
+        wire-supplied number."""
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        reply = run(_handler("settings.group_edit_presets_pick")(
+            self._commit_req("pval_0")))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.set_scalar",
+                          {"key": ksettings.persisted_key(
+                              _PRESET_GROUP, _PRESET_SETTING),
+                           "value": "0"})]           # presets[0] == 0
+
+    def test_preset_click_rejects_an_out_of_range_slot_without_a_write(
+            self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # pval_9 is a declared slot but xp_cooldown declares only 6 presets.
+        reply = run(_handler("settings.group_edit_presets_pick")(
+            self._commit_req("pval_9")))
+        assert reply.outcome == BLOCKED
+        assert calls == []                           # no write for a stale slot
+        assert "no longer available" in reply.user_message
+
+    def test_preset_click_rejects_a_non_presets_setting(self, monkeypatch):
+        from sb.spec.outcomes import BLOCKED
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # warn_threshold is a plain int (no presets hint) — not presets-shaped.
+        reply = run(_handler("settings.group_edit_presets_pick")(
+            self._commit_req("pval_0", group="moderation",
+                             name="warn_threshold")))
+        assert reply.outcome == BLOCKED
+        assert calls == []
+        assert "not a numeric-presets" in reply.user_message
+
+    def test_presets_reset_clears_through_clear_scalar(self, monkeypatch):
+        from sb.kernel import settings as ksettings
+        from sb.spec.outcomes import SUCCESS
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        calls = _patch_scalar_run(monkeypatch)
+        _patch_refresh(monkeypatch)
+
+        # reset rides the shared type-agnostic S0 reset select (clear_scalar).
+        reply = run(_handler("settings.group_edit_reset")(
+            _Req(args={GROUP_EDIT_PARAM: _PRESET_GROUP,
+                       "values": (_PRESET_SETTING,)})))
+        assert reply.outcome == SUCCESS
+        assert calls == [("settings.clear_scalar",
+                          {"key": ksettings.persisted_key(
+                              _PRESET_GROUP, _PRESET_SETTING)})]
+
+    def test_presets_back_reopens_the_group_edit_page(self, monkeypatch):
+        opened = _patch_open_panel(monkeypatch)
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        reply = run(_handler("settings.group_edit_presets_back")(
+            _Req(args={GROUP_EDIT_PARAM: _PRESET_GROUP})))
+        assert reply is None
+        assert opened == [("settings.group_edit",
+                           {GROUP_EDIT_PARAM: _PRESET_GROUP})]

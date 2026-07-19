@@ -6095,6 +6095,61 @@
           "value": "channel_back"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_0"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_1"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_2"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_3"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_4"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_5"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_6"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_7"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_8"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "pval_9"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "presets_back"
+        },
+        {
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "depth_quick"
@@ -8337,6 +8392,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.group_edit_channel"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.group_edit_presets"
         },
         {
           "source": "sb/manifest/setup.py",
@@ -11832,6 +11892,12 @@
       "handler:settings.group_edit_pick": {
         "module": "sb.domain.settings.handlers"
       },
+      "handler:settings.group_edit_presets_back": {
+        "module": "sb.domain.settings.handlers"
+      },
+      "handler:settings.group_edit_presets_pick": {
+        "module": "sb.domain.settings.handlers"
+      },
       "handler:settings.group_edit_reset": {
         "module": "sb.domain.settings.handlers"
       },
@@ -11857,6 +11923,9 @@
         "module": "sb.domain.settings.panels"
       },
       "handler:settings.render_group_edit": {
+        "module": "sb.domain.settings.panels"
+      },
+      "handler:settings.render_group_edit_presets": {
         "module": "sb.domain.settings.panels"
       },
       "handler:settings.render_hub": {
@@ -13506,6 +13575,9 @@
       "panel:settings.group_edit_number": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:settings.group_edit_presets": {
+        "module": "sb.domain.settings.panels"
+      },
       "panel:settings.group_edit_text": {
         "module": "sb.domain.settings.panels"
       },
@@ -14212,6 +14284,9 @@
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.group_edit_number_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.group_edit_presets_fields": {
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.group_edit_reset_options": {
@@ -59107,6 +59182,348 @@
               "windowed": true
             }
           ],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "⚙️ Edit a setting",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "pval_0",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 1",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_1",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 2",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_2",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 3",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_3",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 4",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_4",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 5",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_5",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 6",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_6",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 7",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_7",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 8",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_8",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 9",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pval_9",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_pick"
+              },
+              "label": "Preset 10",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "presets_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.group_edit_presets_back"
+              },
+              "label": "Back to settings",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "provider": {
+                "$ref": "provider:settings.group_edit_presets_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped NumericPresetsView renders one quick-set button PER declared preset value with the current value highlighted (edit_number_presets.py _PresetButton) — per-setting DYNAMIC button labels + style outside the grammar's static PanelActionSpec label/style vocabulary (the settings-access dynamic-component precedent: _render_access relabels/disables components in place). The override delegates to the grammar renderer and relabels ONLY the declared preset-button slots (dropping the surplus, marking the current value primary); the fields, the Back action and the layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pval_0",
+                    "pval_1",
+                    "pval_2",
+                    "pval_3",
+                    "pval_4"
+                  ],
+                  [
+                    "pval_5",
+                    "pval_6",
+                    "pval_7",
+                    "pval_8",
+                    "pval_9"
+                  ],
+                  [
+                    "presets_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.group_edit_presets",
+          "renderer_override": {
+            "$ref": "handler:settings.render_group_edit_presets"
+          },
+          "selectors": [],
           "session_lifecycle": true,
           "subsystem": "settings",
           "timeout_s": 180,

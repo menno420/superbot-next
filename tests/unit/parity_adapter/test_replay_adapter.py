@@ -31,7 +31,7 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (532/532) — curated
+    """Every golden on disk yields a replayable case (533/533) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
@@ -121,9 +121,13 @@ def test_full_corpus_reconstructs():
     # settings_group_edit_number_write, 2026-07-19)
     # + 1 (settings free-text-modal write — settings epic S4:
     # settings_group_edit_text_write, 2026-07-19)
+    # + 1 (settings channel-select write — settings epic S5:
+    # settings_group_edit_channel_write, 2026-07-19)
+    # + 1 (settings numeric-presets quick-set write — settings epic S7:
+    # settings_group_edit_presets_write, 2026-07-19)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 532
+    assert golden_count == 533
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 

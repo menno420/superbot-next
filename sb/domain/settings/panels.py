@@ -115,6 +115,7 @@ __all__ = [
     "settings_audit_spec",
     "settings_command_access_spec",
     "settings_group_edit_channel_spec",
+    "settings_group_edit_presets_spec",
     "settings_group_edit_enum_spec",
     "settings_group_edit_number_spec",
     "settings_group_edit_text_spec",
@@ -1878,6 +1879,187 @@ def settings_group_edit_channel_spec() -> PanelSpec:
     )
 
 
+# --- the ported numeric-presets quick-set widget (settings epic S7) -----------------
+#
+# The oracle dispatch_edit_setting checked input_hint FIRST (channel → role →
+# numeric_presets → value_type fallback), routing a `numeric_presets`-hinted
+# setting that declares a `presets` tuple to the NumericPresetsView
+# (disbot/views/settings/edit_number_presets.py @ f87fa508): a row of quick-set
+# buttons (one per preset value) + an Override… button whose click wrote the
+# fixed value through the audited mutation pipeline. Here that widget is its own
+# session-view child (settings.group_edit_presets), opened from the group_edit
+# Edit select when the picked spec is presets-hinted; the group AND the picked
+# setting name ride the session-minted child args (GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM), so a preset click carries its (group, name) context
+# with no parallel session dict. Each preset button is a static PanelActionSpec
+# slot (pval_0 … pval_{N-1}); the renderer override relabels the first
+# len(presets) slots with their preset value (the current value marked PRIMARY),
+# drops the surplus slots, and leaves the Back button — the _render_access
+# dynamic-component posture (this grammar renders buttons from declared actions,
+# so the per-setting preset labels ride the override, never the static spec). A
+# preset click commits its fixed value through the LIVE K7 settings.set_scalar
+# lane (no new op) and the widget refreshes in place. PORT DEVIATION (flagged):
+# the oracle's Override… button (which reopened the free-form NumberSettingModal
+# for an arbitrary value) is a deliberate UNDER-PORT — carrying it would need
+# either a new ModalSpec custom_id (compat-frozen §5.3 drift, which this slice
+# avoids by design) or reusing the S3 number modal across two panels (submit
+# routing ambiguity); the arbitrary-value path is a follow-up. Clearing rides
+# the shared type-agnostic S0 reset select (settings.clear_scalar), the S2/S5
+# posture.
+
+#: the static preset-button slot cap — enough to cover every real presets
+#: setting (xp.xp_cooldown declares the most at 6), with headroom, and within
+#: Discord's 5×5 component grid (two rows of 5 + the Back row). The renderer
+#: override renders exactly len(spec.presets) buttons and drops the rest; a
+#: setting declaring more than this cap renders the first _PRESETS_MAX_BUTTONS
+#: (the surplus is a follow-up, never a silent write of the wrong value).
+_PRESETS_MAX_BUTTONS = 10
+
+
+def _is_presets_spec(spec) -> bool:
+    """The oracle numeric-presets-dispatch predicate (dispatch_edit_setting
+    checks input_hint FIRST — the `numeric_presets` arm gates on BOTH the hint
+    and a non-empty `presets` tuple: ``if hint == "numeric_presets" and
+    spec.presets``): a scalar declaring ``input_hint == "numeric_presets"`` with
+    at least one declared preset value pops the quick-set buttons — regardless of
+    value_type (declared `int` today). Routed BEFORE the number/enum/text arms so
+    a presets-hinted `int` does NOT misroute to the S3 number modal."""
+    if spec is None:
+        return False
+    hint = str(getattr(spec, "input_hint", "") or "").strip().lower()
+    return hint == "numeric_presets" and bool(getattr(spec, "presets", ()))
+
+
+async def _group_edit_presets_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The presets widget's read block — names the setting under edit, its
+    current effective value + declared default + type, and the declared preset
+    roster (the oracle ephemeral prompt copy: 'Pick a value for `{subsystem}.
+    {name}` (current=…, default=…)'). An expired session degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    presets = tuple(getattr(spec, "presets", ()) or ())
+    roster = ", ".join(f"`{p!r}`" for p in presets) or "*none declared*"
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`  ·  "
+             f"type = `{spec.value_type}`\n"
+             f"Quick-set presets: {roster}\n"
+             f"Tap a preset button below to set that value."),)
+
+
+def _presets_button(index: int) -> PanelActionSpec:
+    """One static preset-button slot (pval_{index}) — a placeholder label the
+    renderer override relabels with the declared preset value at that index (or
+    drops when the setting declares fewer presets). Every slot dispatches to the
+    same handler; the clicked slot's index rides session_action (the access_page
+    precedent), so the handler maps it back onto spec.presets[index]."""
+    return PanelActionSpec(
+        action_id=f"pval_{index}", label=f"Preset {index + 1}",
+        style=ActionStyle.SECONDARY, audience_tier="administrator",
+        handler=HandlerRef("settings.group_edit_presets_pick"))
+
+
+def settings_group_edit_presets_spec() -> PanelSpec:
+    """The numeric-presets quick-set edit widget (settings epic S7) — a
+    session-view child rendering one quick-set button per declared preset value,
+    opened from the group_edit Edit select for a `numeric_presets`-hinted scalar.
+    A preset click commits its fixed value through settings.set_scalar; the Back
+    button re-opens the group's edit page (the group rides its args)."""
+    preset_slots = tuple(_presets_button(i) for i in range(_PRESETS_MAX_BUTTONS))
+    per_row = 5
+    preset_rows = tuple(
+        tuple(f"pval_{i}" for i in range(start, min(start + per_row,
+                                                    _PRESETS_MAX_BUTTONS)))
+        for start in range(0, _PRESETS_MAX_BUTTONS, per_row))
+    return PanelSpec(
+        panel_id="settings.group_edit_presets",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_presets_fields")),),
+        actions=(
+            *preset_slots,
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the channel_back twin).
+            PanelActionSpec(
+                action_id="presets_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_presets_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / channel precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_group_edit_presets"),
+        justification=(
+            "the shipped NumericPresetsView renders one quick-set button PER "
+            "declared preset value with the current value highlighted "
+            "(edit_number_presets.py _PresetButton) — per-setting DYNAMIC "
+            "button labels + style outside the grammar's static PanelActionSpec "
+            "label/style vocabulary (the settings-access dynamic-component "
+            "precedent: _render_access relabels/disables components in place). "
+            "The override delegates to the grammar renderer and relabels ONLY "
+            "the declared preset-button slots (dropping the surplus, marking "
+            "the current value primary); the fields, the Back action and the "
+            "layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            *preset_rows,
+            ("presets_back",),
+        )),)),
+    )
+
+
+async def _render_group_edit_presets(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped per-preset buttons (see justification):
+    relabel each declared preset-button slot with its preset value (the current
+    value marked PRIMARY), drop the slots beyond the declared preset count, and
+    leave the Back button. With no group/setting in params (a stranded render)
+    or a non-presets spec, every preset slot is dropped — only Back stands, the
+    honest degrade."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    setting = _group_edit_spec(group, name)
+    presets = (tuple(getattr(setting, "presets", ()) or ())
+               if _is_presets_spec(setting) else ())
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = (await _group_edit_current(guild_id, group, name, setting)
+               if presets else None)
+    prefix = f"{spec.panel_id}.pval_"
+    components = []
+    for comp in rendered.components:
+        cid = str(comp.custom_id)
+        if cid.startswith(prefix):
+            try:
+                index = int(cid[len(prefix):])
+            except ValueError:
+                continue
+            if index >= len(presets):
+                continue                     # drop the surplus slots
+            value = presets[index]
+            label = str(value)[:80] or "(unset)"
+            style = (ActionStyle.PRIMARY.value
+                     if str(value) == str(current)
+                     else ActionStyle.SECONDARY.value)
+            components.append(_dc_replace(comp, label=label, style=style))
+        else:
+            components.append(comp)
+    return _dc_replace(rendered, components=tuple(components))
+
+
 # --- the ported number-modal edit widget (settings epic S3) -------------------------
 #
 # The oracle dispatch_edit_setting routed an `int` / `float` setting to the
@@ -2255,6 +2437,8 @@ def _register_refs() -> None:
         panel("settings.group_edit_text")(settings_group_edit_text_spec)
     if not is_registered(PanelRef("settings.group_edit_channel")):
         panel("settings.group_edit_channel")(settings_group_edit_channel_spec)
+    if not is_registered(PanelRef("settings.group_edit_presets")):
+        panel("settings.group_edit_presets")(settings_group_edit_presets_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -2269,6 +2453,9 @@ def _register_refs() -> None:
         handler("settings.render_command_access")(_render_command_access)
     if not is_registered(HandlerRef("settings.render_group_edit")):
         handler("settings.render_group_edit")(_render_group_edit)
+    if not is_registered(HandlerRef("settings.render_group_edit_presets")):
+        handler("settings.render_group_edit_presets")(
+            _render_group_edit_presets)
     if not is_registered(ProviderRef("settings.hub_fields")):
         provider("settings.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("settings.access_fields")):
@@ -2303,6 +2490,9 @@ def _register_refs() -> None:
     if not is_registered(ProviderRef("settings.group_edit_channel_options")):
         provider("settings.group_edit_channel_options")(
             _group_edit_channel_options)
+    if not is_registered(ProviderRef("settings.group_edit_presets_fields")):
+        provider("settings.group_edit_presets_fields")(
+            _group_edit_presets_fields)
 
 
 _register_refs()
@@ -2320,7 +2510,8 @@ def install_settings_panels() -> PanelSpec:
                  settings_group_edit_spec(), settings_group_edit_enum_spec(),
                  settings_group_edit_number_spec(),
                  settings_group_edit_text_spec(),
-                 settings_group_edit_channel_spec()):
+                 settings_group_edit_channel_spec(),
+                 settings_group_edit_presets_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:
