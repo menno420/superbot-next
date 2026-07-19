@@ -26,61 +26,15 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(Three unanswered blocks below — the **B10 route-origin go/no-go** and the **D2
-real-time minigame-framework go/no-go** (both appended 2026-07-18), and the
-**settings epic S6 role-select scoping** go-ahead (appended 2026-07-19) — all
-await the owner's ruling. The settings per-group edit-page group-routing
-decision, appended 2026-07-18, was answered 2026-07-18 (option A) and moved to
-Answered below. The six S11/S13/S14/S15/V-5/K10 blocks were resolved 2026-07-08
-by the owner via the directing session's question panel — see Answered below.)
-
-### Q: B10 route-origin — add a kernel nav-mode seam to fix dynamic back-button labels, or keep static FOLLOW_PARENT and accept the cosmetic gap? (panel engine, owner-gated)
-
-- **Area / Type / Priority / Status:** panel engine (kernel) / product-intent
-  cost-benefit / gates a 2-slice engine build / **OPEN** (pending owner,
-  appended 2026-07-18).
-- **Question:** B10 ([design/B10-panel-route-origin.md](design/B10-panel-route-origin.md))
-  proposes adding a **session-scoped route-origin signal** (an `opened_from`
-  field on the in-memory `PanelSession`, `sb/kernel/panels/engine.py:254-271`)
-  plus a **`BACK_TO_ORIGIN`** NavigationSpec mode (`sb/spec/panels.py:172-183`)
-  so a panel's back button can point to *where the user navigated from* instead
-  of its static `home_hub`. The concrete symptom is one label: `role.hub` opened
-  through the Server-Management hub renders "↩ Community" (its static
-  `home_hub`, `sb/domain/role/panels.py:172-173`) instead of "↩ Server
-  Management". Is a KERNEL grammar + engine + session-state + golden-harness
-  change worth fixing that (mostly cosmetic) back-button label — or keep the
-  static `FOLLOW_PARENT`/`home_hub` grammar and accept the gap?
-- **Why agents need this:** it is a genuine cost/benefit product call, not a
-  worker decision — it gates a 2-slice engine build
-  ([design/B10-route-origin-implementation-plan.md](design/B10-route-origin-implementation-plan.md),
-  this PR) and adds a permanent **origin dimension** to the golden parity
-  harness (the same panel renders different bytes by origin). The mechanical
-  design details (B10 Q2–Q6 — scope, depth, golden strategy, back-id minting,
-  label source) are already resolved as flagged decide-and-flag defaults in the
-  plan; only this yes/no is owner-only.
-- **Options:** (a) **GO** — build the engine seam (slice 1, zero golden churn) +
-  opt `role.hub` in (slice 2, origin golden); dynamic back labels become
-  expressible grammar, reusable by any future route-origin need. (b) **NO-GO** —
-  keep static `FOLLOW_PARENT`; accept the wrong-back-label cosmetic gap, or take
-  the cheaper fix (role.hub declares `parent=server_management.hub` for a static
-  "↩ Back", losing its direct-open "↩ Community"). (c) DEFER — shelve until a
-  second consumer needs route-origin, so the kernel surface is justified by more
-  than one label.
-- **Recommended default (my read):** **(c) DEFER, leaning (a)-when-a-second-need-appears.**
-  Honest recommendation: the seam is clean, additive, opt-in, and layer-safe
-  (kernel imports spec only; no domain edge), and slice 1 ships **zero** golden
-  churn — so the engineering cost is real but bounded. But the *payoff today* is
-  one cosmetic label, and it permanently adds an origin dimension to every future
-  golden. A kernel grammar addition earns its keep when ≥2 surfaces need it; on a
-  single mostly-cosmetic label it is over-built. So: **don't build it for
-  role.hub alone** — but the moment a second route-origin need appears (another
-  routed manager, a breadcrumb ask), build slice 1 first (it is free of churn)
-  and opt consumers in together. If the owner values exact oracle parity on this
-  label now, (a) is a clean, reversible yes.
-- **Maintainer answer:** _(pending)_
-- **Routing result:** _(pending owner ruling — on GO, the plan's slice order
-  executes and a `docs/decisions.md` entry cites this block when slice 1 lands;
-  on NO-GO, B10 closes as "considered, declined" and the plan doc is shelved.)_
+(One unanswered block below — the **D2 real-time minigame-framework go/no-go**
+(appended 2026-07-18) — awaits the owner's ruling. The **B10 route-origin
+go/no-go** (appended 2026-07-18) and the **settings epic S6 role-select
+scoping** go-ahead (appended 2026-07-19) were both deferred 2026-07-19 (DEFER —
+recorded in the decisions ledger) and moved to Answered below. The settings
+per-group edit-page group-routing decision, appended 2026-07-18, was answered
+2026-07-18 (option A) and moved to Answered below. The six S11/S13/S14/S15/V-5/K10
+blocks were resolved 2026-07-08 by the owner via the directing session's
+question panel — see Answered below.)
 
 ### Q: D2 real-time minigame framework — extract fishing's timer+guard orchestration into a reusable kernel minigame primitive now, or defer until a 2nd real-time minigame needs it? (panels band, owner-gated)
 
@@ -137,11 +91,67 @@ by the owner via the directing session's question panel — see Answered below.)
   closes as "considered, declined" and fishing remains the standalone reference
   impl.)_
 
+## Answered
+
+### Q: B10 route-origin — add a kernel nav-mode seam to fix dynamic back-button labels, or keep static FOLLOW_PARENT and accept the cosmetic gap? (panel engine, owner-gated)
+
+- **Area / Type / Priority / Status:** panel engine (kernel) / product-intent
+  cost-benefit / gated a 2-slice engine build / **ANSWERED** (DEFER, 2026-07-19).
+- **Question:** B10 ([design/B10-panel-route-origin.md](design/B10-panel-route-origin.md))
+  proposes adding a **session-scoped route-origin signal** (an `opened_from`
+  field on the in-memory `PanelSession`, `sb/kernel/panels/engine.py:254-271`)
+  plus a **`BACK_TO_ORIGIN`** NavigationSpec mode (`sb/spec/panels.py:172-183`)
+  so a panel's back button can point to *where the user navigated from* instead
+  of its static `home_hub`. The concrete symptom is one label: `role.hub` opened
+  through the Server-Management hub renders "↩ Community" (its static
+  `home_hub`, `sb/domain/role/panels.py:172-173`) instead of "↩ Server
+  Management". Is a KERNEL grammar + engine + session-state + golden-harness
+  change worth fixing that (mostly cosmetic) back-button label — or keep the
+  static `FOLLOW_PARENT`/`home_hub` grammar and accept the gap?
+- **Why agents need this:** it is a genuine cost/benefit product call, not a
+  worker decision — it gates a 2-slice engine build
+  ([design/B10-route-origin-implementation-plan.md](design/B10-route-origin-implementation-plan.md))
+  and adds a permanent **origin dimension** to the golden parity
+  harness (the same panel renders different bytes by origin). The mechanical
+  design details (B10 Q2–Q6 — scope, depth, golden strategy, back-id minting,
+  label source) are already resolved as flagged decide-and-flag defaults in the
+  plan; only this yes/no is owner-only.
+- **Options:** (a) **GO** — build the engine seam (slice 1, zero golden churn) +
+  opt `role.hub` in (slice 2, origin golden); dynamic back labels become
+  expressible grammar, reusable by any future route-origin need. (b) **NO-GO** —
+  keep static `FOLLOW_PARENT`; accept the wrong-back-label cosmetic gap, or take
+  the cheaper fix (role.hub declares `parent=server_management.hub` for a static
+  "↩ Back", losing its direct-open "↩ Community"). (c) DEFER — shelve until a
+  second consumer needs route-origin, so the kernel surface is justified by more
+  than one label.
+- **Recommended default (my read):** **(c) DEFER, leaning (a)-when-a-second-need-appears.**
+  Honest recommendation: the seam is clean, additive, opt-in, and layer-safe
+  (kernel imports spec only; no domain edge), and slice 1 ships **zero** golden
+  churn — so the engineering cost is real but bounded. But the *payoff today* is
+  one cosmetic label, and it permanently adds an origin dimension to every future
+  golden. A kernel grammar addition earns its keep when ≥2 surfaces need it; on a
+  single mostly-cosmetic label it is over-built. So: **don't build it for
+  role.hub alone** — but the moment a second route-origin need appears (another
+  routed manager, a breadcrumb ask), build slice 1 first (it is free of churn)
+  and opt consumers in together. If the owner values exact oracle parity on this
+  label now, (a) is a clean, reversible yes.
+- **Maintainer answer:** **(c) DEFER.** Do not build the route-origin seam now:
+  it adds new kernel surface (a session-scoped route-origin signal + a
+  `BACK_TO_ORIGIN` nav mode) for a single cosmetic back-button label with no
+  second consumer today; revisit when a second route-origin consumer appears
+  organically. (Decided by the coordinator under decide-and-flag; relayed via
+  the coordinator session 2026-07-19. Pure reversible defer — recorded in the
+  decisions ledger 2026-07-19.)
+- **Routing result:** B10 stays shelved as "considered, deferred"; the plan doc
+  ([design/B10-route-origin-implementation-plan.md](design/B10-route-origin-implementation-plan.md))
+  is parked, re-triggered by the first second route-origin need — at which point
+  slice 1 (the zero-churn engine seam) builds first. Recorded in the decisions
+  ledger 2026-07-19.
+
 ### Q: settings epic S6 (role-select edit widget) — no reachable honest golden target exists; how to proceed? (settings-mutation epic, owner-gated)
 
 - **Area / Type / Priority / Status:** settings subsystem / product-intent
-  scoping / gates the epic's final slice (S6) / **OPEN** (pending owner,
-  appended 2026-07-19).
+  scoping / gated the epic's final slice (S6) / **ANSWERED** (DEFER, 2026-07-19).
 - **Question:** the settings `group_pending` per-group scalar-edit-page epic
   ([design/settings-group-pending-epic-plan.md](design/settings-group-pending-epic-plan.md))
   is complete for every reachable scalar type — S0 (page frame) + S1 bool / S2
@@ -184,14 +194,15 @@ by the owner via the directing session's question panel — see Answered below.)
   setting (→ option A, then S6 lands next to it) or such a setting arrives
   organically as another subsystem is ported. Do **not** build S6 as dormant
   infra against the unreachable `welcome.entry_role`.
-- **Maintainer answer:** _(pending)_
-- **Routing result:** _(pending owner ruling — on (A), the owner's named
-  subsystem gets the role setting and S6 lands with its honest golden, closing
-  the epic; on (B) DEFER, S6 stays the epic's one parked slice, re-triggered by
-  the first role-typed non-hub setting, and `docs/NEXT-TASKS.md` records the
-  epic as complete-but-for-S6.)_
-
-## Answered
+- **Maintainer answer:** **(B) DEFER S6.** Do not build the role-select widget
+  now: no reachable role-typed setting exists in any non-hub group, so there is
+  no honest golden target to build against; build the widget when such a setting
+  exists organically. (Decided by the coordinator under decide-and-flag; relayed
+  via the coordinator session 2026-07-19. Pure reversible defer — recorded in
+  the decisions ledger 2026-07-19.)
+- **Routing result:** S6 stays the epic's one parked slice, re-triggered by the
+  first role-typed non-hub setting; `docs/NEXT-TASKS.md` records the epic as
+  complete-but-for-S6. Recorded in the decisions ledger 2026-07-19.
 
 ### Q: settings per-group edit page — replace `group_pending` for non-hub groups only, or for all groups uniformly? (settings-mutation epic, owner-gated)
 
