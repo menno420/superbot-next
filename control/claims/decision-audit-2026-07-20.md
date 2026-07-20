@@ -1,0 +1,3 @@
+# Claim — decision-audit-2026-07-20
+
+- `claude/decision-audit-2026-07-20` · **decision-audit pass over the 31-row owner agenda + D2 router go/no-go** — record D-0100 (D2 real-time minigame framework DEFER) + D-0101 (owner-agenda audit), flip the D2 router block OPEN → ANSWERED (DEFER), trim `docs/design/OWNER-DECISIONS-2026-07-18.md` to the genuine-owner remainder, refresh `docs/NEXT-TASKS.md` + `control/status.md`; docs/control only, NO `sb/` source · `docs/decisions.md` + `docs/question-router.md` + `docs/design/OWNER-DECISIONS-2026-07-18.md` + `docs/NEXT-TASKS.md` + `control/status.md` · 2026-07-20

@@ -26,21 +26,24 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
-(One unanswered block below — the **D2 real-time minigame-framework go/no-go**
-(appended 2026-07-18) — awaits the owner's ruling. The **B10 route-origin
-go/no-go** (appended 2026-07-18) and the **settings epic S6 role-select
-scoping** go-ahead (appended 2026-07-19) were both deferred 2026-07-19 (DEFER —
-recorded in the decisions ledger) and moved to Answered below. The settings
-per-group edit-page group-routing decision, appended 2026-07-18, was answered
-2026-07-18 (option A) and moved to Answered below. The six S11/S13/S14/S15/V-5/K10
-blocks were resolved 2026-07-08 by the owner via the directing session's
-question panel — see Answered below.)
+(ZERO unanswered owner blocks remain. The **D2 real-time minigame-framework
+go/no-go** (appended 2026-07-18) was answered 2026-07-20 (DEFER — recorded in
+the decisions ledger, `docs/decisions.md`) and moved to Answered below, closing
+the last open owner block. The **B10 route-origin go/no-go** (appended 2026-07-18) and the
+**settings epic S6 role-select scoping** go-ahead (appended 2026-07-19) were
+both deferred 2026-07-19 (DEFER — recorded in the decisions ledger) and moved to
+Answered below. The settings per-group edit-page group-routing decision,
+appended 2026-07-18, was answered 2026-07-18 (option A) and moved to Answered
+below. The six S11/S13/S14/S15/V-5/K10 blocks were resolved 2026-07-08 by the
+owner via the directing session's question panel — see Answered below.)
+
+## Answered
 
 ### Q: D2 real-time minigame framework — extract fishing's timer+guard orchestration into a reusable kernel minigame primitive now, or defer until a 2nd real-time minigame needs it? (panels band, owner-gated)
 
 - **Area / Type / Priority / Status:** kernel / panels band / product-intent
-  cost-benefit / gates a 2-slice additive build / **OPEN** (pending owner,
-  appended 2026-07-18).
+  cost-benefit / gated a 2-slice additive build / **ANSWERED** (DEFER,
+  2026-07-20).
 - **Question:** D2
   ([design/D2-realtime-minigame-framework.md](design/D2-realtime-minigame-framework.md))
   proposes lifting fishing's proven real-time-minigame orchestration — the
@@ -84,14 +87,20 @@ question panel — see Answered below.)
   hand-roll the machinery, and do not build the primitive speculatively for
   fishing alone. If the owner already has a second real-time minigame planned,
   (a) GO-now is the clean answer.
-- **Maintainer answer:** _(pending)_
-- **Routing result:** _(pending owner ruling — on GO, D2.1→D2.2 execute and a
-  `docs/decisions.md` entry cites this block when D2.1 lands; on DEFER, D2 stays
-  a parked `plan` re-triggered by the next real-time-minigame ask; on NEVER, D2
-  closes as "considered, declined" and fishing remains the standalone reference
-  impl.)_
-
-## Answered
+- **Maintainer answer:** **(b) DEFER-until-a-2nd-consumer.** Decided under
+  decide-and-flag (coordinator dispatch 2026-07-20, owner "decide, don't stall"
+  rule) — recorded in the decisions ledger (`docs/decisions.md`). No second
+  real-time minigame is on the
+  roadmap, so building the `RealtimeRound` primitive now ships speculative kernel
+  surface with exactly one consumer (fishing). When a second real-time minigame
+  is actually planned, build D2.1 (the pure, zero-churn extraction) FIRST and
+  grow the new game onto it; fishing stays the reference impl until then.
+  Reversible: flip to (a) GO the moment a 2nd consumer is on the roadmap.
+- **Routing result:** ANSWERED (DEFER, 2026-07-20). D2 stays a parked `plan`
+  (`docs/design/D2-realtime-minigame-framework.md`), re-triggered by the next
+  real-time-minigame ask. Ledger: `docs/decisions.md` (the 2026-07-20 D2-defer
+  entry). The four D2 shape defaults (OWNER-DECISIONS rows 18-21) apply on any
+  future GO.
 
 ### Q: B10 route-origin — add a kernel nav-mode seam to fix dynamic back-button labels, or keep static FOLLOW_PARENT and accept the cosmetic gap? (panel engine, owner-gated)
 
