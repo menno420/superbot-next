@@ -1,6 +1,6 @@
 # Session card: day-1 cutover prep
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - date: Mon Jul 20 07:30:12 UTC 2026
 - goal: make `main` a clean durable artifact for the recreated Project — add a
@@ -15,3 +15,11 @@
 - [ ] Retire 10 terminal merged-work claims under control/claims/.
 - [ ] Verify (pytest or collect-only note).
 - [ ] Flip card complete LAST; push; open READY PR.
+
+## Outcome
+
+Landed the day-1 cutover prep on `claude/day1-cutover-prep`: added
+docs/RECREATED-PROJECT-DAY1.md, corrected control/status.md + docs/design/D6-*
+to reflect the 2026-07-18 completions, refreshed counts to 3660/54 and 526/526,
+and retired 10 terminal claims. pytest not installed locally (docs-only diff, no
+Python touched — CI is the real check). — Mon Jul 20 07:30:12 UTC 2026
