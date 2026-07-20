@@ -325,3 +325,10 @@ priority: P2
 do: RETIRE this control-plane message bus. The fleet-coordination apparatus (control/ inbox+outbox+status bus, self-wake/pacemaker routine chain) is wound down ahead of the Claude Code Projects EAP going read-only Tue 2026-07-21; the Project will be recreated fresh. This inbox is DEPRECATED — do not issue or execute further ORDERs through it. The owner-directed task list that replaces it is docs/NEXT-TASKS.md; live state is docs/current-state.md.
 why: EAP wind-down 2026-07-17 — the autonomous message bus + wake chain are retired; a plain owner-directed task list replaces them (appended as a well-formed ORDER because the inbox is append-only and cannot take a top banner).
 done-when: the recreated Project carries no control/ message bus; this file remains only as historical record.
+
+## ORDER 025 · 2026-07-20T13:22:05Z · status: new
+priority: P1
+do: Your substrate-kit v1.20.1 upgrade PR #602 is red on its substrate-gate: the new gate flags pre-existing false-wall findings in this repo's docs (see the PR body's finding list). Fix on the PR branch with plain additive commits: rephrase each flagged standing-limitation line as a dated past-tense fact or add a dated supersession note (never delete history; owner-verbatim lines go in the checker's allowlist if supported). Reference implementation: fleet-manager PR #390 (commit d0e16e2). Gate green means the armed auto-merge lands the upgrade.
+why: the v1.20.1 kit-upgrade wave left this repo's upgrade PR red on pre-existing repo-local doc findings the new gate flags; fleet-manager fixed the same pattern (PR #390, merged 2026-07-20T12:08Z) and its gate went green.
+done-when: PR #602's substrate-gate is green and the armed auto-merge has landed the v1.20.1 upgrade on main.
+provenance: fleet-manager ORDER routing (kit-wave sweep 2026-07-20); owner nothing-stuck directive 2026-07-19. (Decide-and-flag: ORDER 024 deprecated this inbox in favor of docs/NEXT-TASKS.md; this append routes a stuck red PR and is landed here because the inbox remains the append-only manager channel of record.)
