@@ -30,7 +30,8 @@ tree, never a registry line or a PR read.
    stop and report; do not upgrade.
 4. Born-red PR first — claim file + `.sessions/` card declaring
    `in-progress` as the first commit on the wave branch; open the PR READY;
-   never self-arm/self-merge (the session-close rails apply verbatim).
+   land it on green — merge directly or via the enabler (the session-close
+   rails apply verbatim).
 5. Upgrade — `python3 bootstrap.py.new upgrade`. It banks the OLD dist to
    `.substrate/backup/` (verify the banked `bootstrap-<old-version>.py`
    exists — that is the rollback path) and consumes its own inputs.

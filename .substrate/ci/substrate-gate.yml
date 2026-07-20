@@ -77,6 +77,45 @@ jobs:
             git show "$base:control/inbox.md" > "$basefile" 2>/dev/null || : > "$basefile"
             python3 bootstrap.py check --strict --status-only --inbox-base "$basefile"
           fi
+      - name: claims-only fast-lane guard (claude/* work PRs must carry a session card)
+        if: steps.lane.outputs.control_only == 'true'
+        # The #451 fast-lane race: a `claude/*` WORK PR whose ENTIRE
+        # diff is only `control/claims/**` rides the control fast
+        # lane, skips the born-red session gate, and auto-merges
+        # card-less — a claim-file commit masquerading as finished
+        # work. This gate holds such a PR RED. It runs ONLY on the
+        # fast lane and ONLY for `claude/*` heads: a `claim/*`
+        # standalone-claim PR is MEANT to ride the lane card-less
+        # (control/claims/README.md), so a non-`claude/*` head exits
+        # 0 immediately. The changed files come from git in bash —
+        # the same merge-base idiom as the inbox append-only gate
+        # above (the engine never shells out into git, §3.2). A
+        # `claude/*` PR that carries any path outside control/claims/
+        # (its real work + its session card) is on the FULL lane, so
+        # it never reaches this step — by construction this fires
+        # only on the pure-claim `claude/*` diff it exists to reject.
+        run: |
+          head_ref="${{ github.head_ref }}"
+          case "$head_ref" in
+            claude/*) ;;
+            *) echo "guard N/A — head '$head_ref' is not a claude/* branch (claim/* and others ride the fast lane card-less by design)."; exit 0 ;;
+          esac
+          if [ -n "${{ github.base_ref }}" ]; then
+            range="origin/${{ github.base_ref }}...HEAD"
+          else
+            range="${{ github.event.before }}..${{ github.sha }}"
+          fi
+          changed="$(git diff --name-only "$range" 2>/dev/null || true)"
+          if [ -z "$changed" ]; then
+            echo "no changed files resolved — nothing to guard."; exit 0
+          fi
+          non_claims="$(printf '%s\n' "$changed" | grep -v '^control/claims/' || true)"
+          if [ -z "$non_claims" ]; then
+            echo "::error::A claude/* work PR whose ENTIRE diff is only control/claims/** rode the control fast lane and would auto-merge card-less (the #451 race). A claude/* PR must carry real work plus its .sessions/ session card — which puts it on the full lane. If this is a standalone claim, land it on a claim/* branch (control/claims/README.md)."
+            printf 'claims-only claude/* diff:\n%s\n' "$changed"
+            exit 1
+          fi
+          echo "claude/* PR carries non-claim paths — not a claims-only diff; guard passes."
       - uses: actions/setup-python@v6
         if: steps.lane.outputs.control_only != 'true'
         with:
@@ -186,3 +225,21 @@ jobs:
             python3 bootstrap.py check --strict --session-log .sessions/__no-card-in-diff__.md
           fi
           exit "$fail"
+      - name: pytest suite (a test suite ships with its CI runner; self-skips when tests/ is absent)
+        if: steps.lane.outputs.control_only != 'true'
+        # A host can live its whole life with a green gate while its
+        # tests never run in CI (superbot-games' 73 tests were
+        # invisible to gen-1 CI until games#16 hand-added a runner).
+        # Always planted, self-skips when tests/ is absent — so the
+        # gate self-heals the moment tests arrive. Full lane only:
+        # control/** heartbeat PRs never pay the test suite.
+        run: |
+          if [ ! -d tests ]; then
+            echo "no tests/ directory — pytest step skipped (self-heals when tests/ arrives)."
+            exit 0
+          fi
+          if [ -f requirements.txt ]; then
+            python3 -m pip install --quiet -r requirements.txt
+          fi
+          python3 -m pip install --quiet pytest
+          python3 -m pytest tests/ -q

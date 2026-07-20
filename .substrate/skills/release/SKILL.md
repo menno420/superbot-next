@@ -24,8 +24,8 @@ distribution PRs.
    config / CLI break · MINOR = new capability · PATCH = fixes).
 2. Claim, then bump PR born-red — claim `control/claims/` (one file, e.g.
    release-vX.Y.Z.md) on main first; cut the bump branch from post-claim
-   main; born-red card as first commit; open the PR READY; never
-   self-arm/self-merge.
+   main; born-red card as first commit; open the PR READY; land it on green
+   (merge directly or via the enabler).
 3. Version bump, one commit set — BOTH version homes in the SAME commit:
    `src/engine/lib/config.py` (`KIT_VERSION`) and `pyproject.toml`
    (`version`). CHANGELOG: rename `[Unreleased]` to the new `[X.Y.Z]`
