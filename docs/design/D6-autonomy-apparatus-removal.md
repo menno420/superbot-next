@@ -99,10 +99,10 @@ The apparatus's current, honest state — item by item, with file evidence:
 - `docs/ROUTINES.md` (5,711 B) — RETIRED banner + `> **Status:** historical`
   (`docs/ROUTINES.md:1-9`). Self-wake / pacemaker / failsafe-cron doctrine, kept
   as historical record. Routed to from `docs/AGENT_ORIENTATION.md:38`.
-- Residual **live** triggers exist outside the tree: `control/status.md`'s
-  ⚑ needs-owner names two enabled "SuperBot 2.0 failsafe wake" duplicates
-  (`trig_01E86nBnXqesQTwm6WA4mSUD`, `trig_01UC7wiV3n5Vgs3RpSQt4gWz`) awaiting
-  owner disarm via the routines UI. These are console-only (owner action), not
+- The two previously-named residual triggers
+  (`trig_01E86nBnXqesQTwm6WA4mSUD`, `trig_01UC7wiV3n5Vgs3RpSQt4gWz`) were
+  confirmed **absent** from the account registry on 2026-07-18 (already removed
+  — no longer a prerequisite). These were console-only (owner action), not
   in-tree files.
 
 ## Goals / non-goals
@@ -343,4 +343,4 @@ Owner-authorized under decide-and-flag (fm ORDER 048 / PL-001); logged as [D-009
 
 - **Q1 timing → defer to the recreated Project (post-2026-07-21).** Hold every removal step — the in-place neuter (S1) and kit-config migration (S3) as well as the destructive S2/S4/S6 — for the post-EAP recreated-Project cutover; do not start them now. `main` carries across the read-only window as the durable artifact. The non-destructive Step 0 audit may run anytime but is low-value ahead of a deferred removal.
 
-Owner-only prerequisites for the eventual execution (surfaced, not taken): confirm the repo "Allow auto-merge" setting posture (Step 0 / Q4); disarm the two residual failsafe wake triggers via the routines console (Step 6 precondition); delete the four orphan merged branches (agent-blocked by a GitHub 403 ref-delete wall). Q2–Q6 remain open (not part of this decision pass).
+Owner-only prerequisite still open (surfaced, not taken): confirm the repo "Allow auto-merge" setting posture (Step 0 / Q4). The previously-listed prerequisites were completed on 2026-07-18 and are no longer blockers — the two previously-named residual triggers are absent from the account registry and the four named orphan merged branches are absent from origin. Broader orphan merged-branch cleanup remains blocked by the GitHub 403 ref-delete wall (owner/admin). Q2–Q6 remain open (not part of this decision pass).

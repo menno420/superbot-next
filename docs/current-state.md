@@ -16,9 +16,10 @@
 
 All seven port bands built (49 subsystems, hash-pinned
 `manifest.snapshot.json`); boots to RUNNING on real PostgreSQL (CUT-1 smoke
-PASS). The unit + integration suite is **3,160 passed / 29 skipped**
-(`python3 -m pytest tests/`, #501 close 2026-07-16). Golden parity is
-**full-corpus green — 523/523 goldens, 49/49 subsystems ported + kernel**
+PASS). The unit + integration suite is **3660 passed / 54 skipped**
+(`python3 -m pytest`, latest per `.sessions/2026-07-20-decision-audit.md`).
+Golden parity is
+**full-corpus green — 526/526 goldens, 49/49 subsystems ported + kernel**
 (`tools/check_parity_depth.py`); the committed-checker fleet + the six required
 named gates (`.github/workflows/named-gates.yml`) are green on main. The
 `golden-parity` **report** leg reached full-corpus parity on 2026-07-13 and stays
@@ -138,8 +139,8 @@ is one command —
   added, the `control/` message bus + wake-chain docs deprecation-bannered.
 - 2026-07-16/17 — conform sweep #457 (#500 — 31 non-kernel goldens re-minted to
   the canonical stripped-golden flavor, parity-depth floors narrowed), control-claim
-  retirement (#499 / #505), coordinator close-out (#503). Suite 3,160 passed /
-  29 skipped; golden-parity 523/523.
+  retirement (#499 / #505), coordinator close-out (#503). Suite 3660 passed /
+  54 skipped; golden-parity 526/526.
 - 2026-07-09 (late) — band-5 seams (#95) + worldcard Reply-shape fix and
   red-orientation docs (#97).
 - Full history: the append-only decision ledger (`docs/decisions.md`) and merged
