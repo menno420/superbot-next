@@ -14,6 +14,57 @@
 > to react to (agree = fastest path); where a genuine judgement call needs owner
 > context that no agent has, the block says so plainly.
 
+> **Audit 2026-07-20:** this agenda was audited under decide-and-flag (PL-001).
+> 9 reversible design-posture rows (1, 2, 3, 4, 6, 11, 12, 13, 29) were ADOPTED
+> as recommended and recorded in `docs/decisions.md` **D-0101**; rows 14–17 (B10
+> route-origin) are subsumed by **D-0098** (DEFER), rows 18–21 (D2 minigame
+> framework) by **D-0100** (DEFER), and row 28 (C4 TOCTOU) is already an
+> accepted-posture (decided 2026-07-18; its ledger id is stamped in
+> `docs/decisions.md` and `docs/ideas/tournament-open-flag-toctou-2026-07-12.md`,
+> not re-cited here). The remaining **13 rows** (5, 7, 8, 9, 10, 22, 23, 24, 25,
+> 26, 27, 30, 31) are the genuinely-owner remainder — see the next section. The
+> original 31-row table below is retained unedited as the historical record,
+> with each decided/subsumed row marked inline.
+
+## Remaining owner agenda (13 rows, 2026-07-20)
+
+The trimmed agenda after the 2026-07-20 audit — only the genuinely-owner rows
+(irreversible / external-console / secrets / money / product-intent `[?]`). Each
+`rec:` is pulled verbatim-in-spirit from the row's detail block below; nothing
+here is a new recommendation.
+
+- **Row 5 — restore/rollback drill cadence:** **rec:** per-PR seeded fixture +
+  weekly real-artifact, NOT a hard required gate yet. (real-artifact drill
+  cadence — owner.)
+- **Row 7 — /metrics exposure + auth:** **rec:** Railway-native private-net
+  scrape, no auth. (Railway infra — owner.)
+- **Row 8 — secret store / rotation mechanism:** **rec:** Railway env vars now,
+  vault a later track. (secret infra — owner.)
+- **Row 9 — acceptable rotation downtime:** **rec:** one bounded redeploy behind
+  `/ready`, no hot-swap seam. (ops posture — owner.)
+- **Row 10 — turn backups ON:** **rec:** keep GH-Actions `pg_dump`, set
+  `BACKUP_ENABLED=true`. (money/secret — owner.)
+- **Row 22 — B8 ux_lab port at all? `[?]`:** **rec:** LOW priority, render-only
+  for 3 special wings; needs owner product context.
+- **Row 23 — S.3 Discord least-privilege (intents / invite / DB role):**
+  **rec:** all three yes — explicit intents, minimal invite scope, DDL/DML role
+  split. (external console + DB provisioning — owner.)
+- **Row 24 — D5 live-guild harness shape `[?]`:** needs owner product context
+  (fake in-process PR tier byte-assert + secret-gated LIVE tier shape-assert,
+  degraded-health signal not a merge-block).
+- **Row 25 — R resilience bounds `[?]`:** needs owner product context (retry-to-
+  ACK boundary, DB reconnect + breaker + bounded boot-retry, refuse-write copy).
+- **Row 26 — AI surface creds (`ANTHROPIC_API_KEY` / `CLAUDE_ROUTINE_*`):**
+  **rec:** provision when you want the AI surface live, else keep the honest
+  refusals. (creds provisioning — owner.)
+- **Row 27 — btd6 NK data account / ingestion:** **rec:** keep the refusal
+  unless btd6 live standings matter to you. (external account — owner.)
+- **Row 30 — deploy rollback in scope?:** **rec:** deploy rollback stays your
+  Railway-console action; drill only data rollback. (Railway console — owner.)
+- **Row 31 — emergency-swap secret posture:** **rec:** keep
+  `ON_COMPROMISE`/`MANAGED` postures + a documented owner-driven rotation lane.
+  (secret posture — owner.)
+
 Sources gathered: [D4 observability](D4-observability-surface.md) ·
 [D2 minigame framework](D2-realtime-minigame-framework.md) ·
 [B10 route-origin](B10-panel-route-origin.md) ·
@@ -36,29 +87,29 @@ context; the block explains why.
 | # | Decision | Recommendation | Unblocks |
 |---|---|---|---|
 | **Tier 1 — quick high-leverage** |
-| 1 | Readiness backpressure threshold | 60 s `ConfigSpec`, soft-degraded first | D4.3 `/readyz` + outbox-depth gate |
-| 2 | `prometheus_client` in runtime lock | Confirm present + fail-closed boot smoke | D4.1 render smoke (whole metrics surface) |
-| 3 | Required-at-boot secret manifest | Confirm the FAIL_FAST trio | S.1 malformed-secret shape guard + CI assertion |
-| 4 | Integrity fixture ownership | `tests/fixtures/`; economy/treasury/xp/karma + audit slice | O.1/O.2 row-level integrity |
+| 1 | ✅ DECIDED (D-0101) — Readiness backpressure threshold | 60 s `ConfigSpec`, soft-degraded first | D4.3 `/readyz` + outbox-depth gate |
+| 2 | ✅ DECIDED (D-0101) — `prometheus_client` in runtime lock | Confirm present + fail-closed boot smoke | D4.1 render smoke (whole metrics surface) |
+| 3 | ✅ DECIDED (D-0101) — Required-at-boot secret manifest | Confirm the FAIL_FAST trio | S.1 malformed-secret shape guard + CI assertion |
+| 4 | ✅ DECIDED (D-0101) — Integrity fixture ownership | `tests/fixtures/`; economy/treasury/xp/karma + audit slice | O.1/O.2 row-level integrity |
 | 5 | Restore/rollback drill cadence | Per-PR seeded fixture + weekly real-artifact | O.1/O.2 triggers |
-| 6 | Metric cardinality budget | Set a ceiling, warn-only before hard gate | `check_metric_cardinality` fleet ceiling |
+| 6 | ✅ DECIDED (D-0101) — Metric cardinality budget | Set a ceiling, warn-only before hard gate | `check_metric_cardinality` fleet ceiling |
 | **Tier 2 — infrastructure (one answer cascades)** |
 | 7 | Metrics backend + `/metrics` exposure/auth | Railway-native private-net scrape, no auth on private net | D4.2 manifest + scrape + alert routing |
 | 8 | Secret store / rotation mechanism | Railway env vars now; vault later | S.2 runbook + `RotationProvider` install |
 | 9 | Acceptable rotation downtime | One bounded redeploy behind `/ready` (no hot-swap seam) | S.2 drain-and-reboot runbook |
 | 10 | Backup source + turn the net ON | Keep GH-Actions `pg_dump`; set `BACKUP_ENABLED=true` now | O.1 real-artifact leg; the whole RPO contract |
-| 11 | Throwaway restore DB location | CI `postgres:18` service container | O.2 drill |
-| 12 | Structured-log format + drain | JSON → Railway log drain | D4.4a formatter + stream redaction |
-| 13 | Relay-health alert delivery path | `OperatorAlert` sink now; Alertmanager once backend lands | D4.1 alert wiring |
+| 11 | ✅ DECIDED (D-0101) — Throwaway restore DB location | CI `postgres:18` service container | O.2 drill |
+| 12 | ✅ DECIDED (D-0101) — Structured-log format + drain | JSON → Railway log drain | D4.4a formatter + stream redaction |
+| 13 | ✅ DECIDED (D-0101) — Relay-health alert delivery path | `OperatorAlert` sink now; Alertmanager once backend lands | D4.1 alert wiring |
 | **Tier 3 — scope / priority calls** |
-| 14 | B10 route-origin — worth the engine cost? | Ship engine signal (opt-in, zero churn); defer role opt-in | B10.1–B10.3 vs a cheaper `parent=` fix |
-| 15 | B10 scope | `role.hub` only first | B10.4 (one golden) |
-| 16 | B10 back depth | Single-level (match oracle) | keeps golden matrix flat |
-| 17 | B10 golden/minting/label mechanics | Click-time-parsed origin family; capture differing origins; `HUB_NAV_LABELS` + `server_management` entry | B10.3 harness origin dimension |
-| 18 | D2 first target game | Reflex/timing casino minigame | D2.2 (proves the primitive) |
-| 19 | D2 refactor fishing now? | Leave as reference impl (D2.3 optional/later) | protects fishing's byte-pinned goldens |
-| 20 | D2 primitive home | `sb/kernel/panels/minigame.py` | D2.1 extraction |
-| 21 | D2 window floor / multi-round / turn-timeouts | Single-shot first; platform window floor; defer blackjack/rps countdowns | D2.1 API shape |
+| 14 | ✅ DEFER (D-0098) — B10 route-origin — worth the engine cost? | Ship engine signal (opt-in, zero churn); defer role opt-in | B10.1–B10.3 vs a cheaper `parent=` fix |
+| 15 | ✅ DEFER (D-0098) — B10 scope | `role.hub` only first | B10.4 (one golden) |
+| 16 | ✅ DEFER (D-0098) — B10 back depth | Single-level (match oracle) | keeps golden matrix flat |
+| 17 | ✅ DEFER (D-0098) — B10 golden/minting/label mechanics | Click-time-parsed origin family; capture differing origins; `HUB_NAV_LABELS` + `server_management` entry | B10.3 harness origin dimension |
+| 18 | ✅ DEFER (D-0100) — D2 first target game | Reflex/timing casino minigame | D2.2 (proves the primitive) |
+| 19 | ✅ DEFER (D-0100) — D2 refactor fishing now? | Leave as reference impl (D2.3 optional/later) | protects fishing's byte-pinned goldens |
+| 20 | ✅ DEFER (D-0100) — D2 primitive home | `sb/kernel/panels/minigame.py` | D2.1 extraction |
+| 21 | ✅ DEFER (D-0100) — D2 window floor / multi-round / turn-timeouts | Single-shot first; platform window floor; defer blackjack/rps countdowns | D2.1 API shape |
 | 22 | B8 ux_lab — port the dev surface at all? | LOW priority; render-only for the 3 special wings | B8 wing slices (no user-facing gap) `[?]` |
 | 23 | S.3 least-privilege trim (intents + invite perms + DB role) | Yes: explicit intents, minimal invite scope, DDL/DML split | S.3 intent trim + role provisioning |
 | 24 | D5 e2e/live-guild harness shape | Fake in-process PR tier (byte-assert); secret-gated LIVE tier (shape-assert, degraded-health signal not a merge-block); automated runs → unsigned `verified_live` lane | D5 harness slices `[?]` |
@@ -68,7 +119,7 @@ context; the block explains why.
 | 27 | btd6 NK data account/ingestion | Provision Ninja-Kiwi source or keep named-successor refusal | btd6 live bracket standings |
 | **Tier 5 — posture confirmations** |
 | 28 | C4 tournament-TOCTOU | Keep accepted-posture (match oracle + boot-sweep recovery) | closes the standing C4 owner-gate |
-| 29 | Rollback scope — schema vs data | Confirm forward-only + data-plane reverse-import is permanent | freezes O.2 drill semantics |
+| 29 | ✅ DECIDED (D-0101) — Rollback scope — schema vs data | Confirm forward-only + data-plane reverse-import is permanent | freezes O.2 drill semantics |
 | 30 | Deploy rollback in scope? | Owner Railway-console action; only **data** rollback drilled | scopes O.3 runbook |
 | 31 | Emergency-swap secret posture | Keep `ON_COMPROMISE`/`MANAGED` + a documented owner-driven lane | S.2 posture rows |
 
