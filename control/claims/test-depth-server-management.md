@@ -1,3 +1,0 @@
-# Claim — test-depth-server-management
-
-- `claude/test-depth-server-management` · **Test-depth coverage for `sb/domain/server_management`** — additive DB-free unit tests only, NO product change: the MEMBER_ID erasure/tombstone lane (`ops.tombstone_policy_actor` + `routing.tombstone_policy_actor` command-tag parse), `routing.record_set_policy` refusal + str-coercion arms, access-projection DENY/unknown fail-closed edges (`_axis_command_access` role_not_held / bootstrap-bypass detail, `_axis_governance` no-member unknown, `_axis_help_visibility` no-category unknown), `routing.list_for_guild` read ordering, and `help_preview._is_help_hidden` fail-closed arm · `tests/unit/band6/test_band6_server_management_depth.py` · 2026-07-18

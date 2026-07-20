@@ -16,7 +16,7 @@
    [07-13 table](status/completeness-table-2026-07-13.md))
    and [`docs/ideas/port-the-small-four-2026-07-10.md`](ideas/port-the-small-four-2026-07-10.md)
    to close the gap from ~49 ported subsystems to the full corpus. The harness is
-   ready — 523 goldens are green today (`tools/check_parity_depth.py`), so each new
+   ready — 526 goldens are green today (`tools/check_parity_depth.py`), so each new
    subsystem is a replay-to-green slice. With that surface essentially exhausted, the
    snapshot recommends a PLANNING-mode loop — the forward design proposals live in
    [`docs/design/README.md`](design/README.md) (the D1–D6 + B8/B10 design series).
