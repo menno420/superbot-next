@@ -53,6 +53,9 @@ against them (L52) and `substrate.config.json` still points `claims_dir` →
 removal is owner-sequenced with the kit-config migration first (per the D6 #548
 plan). **The Project will be recreated** fresh after the read-only window; this repo
 (the ground-up rebuild) and its `main` are the durable artifact that carries across.
+The successor's day-1 orientation — cutover state, boot order, the deferred D6
+sequence, and the open forks — is
+[`docs/RECREATED-PROJECT-DAY1.md`](RECREATED-PROJECT-DAY1.md).
 
 Live-testing beyond bands 1–4 and the guild-effect / plugin live-drive legs remain
 human-operator runbooks

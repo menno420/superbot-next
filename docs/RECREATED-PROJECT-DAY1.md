@@ -3,15 +3,17 @@
 > **Status:** `binding`
 >
 > The successor's first-session orientation. `main` is the durable artifact that
-> carries across the read-only window (decision D-0096); this doc makes day 1
-> trivial. Source files always win over this doc.
+> carries across the read-only window (the durable-artifact decision, stamped in
+> the `docs/decisions.md` ledger); this doc makes day 1 trivial. Source files
+> always win over this doc.
 
 ## Purpose
 
 The Claude Code Projects EAP surface goes **read-only Tue 2026-07-21**. This
 Project is recreated fresh afterward. Nothing carries across the cutover except
-what is committed to `main` — the branch is the durable artifact
-(decision **D-0096**, `docs/decisions.md`). This runbook records exactly what
+what is committed to `main` — the branch is the durable artifact per the
+durable-artifact decision stamped in the `docs/decisions.md` ledger (the D6
+removal-deferral entry). This runbook records exactly what
 day-1 state is, where the live pointers are, and the one owner prerequisite that
 is still open, so the successor's first session starts from truth instead of
 re-derivation.
@@ -19,14 +21,16 @@ re-derivation.
 ## What carried across (state at cutover)
 
 - **`main` SHA at cutover:** `1cec1b8efaeff74240392effd37ea5530cf09eda`
-  (merge of PR **#601** — decision-audit pass, D-0100 + D-0101).
+  (merge of PR **#601** — the decision-audit pass; ledger entries dated
+  2026-07-20 in `docs/decisions.md`).
 - **Test suite:** **3660 passed / 54 skipped**, latest run recorded in
   `.sessions/2026-07-20-decision-audit.md:81`
   (`python3 -m pytest -q --ignore=examples`). Verify by reading that card.
 - **Golden corpus:** **526 / 526** (`tools/check_parity_depth.py`; 49/49
   subsystems ported + kernel). Disk count via `parity/goldens/*/*.json` = 526.
-- **Decision ledger:** through **D-0101** (`docs/decisions.md`). **D-0083 is
-  intentionally reserved-unminted** — an owner anchor call, not a gap.
+- **Decision ledger:** current through the 2026-07-18 owner-agenda-audit entry
+  (the ledger's latest, `docs/decisions.md`). One ledger id is **intentionally
+  reserved-unminted** — an owner anchor call, not a gap (see the ledger).
 - **Session cards:** all flipped complete (`.sessions/`).
 
 ## Boot — successor's first session
@@ -46,7 +50,8 @@ live task list is `docs/NEXT-TASKS.md`; live state is `docs/current-state.md`.
 
 ## D6 apparatus removal — deferred to this Project
 
-Decision **D-0096** deferred **every** step of
+The durable-artifact / removal-deferral decision (stamped in `docs/decisions.md`)
+deferred **every** step of
 `docs/design/D6-autonomy-apparatus-removal.md` to this recreated Project. Read
 that doc; its ordered removal sequence (each an independent, single-`git revert`
 step) is:
@@ -86,8 +91,8 @@ GitHub 403 ref-delete wall** and needs an owner/admin.
 
 ## Owner agenda
 
-The trimmed **13-row owner agenda** is recorded in `docs/decisions.md`
-**[D-0101]** (the 2026-07-18 agenda-audit entry) — the rows retained as
+The trimmed **13-row owner agenda** is recorded in the `docs/decisions.md`
+ledger (the 2026-07-18 owner-agenda-audit entry) — the rows retained as
 genuinely owner-only (irreversible / external / secrets / money / console /
 product-intent): **5, 7, 8, 9, 10, 22, 23, 24, 25, 26, 27, 30, 31**. Source
 agenda: `docs/design/OWNER-DECISIONS-2026-07-18.md`. Reversible design-posture
