@@ -7,7 +7,7 @@
     "soft_target_sessions": 50
   },
   "graduation_proposed": false,
-  "kit_version": "1.17.0",
+  "kit_version": "1.20.1",
   "last_compaction_session": 0,
   "mode": "guided",
   "mode_history": [],
@@ -20,7 +20,7 @@
     "docs/AGENT_ORIENTATION.md": "1515c1bc4bd13cf2e80294cdc043610699fe6a568fd1e5cb3fb26f503b2e33ed",
     "docs/CAPABILITIES.md": "d367b7985bc36d05f059c752c810557524b88834cd64bb404f96f6114e6aa6f6",
     "docs/ROUTINES.md": "88f4568d8019d45194e6bb380c0ef576184d4ea2c7b114adcd12fd52a2dedd3b",
-    "docs/SKILLS.md": "abf241857b481fb980942db425ad4dcd86a1dd0cb6396f41456abb3723ea0d46",
+    "docs/SKILLS.md": "92a4864d02ace630b3acbfa44fd19c77a7507c0e2fdff69a9bf3e8862f037c83",
     "docs/ai-project-workflow.md": "9aeecf6cb4908f9cca5506ffc8961ca642fc1ac6479f3de7ff3e168deaa2a536",
     "docs/architecture.md": "fb44df327e30eb312f0ac4f88102a9bee90a40820f5118c454e940f002ae331e",
     "docs/collaboration-model.md": "d825e1afd67f8d37fad29db25d7840dcc493c1286f18eaf8cde5e8b1079061a7",
