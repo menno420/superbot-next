@@ -240,7 +240,156 @@ can reach. No golden is re-checked; no adapter path is double-owned.
 Suggested landing order: **D5.1 hermetic → D5.1 discord-installed → D5.2 sweep → D5.2 CI
 plumbing → D5.3 bridge**.
 
+## Decision-ready refinement (2026-07-18)
+
+A follow-up pass that grounds the proposal in the actual adapter imports and
+splits the 7 questions into **agent-decidable design picks — resolved here as
+flagged decide-and-flag defaults** (PL-001) and **genuinely owner-gated bits —
+routed** to `docs/question-router.md`. No `D-00NN` token is minted: this stays a
+plan; a decision homes in `docs/decisions.md` when a slice lands. Evidence is
+`file:line` at HEAD `a50d1d0` unless noted.
+
+### The central pick (Q1) — resolved: land D5.1 **discord-installed first**, not hermetic-fake-first
+
+The proposal above (D5.1 bullet + sizing) leaned toward *"land the hermetic
+feed/egress variant first (highest signal for the cost)."* Grounding that against
+the real imports **revises the lean** — the adapter band splits into two classes,
+not one:
+
+- **Duck-typed ingress feeds (no module-scope `discord`):** `message_feed.py`
+  says so verbatim — *"Duck-typed against discord.py (no discord import — the
+  objects arrive from the gateway at runtime) … the token match mirrors the
+  parity harness's `send_command`"* (`sb/adapters/discord/message_feed.py:35-41`);
+  `component_feed.py` likewise carries no module-scope discord import. These are
+  drivable **hermetically** with a synthetic event double — no fake `discord`
+  module needed.
+- **discord-object-constructing modules (guarded `import discord`):** `egress.py`
+  builds real `discord.AllowedMentions` / `discord.Object`
+  (`sb/adapters/discord/egress.py:2,30-42`), and `command_tree.py`,
+  `panel_view.py`, `modal_view.py`, `confirm_view.py`, `responders.py` each import
+  `discord` under the CI-absent guard and construct `discord.ui` / `app_commands`
+  types (`sb/adapters/discord/{command_tree.py:33-41,panel_view.py:23-25,
+  modal_view.py:25-27,confirm_view.py:38-40,responders.py:19-20}`). With
+  `DISCORD_AVAILABLE=False` their discord-touching code is unreachable; to make it
+  **execute** hermetically you must supply a fake `discord` providing
+  `AllowedMentions`/`Object`/`ui.View`/`app_commands` with enough fidelity to
+  assert on.
+
+That fidelity requirement is the crux the original framing skated past. A fake
+`discord` faithful enough to exercise egress serialization + panel/modal render is
+**functionally a second `ParityPresenter`/`ParityTransport`** — i.e. rebuilding
+the substitute-for-the-adapter that parity already has (`sb/adapters/parity/
+boot.py:41-53`). Faking the library *beneath* the adapter to test the adapter is
+circular: it proves "our code against our fake of discord," structurally the same
+blind spot P1 names. So:
+
+| Approach | Adapter modules actually exercised | Verdict |
+|---|---|---|
+| Hermetic, **no** fake `discord` lib | 2 of ~19 (the duck-typed feeds only) | cheap + real, but **does not close P1** |
+| Hermetic **with** a fake `discord` lib | more, but against a re-derived fake | circular — **re-creates P1's blind spot** |
+| **discord-installed** (real lib) | all target modules against real types | **closes P1**, rides a proven CI env |
+
+**Default (decide-and-flag): make the discord-installed in-process tier the
+headline D5.1**, riding the `golden-parity` named-gate environment. That
+environment already exists and is proven for this exact boot: the gate installs
+the full hash-pinned lock (`pip install --require-hashes -r requirements.lock`,
+`.github/workflows/named-gates.yml:134`), which **already ships discord**
+(`requirements.lock:218` → `discord-py==2.7.1`), and `tests/integration/` already
+boots the very same `Harness.start()` there against a real Postgres service
+(`tests/integration/conftest.py` docstring + `boot_harness()`). D5.1's driver is
+the **non-replay twin** of that harness, so it slots in with **no new infra, no
+secret, no token** (the boot uses the placeholder token
+`DISCORD_BOT_TOKEN_PRODUCTION="PARITY_PLACEHOLDER_TOKEN"`,
+`sb/adapters/parity/boot.py` `_ENV_DEFAULTS`, gateway-connect leg stubbed). The
+"couples the gate to the lib" cost is *exactly the coverage being bought* —
+catching an egress-serialization / panel-render / command-tree drift that only
+manifests against real `discord` types is the whole point of P1.
+
+**Kept as a cheap add-on, not the headline:** a narrow **hermetic feed-ingress
+smoke** (synthetic `on_message` / component-click → `dispatch_prefix` /
+`component_feed` → assert the sb-level dispatch fired) runs even in the
+pyyaml-only `checkers` environment because `message_feed`/`component_feed` are
+duck-typed. Worth landing as a fast pre-filter, but it touches neither egress nor
+panel render, so it is the bonus tier — not the thing that turns the ~19 un-driven
+modules into a gate.
+
+### The other agent-decidable questions — resolved as decide-and-flag defaults
+
+- **Q3 (which command set the LIVE sweep scripts) — DEFAULT: the minimal CUT-1
+  boot-health shape** (boot → `/ready` 200 → one command → clean drain,
+  `docs/decisions.md:372`), with the full hub sweep as an **owner-expandable**
+  scope. A bounded first sweep keeps the guild uncluttered; breadth is a dial the
+  owner turns once the LIVE tier exists. (The *shape* is agent-decidable; the
+  breadth interacts with guild pollution + cost, which ride the owner-gated LIVE
+  bundle.)
+- **Q4 (pass/fail thresholds) — DEFAULT: non-blocking degraded-health**, mirroring
+  the `verified_live` debt-list model (report reds, never block a merge,
+  `tools/check_verified_live.py:14-17`). This falls out of LIVE being on-demand /
+  owner-run rather than a required gate: a single non-response is a **reported
+  red**, not a hard CI fail. Response bound: a per-command wait comfortably under
+  the gateway READY bound of 75s (`sb/adapters/discord/gateway.py:44`
+  `READY_TIMEOUT_S`) — e.g. 15s — flagged as tunable.
+- **Q5 (rendered bytes vs structural) — DEFAULT: structural shape**, ratifying the
+  proposal's own recommendation. Byte-exactness is golden-parity's job (525-case
+  byte oracle); the live sweep is a health signal, so assert on panel field count
+  / embed title / audit-row presence — robust to copy drift, not a second byte
+  oracle.
+- **Q7 (guild hygiene) — DEFAULT: post to a fixed tolerated channel**
+  (`#bot-activity`-style, `docs/status/testing-report-2026-07-09.md:27`) for the
+  first sweep — it needs no channel-effect port armed. The self-cleaning ephemeral
+  per-run channel (needs the channel port, `sb/app/main.py:499-527`) is a stretch
+  that rides on the LIVE tier existing (owner-gated anyway).
+
+### The genuinely owner-gated bits — routed
+
+The LIVE tier (D5.2) is owner-gated at its root and is **not** resolved here:
+
+- **Q2** — provisioning a real bot **token** as a CI secret + a network-capable
+  runner, the **cadence** (dispatch / nightly / weekly), and the **cost/time
+  budget** (the container/session window is too tight for long serial live work,
+  `docs/CAPABILITIES.md:110-122`).
+- **Q6** — the **signer identity** for an auto-minted `verified_live` record (V2
+  requires a signer + `signed_at` + `build_sha`,
+  `tools/check_verified_live.py:9-12`): a bot identity is a trust/authority call.
+  Recommended default *pending that ruling*: an automated sweep writes to a
+  **separate non-signed lane** and leaves signing to the owner — but whether a bot
+  identity may sign at all is owner-only.
+
+These are appended as **one crisp OPEN block** in `docs/question-router.md` with
+the recommended default: **in-process tier now; LIVE tier deferred until there's a
+token + a reason.**
+
+### What the in-process tier costs / unblocks — and the executable-follow-up flag
+
+- **Unblocks:** it turns the ~19 real `sb/adapters/discord/*` modules — invisible
+  to all 525 goldens (P1) and un-dispatched by the smoke gate (P2) — into a
+  required, fast, deterministic CI gate, catching egress / component-id / panel /
+  command-tree regressions that are byte-invisible today.
+- **Cost:** a fake-gateway synthetic-event double + a driver cloning
+  `sb/adapters/parity/boot.py`'s `Harness` contract — **M**, test/tooling code
+  only (no `sb/` layer edge; the harness may import everything like `sb/app`).
+
+> **▶ Recommended executable follow-up (buildable now, NO owner input):** the
+> discord-installed in-process adapter tier (D5.1) can be **built and landed
+> today without any owner decision or new infrastructure.** Evidence: the CI
+> environment already exists and is proven (the `golden-parity` job installs the
+> lock that ships `discord-py==2.7.1` and already boots the same `Harness.start()`
+> against Postgres — `.github/workflows/named-gates.yml:134`,
+> `requirements.lock:218`, `tests/integration/conftest.py`); the boot needs only
+> the placeholder token already in `_ENV_DEFAULTS`; the tier-A pick is now decided
+> (installed-first, above); and the new code is test/tooling with no layer edge.
+> **This is a greenlight-ready build, deliberately NOT built in this docs slice —**
+> the owner or the next agent can approve the D5.1 build directly. Only the LIVE
+> tier (D5.2) waits on the routed owner questions.
+
 ## Open questions for the owner
+
+> **Triage (2026-07-18, see "Decision-ready refinement" above):** Q1 / Q3 / Q4 /
+> Q5 / Q7 are **agent-decidable** and now resolved as flagged decide-and-flag
+> defaults there. Only the LIVE-tier root — **Q2** (token / cadence / cost) and
+> **Q6** (signer identity) — is genuinely owner-gated and is routed to
+> `docs/question-router.md`. The questions are retained verbatim below for the
+> record.
 
 1. **In-process discord dependency (D5.1's central call).** Hermetic **fake `discord`
    module** (stays in the pyyaml-only CI environment, proves only our code) vs
