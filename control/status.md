@@ -1,4 +1,5 @@
 SEAT CLOSED — 2026-07-21T18:16:29Z
+updated: 2026-07-21T18:16:29Z
 
 # superbot-next — seat status (final)
 

@@ -12,7 +12,7 @@
 > [`docs/NEXT-TASKS.md`](NEXT-TASKS.md). Red-CI orientation:
 > [`docs/status/README-first.md`](status/README-first.md).
 
-- Program closeout & continuation guide: [`docs/PROJECT-CLOSEOUT.md`](docs/PROJECT-CLOSEOUT.md)
+- Program closeout & continuation guide: [`docs/PROJECT-CLOSEOUT.md`](PROJECT-CLOSEOUT.md)
 
 ## Stability baseline
 
