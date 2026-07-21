@@ -107,13 +107,12 @@ class TestO2Orphans:
 
 class TestBaselineHygiene:
     def test_baseline_is_the_landing_snapshot_and_only_shrinks(self):
-        # the burn-down list captured on main @ 5dac6ce (post-#412),
-        # pruned to the single LIVE row 2026-07-13 (the 8 dead rows'
-        # pendings retired — blackjack/rps tournament + btd6 ingestion
-        # features landed under *_route / cmd_* refs). REMOVING an entry
-        # (with its pending retired) is the only legal edit; this pin
-        # makes an ADDITION a reviewed, deliberate act.
-        assert _KNOWN_ORPHANS <= {
-            "settings.group_pending",
-        }
+        # the burn-down list captured on main @ 5dac6ce (post-#412), pruned
+        # to a single LIVE row 2026-07-13, then EMPTIED by settings epic S0
+        # (2026-07-19): the last row "settings.group_pending" was retired
+        # when open_group's non-hub arm re-pointed to settings.group_edit
+        # (option A). REMOVING an entry (with its pending retired) is the
+        # only legal edit; the floor is now zero, so an ADDITION is a
+        # reviewed, deliberate act.
+        assert _KNOWN_ORPHANS == frozenset()
         assert all(name.endswith("_pending") for name in _KNOWN_ORPHANS)

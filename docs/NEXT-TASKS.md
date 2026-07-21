@@ -16,10 +16,37 @@
    [07-13 table](status/completeness-table-2026-07-13.md))
    and [`docs/ideas/port-the-small-four-2026-07-10.md`](ideas/port-the-small-four-2026-07-10.md)
    to close the gap from ~49 ported subsystems to the full corpus. The harness is
-   ready — 523 goldens are green today (`tools/check_parity_depth.py`), so each new
+   ready — 526 goldens are green today (`tools/check_parity_depth.py`), so each new
    subsystem is a replay-to-green slice. With that surface essentially exhausted, the
    snapshot recommends a PLANNING-mode loop — the forward design proposals live in
    [`docs/design/README.md`](design/README.md) (the D1–D6 + B8/B10 design series).
+   **D2 real-time minigame framework — DECIDED — DEFER-until-2nd-consumer
+   (2026-07-20, recorded in the decisions ledger):** do not build the
+   `RealtimeRound` kernel primitive for fishing alone; when a second real-time
+   minigame is on the roadmap, build D2.1 (the pure extraction) first and grow
+   the new game onto it. This was the LAST open owner block —
+   [`docs/question-router.md`](question-router.md) now has **ZERO** open owner
+   blocks (B10/S6/D2 all deferred; the 2026-07-18 agenda trimmed to its
+   genuine-owner remainder — see the decisions ledger and
+   [`OWNER-DECISIONS-2026-07-18.md`](design/OWNER-DECISIONS-2026-07-18.md)).
+
+   - **Settings `group_pending` edit-page epic — ✅ essentially COMPLETE.** The
+     per-group scalar-edit-page epic
+     ([`docs/design/settings-group-pending-epic-plan.md`](design/settings-group-pending-epic-plan.md))
+     is done for **every reachable scalar type**: S0 (page frame) + S1 bool / S2
+     enum / S3 number-modal / S4 text-modal / S5 channel-select / S7
+     numeric-presets have all landed or are landing (PRs #579–#584). The
+     `settings.group_pending` blocked terminal is **fully retired** for every
+     non-hub group (replaced by the live `settings.group_edit` page per the
+     option-A ruling; the 5 operator-spine hub groups keep their read-only hubs
+     by design). **The only open item is S6 (role-select)**, which is BLOCKED,
+     not built: no reachable honest golden target exists — the port declares zero
+     `input_hint="role"` settings, and the oracle's role settings live in
+     `moderation` (unported) and `welcome` (a read-only hub, unreachable under
+     option A). S6 is routed as a scoping question — see
+     [`docs/question-router.md`](question-router.md) → Open questions → "settings
+     epic S6 (role-select edit widget)" (recommend DEFER until a role-typed
+     non-hub setting exists; the widget is ~1 slice once a target does).
 
 2. **Land the scoped game-surface backlog.** ✅ **Essentially complete** — all
    three sub-items have either landed or are a settled do-not-fix:
@@ -60,8 +87,9 @@
    (Owner action: the repo secret + variable + retention setting are owner-only.)
 
 6. **Replace the still-live autonomy apparatus with a plain direct-merge flow.**
-   Keep the six named CI gates (`.github/workflows/named-gates.yml`) as the merge
-   bar; with the enabler gone, agents just **merge their own green PRs directly**
+   Keep the six named CI gates (`.github/workflows/named-gates.yml`) plus
+   `pip-audit` (`.github/workflows/ci.yml`) as the merge bar; with the enabler
+   gone, agents just **merge their own green PRs directly**
    (MCP/REST) — remove `.github/workflows/auto-merge-enabler.yml` and retire the
    `control/` order-bus + wake-chain so nothing self-fires a wake.
    **Correction (2026-07-18):** the enabler is currently **LIVE** (fires
@@ -76,6 +104,29 @@
    merge their own green PRs — MCP/REST — with the enabler as a fallback until it
    is removed). This is a next-Project (recreation) change — the workflow files
    are left untouched by the 2026-07-17 cleanup pass.
+
+## Executable backlog (2026-07-20 audit)
+
+HONESTY GUARD: **no contained honest build slice is currently unblocked.** The
+port surface is essentially exhausted and the honest-goldens rule forbids
+shipping speculative dormant infra, so there is no "pick the next slice and land
+it on green" work today. What remains:
+
+1. **Owner-gated provisioning** — live prod (item 4: Railway service + runtime
+   secrets), the data safety net (item 5: `BACKUP_ENABLED=true` + backup
+   secret/retention), and the AI / btd6 access gates (OWNER-DECISIONS rows
+   26–27: `ANTHROPIC_API_KEY` / NK data account). None is an agent action.
+2. **Design engines awaiting a real consumer or owner-go** — D4 observability,
+   D5 e2e/live-guild harness, R resilience/delivery hardening. Build the moment a
+   real consumer or an owner go-ahead arrives; the reversible design postures are
+   pre-recorded in the decisions ledger (the 2026-07-20 owner-agenda-audit entry)
+   so the next Project inherits the answers. D2 (minigame framework) is DEFERRED
+   until a 2nd real-time minigame; B10 route-origin until a 2nd consumer (both
+   deferred, in the ledger). Decision ids are stamped once, in
+   [`docs/decisions.md`](decisions.md).
+3. **One routed cleanup** — the xp `_record_import` negative-level guard
+   remove-vs-make-reachable call stays **OWNER-ROUTED** (a product call, see
+   Cleanup leads below), not an autonomous slice.
 
 ## Cleanup leads
 

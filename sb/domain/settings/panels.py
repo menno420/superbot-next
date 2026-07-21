@@ -41,13 +41,17 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
 * the group SELECT NAVIGATES read-only (``settings.open_group``): it
   opens the group's read-only operator-spine hub when one is ensured
   (welcome/counters/security/automod/image_moderation — the shipped
-  SettingsHubView group-select navigation, as a read subset), and lands
-  on the honest pending terminal for every other group; the per-group
-  scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
-  settings-mutation slice's port;
-* the per-group mutation page (``settings_subsystem.*``) stays the
-  settings-mutation slice's port (the honest ``settings.group_pending``
-  terminal — sb/domain/settings/handlers.py).
+  SettingsHubView group-select navigation, as a read subset), the
+  ``games`` dedicated panel, and — for every OTHER (non-hub) group — the
+  ported per-group scalar EDIT page ``settings.group_edit`` (settings
+  epic S0, owner ruling option A);
+* the per-group EDIT page (``settings.group_edit``) is the ported
+  ``SubsystemSettingsView`` frame (settings epic S0): the read embed +
+  the windowed edit/reset selects + Back-to-Hub / Open-Panel nav; S0
+  wires the S1 bool toggle end to end over the K7 ``settings.set_scalar``
+  / ``clear_scalar`` lanes, with the per-type widgets (enum / number /
+  text / channel / role / presets) landing as slices S2–S7. It replaces
+  the retired ``settings.group_pending`` terminal for the non-hub groups.
   The EXPLORER'S six controls are ARMED (curation rows 82-87):
   subsystem/scope selects, Explain, Reset and the page-turn pair drive
   the governance diagnostic read seam
@@ -76,6 +80,7 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
+from sb.spec.outcomes import DeferMode, ReplyVisibility
 from sb.spec.panels import (
     ActionStyle,
     Audience,
@@ -83,6 +88,9 @@ from sb.spec.panels import (
     FieldsBlock,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalFieldStyle,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -106,6 +114,12 @@ __all__ = [
     "settings_access_spec",
     "settings_audit_spec",
     "settings_command_access_spec",
+    "settings_group_edit_channel_spec",
+    "settings_group_edit_presets_spec",
+    "settings_group_edit_enum_spec",
+    "settings_group_edit_number_spec",
+    "settings_group_edit_text_spec",
+    "settings_group_edit_spec",
     "settings_hub_spec",
     "settings_invalid_spec",
     "settings_missing_bindings_spec",
@@ -972,12 +986,39 @@ def _format_channel_list(channel_ids: frozenset[int]) -> str:
     return rendered
 
 
+def _format_role_gates(
+        channel_role_sets: dict[int, frozenset[int]]) -> str:
+    """Render the snapshot's per-channel role gates (Slice 1's
+    ``channel_role_sets`` — ``{channel_id: frozenset(role_id, …)}``) as one
+    ``<#channel> — <@&role> …`` line per configured channel, sorted for a
+    stable render (the K6 ``role_not_held`` gate's DB truth, made visible).
+    Same 950-char truncation guard as ``_format_channel_list`` so the
+    1024-cap field never fails."""
+    if not channel_role_sets:
+        return "*(none configured — no per-channel role gate)*"
+    lines = []
+    for cid in sorted(channel_role_sets):
+        roles = channel_role_sets[cid]
+        if roles:
+            mentions = " ".join(f"<@&{rid}>" for rid in sorted(roles))
+            lines.append(f"<#{cid}> — {mentions}")
+        else:
+            lines.append(f"<#{cid}> — *(cleared)*")
+    rendered = "\n".join(lines)
+    if len(rendered) > 950:
+        head = "\n".join(lines[:15])
+        return f"{head}\n… (+{len(lines) - 15} more)"
+    return rendered
+
+
 async def _command_access_fields(ctx) -> tuple[tuple[str, str], ...]:
     """The shipped Command-Access body (build_command_access_embed):
     no-guild placeholder → the live policy read (the K8 reader's cached
     ``read_policy_snapshot`` — the write lanes forget the cache post-
     commit, so a refresh reads fresh) → Current mode + Allowed channels
-    (+ the Recovery field in the disabled mode), copy verbatim. The
+    + Role gates (D3 M1 slice 2 — the snapshot's per-channel role-sets,
+    the K6 ``role_not_held`` gate's DB truth made visible) (+ the Recovery
+    field in the disabled mode), copy verbatim for the shipped fields. The
     shipped Delete-blocked-commands field is the ledgered under-port
     (no store column here — the section comment)."""
     guild_id = int(getattr(ctx, "guild_id", 0) or 0)
@@ -999,6 +1040,8 @@ async def _command_access_fields(ctx) -> tuple[tuple[str, str], ...]:
         ("Current mode", f"**{mode_label}**\n{mode_description}"),
         (f"Allowed channels ({len(snapshot.allowed_channels)})",
          _format_channel_list(snapshot.allowed_channels)),
+        (f"Role gates ({len(snapshot.channel_role_sets)})",
+         _format_role_gates(snapshot.channel_role_sets)),
     ]
     if snapshot.mode == "disabled_except_bootstrap":
         fields.append(("Recovery", _CA_RECOVERY))
@@ -1026,6 +1069,18 @@ def settings_command_access_spec() -> PanelSpec:
                 min_values=0, max_values=25,
                 placeholder="Set allowed channels (selected_channels "
                             "mode)…",
+                audience_tier="administrator"),
+            # D3 M1 slice 2 — the per-channel role-gate editor. Native
+            # RoleSelect (component type 6). Current-channel-bound: it
+            # writes THIS channel's role set (the handler reads
+            # req.channel_id), keeping the panel's stateless "DB snapshot
+            # IS the state" model (no session dict). min 0 / max 25 — a
+            # blank selection CLEARS this channel's gate (allow_empty).
+            SelectorSpec(
+                selector_id="ca_channel_roles", kind=SelectorKind.ROLE,
+                on_select=HandlerRef("settings.ca_channel_roles"),
+                min_values=0, max_values=25,
+                placeholder="Set THIS channel's role gate (blank clears)…",
                 audience_tier="administrator"),
         ),
         actions=(
@@ -1070,6 +1125,7 @@ def settings_command_access_spec() -> PanelSpec:
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("ca_all_channels", "ca_selected_channels", "ca_disabled"),
             ("ca_channels",),
+            ("ca_channel_roles",),
             ("command_access_back",),
         )),)),
     )
@@ -1355,6 +1411,1045 @@ async def _render_access(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed, components=tuple(components))
 
 
+# --- the ported per-group scalar EDIT page (settings epic S0) ------------------------
+#
+# Oracle-verbatim port of the shipped SubsystemSettingsView frame
+# (disbot/views/settings/subsystem_view.py @ menno420/superbot f87fa508 —
+# build_subsystem_embed + the S6 edit/reset windowed selects + the
+# Back-to-Hub / Open-Panel nav). Owner ruling option A
+# (docs/question-router.md → Answered, 2026-07-18): this page replaces the
+# honest `settings.group_pending` terminal for the NON-HUB groups only; the
+# 5 operator-spine hub groups keep their read-only `<group>.hub` and the
+# `games` panel arm is untouched (settings.open_group's first two arms).
+#
+# The selected group rides the session-minted component args (the engine's
+# `_mint_ephemeral` bakes the opening request's args onto every minted
+# child) — the running selection needs no parallel session dict: it flows
+# through ctx.params on open, and the refresh handler re-supplies it from
+# the click's args. S0 wires ONLY the bool toggle (S1) end to end; every
+# other value type degrades to an honest "widget ports in a later slice"
+# terminal rather than a dead control (S2–S7 add the per-type widgets).
+
+#: the shipped subsystem-page field-value cap (subsystem_view.py
+#: _FIELD_VALUE_CAP), applied before the grammar's own 1024 clamp.
+_GROUP_EDIT_FIELD_CAP = 1000
+
+#: the running-selection param key (threaded through ctx.params on open and
+#: the session refresh — the group is never a raw KV read, only a nav axis).
+GROUP_EDIT_PARAM = "group_edit_group"
+
+#: the enum-widget's setting-name axis (settings epic S2): the enum picker
+#: (settings.group_edit_enum) is opened from the group_edit Edit select with
+#: BOTH the group (GROUP_EDIT_PARAM) and the picked setting name baked onto
+#: its session-minted child args, so a value click carries its (group, name)
+#: page context — the S0 minted-child convention, one axis further.
+GROUP_EDIT_SETTING_PARAM = "group_edit_setting"
+
+
+def _truncate_group(text: str, *, limit: int = _GROUP_EDIT_FIELD_CAP) -> str:
+    """The oracle _truncate (subsystem_view.py) — the shipped 1000-char cap
+    with the trailing ellipsis (the grammar's 1024 clamp then never fires)."""
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1] + "…"
+
+
+def _group_manifest(group: str):
+    """The SubsystemManifest for a settings group key (the ONE manifest
+    inventory walk — the _iter_settings_facets seam), or None."""
+    for key, manifest in _iter_settings_facets():
+        if key == group:
+            return manifest
+    return None
+
+
+def _group_editable_specs(group: str) -> tuple:
+    """The group's editable SettingSpecs — the oracle _editable_specs subset
+    (those carrying a persisted settings_key), in declaration order."""
+    from sb.spec.settings import SettingSpec
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return ()
+    return tuple(s for s in getattr(manifest, "settings", ()) or ()
+                 if isinstance(s, SettingSpec) and s.settings_key)
+
+
+def _group_edit_spec(group: str, name: str):
+    """The editable SettingSpec for (group, name), or None — the handlers'
+    dispatch lookup (the oracle dispatch_edit_setting spec resolution)."""
+    for spec in _group_editable_specs(group):
+        if spec.name == name:
+            return spec
+    return None
+
+
+def _group_meta(group: str) -> dict:
+    """(emoji, display, description, tier) — the oracle SUBSYSTEMS meta read,
+    re-sourced onto the port's two registries: the shipped hub roster
+    (_HUB_GROUPS) carries emoji/label/description; the governance registry
+    carries the visibility tier (the _access_page2_options precedent)."""
+    curated = {value: (label, emoji, description)
+               for value, label, emoji, description in _HUB_GROUPS}
+    label, emoji, description = curated.get(
+        group, (group.replace("_", " ").title(), "⚙️", ""))
+    from sb.domain.governance.registry import SUBSYSTEM_META
+
+    tier = str((SUBSYSTEM_META.get(group) or {}).get("visibility_tier", "—"))
+    return {"emoji": emoji or "⚙️", "display": label,
+            "description": description, "tier": tier}
+
+
+async def _group_scalar_lines(guild_id: int | None, group: str) -> list[str]:
+    """The oracle _resolve_settings_block: one rendered line per declared
+    SettingSpec resolved through the K7 typed read (per-guild effective
+    value + provenance + validity + default); DM shows the declared default
+    only (the shipped no-guild-context line)."""
+    from sb.spec.settings import SettingSpec
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return []
+    specs = [s for s in getattr(manifest, "settings", ()) or ()
+             if isinstance(s, SettingSpec)]
+    if not specs:
+        return []
+    lines: list[str] = []
+    if guild_id is None:
+        for spec in specs:
+            lines.append(
+                f"`{spec.name}` — type=`{spec.value_type}` "
+                f"default=`{spec.default!r}` *(no guild context)*")
+        return lines
+    from sb.domain.settings import service as settings_service
+
+    for spec in specs:
+        try:
+            resolution = await settings_service.resolve_setting(
+                guild_id, group, spec.name, spec=spec)
+        except Exception as exc:  # noqa: BLE001 — fail-soft per panel field
+            lines.append(f"`{spec.name}` — ❌ resolver raised "
+                         f"{type(exc).__name__}: {exc!s:.80}")
+            continue
+        if resolution is None:
+            lines.append(f"`{spec.name}` — *(resolver returned None)*")
+            continue
+        validity = "valid" if resolution.valid else "**invalid**"
+        lines.append(
+            f"`{spec.name}` = `{resolution.value!r}` "
+            f"(`{resolution.provenance}`, "
+            f"default=`{resolution.default!r}`, {validity})")
+    return lines
+
+
+def _group_binding_lines(group: str) -> list[str]:
+    """The oracle _bindings_block: declared BindingSpecs (kind + required +
+    capability), read-only — the bind control is a later slice."""
+    from sb.spec.settings import BindingSpec
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return []
+    out: list[str] = []
+    for spec in getattr(manifest, "settings", ()) or ():
+        if not isinstance(spec, BindingSpec):
+            continue
+        required = "required" if spec.required else "optional"
+        cap = (f"cap=`{spec.capability_required}`"
+               if getattr(spec, "capability_required", "") else "")
+        out.append(
+            f"`{spec.name}` — kind=`{spec.kind.value}` ({required}) "
+            f"{cap}".rstrip())
+    return out
+
+
+def _group_resource_lines(group: str) -> list[str]:
+    """The oracle _resources_block: declared ResourceRequirements (kind +
+    priority + suggested name + binding cross-link), read-only."""
+    from sb.spec.settings import ResourceRequirement
+
+    manifest = _group_manifest(group)
+    if manifest is None:
+        return []
+    out: list[str] = []
+    for req in getattr(manifest, "settings", ()) or ():
+        if not isinstance(req, ResourceRequirement):
+            continue
+        suggested = (f" → `{req.provisioning.suggested_name}`"
+                     if getattr(req.provisioning, "suggested_name", "")
+                     else "")
+        out.append(
+            f"`{req.intent}` — kind=`{req.kind.value}` "
+            f"priority=`{req.provisioning.priority.value}`{suggested} "
+            f"(binding=`{req.binding_name}`)")
+    return out
+
+
+async def _group_edit_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The oracle build_subsystem_embed body: the Scalar-settings block
+    (declared SettingSpecs resolved per guild), then the declared Bindings
+    and Provisionable-resources blocks. The group rides ctx.params (open) /
+    the session refresh params; an expired session degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    if not group:
+        return (("Scalar settings",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    fields: list[tuple[str, str]] = []
+    setting_lines = await _group_scalar_lines(guild_id, group)
+    fields.append(
+        ("Scalar settings",
+         _truncate_group("\n".join(setting_lines)) if setting_lines
+         else "*none declared*"))
+    binding_lines = _group_binding_lines(group)
+    if binding_lines:
+        fields.append(("Bindings",
+                       _truncate_group("\n".join(binding_lines))))
+    resource_lines = _group_resource_lines(group)
+    if resource_lines:
+        fields.append(("Provisionable resources",
+                       _truncate_group("\n".join(resource_lines))))
+    return tuple(fields)
+
+
+async def _group_edit_edit_options(ctx) -> tuple[dict, ...]:
+    """The oracle _attach_edit_select options: one rich option per editable
+    SettingSpec (label = the name, description = its value type). The group
+    rides ctx.params; the windowed engine pages a >25-spec group."""
+    group = str(dict(getattr(ctx, "params", {}) or {}).get(
+        GROUP_EDIT_PARAM) or "")
+    return tuple(
+        {"value": spec.name, "label": spec.name[:100],
+         "description": f"type={spec.value_type}"[:100]}
+        for spec in _group_editable_specs(group))
+
+
+async def _group_edit_reset_options(ctx) -> tuple[dict, ...]:
+    """The oracle _attach_reset_select options: one rich option per editable
+    SettingSpec (label = "Reset <name>", description = its declared
+    default)."""
+    group = str(dict(getattr(ctx, "params", {}) or {}).get(
+        GROUP_EDIT_PARAM) or "")
+    return tuple(
+        {"value": spec.name, "label": f"Reset {spec.name}"[:100],
+         "description": f"default={spec.default!r}"[:100]}
+        for spec in _group_editable_specs(group))
+
+
+# --- the ported enum-select edit widget (settings epic S2) --------------------------
+#
+# The oracle dispatch_edit_setting routed a `str` setting that declares
+# `allowed_values` to build_enum_select_view (disbot/views/settings/
+# edit_enum.py @ f87fa508): a windowed select of the allowed members with the
+# current value pre-marked, whose pick wrote through the audited mutation
+# pipeline. Here that select is its own session-view panel
+# (settings.group_edit_enum), opened from the group_edit Edit select when the
+# picked spec is enum-shaped; the group AND the picked setting name ride the
+# session-minted child args (GROUP_EDIT_PARAM / GROUP_EDIT_SETTING_PARAM), so
+# a value click carries its (group, name) context with no parallel session
+# dict. The chosen member commits through the LIVE K7 settings.set_scalar lane
+# (no new op) and the picker refreshes in place showing the new current.
+
+
+def _is_enum_spec(spec) -> bool:
+    """The oracle enum-dispatch predicate (dispatch_edit_setting): a `str`
+    scalar that declares a non-empty `allowed_values` set renders a select."""
+    return (spec is not None and str(spec.value_type) == "str"
+            and bool(getattr(spec, "allowed_values", ())))
+
+
+async def _group_edit_current(guild_id: int | None, group: str, name: str,
+                              spec) -> object:
+    """The setting's current effective value (the oracle dispatch_edit_setting
+    `current = resolution.value` read): the per-guild resolved value through
+    the K7 typed read seam, or the declared default in DM / on a resolver
+    miss."""
+    current = getattr(spec, "default", None)
+    if guild_id is None:
+        return current
+    try:
+        from sb.domain.settings import service as settings_service
+
+        resolution = await settings_service.resolve_setting(
+            guild_id, group, name, spec=spec)
+    except Exception:  # noqa: BLE001 — fail-soft to the declared default
+        return current
+    if resolution is not None:
+        return resolution.value
+    return current
+
+
+async def _group_edit_enum_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The enum picker's read block — names the setting under edit and its
+    current effective value (the oracle ephemeral prompt copy: 'Pick a new
+    value for `{subsystem}.{name}`'). An expired session degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`\n"
+             f"Pick a new value from the select below."),)
+
+
+async def _group_edit_enum_options(ctx) -> tuple[dict, ...]:
+    """The oracle build_enum_select_view options: one option per declared
+    allowed value, the current value pre-marked (`default=True`, description
+    'current'). The group + setting ride ctx.params; the windowed engine pages
+    an >25-member enum instead of front-truncating (the #1040 class)."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not _is_enum_spec(spec):
+        return ()
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    options: list[dict] = []
+    for value in spec.allowed_values:
+        label = str(value)[:100]
+        is_current = str(value) == str(current)
+        option: dict = {"value": label, "label": label}
+        if is_current:
+            option["default"] = True
+            option["description"] = "current"
+        options.append(option)
+    return tuple(options)
+
+
+def settings_group_edit_enum_spec() -> PanelSpec:
+    """The enum-select edit widget (settings epic S2) — a windowed select of a
+    setting's declared `allowed_values`, opened from the group_edit Edit select
+    for an enum-shaped scalar. A pick commits through settings.set_scalar; the
+    Back button re-opens the group's edit page (the group rides its args)."""
+    return PanelSpec(
+        panel_id="settings.group_edit_enum",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_enum_fields")),),
+        selectors=(
+            # the shipped windowed enum select (edit_enum.py
+            # build_enum_select_view over PaginatedSelectView): options are
+            # the declared allowed_values (provider-fed, current pre-marked),
+            # windowed past 25 (the #1040 class). A pick commits through
+            # settings.set_scalar (settings.group_edit_enum_pick).
+            SelectorSpec(
+                selector_id="enum_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef(
+                    "settings.group_edit_enum_options"),
+                placeholder="Pick a new value…",
+                empty_state="No choices declared for this setting…",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_enum_pick")),
+        ),
+        actions=(
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand.
+            PanelActionSpec(
+                action_id="enum_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_enum_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("enum_select",),
+            ("enum_back",),
+        )),)),
+    )
+
+
+# --- the ported channel-select edit widget (settings epic S5) -----------------------
+#
+# The oracle dispatch_edit_setting checked input_hint FIRST (channel → role →
+# numeric_presets → value_type fallback), routing a `channel`-hinted setting to
+# the ChannelSettingSelectView (disbot/views/settings/edit_channel.py @
+# f87fa508): a native ChannelSelect + Clear button whose pick wrote the chosen
+# channel id through the audited mutation pipeline. Here that select is its own
+# session-view child (settings.group_edit_channel), opened from the group_edit
+# Edit select when the picked spec is channel-hinted; the group AND the picked
+# setting name ride the session-minted child args (GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM), so a value click carries its (group, name) context
+# with no parallel session dict. PORT DEVIATION: the oracle's native
+# ChannelSelect renders as a windowed provider-fed ENUM select over the
+# channel-directory roster (the port-frame convention — provider options paged
+# past Discord's 25-option ceiling via selectwindow.py, which the native picker
+# cannot window; the channel-cog `_channel_options` precedent), and clearing
+# rides the shared type-agnostic S0 reset select (settings.clear_scalar) rather
+# than a per-widget Clear button (the S2 enum posture). The chosen channel id
+# commits through the LIVE K7 settings.set_scalar lane (no new op) and the
+# picker refreshes in place showing the new current.
+
+
+def _is_channel_spec(spec) -> bool:
+    """The oracle channel-dispatch predicate (dispatch_edit_setting checks
+    input_hint FIRST): a scalar declaring ``input_hint == "channel"`` pops the
+    channel picker — regardless of value_type (a channel key is a Discord
+    channel id, declared `int` today but stored as the scalar string). Routed
+    BEFORE the number/enum/text arms so a channel-hinted `int` does NOT
+    misroute to the S3 number modal."""
+    if spec is None:
+        return False
+    hint = str(getattr(spec, "input_hint", "") or "").strip().lower()
+    return hint == "channel"
+
+
+async def _group_edit_channel_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The channel picker's read block — names the setting under edit and its
+    current effective value (the oracle ephemeral prompt copy: 'Pick a channel
+    for `{subsystem}.{name}` (current=…)'). An expired session degrades
+    honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    current_line = (f"current = <#{current}>" if str(current or "").isdigit()
+                    and str(current) != "0" else f"current = `{current!r}`")
+    return ((f"Editing `{group}.{name}`",
+             f"{current_line}  ·  default = `{spec.default!r}`\n"
+             f"Pick a channel from the select below."),)
+
+
+async def _group_edit_channel_options(ctx) -> tuple[dict, ...]:
+    """The oracle ChannelSettingSelectView roster, rendered as provider-fed
+    windowed options: one option per guild text channel (the channel-directory
+    READ seam — the channel-cog `_channel_options` shape), the current channel
+    pre-marked (`default=True`, description 'current'). The group + setting ride
+    ctx.params; the windowed engine pages a >25-channel guild instead of
+    front-truncating. An unarmed directory (DM / headless) degrades to the
+    selector's empty state, never a crash."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not _is_channel_spec(spec):
+        return ()
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    if guild_id is None:
+        return ()
+    current = await _group_edit_current(guild_id, group, name, spec)
+    current_id = str(current or "")
+    from sb.domain.channel import service as channel_service
+
+    try:
+        snaps = await channel_service.active_directory().list_channels(
+            int(guild_id))
+    except RuntimeError:
+        return ()
+    except Exception:  # noqa: BLE001 — unarmed/failed directory ⇒ empty state
+        return ()
+    options: list[dict] = []
+    for snap in snaps:
+        if getattr(snap, "kind", "text") == "category":
+            continue
+        cid = str(snap.channel_id)
+        option: dict = {"value": cid, "label": f"#{snap.name}"[:100],
+                        "description": f"ID: {cid}"[:100]}
+        if cid == current_id:
+            option["default"] = True
+            option["description"] = "current"
+        options.append(option)
+    return tuple(options)
+
+
+def settings_group_edit_channel_spec() -> PanelSpec:
+    """The channel-select edit widget (settings epic S5) — a windowed component
+    select of the guild's channels, opened from the group_edit Edit select for
+    a channel-hinted scalar (`input_hint="channel"`). A pick commits the chosen
+    channel id through settings.set_scalar; the Back button re-opens the group's
+    edit page (the group rides its args)."""
+    return PanelSpec(
+        panel_id="settings.group_edit_channel",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_channel_fields")),),
+        selectors=(
+            # the shipped windowed channel select (the oracle
+            # ChannelSettingSelectView rendered as a provider-fed windowed ENUM
+            # select — the channel-cog roster shape): options are the guild's
+            # channels (provider-fed, current pre-marked), windowed past 25. A
+            # pick commits through settings.set_scalar
+            # (settings.group_edit_channel_pick).
+            SelectorSpec(
+                selector_id="channel_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef(
+                    "settings.group_edit_channel_options"),
+                placeholder="Pick a channel…",
+                empty_state="No channels available (directory unarmed).",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_channel_pick")),
+        ),
+        actions=(
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the enum_back twin).
+            PanelActionSpec(
+                action_id="channel_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_channel_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / enum precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("channel_select",),
+            ("channel_back",),
+        )),)),
+    )
+
+
+# --- the ported numeric-presets quick-set widget (settings epic S7) -----------------
+#
+# The oracle dispatch_edit_setting checked input_hint FIRST (channel → role →
+# numeric_presets → value_type fallback), routing a `numeric_presets`-hinted
+# setting that declares a `presets` tuple to the NumericPresetsView
+# (disbot/views/settings/edit_number_presets.py @ f87fa508): a row of quick-set
+# buttons (one per preset value) + an Override… button whose click wrote the
+# fixed value through the audited mutation pipeline. Here that widget is its own
+# session-view child (settings.group_edit_presets), opened from the group_edit
+# Edit select when the picked spec is presets-hinted; the group AND the picked
+# setting name ride the session-minted child args (GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM), so a preset click carries its (group, name) context
+# with no parallel session dict. Each preset button is a static PanelActionSpec
+# slot (pval_0 … pval_{N-1}); the renderer override relabels the first
+# len(presets) slots with their preset value (the current value marked PRIMARY),
+# drops the surplus slots, and leaves the Back button — the _render_access
+# dynamic-component posture (this grammar renders buttons from declared actions,
+# so the per-setting preset labels ride the override, never the static spec). A
+# preset click commits its fixed value through the LIVE K7 settings.set_scalar
+# lane (no new op) and the widget refreshes in place. PORT DEVIATION (flagged):
+# the oracle's Override… button (which reopened the free-form NumberSettingModal
+# for an arbitrary value) is a deliberate UNDER-PORT — carrying it would need
+# either a new ModalSpec custom_id (compat-frozen §5.3 drift, which this slice
+# avoids by design) or reusing the S3 number modal across two panels (submit
+# routing ambiguity); the arbitrary-value path is a follow-up. Clearing rides
+# the shared type-agnostic S0 reset select (settings.clear_scalar), the S2/S5
+# posture.
+
+#: the static preset-button slot cap — enough to cover every real presets
+#: setting (xp.xp_cooldown declares the most at 6), with headroom, and within
+#: Discord's 5×5 component grid (two rows of 5 + the Back row). The renderer
+#: override renders exactly len(spec.presets) buttons and drops the rest; a
+#: setting declaring more than this cap renders the first _PRESETS_MAX_BUTTONS
+#: (the surplus is a follow-up, never a silent write of the wrong value).
+_PRESETS_MAX_BUTTONS = 10
+
+
+def _is_presets_spec(spec) -> bool:
+    """The oracle numeric-presets-dispatch predicate (dispatch_edit_setting
+    checks input_hint FIRST — the `numeric_presets` arm gates on BOTH the hint
+    and a non-empty `presets` tuple: ``if hint == "numeric_presets" and
+    spec.presets``): a scalar declaring ``input_hint == "numeric_presets"`` with
+    at least one declared preset value pops the quick-set buttons — regardless of
+    value_type (declared `int` today). Routed BEFORE the number/enum/text arms so
+    a presets-hinted `int` does NOT misroute to the S3 number modal."""
+    if spec is None:
+        return False
+    hint = str(getattr(spec, "input_hint", "") or "").strip().lower()
+    return hint == "numeric_presets" and bool(getattr(spec, "presets", ()))
+
+
+async def _group_edit_presets_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The presets widget's read block — names the setting under edit, its
+    current effective value + declared default + type, and the declared preset
+    roster (the oracle ephemeral prompt copy: 'Pick a value for `{subsystem}.
+    {name}` (current=…, default=…)'). An expired session degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    presets = tuple(getattr(spec, "presets", ()) or ())
+    roster = ", ".join(f"`{p!r}`" for p in presets) or "*none declared*"
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`  ·  "
+             f"type = `{spec.value_type}`\n"
+             f"Quick-set presets: {roster}\n"
+             f"Tap a preset button below to set that value."),)
+
+
+def _presets_button(index: int) -> PanelActionSpec:
+    """One static preset-button slot (pval_{index}) — a placeholder label the
+    renderer override relabels with the declared preset value at that index (or
+    drops when the setting declares fewer presets). Every slot dispatches to the
+    same handler; the clicked slot's index rides session_action (the access_page
+    precedent), so the handler maps it back onto spec.presets[index]."""
+    return PanelActionSpec(
+        action_id=f"pval_{index}", label=f"Preset {index + 1}",
+        style=ActionStyle.SECONDARY, audience_tier="administrator",
+        handler=HandlerRef("settings.group_edit_presets_pick"))
+
+
+def settings_group_edit_presets_spec() -> PanelSpec:
+    """The numeric-presets quick-set edit widget (settings epic S7) — a
+    session-view child rendering one quick-set button per declared preset value,
+    opened from the group_edit Edit select for a `numeric_presets`-hinted scalar.
+    A preset click commits its fixed value through settings.set_scalar; the Back
+    button re-opens the group's edit page (the group rides its args)."""
+    preset_slots = tuple(_presets_button(i) for i in range(_PRESETS_MAX_BUTTONS))
+    per_row = 5
+    preset_rows = tuple(
+        tuple(f"pval_{i}" for i in range(start, min(start + per_row,
+                                                    _PRESETS_MAX_BUTTONS)))
+        for start in range(0, _PRESETS_MAX_BUTTONS, per_row))
+    return PanelSpec(
+        panel_id="settings.group_edit_presets",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_presets_fields")),),
+        actions=(
+            *preset_slots,
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the channel_back twin).
+            PanelActionSpec(
+                action_id="presets_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_presets_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / channel precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_group_edit_presets"),
+        justification=(
+            "the shipped NumericPresetsView renders one quick-set button PER "
+            "declared preset value with the current value highlighted "
+            "(edit_number_presets.py _PresetButton) — per-setting DYNAMIC "
+            "button labels + style outside the grammar's static PanelActionSpec "
+            "label/style vocabulary (the settings-access dynamic-component "
+            "precedent: _render_access relabels/disables components in place). "
+            "The override delegates to the grammar renderer and relabels ONLY "
+            "the declared preset-button slots (dropping the surplus, marking "
+            "the current value primary); the fields, the Back action and the "
+            "layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            *preset_rows,
+            ("presets_back",),
+        )),)),
+    )
+
+
+async def _render_group_edit_presets(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped per-preset buttons (see justification):
+    relabel each declared preset-button slot with its preset value (the current
+    value marked PRIMARY), drop the slots beyond the declared preset count, and
+    leave the Back button. With no group/setting in params (a stranded render)
+    or a non-presets spec, every preset slot is dropped — only Back stands, the
+    honest degrade."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    setting = _group_edit_spec(group, name)
+    presets = (tuple(getattr(setting, "presets", ()) or ())
+               if _is_presets_spec(setting) else ())
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = (await _group_edit_current(guild_id, group, name, setting)
+               if presets else None)
+    prefix = f"{spec.panel_id}.pval_"
+    components = []
+    for comp in rendered.components:
+        cid = str(comp.custom_id)
+        if cid.startswith(prefix):
+            try:
+                index = int(cid[len(prefix):])
+            except ValueError:
+                continue
+            if index >= len(presets):
+                continue                     # drop the surplus slots
+            value = presets[index]
+            label = str(value)[:80] or "(unset)"
+            style = (ActionStyle.PRIMARY.value
+                     if str(value) == str(current)
+                     else ActionStyle.SECONDARY.value)
+            components.append(_dc_replace(comp, label=label, style=style))
+        else:
+            components.append(comp)
+    return _dc_replace(rendered, components=tuple(components))
+
+
+# --- the ported number-modal edit widget (settings epic S3) -------------------------
+#
+# The oracle dispatch_edit_setting routed an `int` / `float` setting to the
+# NumberSettingModal (disbot/views/settings/edit_number.py @ f87fa508): a
+# one-input modal whose submit coerced + validated the typed value and wrote
+# through the audited mutation pipeline. Here that modal is a G-10 declared
+# ModalSpec on its OWN session-view child panel (settings.group_edit_number),
+# opened from the group_edit Edit select when the picked spec is number-shaped.
+# A selector pick is AUTO-deferred on this engine, so a button INTERMEDIATES and
+# issues the modal (the D-0054 confirm-surface posture; the ai edit_text /
+# edit_presets Override… precedent) — the submit re-enters through the frozen
+# MODAL adapter with the (group, setting) restored from the kernel modal-args
+# stash (the opening click's session-minted args: GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM). The typed value coerces + range-validates against
+# the SettingSpec through the SAME coerce_value seam the read path uses (bounds
+# + type), then commits through the LIVE K7 settings.set_scalar lane (no new
+# op); an invalid / out-of-range entry rejects without a write.
+
+#: the shipped NumberSettingModal (edit_number.py) as the G-10 declared form.
+#: The shipped title/label/placeholder embedded the picked setting's name and
+#: live current/default reprs; ModalSpec fields are static [S] wire data (the
+#: corpus cannot pin the transient form), so the per-open current/default/range
+#: readout rides the widget page's prompt instead — the ai `_NUMBER_MODAL` /
+#: starboard `THRESHOLD_MODAL` deviation precedent (D-0063/D-0085). int and
+#: float both ride this one free-form numeric form.
+_NUMBER_MODAL = ModalSpec(
+    modal_id="settings.group_edit_number_form",
+    title="Edit a setting",
+    fields=(ModalFieldSpec(
+        field_id="number_value",
+        label="New value (a number)",        # shipped: "New value (type: <t>)"
+        placeholder="e.g. 3",
+        required=True, max_length=64),))
+
+
+def _is_number_spec(spec) -> bool:
+    """The oracle number-dispatch predicate (dispatch_edit_setting): an `int`
+    or `float` scalar pops the free-form numeric modal."""
+    return spec is not None and str(spec.value_type) in ("int", "float")
+
+
+async def _group_edit_number_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The number widget's read block — names the setting under edit, its
+    current effective value + declared default + type, and any declared numeric
+    bounds (the oracle NumberSettingModal placeholder 'current=… · default=…'
+    carried onto the page since the modal copy is static). An expired session
+    degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    bounds = getattr(spec, "bounds", None)
+    range_line = (f"\nAllowed range: `{bounds[0]}` – `{bounds[1]}`."
+                  if bounds and len(bounds) == 2 else "")
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`  ·  "
+             f"type = `{spec.value_type}`{range_line}\n"
+             f"Tap **Enter a number…** below to set a new value."),)
+
+
+def settings_group_edit_number_spec() -> PanelSpec:
+    """The number-modal edit widget (settings epic S3) — a session-view child
+    whose single button ISSUES a numeric-input modal (the ported
+    NumberSettingModal), opened from the group_edit Edit select for an int /
+    float scalar. The submit coerces + range-validates then commits through
+    settings.set_scalar; the Back button re-opens the group's edit page."""
+    return PanelSpec(
+        panel_id="settings.group_edit_number",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_number_fields")),),
+        actions=(
+            # G-10: the click ISSUES the number form; the submit re-enters
+            # through the MODAL adapter and writes on the audited K7
+            # settings.set_scalar lane (the ai edit_presets Override… /
+            # starboard threshold precedent). The (group, setting) ride the
+            # kernel modal-args stash restored at submit.
+            PanelActionSpec(
+                action_id="number_edit", label="Enter a number…",
+                emoji="🔢", style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                defer_mode=DeferMode.MODAL, modal=_NUMBER_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the
+                # submit re-entry (the ai/starboard forms all followed up
+                # ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                handler=HandlerRef("settings.group_edit_number_submit")),
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the enum_back twin).
+            PanelActionSpec(
+                action_id="number_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_number_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / enum precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("number_edit",),
+            ("number_back",),
+        )),)),
+    )
+
+
+# --- the ported free-text-modal edit widget (settings epic S4) ----------------------
+#
+# The oracle dispatch_edit_setting routed a free-form `str` setting — a `str`
+# whose `allowed_values` is empty (an enum-shaped str goes to edit_enum, S2) —
+# to the TextSettingModal (disbot/views/settings/edit_text.py @ f87fa508): a
+# one-input modal whose submit wrote the typed string through the audited
+# mutation pipeline. Here that modal is a G-10 declared ModalSpec on its OWN
+# session-view child panel (settings.group_edit_text), opened from the group_edit
+# Edit select when the picked spec is free-text-shaped. This is the S3
+# number-modal shape verbatim (child session-view + issuing button + modal-args
+# stash) for a string field: a selector pick is AUTO-deferred, so a button
+# INTERMEDIATES and issues the modal, and the submit re-enters through the frozen
+# MODAL adapter with the (group, setting) restored from the kernel modal-args
+# stash (the opening click's session-minted args: GROUP_EDIT_PARAM /
+# GROUP_EDIT_SETTING_PARAM). The submitted string is validated (non-empty + the
+# declared `bounds` max-length `(max_len,)` per the SettingSpec — coerce_value
+# does NOT apply str bounds, so the length gate lives on the submit) then commits
+# through the LIVE K7 settings.set_scalar lane (no new op); an empty / over-length
+# entry rejects without a write.
+
+#: the shipped TextSettingModal (edit_text.py) as the G-10 declared form. The
+#: shipped title/label/placeholder embedded the picked setting's name + live
+#: current/default reprs; ModalSpec fields are static [S] wire data (the corpus
+#: cannot pin the transient form), so the per-open current/default readout rides
+#: the widget page's prompt instead — the _NUMBER_MODAL deviation precedent
+#: (D-0063/D-0085). The shipped input is a paragraph (multi-line) TextInput with
+#: max_length=2000 (the wire cap; the per-setting max-length gate is enforced on
+#: the submit against the declared bounds).
+_TEXT_MODAL = ModalSpec(
+    modal_id="settings.group_edit_text_form",
+    title="Edit a setting",
+    fields=(ModalFieldSpec(
+        field_id="text_value",
+        label="New value (text)",            # shipped verbatim
+        style=ModalFieldStyle.PARAGRAPH,     # shipped: discord.TextStyle.paragraph
+        placeholder="Enter the new value…",
+        required=True, max_length=2000),))
+
+
+#: input_hints the oracle dispatch_edit_setting routes BEFORE the value_type
+#: fallback (the channel/role/presets arms — the S5–S7 widget targets). A
+#: hinted scalar is NOT free-text even when it is a str, so the S4 arm excludes
+#: them to leave those settings for their own slices.
+_POINTER_HINTS = ("channel", "role", "numeric_presets")
+
+
+def _is_text_spec(spec) -> bool:
+    """The oracle free-text-dispatch predicate (dispatch_edit_setting's FINAL
+    fallback): a `str` scalar WITHOUT declared allowed_values and WITHOUT a
+    channel/role/presets input_hint pops the free-form text modal (a str WITH
+    allowed_values is the S2 enum select; a channel/role/presets-hinted scalar
+    is routed by the S5–S7 arms first — the oracle routes input_hint before the
+    value_type fallback)."""
+    if spec is None or str(spec.value_type) != "str":
+        return False
+    if getattr(spec, "allowed_values", ()) or ():
+        return False
+    hint = str(getattr(spec, "input_hint", "") or "").strip().lower()
+    return hint not in _POINTER_HINTS
+
+
+async def _group_edit_text_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The text widget's read block — names the setting under edit, its current
+    effective value + declared default + type, and any declared max-length
+    bound (the oracle TextSettingModal placeholder 'current=… · default=…'
+    carried onto the page since the modal copy is static). An expired session
+    degrades honestly."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    group = str(params.get(GROUP_EDIT_PARAM) or "")
+    name = str(params.get(GROUP_EDIT_SETTING_PARAM) or "")
+    spec = _group_edit_spec(group, name)
+    if not group or not name or spec is None:
+        return (("Edit a setting",
+                 "*session expired — reopen the group from `!settings`*"),)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0) or None
+    current = await _group_edit_current(guild_id, group, name, spec)
+    bounds = getattr(spec, "bounds", None)
+    max_len_line = (f"\nMax length: `{bounds[0]}` characters."
+                    if bounds and len(bounds) >= 1 else "")
+    return ((f"Editing `{group}.{name}`",
+             f"current = `{current!r}`  ·  default = `{spec.default!r}`  ·  "
+             f"type = `{spec.value_type}`{max_len_line}\n"
+             f"Tap **Enter text…** below to set a new value."),)
+
+
+def settings_group_edit_text_spec() -> PanelSpec:
+    """The free-text-modal edit widget (settings epic S4) — a session-view child
+    whose single button ISSUES a free-text-input modal (the ported
+    TextSettingModal), opened from the group_edit Edit select for a
+    str-without-allowed_values scalar. The submit validates (non-empty +
+    declared max-length) then commits through settings.set_scalar; the Back
+    button re-opens the group's edit page."""
+    return PanelSpec(
+        panel_id="settings.group_edit_text",
+        subsystem="settings",
+        title="⚙️ Edit a setting",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple() (subsystem_view.py).
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(
+            provider=ProviderRef("settings.group_edit_text_fields")),),
+        actions=(
+            # G-10: the click ISSUES the text form; the submit re-enters through
+            # the MODAL adapter and writes on the audited K7 settings.set_scalar
+            # lane (the S3 number precedent). The (group, setting) ride the
+            # kernel modal-args stash restored at submit.
+            PanelActionSpec(
+                action_id="text_edit", label="Enter text…",
+                emoji="✏️", style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                defer_mode=DeferMode.MODAL, modal=_TEXT_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the submit
+                # re-entry (the text/number forms all followed up ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                handler=HandlerRef("settings.group_edit_text_submit")),
+            # ↩ Back to the group's edit page — a handler re-open (the group
+            # rides the click's args), never a strand (the number_back twin).
+            PanelActionSpec(
+                action_id="text_back", label="Back to settings", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=HandlerRef("settings.group_edit_text_back")),
+        ),
+        # the session-view exemption takes the never-strand fence (the
+        # group_edit / number precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("text_edit",),
+            ("text_back",),
+        )),)),
+    )
+
+
+def settings_group_edit_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.group_edit",
+        subsystem="settings",
+        # the per-group title (`{emoji} {display}`) is stamped by the
+        # renderer override; this static title is the pre-group placeholder.
+        title="⚙️ Settings",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple().
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(provider=ProviderRef("settings.group_edit_fields")),),
+        selectors=(
+            # the shipped windowed "Edit a setting…" picker (#1040 class):
+            # picking a setting dispatches by its value type
+            # (settings.group_edit_pick). Options are provider-fed (the
+            # editable-spec set is per-group), windowed past 25.
+            SelectorSpec(
+                selector_id="edit_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef("settings.group_edit_edit_options"),
+                placeholder="Edit a setting…",
+                empty_state="No editable settings in this group…",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_pick")),
+            # the shipped windowed "Reset a setting…" picker.
+            SelectorSpec(
+                selector_id="reset_select", kind=SelectorKind.ENUM,
+                options_source=ProviderRef(
+                    "settings.group_edit_reset_options"),
+                placeholder="Reset a setting to its default…",
+                empty_state="No settings to reset in this group…",
+                audience_tier="administrator", windowed=True,
+                on_select=HandlerRef("settings.group_edit_reset")),
+        ),
+        actions=(
+            # the shipped Open-Panel button (subsystem_view.py
+            # _OpenRelatedPanelButton) — the oracle's no-panel fallback
+            # here (non-hub groups have no dedicated operator panel; the
+            # dedicated route lands with the group's own panel slice).
+            PanelActionSpec(
+                action_id="group_open_panel", label="Open Panel",
+                emoji="🪟", style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.group_open_panel")),
+            # the shipped ↩ Back to Hub button — a PanelRef open-child
+            # terminal back to the hub (the diagnostics' back precedent).
+            PanelActionSpec(
+                action_id="group_back", label="Back to Hub", emoji="↩",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=PanelRef("settings.hub")),
+        ),
+        # the shipped page carried no standard nav row; the session-view
+        # exemption takes the never-strand fence (the hub precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_group_edit"),
+        justification=(
+            "the shipped SubsystemSettingsView header is per-group DYNAMIC "
+            "copy (subsystem_view.py build_subsystem_embed): the "
+            "'{emoji} {display}' title, the '_desc_ · visibility tier · "
+            "subsystem key' description, and the 'Scalar edit + reset "
+            "live · use the selects below.  guild_id={id}' footer are all "
+            "keyed on the selected group — outside the grammar's static "
+            "title / FooterMode vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer and "
+            "stamps ONLY those three header surfaces; the scalar/binding/"
+            "resource fields, selectors, actions and layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("edit_select",),
+            ("reset_select",),
+            ("group_open_panel", "group_back"),
+        )),)),
+    )
+
+
+async def _render_group_edit(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped per-group header (see justification):
+    the title, tier/key description, and guild-keyed footer, keyed on the
+    selected group in ctx.params. With no group in params (a stranded
+    render) the grammar bytes stand unchanged."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    group = str(dict(getattr(ctx, "params", {}) or {}).get(
+        GROUP_EDIT_PARAM) or "")
+    if not group:
+        return rendered
+    meta = _group_meta(group)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    title = f"{meta['emoji']} {meta['display']}"
+    description = (f"_{meta['description']}_\n"
+                  f"visibility tier: `{meta['tier']}`  ·  "
+                  f"subsystem key: `{group}`")
+    footer = ("Scalar edit + reset live · use the selects below.  "
+              f"guild_id={guild_id if guild_id else 'DM'}")
+    return _dc_replace(rendered, embed=_dc_replace(
+        rendered.embed, title=title, description=description, footer=footer))
+
+
 # --- registration -----------------------------------------------------------------
 
 def _register_refs() -> None:
@@ -1374,6 +2469,18 @@ def _register_refs() -> None:
         panel("settings.audit")(settings_audit_spec)
     if not is_registered(PanelRef("settings.command_access")):
         panel("settings.command_access")(settings_command_access_spec)
+    if not is_registered(PanelRef("settings.group_edit")):
+        panel("settings.group_edit")(settings_group_edit_spec)
+    if not is_registered(PanelRef("settings.group_edit_enum")):
+        panel("settings.group_edit_enum")(settings_group_edit_enum_spec)
+    if not is_registered(PanelRef("settings.group_edit_number")):
+        panel("settings.group_edit_number")(settings_group_edit_number_spec)
+    if not is_registered(PanelRef("settings.group_edit_text")):
+        panel("settings.group_edit_text")(settings_group_edit_text_spec)
+    if not is_registered(PanelRef("settings.group_edit_channel")):
+        panel("settings.group_edit_channel")(settings_group_edit_channel_spec)
+    if not is_registered(PanelRef("settings.group_edit_presets")):
+        panel("settings.group_edit_presets")(settings_group_edit_presets_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -1386,6 +2493,11 @@ def _register_refs() -> None:
         handler("settings.render_audit")(_render_audit)
     if not is_registered(HandlerRef("settings.render_command_access")):
         handler("settings.render_command_access")(_render_command_access)
+    if not is_registered(HandlerRef("settings.render_group_edit")):
+        handler("settings.render_group_edit")(_render_group_edit)
+    if not is_registered(HandlerRef("settings.render_group_edit_presets")):
+        handler("settings.render_group_edit_presets")(
+            _render_group_edit_presets)
     if not is_registered(ProviderRef("settings.hub_fields")):
         provider("settings.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("settings.access_fields")):
@@ -1400,6 +2512,29 @@ def _register_refs() -> None:
         provider("settings.audit_fields")(_audit_fields)
     if not is_registered(ProviderRef("settings.command_access_fields")):
         provider("settings.command_access_fields")(_command_access_fields)
+    if not is_registered(ProviderRef("settings.group_edit_fields")):
+        provider("settings.group_edit_fields")(_group_edit_fields)
+    if not is_registered(ProviderRef("settings.group_edit_edit_options")):
+        provider("settings.group_edit_edit_options")(_group_edit_edit_options)
+    if not is_registered(ProviderRef("settings.group_edit_reset_options")):
+        provider("settings.group_edit_reset_options")(_group_edit_reset_options)
+    if not is_registered(ProviderRef("settings.group_edit_enum_fields")):
+        provider("settings.group_edit_enum_fields")(_group_edit_enum_fields)
+    if not is_registered(ProviderRef("settings.group_edit_enum_options")):
+        provider("settings.group_edit_enum_options")(_group_edit_enum_options)
+    if not is_registered(ProviderRef("settings.group_edit_number_fields")):
+        provider("settings.group_edit_number_fields")(_group_edit_number_fields)
+    if not is_registered(ProviderRef("settings.group_edit_text_fields")):
+        provider("settings.group_edit_text_fields")(_group_edit_text_fields)
+    if not is_registered(ProviderRef("settings.group_edit_channel_fields")):
+        provider("settings.group_edit_channel_fields")(
+            _group_edit_channel_fields)
+    if not is_registered(ProviderRef("settings.group_edit_channel_options")):
+        provider("settings.group_edit_channel_options")(
+            _group_edit_channel_options)
+    if not is_registered(ProviderRef("settings.group_edit_presets_fields")):
+        provider("settings.group_edit_presets_fields")(
+            _group_edit_presets_fields)
 
 
 _register_refs()
@@ -1413,7 +2548,12 @@ def install_settings_panels() -> PanelSpec:
     hub = settings_hub_spec()
     for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
                  settings_invalid_spec(), settings_missing_bindings_spec(),
-                 settings_audit_spec(), settings_command_access_spec()):
+                 settings_audit_spec(), settings_command_access_spec(),
+                 settings_group_edit_spec(), settings_group_edit_enum_spec(),
+                 settings_group_edit_number_spec(),
+                 settings_group_edit_text_spec(),
+                 settings_group_edit_channel_spec(),
+                 settings_group_edit_presets_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:

@@ -1,1 +1,0 @@
-- `claude/test-depth-role` · **test-depth coverage for sb/domain/role: deleterole feasibility gate ladder, reactroles_bind/temprole refusals, 6 access-projection views, unarmed-adapter BLOCKED paths, ABOVE_ACTOR verdict, authority/audience-tier floors** · tests/unit/band5/test_band5_role_depth.py · 2026-07-18

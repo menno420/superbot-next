@@ -238,7 +238,12 @@ def test_panel_and_handler_refs_registered():
     assert is_registered(ProviderRef("settings.access_fields"))
     for name in ("settings.render_hub", "settings.render_access",
                  "settings.access_view", "settings.open_group",
-                 "settings.group_pending",
+                 # settings epic S0 — the ported per-group edit page
+                 # (settings.group_pending retired, option A).
+                 "settings.render_group_edit",
+                 "settings.group_edit_pick",
+                 "settings.group_edit_reset",
+                 "settings.group_open_panel",
                  # the ARMED explorer controls (curation rows 82-87) —
                  # the five *_pending terminals they replaced must stay
                  # retired (the sweep below).
@@ -269,7 +274,11 @@ def test_panel_and_handler_refs_registered():
                  "settings.audit_pending",
                  # the Command-Access door (settings-admin slice 3)
                  # retired its pending terminal the same way.
-                 "settings.command_access_pending"):
+                 "settings.command_access_pending",
+                 # settings epic S0 retired the LAST pending terminal —
+                 # the per-group edit page (settings.group_edit) displaced
+                 # it (option A).
+                 "settings.group_pending"):
         assert not is_registered(HandlerRef(name)), name
 
 
@@ -304,22 +313,20 @@ def test_manifest_declares_the_front_doors():
     assert [p.panel_id for p in MANIFEST.panels[2:]] == [
         "settings.needs_setup", "settings.invalid",
         "settings.missing_bindings", "settings.audit",
-        "settings.command_access"]
+        "settings.command_access", "settings.group_edit",
+        "settings.group_edit_enum", "settings.group_edit_number",
+        "settings.group_edit_text", "settings.group_edit_channel",
+        "settings.group_edit_presets"]
 
 
-def test_clicks_land_on_the_polite_pending_terminal():
-    from types import SimpleNamespace
-
+def test_no_settings_pending_terminal_remains():
     from sb.domain.settings import handlers  # noqa: F401
-    from sb.spec.outcomes import BLOCKED
-    from sb.spec.refs import HandlerRef, resolve
+    from sb.spec.refs import HandlerRef, is_registered
 
-    # the one remaining honest terminal (slice 3 armed command access;
-    # the per-group edit page is the settings-mutation slice's port).
-    reply = run(resolve(HandlerRef("settings.group_pending"))(
-        SimpleNamespace(args={}, guild_id=1)))
-    assert reply.outcome == BLOCKED
-    assert "per-group settings page" in reply.user_message
+    # settings epic S0 retired the last honest terminal — the non-hub arm
+    # now opens the ported settings.group_edit page (option A). Resolving
+    # the old ref would raise RefUnresolved; it is simply gone.
+    assert not is_registered(HandlerRef("settings.group_pending"))
 
 
 # --- the group-select read-only navigation (settings.open_group) ---------------------
@@ -327,9 +334,11 @@ def test_clicks_land_on_the_polite_pending_terminal():
 
 class TestGroupSelectNavigation:
     """The Settings-hub group select navigates read-only to a group's
-    operator-spine hub (welcome/counters/security/automod/image_moderation)
-    and lands on the pending terminal for every other group — the write
-    seam (per-group edit) is never touched (mirrors help.open_category)."""
+    operator-spine hub (welcome/counters/security/automod/image_moderation),
+    the games dedicated panel, or — for every OTHER (non-hub) group — the
+    ported per-group scalar edit page settings.group_edit (settings epic S0,
+    owner ruling option A); this handler only NAVIGATES (mirrors
+    help.open_category), the edit page's own components carry the mutations."""
 
     @staticmethod
     def _handler():
@@ -397,25 +406,32 @@ class TestGroupSelectNavigation:
 
     def test_group_without_an_operator_hub_stays_pending(self, monkeypatch):
         import sb.kernel.panels.engine as engine
-        from sb.spec.outcomes import BLOCKED
 
-        opened: list[str] = []
+        opened: list[tuple[str, dict]] = []
 
-        async def fake_open(ref, req):     # must NOT be called
-            opened.append(ref.name)
+        async def fake_open(ref, req):
+            opened.append((ref.name, dict(getattr(req, "args", {}) or {})))
 
         monkeypatch.setattr(engine, "open_panel", fake_open)
         handler = self._handler()
 
         # `moderation` has a custom action hub (ban/kick modals), NOT an
-        # operator-spine read-only hub — the select must not open it.
-        class Req:
-            args = {"values": ("moderation",)}
+        # operator-spine read-only hub — so it is a NON-HUB group and the
+        # select opens the ported per-group edit page (settings epic S0,
+        # option A), never re-homes a shipped hub route.
+        from dataclasses import dataclass, field
 
-        reply = run(handler(Req()))
-        assert reply.outcome == BLOCKED
-        assert "per-group settings page" in reply.user_message
-        assert opened == []      # read-only: no navigation, no write seam
+        @dataclass
+        class Req:
+            args: dict = field(
+                default_factory=lambda: {"values": ("moderation",)})
+
+        assert run(handler(Req())) is None      # open_panel took over
+        from sb.domain.settings.panels import GROUP_EDIT_PARAM
+
+        assert opened == [("settings.group_edit",
+                           {"values": ("moderation",),
+                            GROUP_EDIT_PARAM: "moderation"})]
 
     def test_empty_selection_stays_pending(self, monkeypatch):
         import sb.kernel.panels.engine as engine

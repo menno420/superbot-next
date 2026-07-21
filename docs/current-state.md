@@ -16,9 +16,10 @@
 
 All seven port bands built (49 subsystems, hash-pinned
 `manifest.snapshot.json`); boots to RUNNING on real PostgreSQL (CUT-1 smoke
-PASS). The unit + integration suite is **3,160 passed / 29 skipped**
-(`python3 -m pytest tests/`, #501 close 2026-07-16). Golden parity is
-**full-corpus green — 523/523 goldens, 49/49 subsystems ported + kernel**
+PASS). The unit + integration suite is **3660 passed / 54 skipped**
+(`python3 -m pytest`, latest per `.sessions/2026-07-20-decision-audit.md`).
+Golden parity is
+**full-corpus green — 526/526 goldens, 49/49 subsystems ported + kernel**
 (`tools/check_parity_depth.py`); the committed-checker fleet + the six required
 named gates (`.github/workflows/named-gates.yml`) are green on main. The
 `golden-parity` **report** leg reached full-corpus parity on 2026-07-13 and stays
@@ -52,6 +53,9 @@ against them (L52) and `substrate.config.json` still points `claims_dir` →
 removal is owner-sequenced with the kit-config migration first (per the D6 #548
 plan). **The Project will be recreated** fresh after the read-only window; this repo
 (the ground-up rebuild) and its `main` are the durable artifact that carries across.
+The successor's day-1 orientation — cutover state, boot order, the deferred D6
+sequence, and the open forks — is
+[`docs/RECREATED-PROJECT-DAY1.md`](RECREATED-PROJECT-DAY1.md).
 
 Live-testing beyond bands 1–4 and the guild-effect / plugin live-drive legs remain
 human-operator runbooks
@@ -138,8 +142,8 @@ is one command —
   added, the `control/` message bus + wake-chain docs deprecation-bannered.
 - 2026-07-16/17 — conform sweep #457 (#500 — 31 non-kernel goldens re-minted to
   the canonical stripped-golden flavor, parity-depth floors narrowed), control-claim
-  retirement (#499 / #505), coordinator close-out (#503). Suite 3,160 passed /
-  29 skipped; golden-parity 523/523.
+  retirement (#499 / #505), coordinator close-out (#503). Suite 3660 passed /
+  54 skipped; golden-parity 526/526.
 - 2026-07-09 (late) — band-5 seams (#95) + worldcard Reply-shape fix and
   red-orientation docs (#97).
 - Full history: the append-only decision ledger (`docs/decisions.md`) and merged
@@ -147,9 +151,11 @@ is one command —
 
 ## Review rhythm
 
-PRs open ready with a `.sessions/` card and must be green on the six required named
-checks (code-quality, manifest-validate, architecture, sim-gate, golden-parity,
-check_compat_frozen — `.github/workflows/named-gates.yml`) before they can land.
+PRs open ready with a `.sessions/` card and must be green on the seven required
+checks — the six named gates (code-quality, manifest-validate, architecture,
+sim-gate, golden-parity, check_compat_frozen — `.github/workflows/named-gates.yml`)
+plus `pip-audit` (a separate `.github/workflows/ci.yml` job branch protection also
+requires) — before they can land.
 **Merging a green PR is normal agent work:** a PR lands when its required checks go
 green. Agents merge their own green PRs directly (MCP/REST merge), or let the in-repo
 `auto-merge-enabler.yml` land it — GitHub-native squash auto-merge is armed at PR-open

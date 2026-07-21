@@ -1,0 +1,842 @@
+{
+ "case_id": "settings.group_edit_number_write",
+ "db_delta": {
+  "settings": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "key": "warn_threshold",
+     "updated_at": "<ts>",
+     "value": "5"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1936311634,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@admin>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "settings epic S3 number modal: picking the int warn_threshold opens the number-modal widget; tapping Enter a number… issues the numeric modal and submitting `5` commits it through settings.set_scalar (the guild settings write + in-place refresh + confirm)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "settings_hub.subsystem_select",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "Member greetings, farewells, and an optional entry role",
+            "emoji": {
+             "id": null,
+             "name": "👋"
+            },
+            "label": "Welcome",
+            "value": "welcome"
+           },
+           {
+            "default": false,
+            "description": "Live member-count channels (total · humans · bots)",
+            "emoji": {
+             "id": null,
+             "name": "📊"
+            },
+            "label": "Server Counters",
+            "value": "counters"
+           },
+           {
+            "default": false,
+            "description": "Raid detection + account-age screening on member join",
+            "emoji": {
+             "id": null,
+             "name": "🛡️"
+            },
+            "label": "Server Security",
+            "value": "security"
+           },
+           {
+            "default": false,
+            "description": "Proof submission and exclusive access sessions",
+            "emoji": {
+             "id": null,
+             "name": "📋"
+            },
+            "label": "Proof Channel",
+            "value": "proof_channel"
+           },
+           {
+            "default": false,
+            "description": "Time-based and XP-based automatic role assignment",
+            "emoji": {
+             "id": null,
+             "name": "🎭"
+            },
+            "label": "Roles",
+            "value": "role"
+           },
+           {
+            "default": false,
+            "description": "Prohibited words, command deletion, channel hygiene",
+            "emoji": {
+             "id": null,
+             "name": "🧹"
+            },
+            "label": "Cleanup",
+            "value": "cleanup"
+           },
+           {
+            "default": false,
+            "description": "Spam, invite links, excessive caps, and mass-mention filtering",
+            "emoji": {
+             "id": null,
+             "name": "🛡️"
+            },
+            "label": "Automod",
+            "value": "automod"
+           },
+           {
+            "default": false,
+            "description": "Scan uploaded images for sexual, violent, harassment, or hate content",
+            "emoji": {
+             "id": null,
+             "name": "🖼️"
+            },
+            "label": "Image moderation",
+            "value": "image_moderation"
+           },
+           {
+            "default": false,
+            "description": "Warnings, timeouts, bans, mod logs",
+            "emoji": {
+             "id": null,
+             "name": "🔨"
+            },
+            "label": "Moderation",
+            "value": "moderation"
+           },
+           {
+            "default": false,
+            "description": "Per-guild moderation/cleanup event logging — channel selection, auto-create, and audit (S7)",
+            "emoji": {
+             "id": null,
+             "name": "📝"
+            },
+            "label": "Server Logging",
+            "value": "logging"
+           },
+           {
+            "default": false,
+            "description": "Read-only AI gateway diagnostics: provider state, feature flags, task routing, and request/failure c",
+            "emoji": {
+             "id": null,
+             "name": "🤖"
+            },
+            "label": "AI Platform",
+            "value": "ai"
+           },
+           {
+            "default": false,
+            "description": "Interactive help menu and command discovery",
+            "emoji": {
+             "id": null,
+             "name": "📚"
+            },
+            "label": "Help",
+            "value": "help"
+           },
+           {
+            "default": false,
+            "description": "Daily coins, work, shop, balance",
+            "emoji": {
+             "id": null,
+             "name": "💰"
+            },
+            "label": "Economy",
+            "value": "economy"
+           },
+           {
+            "default": false,
+            "description": "Experience points, levels, and leaderboards",
+            "emoji": {
+             "id": null,
+             "name": "⭐"
+            },
+            "label": "XP & Levels",
+            "value": "xp"
+           },
+           {
+            "default": false,
+            "description": "Peer reputation — thank helpful members with !thanks",
+            "emoji": {
+             "id": null,
+             "name": "✨"
+            },
+            "label": "Karma",
+            "value": "karma"
+           },
+           {
+            "default": false,
+            "description": "Blackjack card game",
+            "emoji": {
+             "id": null,
+             "name": "🃏"
+            },
+            "label": "Blackjack",
+            "value": "blackjack"
+           },
+           {
+            "default": false,
+            "description": "Deterministic Bloons Tower Defense 6 assistant — tower/hero/map lookups, round threat summaries, and",
+            "emoji": {
+             "id": null,
+             "name": "🐵"
+            },
+            "label": "BTD6 Assistant",
+            "value": "btd6"
+           },
+           {
+            "default": false,
+            "description": "1v1 duel battles",
+            "emoji": {
+             "id": null,
+             "name": "⚔️"
+            },
+            "label": "Deathmatch",
+            "value": "deathmatch"
+           },
+           {
+            "default": false,
+            "description": "Rock Paper Scissors: quick play, PvP, bot matches, tournaments",
+            "emoji": {
+             "id": null,
+             "name": "✂️"
+            },
+            "label": "Rock Paper Scissors",
+            "value": "rps_tournament"
+           },
+           {
+            "default": false,
+            "description": "Competitive games and channel activities",
+            "emoji": {
+             "id": null,
+             "name": "🎮"
+            },
+            "label": "Games",
+            "value": "games"
+           }
+          ],
+          "placeholder": "Open a settings group…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "settings_hub.needs_setup",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📋"
+          },
+          "label": "Needs setup",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "settings_hub.invalid",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "⚠️"
+          },
+          "label": "Invalid settings",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "settings_hub.missing_bindings",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🔗"
+          },
+          "label": "Missing bindings",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "settings_hub.audit",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🕒"
+          },
+          "label": "Recent changes",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "settings_hub.command_access",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🚪"
+          },
+          "label": "Command access",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 5793266,
+        "description": "Browse platform settings, bindings, resource requirements, and recent audit history.  The dropdown lists every group with something configurable (scalar edit + reset live on the group's page); use the buttons for cross-cutting diagnostics.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Inventory",
+          "value": "`groups`: 19  ·  `subsystems`: 43  ·  `schemas`: 19\n`settings`: 0  ·  `bindings`: 17  ·  `resources`: 15"
+         },
+         {
+          "inline": false,
+          "name": "Customization findings",
+          "value": "*catalogue not built yet*"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Tip: `!platform customization` and `!platform settings-registry` expose the underlying catalogues."
+        },
+        "title": "⚙️ Settings Manager",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@admin>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!settings",
+    "kind": "command",
+    "persona": "admin"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "warn_threshold",
+            "value": "warn_threshold"
+           },
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "warn_timeout_minutes",
+            "value": "warn_timeout_minutes"
+           },
+           {
+            "default": false,
+            "description": "type=str",
+            "label": "warn_escalation_action",
+            "value": "warn_escalation_action"
+           },
+           {
+            "default": false,
+            "description": "type=bool",
+            "label": "dm_on_action",
+            "value": "dm_on_action"
+           },
+           {
+            "default": false,
+            "description": "type=str",
+            "label": "dm_actions",
+            "value": "dm_actions"
+           },
+           {
+            "default": false,
+            "description": "type=str",
+            "label": "dm_template",
+            "value": "dm_template"
+           },
+           {
+            "default": false,
+            "description": "type=bool",
+            "label": "require_reason",
+            "value": "require_reason"
+           },
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "ban_delete_message_days",
+            "value": "ban_delete_message_days"
+           },
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "max_timeout_minutes",
+            "value": "max_timeout_minutes"
+           },
+           {
+            "default": false,
+            "description": "type=str",
+            "label": "post_action_cleanup",
+            "value": "post_action_cleanup"
+           },
+           {
+            "default": false,
+            "description": "type=int",
+            "label": "post_action_cleanup_limit",
+            "value": "post_action_cleanup_limit"
+           },
+           {
+            "default": false,
+            "description": "type=str",
+            "label": "public_log_actions",
+            "value": "public_log_actions"
+           }
+          ],
+          "placeholder": "Edit a setting…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "default=3",
+            "label": "Reset warn_threshold",
+            "value": "warn_threshold"
+           },
+           {
+            "default": false,
+            "description": "default=10",
+            "label": "Reset warn_timeout_minutes",
+            "value": "warn_timeout_minutes"
+           },
+           {
+            "default": false,
+            "description": "default='timeout'",
+            "label": "Reset warn_escalation_action",
+            "value": "warn_escalation_action"
+           },
+           {
+            "default": false,
+            "description": "default=False",
+            "label": "Reset dm_on_action",
+            "value": "dm_on_action"
+           },
+           {
+            "default": false,
+            "description": "default='warn,timeout,kick,ban'",
+            "label": "Reset dm_actions",
+            "value": "dm_actions"
+           },
+           {
+            "default": false,
+            "description": "default=''",
+            "label": "Reset dm_template",
+            "value": "dm_template"
+           },
+           {
+            "default": false,
+            "description": "default=False",
+            "label": "Reset require_reason",
+            "value": "require_reason"
+           },
+           {
+            "default": false,
+            "description": "default=0",
+            "label": "Reset ban_delete_message_days",
+            "value": "ban_delete_message_days"
+           },
+           {
+            "default": false,
+            "description": "default=40320",
+            "label": "Reset max_timeout_minutes",
+            "value": "max_timeout_minutes"
+           },
+           {
+            "default": false,
+            "description": "default='none'",
+            "label": "Reset post_action_cleanup",
+            "value": "post_action_cleanup"
+           },
+           {
+            "default": false,
+            "description": "default=100",
+            "label": "Reset post_action_cleanup_limit",
+            "value": "post_action_cleanup_limit"
+           },
+           {
+            "default": false,
+            "description": "default='none'",
+            "label": "Reset public_log_actions",
+            "value": "public_log_actions"
+           }
+          ],
+          "placeholder": "Reset a setting to its default…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🪟"
+          },
+          "label": "Open Panel",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "↩"
+          },
+          "label": "Back to Hub",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 5793266,
+        "description": "_Warnings, timeouts, bans, mod logs_\nvisibility tier: `moderator`  ·  subsystem key: `moderation`",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Scalar settings",
+          "value": "`warn_threshold` = `3` (`default`, default=`3`, valid)\n`warn_timeout_minutes` = `10` (`default`, default=`10`, valid)\n`warn_escalation_action` = `'timeout'` (`default`, default=`'timeout'`, valid)\n`dm_on_action` = `False` (`activation`, default=`False`, valid)\n`dm_actions` = `'warn,timeout,kick,ban'` (`default`, default=`'warn,timeout,kick,ban'`, valid)\n`dm_template` = `''` (`default`, default=`''`, valid)\n`require_reason` = `False` (`activation`, default=`False`, valid)\n`ban_delete_message_days` = `1` (`explicit`, default=`0`, valid)\n`max_timeout_minutes` = `40320` (`default`, default=`40320`, valid)\n`post_action_cleanup` = `'none'` (`default`, default=`'none'`, valid)\n`post_action_cleanup_limit` = `100` (`default`, default=`100`, valid)\n`public_log_actions` = `'none'` (`default`, default=`'none'`, valid)"
+         },
+         {
+          "inline": false,
+          "name": "Bindings",
+          "value": "`public_log` — kind=`channel` (optional)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Scalar edit + reset live · use the selects below.  guild_id=<guild>"
+        },
+        "title": "🔨 Moderation",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "settings_hub.subsystem_select",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 1,
+    "values": [
+     "moderation"
+    ]
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🔢"
+          },
+          "label": "Enter a number…",
+          "style": 1,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "↩"
+          },
+          "label": "Back to settings",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 5793266,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Editing `moderation.warn_threshold`",
+          "value": "current = `3`  ·  default = `3`  ·  type = `int`\nAllowed range: `1` – `50`.\nTap **Enter a number…** below to set a new value."
+         }
+        ],
+        "flags": 0,
+        "title": "⚙️ Edit a setting",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 2,
+    "values": [
+     "warn_threshold"
+    ]
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:3>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "custom_id": "settings.group_edit_number_form"
+      },
+      "type": 9
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:5>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 3
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:4>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🔢"
+          },
+          "label": "Enter a number…",
+          "style": 1,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "↩"
+          },
+          "label": "Back to settings",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 5793266,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Editing `moderation.warn_threshold`",
+          "value": "current = `5`  ·  default = `3`  ·  type = `int`\nAllowed range: `1` – `50`.\nTap **Enter a number…** below to set a new value."
+         }
+        ],
+        "flags": 0,
+        "title": "⚙️ Edit a setting",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "✅ `moderation.warn_threshold` set to **5**.",
+      "flags": 64
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "settings.changed",
+     "payload": {
+      "guild_id": "<guild>",
+      "key": "warn_threshold",
+      "subsystem": ""
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "settings.group_edit_number_form",
+    "fields": {
+     "number_value": "5"
+    },
+    "kind": "modal",
+    "persona": "admin",
+    "target_message": 3
+   }
+  }
+ ],
+ "subsystem": "settings"
+}

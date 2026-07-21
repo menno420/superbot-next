@@ -110,7 +110,46 @@ MANIFEST = SubsystemManifest(
             # slice 3 — oracle disbot/views/settings/
             # edit_command_access.py over the live platform
             # command-access K7 lanes: set_access_mode/_channels).
-            _panels.settings_command_access_spec()),
+            _panels.settings_command_access_spec(),
+            # the ported per-group scalar EDIT page (settings epic S0 —
+            # oracle disbot/views/settings/subsystem_view.py): the non-hub
+            # arm of settings.open_group opens this (owner ruling option A),
+            # displacing the retired settings.group_pending terminal. The
+            # S1 bool toggle rides the K7 settings.set_scalar lane.
+            _panels.settings_group_edit_spec(),
+            # the ported enum-select edit widget (settings epic S2 — oracle
+            # disbot/views/settings/edit_enum.py): opened from the group_edit
+            # Edit select for a str-with-allowed_values scalar; a pick commits
+            # the chosen member through the same K7 settings.set_scalar lane.
+            _panels.settings_group_edit_enum_spec(),
+            # the ported number-modal edit widget (settings epic S3 — oracle
+            # disbot/views/settings/edit_number.py): opened from the group_edit
+            # Edit select for an int / float scalar; its button issues a G-10
+            # numeric-input modal whose submit coerces + range-validates then
+            # commits through the same K7 settings.set_scalar lane.
+            _panels.settings_group_edit_number_spec(),
+            # the ported free-text-modal edit widget (settings epic S4 — oracle
+            # disbot/views/settings/edit_text.py): opened from the group_edit
+            # Edit select for a str-without-allowed_values scalar; its button
+            # issues a G-10 free-text-input modal whose submit validates
+            # (non-empty + declared max-length) then commits through the same
+            # K7 settings.set_scalar lane.
+            _panels.settings_group_edit_text_spec(),
+            # the ported channel-select edit widget (settings epic S5 — oracle
+            # disbot/views/settings/edit_channel.py): opened from the group_edit
+            # Edit select for a channel-hinted scalar (input_hint="channel");
+            # its windowed component select lists the guild's channels and a
+            # pick commits the chosen channel id through the same K7
+            # settings.set_scalar lane.
+            _panels.settings_group_edit_channel_spec(),
+            # the ported numeric-presets quick-set edit widget (settings epic
+            # S7 — oracle disbot/views/settings/edit_number_presets.py): opened
+            # from the group_edit Edit select for a numeric_presets-hinted
+            # scalar (input_hint="numeric_presets" + a declared presets tuple);
+            # it renders one quick-set button per declared preset value and a
+            # click commits that fixed value through the same K7
+            # settings.set_scalar lane.
+            _panels.settings_group_edit_presets_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),

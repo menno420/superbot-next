@@ -67,12 +67,12 @@ PENDING_SUFFIX = "_pending"
 # 5dac6ce — the post-#412 state). Each is a standing #412-class defect,
 # NOT an exemption policy. PRUNE the row in the PR that retires the
 # pending; never add one.
-_KNOWN_ORPHANS: frozenset[str] = frozenset({
-    # registered in sb/domain/settings/handlers.py but open_group returns
-    # its BLOCKED Reply directly instead of dispatching the ref.
-    # LIVE: per-group edit page (settings-mutation slice) — awaiting write-seam port
-    "settings.group_pending",
-})
+#   EMPTY as of settings epic S0 (2026-07-19): the last row
+#   ("settings.group_pending") was pruned when open_group's non-hub arm
+#   re-pointed to the ported settings.group_edit page — no registered-but-
+#   unreferenced `*_pending` handler remains. Additions are still illegal;
+#   this floor is now zero.
+_KNOWN_ORPHANS: frozenset[str] = frozenset()
 
 
 # --- the pure rules (unit-testable against synthetic populations) ----------------

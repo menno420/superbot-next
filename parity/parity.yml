@@ -370,10 +370,95 @@ source:
   # Same op the command-lane mining_craft_write already pins — mining_inventory
   # was covered by mine/sell/craft, so NO exemption retires; this freezes the
   # ported select's in-place re-render wire bytes from the session panel.
-  minted_goldens: 64
+  # +2 minted the SETTINGS GROUP-EDIT page goldens (2026-07-19, settings epic
+  # S0 — same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/settings/settings_group_edit_open.json + settings_group_edit_
+  # bool_write.json. Option A (docs/decisions.md D-0093): !settings then the
+  # non-hub group select (role) opens the ported per-group scalar EDIT page
+  # (settings.group_edit — oracle disbot/views/settings/subsystem_view.py
+  # @ f87fa508 build_subsystem_embed + the S6 edit/reset windowed selects +
+  # nav): the read embed (resolved scalar values + tier/key header), the
+  # windowed Edit / Reset selects and the Open-Panel / Back-to-Hub nav are the
+  # OPEN golden. The WRITE golden then picks the bool time_roles_stack in the
+  # Edit select (S1 toggle) — it flips ON through the K7 settings.set_scalar
+  # lane (the guild `settings` row write + the audited spine), the page
+  # refreshes IN PLACE and the ephemeral followup confirms `✅ role.
+  # time_roles_stack set to **True**.`. No new op — the existing scalar lane.
+  # +1 minted the SETTINGS ENUM-SELECT write golden (2026-07-19, settings epic
+  # S2 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_enum_write.json. !settings then the
+  # non-hub group select (moderation) opens the group_edit page; picking the
+  # enum warn_escalation_action in the Edit select opens the windowed enum
+  # picker (settings.group_edit_enum — oracle disbot/views/settings/
+  # edit_enum.py @ f87fa508 build_enum_select_view) of the declared
+  # allowed_values (timeout/kick/ban/none, the current value pre-marked); the
+  # picker render is captured, then picking `kick` commits it through the K7
+  # settings.set_scalar lane (the guild `settings` row write key
+  # moderation_warn_escalation_action=kick + the audited spine), the picker
+  # refreshes IN PLACE and the ephemeral followup confirms. No new op — the
+  # existing scalar lane, one widget further.
+  # +1 minted the SETTINGS NUMBER-MODAL write golden (2026-07-19, settings epic
+  # S3 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_number_write.json. !settings then the
+  # non-hub group select (moderation) opens the group_edit page; picking the
+  # int warn_threshold in the Edit select opens the number-modal widget
+  # (settings.group_edit_number — oracle disbot/views/settings/edit_number.py @
+  # f87fa508 NumberSettingModal), whose "Enter a number…" button ISSUES the
+  # G-10 numeric modal (stashing the (group, setting) session args); the widget
+  # render is captured, then submitting `5` coerces + range-validates (bounds
+  # 1-50) and commits it through the K7 settings.set_scalar lane (the guild
+  # `settings` row write key warn_threshold=5 + the audited spine), the widget
+  # refreshes IN PLACE and the ephemeral followup confirms. No new op — the
+  # existing scalar lane, one widget further.
+  # +1 minted the SETTINGS FREE-TEXT-MODAL write golden (2026-07-19, settings
+  # epic S4 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_text_write.json. !settings then the
+  # non-hub group select (karma) opens the group_edit page; picking the
+  # free-text str reaction_emoji in the Edit select opens the free-text-modal
+  # widget (settings.group_edit_text — oracle disbot/views/settings/edit_text.py
+  # @ f87fa508 TextSettingModal), whose "Enter text…" button ISSUES the G-10
+  # free-text modal (stashing the (group, setting) session args); the widget
+  # render is captured, then submitting `⭐` validates (non-empty + the declared
+  # 64-char max-length bound) and commits it through the K7 settings.set_scalar
+  # lane (the guild `settings` row write key karma_reaction_emoji=⭐ + the
+  # audited spine), the widget refreshes IN PLACE and the ephemeral followup
+  # confirms. No new op — the existing scalar lane, one widget further.
+  # +1 minted the SETTINGS CHANNEL-SELECT write golden (2026-07-19, settings
+  # epic S5 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_channel_write.json. !settings then the
+  # non-hub group select (btd6) opens the group_edit page; picking the
+  # channel-pointer strategy_submission_channel (int + input_hint=channel —
+  # before S5 it MISROUTED to the number modal) in the Edit select opens the
+  # channel-picker widget (settings.group_edit_channel — oracle
+  # disbot/views/settings/edit_channel.py @ f87fa508 ChannelSettingSelectView,
+  # ported as a windowed provider-fed select over the channel-directory
+  # roster); the picker render (the guild's channels) is captured, then picking
+  # #general commits the channel id through the K7 settings.set_scalar lane (the
+  # guild `settings` row write key btd6_strategy_submission_channel=<#general> +
+  # the audited spine), the widget refreshes IN PLACE and the ephemeral followup
+  # confirms. No new op — the existing scalar lane, one widget further. The
+  # picked channel rides the __CHANNEL_GENERAL__ value token (the runner rewrites
+  # it to the boot-allocated id; the normalizer redacts it back to <#general>).
+  # +1 minted the SETTINGS NUMERIC-PRESETS write golden (2026-07-19, settings
+  # epic S7 — same D-0073 capture_case procedure):
+  # goldens/settings/settings_group_edit_presets_write.json. !settings then the
+  # non-hub group select (xp) opens the group_edit page; picking the
+  # numeric-presets xp_cooldown (int + input_hint=numeric_presets + a declared
+  # presets tuple — before S7 it MISROUTED to the number modal) in the Edit
+  # select opens the quick-set buttons widget (settings.group_edit_presets —
+  # oracle disbot/views/settings/edit_number_presets.py @ f87fa508
+  # NumericPresetsView, ported as static preset-button slots relabelled
+  # per-setting by the render override, one button per declared preset value);
+  # the quick-set buttons render (0/15/30/60/120/300, the current value marked)
+  # is captured, then clicking the preset `30` commits the fixed value through
+  # the K7 settings.set_scalar lane (the guild `settings` row write key
+  # xp_cooldown=30 + the audited spine), the widget refreshes IN PLACE (the
+  # `30` button re-marks primary) and the ephemeral followup confirms. No new
+  # op — the existing scalar lane, the final widget slice.
+  minted_goldens: 71
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 526). The first retirement (2026-07-12
+  # imported + minted − retired = 533). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

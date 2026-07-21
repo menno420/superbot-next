@@ -25,7 +25,8 @@ MANIFEST = SubsystemManifest(
     panels=(),
     settings=(),
     stores=(command_access.COMMAND_ACCESS_POLICY_STORE,
-            command_access.COMMAND_ACCESS_CHANNELS_STORE),
+            command_access.COMMAND_ACCESS_CHANNELS_STORE,
+            command_access.COMMAND_ACCESS_CHANNEL_ROLES_STORE),
     events=(),
     capabilities=(),
 )

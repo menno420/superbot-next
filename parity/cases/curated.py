@@ -105,6 +105,227 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         steps=(Step(kind="command", content="!settings", persona="admin"),),
         notes="the settings hub panel — component tree is the golden",
     ),
+    # ----------------------------------------- settings group edit page (S0)
+    GoldenCase(
+        id="settings.group_edit_open",
+        subsystem="settings",
+        # option A: the hub group select opens the ported per-group scalar
+        # EDIT page for a NON-HUB group (role). The click defers + posts the
+        # group_edit followup — the read embed (resolved scalar values +
+        # tier/key header), the windowed Edit / Reset selects and the
+        # Open-Panel / Back-to-Hub nav are the golden.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("role",), persona="admin"),
+        ),
+        notes=(
+            "settings epic S0: the non-hub group select (role) opens "
+            "settings.group_edit (option A) — the read embed + windowed "
+            "edit/reset selects + nav are the golden"
+        ),
+    ),
+    GoldenCase(
+        id="settings.group_edit_bool_write",
+        subsystem="settings",
+        # the S1 bool toggle: open the role edit page, then pick the bool
+        # `time_roles_stack` in the Edit select — it flips on through the K7
+        # settings.set_scalar lane (guild `settings` row write + the audited
+        # spine), the page refreshes in place, and the ephemeral followup
+        # confirms. The `settings` db_delta + the refreshed embed are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("role",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("time_roles_stack",),
+                 persona="admin"),
+        ),
+        notes=(
+            "settings epic S0 / S1 bool toggle: picking the bool "
+            "time_roles_stack flips it on through settings.set_scalar "
+            "(the guild settings write + in-place refresh + confirm)"
+        ),
+    ),
+    GoldenCase(
+        id="settings.group_edit_enum_write",
+        subsystem="settings",
+        # settings epic S2 / enum select: open the moderation edit page, pick
+        # the enum `warn_escalation_action` in the Edit select — it opens the
+        # windowed enum picker (settings.group_edit_enum) of the declared
+        # allowed_values; picking `kick` commits the chosen member through the
+        # K7 settings.set_scalar lane (the guild `settings` row write + the
+        # audited spine), the picker refreshes in place, and the ephemeral
+        # followup confirms. The `settings` db_delta + the enum picker's
+        # render are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("moderation",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("warn_escalation_action",),
+                 persona="admin"),
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=3, values=("kick",), persona="admin"),
+        ),
+        notes=(
+            "settings epic S2 enum select: picking the enum "
+            "warn_escalation_action opens the windowed choice picker, and "
+            "picking `kick` commits it through settings.set_scalar "
+            "(the guild settings write + in-place refresh + confirm)"
+        ),
+    ),
+    GoldenCase(
+        id="settings.group_edit_number_write",
+        subsystem="settings",
+        # settings epic S3 / number modal: open the moderation edit page, pick
+        # the int `warn_threshold` in the Edit select — it opens the
+        # number-modal widget (settings.group_edit_number); tapping its
+        # "Enter a number…" button ISSUES the G-10 numeric modal (stashing the
+        # (group, setting) session args), and submitting `5` coerces +
+        # range-validates then commits it through the K7 settings.set_scalar
+        # lane (the guild `settings` row write + the audited spine), the widget
+        # refreshes in place, and the ephemeral followup confirms. The
+        # `settings` db_delta + the number widget's render are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("moderation",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("warn_threshold",),
+                 persona="admin"),
+            # tap the "Enter a number…" button — issues the modal + stashes
+            # the (group, setting) args for the submit re-entry.
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=2, persona="admin"),
+            # submit the numeric modal: `warn_threshold` = 5 (in bounds 1-50).
+            Step(kind="modal", target_message=3,
+                 custom_id="settings.group_edit_number_form",
+                 fields=(("number_value", "5"),), persona="admin"),
+        ),
+        notes=(
+            "settings epic S3 number modal: picking the int warn_threshold "
+            "opens the number-modal widget; tapping Enter a number… issues "
+            "the numeric modal and submitting `5` commits it through "
+            "settings.set_scalar (the guild settings write + in-place refresh "
+            "+ confirm)"
+        ),
+    ),
+    GoldenCase(
+        id="settings.group_edit_text_write",
+        subsystem="settings",
+        # settings epic S4 / free-text modal: open the karma edit page, pick the
+        # free-text str `reaction_emoji` in the Edit select — it opens the
+        # free-text-modal widget (settings.group_edit_text); tapping its
+        # "Enter text…" button ISSUES the G-10 free-text modal (stashing the
+        # (group, setting) session args), and submitting `⭐` validates
+        # (non-empty + the declared 64-char max-length) then commits it through
+        # the K7 settings.set_scalar lane (the guild `settings` row write + the
+        # audited spine), the widget refreshes in place, and the ephemeral
+        # followup confirms. The `settings` db_delta + the text widget's render
+        # are pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("karma",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("reaction_emoji",),
+                 persona="admin"),
+            # tap the "Enter text…" button — issues the modal + stashes the
+            # (group, setting) args for the submit re-entry.
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=2, persona="admin"),
+            # submit the free-text modal: `reaction_emoji` = ⭐ (non-empty, well
+            # under the 64-char bound).
+            Step(kind="modal", target_message=3,
+                 custom_id="settings.group_edit_text_form",
+                 fields=(("text_value", "⭐"),), persona="admin"),
+        ),
+        notes=(
+            "settings epic S4 free-text modal: picking the free-text str "
+            "reaction_emoji opens the text-modal widget; tapping Enter text… "
+            "issues the free-text modal and submitting `⭐` commits it through "
+            "settings.set_scalar (the guild settings write + in-place refresh "
+            "+ confirm)"
+        ),
+    ),
+    GoldenCase(
+        id="settings.group_edit_channel_write",
+        subsystem="settings",
+        # settings epic S5 / channel select: open the btd6 edit page, pick the
+        # channel-pointer `strategy_submission_channel` in the Edit select — it
+        # is an `int` with input_hint="channel", so before S5 it MISROUTED to
+        # the number modal; the S5 arm intercepts the hint first and opens the
+        # windowed channel picker (settings.group_edit_channel) of the guild's
+        # channels; picking #general commits the channel id through the K7
+        # settings.set_scalar lane (the guild `settings` row write + the audited
+        # spine), the picker refreshes in place, and the ephemeral followup
+        # confirms. The `settings` db_delta + the channel picker's render are
+        # pinned. The picked channel id rides the __CHANNEL_GENERAL__ token (the
+        # runner rewrites it to the boot-allocated id; the capture normalizer
+        # redacts it back to <#general> in the golden bytes).
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("btd6",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("strategy_submission_channel",),
+                 persona="admin"),
+            # pick #general in the windowed channel select — commits the id.
+            Step(kind="click", target_message=3, component_index=0,
+                 component_type=3, values=("__CHANNEL_GENERAL__",),
+                 persona="admin"),
+        ),
+        notes=(
+            "settings epic S5 channel select: picking the channel-pointer "
+            "strategy_submission_channel (int + input_hint=channel — before S5 "
+            "it misrouted to the number modal) opens the windowed channel "
+            "picker, and picking #general commits it through settings.set_scalar "
+            "(the guild settings write + in-place refresh + confirm)"
+        ),
+    ),
+    GoldenCase(
+        id="settings.group_edit_presets_write",
+        subsystem="settings",
+        # settings epic S7 / numeric-presets quick-set: open the xp edit page,
+        # pick the numeric-presets `xp_cooldown` in the Edit select — it is an
+        # `int` with input_hint="numeric_presets" (+ a declared presets tuple),
+        # so before S7 it MISROUTED to the number modal; the S7 arm intercepts
+        # the hint first and opens the quick-set buttons widget
+        # (settings.group_edit_presets), one button per declared preset value
+        # with the current value marked. Clicking the 3rd preset button (index 2
+        # → the declared preset `30`) commits that fixed value through the K7
+        # settings.set_scalar lane (the guild `settings` row write + the audited
+        # spine), the widget refreshes in place, and the ephemeral followup
+        # confirms. The `settings` db_delta + the quick-set buttons' render are
+        # pinned.
+        steps=(
+            Step(kind="command", content="!settings", persona="admin"),
+            Step(kind="click", target_message=1,
+                 custom_id="settings_hub.subsystem_select",
+                 component_type=3, values=("xp",), persona="admin"),
+            Step(kind="click", target_message=2, component_index=0,
+                 component_type=3, values=("xp_cooldown",), persona="admin"),
+            # click the 3rd quick-set button (index 2 → the declared preset 30)
+            # — commits the fixed value through settings.set_scalar.
+            Step(kind="click", target_message=3, component_index=2,
+                 component_type=2, persona="admin"),
+        ),
+        notes=(
+            "settings epic S7 numeric-presets quick-set: picking the "
+            "numeric-presets xp_cooldown (int + input_hint=numeric_presets — "
+            "before S7 it misrouted to the number modal) opens the quick-set "
+            "buttons, and clicking the preset `30` commits it through "
+            "settings.set_scalar (the guild settings write + in-place refresh "
+            "+ confirm)"
+        ),
+    ),
     # -------------------------------------------------------------- help
     GoldenCase(
         id="help.panel_open",
