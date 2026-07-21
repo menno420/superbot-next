@@ -139,7 +139,7 @@ The end-to-end / live-guild test-harness proposal was refined to decision-ready
 ### Honest footnote on the PR history
 Between #510 and #604, 90 pull requests merged (all landed by the automated
 enabler on green checks) and three were closed without merging and superseded by
-later work: #514, #557, and #567. PR #605 does not exist.
+later work: #514, #557, and #567. (This closeout itself landed as the next PR after that range.)
 
 ## 2. Current true state (verified at closeout)
 
